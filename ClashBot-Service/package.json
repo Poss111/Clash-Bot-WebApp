@@ -1,0 +1,14 @@
+{
+  "name": "clashbot-service",
+  "version": "1.0.0",
+  "description": "Used to support the ClashBot UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --silent"
+  },
+  "author": "Daniel Poss",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
