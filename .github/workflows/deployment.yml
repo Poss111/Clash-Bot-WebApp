@@ -9,6 +9,10 @@ jobs:
   check-applications:
     runs-on: ubuntu-latest
 
+    outputs:
+      deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
+      deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -27,3 +31,22 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
+  deploy-service:
+    if: ${{ needs.check-applications.outputs.serviceUpdate }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Service
+        run: |
+          echo "Running Service!"
+          ls -lha
+
+  deploy-ui:
+    if: ${{ needs.check-applications.outputs.uiUpdate }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy UI
+        run: |
+          echo "Running UI!"
+          ls -lha
