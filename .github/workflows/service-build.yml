@@ -1,4 +1,4 @@
-name: Build
+name: Build - Clash Bot Service
 
 on:
   push:
