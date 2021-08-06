@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'ClashBot-UI/'
+      - 'ClashBot-UI/**'
   pull_request:
     branches: [ master ]
 

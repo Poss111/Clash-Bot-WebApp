@@ -1,7 +1,7 @@
 {
   "name": "clash-bot",
   "version": "0.0.0",
-  "description": "The ui for the Clash Bot Webapp.",
+  "description": "The ui for the Clash Bot Webapp",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
