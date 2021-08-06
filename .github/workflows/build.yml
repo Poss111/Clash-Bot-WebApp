@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**/README.md'
+      - '**/.gitignore'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: FranzDiebold/github-env-vars-action@v2.1.0
+
+      - name: Check
+        run: echo build $GITHUB_RUN_NUMBER
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Check if Service was updated
+        uses: tj-actions/verify-changed-files@v7.1
+        id: service-changed
+        with:
+          files: |
+            ClashBot-Service
+
+      - name: Check if UI was updated
+        uses: tj-actions/verify-changed-files@v7.1
+        id: ui-changed
+        with:
+          files: |
+            ClashBot-UI
+
+      - name: Run step only when service files change.
+        if: steps.service-changed.outputs.files_changed == 'true'
+        run: |
+          echo "Changed files: ${{ steps.service-changed.outputs.changed_files }}"
+
+      - name: Run step only when ui files change.
+        if: steps.ui-changed.outputs.files_changed == 'true'
+        run: |
+          echo "Changed files: ${{ steps.ui-changed.outputs.changed_files }}"

@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  clash-bot-ui:
+    image: "clash-bot-ui"
+    container_name: clashbot-ui
+    ports:
+      - "8080:80"
+  clash-bot-service:
+    image: "clash-bot-service"
+    container_name: clash-bot-service
+    ports:
+      - "8000:8000"

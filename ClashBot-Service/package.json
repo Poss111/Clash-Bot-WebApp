@@ -4,11 +4,16 @@
   "description": "Used to support the ClashBot UI",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon index.js",
     "test": "jest --silent"
   },
   "author": "Daniel Poss",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }
