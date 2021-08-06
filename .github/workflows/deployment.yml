@@ -1,0 +1,26 @@
+name: Deployment - Clash Bot WebApp
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  check-applications:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with: 2
+
+      - name: Run shell to check which App to deploy
+        id: check-apps
+        run: check_diff_between_tags.sh
+
+      - name: Check Output for Service
+        run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
+
+      - name: Check Output for UI
+        run: echo ${{ steps.check-apps.outputs.uiUpdate }}
+
