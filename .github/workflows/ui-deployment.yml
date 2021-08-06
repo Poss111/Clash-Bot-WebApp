@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./ClashBot-UI
-        run: npm i --production
+        run: npm i
 
       - name: Build
         working-directory: ./ClashBot-UI
