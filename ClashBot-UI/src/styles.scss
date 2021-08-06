@@ -1,1 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+
+//html, body {
+//  height: 120%;
+//  width: 100%;
+//}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+app-root {
+}
+
+/* SCSS HEX */
+$harvest-gold: #e29400ff;
+$wild-blue-yonder: #a6a6beff;
+$midnight-blue: #000046ff;
+$midnight-blue-2: #171757ff;
+$st-patricks-blue: #2c2c66ff;
