@@ -1,7 +1,7 @@
 {
   "name": "clashbot-service",
   "version": "1.0.0",
-  "description": "Used to support the ClashBot UI",
+  "description": "Used to support the ClashBot UI.",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
