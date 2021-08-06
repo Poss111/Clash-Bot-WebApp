@@ -23,6 +23,10 @@ jobs:
         working-directory: ./ClashBot-UI
         run: npm i --production
 
+      - name: Build
+        working-directory: ./ClashBot-UI
+        run: npm run-script build
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
