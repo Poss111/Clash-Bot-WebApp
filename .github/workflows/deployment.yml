@@ -12,7 +12,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        with: 2
+        with:
+          fetch-depth: 2
 
       - name: Run shell to check which App to deploy
         id: check-apps
