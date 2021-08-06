@@ -17,7 +17,9 @@ jobs:
 
       - name: Run shell to check which App to deploy
         id: check-apps
-        run: ./check_diff_between_tags.sh
+        run: |
+          chmod 755 ./check_diff_between_tags.sh
+          ./check_diff_between_tags.sh
 
       - name: Check Output for Service
         run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
