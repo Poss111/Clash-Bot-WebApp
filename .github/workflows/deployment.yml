@@ -33,7 +33,7 @@ jobs:
 
   deploy-service:
     needs: check-applications
-    if: ${{ needs.check-applications.outputs.serviceUpdate }}
+    if: ${{ needs.check-applications.outputs.deploy-service }}
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,7 @@ jobs:
 
   deploy-ui:
     needs: check-applications
-    if: ${{ needs.check-applications.outputs.uiUpdate }}
+    if: ${{ needs.check-applications.outputs.deploy-ui }}
     runs-on: ubuntu-latest
 
     steps:
