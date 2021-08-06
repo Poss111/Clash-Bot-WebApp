@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/
 echo "Running..."
 serviceUpdate=false
 uiUpdate=false
