@@ -32,6 +32,7 @@ jobs:
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
   deploy-service:
+    needs: check-applications
     if: ${{ needs.check-applications.outputs.serviceUpdate }}
     runs-on: ubuntu-latest
 
@@ -42,6 +43,7 @@ jobs:
           ls -lha
 
   deploy-ui:
+    needs: check-applications
     if: ${{ needs.check-applications.outputs.uiUpdate }}
     runs-on: ubuntu-latest
 
