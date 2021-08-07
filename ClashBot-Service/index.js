@@ -2,10 +2,11 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const port = 80;
+const urlPrefix = 'api';
 
 app.use(cors())
 
-app.get('/teams', (req, res) => {
+app.get(`${urlPrefix}/teams`, (req, res) => {
     res.send([
         {
             teamName: 'Team Abra',
@@ -56,6 +57,12 @@ app.get('/teams', (req, res) => {
             ]
         }
     ]);
+})
+
+app.get(`${urlPrefix}/health`, (req, res) => {
+    res.send({
+        status: 'Healthy'
+    });
 })
 
 app.listen(port, () => {
