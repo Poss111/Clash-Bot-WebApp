@@ -42,7 +42,7 @@ jobs:
           echo "Running Service!"
           ls -lha
 
-  deploy-ui:
+  build-ui:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
@@ -50,13 +50,6 @@ jobs:
     steps:
       - name: Deploy UI
         run: echo "Running UI!"
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1
 
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -69,9 +62,32 @@ jobs:
         working-directory: ./ClashBot-UI
         run: npm run-script build
 
+      - name: Archive dist
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-without-markdown
+          path: |
+            dist
+            !dist/**/*.md
+
+  deploy-ui:
+    needs: build-ui
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dist-without-markdown
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
       - name: Remove old files from S3
         run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
 
       - name: Push to s3
-        working-directory: ./ClashBot-UI/dist
+        working-directory: dist
         run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
