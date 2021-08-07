@@ -12,7 +12,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'Clash-Bot';
   teams: ClashTeam[] = [
     {
-      teamName: 'Team Volibear',
+      teamName: 'Team Kha\'zix',
       playersDetails: [
         {
           name: 'Roïdräge',
