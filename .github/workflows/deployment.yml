@@ -37,6 +37,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Build In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Service Build - Notification'
+          message: 'Build in progress...'
+          message-color: '16750902'
+
       - name: Checkout repo
         uses: actions/checkout@v2
 
@@ -57,6 +65,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Deployment In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Service Deployment - Notification'
+          message: 'Deployment in progress...'
+          message-color: '16750902'
+
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
@@ -103,12 +119,38 @@ jobs:
           cluster: clash-bot
           wait-for-service-stability: true
 
+      - name: Deployment Succeeded Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Service Deployment - Notification'
+          message: 'Successfully deployed Clash Bot WebApp - Service!'
+          message-color: '65345'
+
+      - name: Deployment Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Service Deployment - Notification'
+          message: 'Failed to deploy Clash Bot WebApp - Service!'
+          message-color: '16711680'
+
   build-ui:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
     steps:
+      - name: Build In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Build - Notification'
+          message: 'Build in progress...'
+          message-color: '16750902'
+
       - name: Deploy UI
         run: echo "Running UI!"
 
@@ -135,6 +177,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Deployment In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Deployment - Notification'
+          message: 'Deployment in progress...'
+          message-color: '16750902'
+
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
@@ -155,3 +205,21 @@ jobs:
 
       - name: Push to dist s3
         run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
+
+      - name: Deployment Succeeded Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Deployment - Notification'
+          message: 'Successfully deployed Clash Bot WebApp - UI!'
+          message-color: '65345'
+
+      - name: Deployment Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Deployment - Notification'
+          message: 'Failed to deploy Clash Bot WebApp - UI!'
+          message-color: '16711680'
