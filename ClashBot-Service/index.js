@@ -15,7 +15,7 @@ app.get(`${urlPrefix}/teams`, (req, res) => {
     console.log('Returning team information...');
     res.send([
         {
-            teamName: 'Team Abra',
+            teamName: 'Team Charizard',
             tournamentDetails: {
                 tournamentName: 'Bandle City',
                 tournamentDay: '1'
@@ -39,7 +39,7 @@ app.get(`${urlPrefix}/teams`, (req, res) => {
             ]
         },
         {
-            teamName: 'Team Behaviour',
+            teamName: 'Team Rayquaza',
             tournamentDetails: {
                 tournamentName: 'Bandle City',
                 tournamentDay: '2'
