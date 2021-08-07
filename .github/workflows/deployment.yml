@@ -72,7 +72,9 @@ jobs:
 
   deploy-ui:
     needs: build-ui
+    runs-on: ubuntu-latest
 
+    steps:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
