@@ -2,9 +2,11 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const port = 80;
-const urlPrefix = 'api';
+const urlPrefix = '/api';
 
 app.use(cors())
+
+console.log(`Starting instance with prefix ${urlPrefix}`)
 
 app.get(`${urlPrefix}/teams`, (req, res) => {
     res.send([
