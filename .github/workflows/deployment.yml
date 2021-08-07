@@ -31,8 +31,15 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
-      - name: Check for aws cli
-        run: aws s3 ls
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Check for gzip
+        run: gzip
 
   deploy-service:
     needs: check-applications
