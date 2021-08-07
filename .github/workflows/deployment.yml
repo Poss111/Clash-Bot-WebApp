@@ -37,18 +37,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
       - name: Deploy Service
         run: |
           echo "Running Service!"
           ls -lha
+
+      - name: Archive service artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: service
+          if-no-files-found: error
+          path: ClashBot-Service
 
   deploy-service:
     needs: build-service
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: service
+
+      - name: Check directory
+        run: ls -lha
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
