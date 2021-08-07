@@ -64,12 +64,11 @@ jobs:
 
       - name: Archive dist
         uses: actions/upload-artifact@v2
-        working-directory: ./ClashBot-UI
         with:
           name: dist
           if-no-files-found: error
           path: |
-            dist/Clash-Bot
+            ClashBot-UI/dist/Clash-Bot
 
   deploy-ui:
     needs: build-ui
