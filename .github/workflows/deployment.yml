@@ -204,7 +204,7 @@ jobs:
         run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
 
       - name: Push to index.html s3
-        run: aws s3 cp index.html ${{ secrets.S3_BUCKET_NAME }} --cahce-control max-age=0
+        run: aws s3 cp index.html ${{ secrets.S3_BUCKET_NAME }} --cache-control max-age=0
 
       - name: Push to dist s3
         run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --exclude "index.html" --recursive
