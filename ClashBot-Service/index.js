@@ -8,7 +8,7 @@ app.use(cors())
 app.get('/teams', (req, res) => {
     res.send([
         {
-            teamName: 'Team Charizard',
+            teamName: 'Team Abra',
             tournamentDetails: {
                 tournamentName: 'Bandle City',
                 tournamentDay: '1'
