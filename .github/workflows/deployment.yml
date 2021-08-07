@@ -63,12 +63,13 @@ jobs:
         run: npm run-script build
 
       - name: Archive dist
+        working-directory: ./ClashBot-UI
         uses: actions/upload-artifact@v2
         with:
-          name: dist-without-markdown
+          name: dist
+          if-no-files-found: error
           path: |
-            dist
-            !dist/**/*.md
+            dist/Clash-Bot
 
   deploy-ui:
     needs: build-ui
@@ -78,7 +79,7 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
-          name: dist-without-markdown
+          name: dist
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
