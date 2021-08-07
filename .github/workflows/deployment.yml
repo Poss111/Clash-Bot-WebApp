@@ -70,8 +70,8 @@ jobs:
         run: npm run-script build
 
       - name: Remove old files from S3
-        run: aws s3 rm ${{ S3_BUCKET_NAME }} --recursive
+        run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
 
       - name: Push to s3
         working-directory: ./ClashBot-UI/dist
-        run: aws s3 cp . ${{ S3_BUCKET_NAME }} --recursive
+        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
