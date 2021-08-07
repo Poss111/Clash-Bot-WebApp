@@ -31,16 +31,6 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1
-
-      - name: Check for gzip
-        run: gzip
-
   deploy-service:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service }}
@@ -59,6 +49,29 @@ jobs:
 
     steps:
       - name: Deploy UI
-        run: |
-          echo "Running UI!"
-          ls -lha
+        run: echo "Running UI!"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Build distribution
+        working-directory: ./ClashBot-UI
+        run: npm run-script build
+
+      - name: Remove old files from S3
+        run: aws s3 rm ${{ S3_BUCKET_NAME }} --recursive
+
+      - name: Push to s3
+        working-directory: ./ClashBot-UI/dist
+        run: aws s3 cp . ${{ S3_BUCKET_NAME }} --recursive
