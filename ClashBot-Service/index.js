@@ -6,9 +6,13 @@ const urlPrefix = '/api';
 
 app.use(cors())
 
-console.log(`Starting instance with prefix ${urlPrefix}`)
+app.use((req, res, next) => {
+    console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
+    next();
+})
 
 app.get(`${urlPrefix}/teams`, (req, res) => {
+    console.log('Returning team information...');
     res.send([
         {
             teamName: 'Team Abra',
@@ -67,6 +71,13 @@ app.get(`${urlPrefix}/health`, (req, res) => {
     });
 })
 
+app.use((req, res, next) => {
+    console.error(`Path not found ('${req.url}')`)
+    res.status(404).send("Sorry can't find that!");
+    next();
+})
+
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Starting instance with prefix ${urlPrefix}...`);
+    console.log(`Clash Bot Service up and running on Port ('${port}')!`);
 })
