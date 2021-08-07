@@ -15,7 +15,7 @@ app.get(`${urlPrefix}/teams`, (req, res) => {
     console.log('Returning team information...');
     res.send([
         {
-            teamName: 'Team Charizard',
+            teamName: 'Team Squirtle',
             tournamentDetails: {
                 tournamentName: 'Bandle City',
                 tournamentDay: '1'
