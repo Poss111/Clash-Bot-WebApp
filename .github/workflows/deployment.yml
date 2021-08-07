@@ -80,16 +80,18 @@ jobs:
         with:
           name: dist
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: us-east-1
 
-      - name: Remove old files from S3
-        run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
-
-      - name: Push to s3
-        working-directory: dist
-        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
+      - name: Check directory
+        run: ls -lha
+#      - name: Remove old files from S3
+#        run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
+#
+#      - name: Push to s3
+#        working-directory: dist
+#        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
