@@ -31,6 +31,9 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
+      - name: Check for aws cli
+        run: aws s3 ls
+
   deploy-service:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service }}
