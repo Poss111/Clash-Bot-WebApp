@@ -31,7 +31,7 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
-  deploy-service:
+  build-service:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
@@ -41,6 +41,33 @@ jobs:
         run: |
           echo "Running Service!"
           ls -lha
+
+  deploy-service:
+    needs: build-service
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+            aws-region: us-east-1
+
+        - name: Login to ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Build, tag, and push Clash-Bot image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: poss11111/clash-bot-service
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-ui:
     needs: check-applications
