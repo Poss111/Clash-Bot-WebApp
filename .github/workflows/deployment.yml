@@ -33,7 +33,7 @@ jobs:
 
   deploy-service:
     needs: check-applications
-    if: ${{ needs.check-applications.outputs.deploy-service }}
+    if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,7 @@ jobs:
 
   deploy-ui:
     needs: check-applications
-    if: ${{ needs.check-applications.outputs.deploy-ui }}
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
     steps:
@@ -63,7 +63,10 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./ClashBot-UI
-        run: npm i
+        run: |
+          npm -v
+          npm i
+          ng version
 
       - name: Build distribution
         working-directory: ./ClashBot-UI
