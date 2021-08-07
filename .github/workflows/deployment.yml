@@ -67,8 +67,7 @@ jobs:
         with:
           name: dist
           if-no-files-found: error
-          path: |
-            ClashBot-UI/dist
+          path: ClashBot-UI/dist/Clash-Bot
 
   deploy-ui:
     needs: build-ui
@@ -94,5 +93,4 @@ jobs:
         run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
 
       - name: Push to dist s3
-        working-directory: dist
-        run: aws s3 cp Clash-Bot/ ${{ secrets.S3_BUCKET_NAME }} --recursive
+        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --recursive
