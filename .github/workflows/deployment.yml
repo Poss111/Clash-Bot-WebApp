@@ -63,10 +63,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./ClashBot-UI
-        run: |
-          npm -v
-          npm i
-          ng version
+        run: npm i
 
       - name: Build distribution
         working-directory: ./ClashBot-UI

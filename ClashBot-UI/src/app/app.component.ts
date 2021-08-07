@@ -41,7 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.clashServiceSubscription = this.clashBotService
       .getClashTeams()
-      .subscribe(data => {
+      .subscribe((data: ClashTeam[]) => {
         this.teams = data;
       });
   }
