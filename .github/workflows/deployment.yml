@@ -63,8 +63,8 @@ jobs:
         run: npm run-script build
 
       - name: Archive dist
-        working-directory: ./ClashBot-UI
         uses: actions/upload-artifact@v2
+        working-directory: ./ClashBot-UI
         with:
           name: dist
           if-no-files-found: error
