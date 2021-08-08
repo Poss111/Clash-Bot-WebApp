@@ -13,7 +13,7 @@ export class ClashBotService {
     if (isDevMode()) {
       return this.httpClient.get<ClashTeam[]>(`${window.location.protocol}//${window.location.hostname}:80/api/teams/${server}`);
     } else {
-      return this.httpClient.get<ClashTeam[]>(`/api/teams`);
+      return this.httpClient.get<ClashTeam[]>(`/api/teams/${server}`);
     }
   }
 }
