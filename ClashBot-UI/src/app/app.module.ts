@@ -13,6 +13,7 @@ import {TeamCardComponent} from './team-card/team-card.component';
 import {HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./clash-bot.service";
 import { ErrorHandlerComponent } from './error-handler/error-handler.component';
+import { MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { ErrorHandlerComponent } from './error-handler/error-handler.component';
     MatToolbarModule,
     MatIconModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
   ],
   providers: [ClashBotService],
   bootstrap: [AppComponent]

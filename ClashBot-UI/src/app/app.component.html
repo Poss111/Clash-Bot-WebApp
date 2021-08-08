@@ -5,13 +5,32 @@
     </mat-toolbar>
   </div>
   <div class="main-page">
+    <div class="progress-spinner" *ngIf="showSpinner">
+      <mat-progress-spinner
+        class="example-margin"
+        [color]="color"
+        [mode]="mode"
+        [value]="value"
+        aria-label="Loading Team Data...">
+      </mat-progress-spinner>
+      <div class="loading-text">
+        <h2>Loading your Server's Teams</h2>
+        <div class="loading-animation">
+          <h2 class="animated-dot-one">.</h2>
+          <h2 class="animated-dot-two">.</h2>
+          <h2 class="animated-dot-three">.</h2>
+        </div>
+      </div>
+    </div>
     <div *ngFor="let team of teams; index as i; first as isFirst">
       <app-team-card [team]="team" class="team-card"></app-team-card>
     </div>
   </div>
   <div class="footer">
     <p class="copyright-text">Copyright 2021</p>
-    <p class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
+    <p class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the views or opinions of
+      Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot
+      Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
   </div>
 </div>
 
