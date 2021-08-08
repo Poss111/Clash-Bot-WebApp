@@ -8,17 +8,26 @@
 }
 
 .main-page {
-  margin: 1em;
   display: flex;
-  align-items: center;
+  flex-flow: row wrap;
   justify-content: space-evenly;
-  align-content: center;
-}
-
-.example-spacer {
-  flex: 1 1 auto;
+  align-content: space-evenly  ;
 }
 
 .dashboard {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:host {
+  height: 100%
+}
+
+.team-card {
+  padding: 1em;
+}
+
+.copyright-text {
+  text-align: left;
 }

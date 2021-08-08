@@ -1,23 +1,17 @@
 <div class="dashboard">
   <div class="header">
     <mat-toolbar color="primary">
-      <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-        <mat-icon>menu</mat-icon>
-      </button>
       <span>Clash Bot</span>
-      <span class="example-spacer"></span>
-      <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-        <mat-icon>favorite</mat-icon>
-      </button>
-      <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-        <mat-icon>share</mat-icon>
-      </button>
     </mat-toolbar>
   </div>
   <div class="main-page">
     <div *ngFor="let team of teams; index as i; first as isFirst">
-      <app-team-card [team]="team"></app-team-card>
+      <app-team-card [team]="team" class="team-card"></app-team-card>
     </div>
+  </div>
+  <div class="footer">
+    <p class="copyright-text">Copyright 2021</p>
+    <p class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
   </div>
 </div>
 

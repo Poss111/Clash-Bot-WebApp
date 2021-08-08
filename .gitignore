@@ -45,3 +45,5 @@ testem.log
 Thumbs.db
 
 *.iml
+ClashBot-Service/credentials.json
+.env

@@ -11,16 +11,16 @@ export class TeamCardComponent implements OnInit {
   @Input()
   team: ClashTeam = {};
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
     console.log(JSON.stringify(this.team));
     if (this.team && !this.team.tournamentDetails) {
-      this.team.tournamentDetails ={
+      this.team.tournamentDetails = {
         tournamentName: 'Placeholder',
         tournamentDay: '1'
       };
     }
   }
-
 }

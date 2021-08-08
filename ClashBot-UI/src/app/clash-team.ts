@@ -2,6 +2,7 @@ export interface ClashTeam {
   teamName?: string,
   playersDetails?: PlayerDetails[]
   tournamentDetails?: TournamentDetails
+  error?: string
 }
 
 interface PlayerDetails {

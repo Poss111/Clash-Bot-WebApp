@@ -8,14 +8,17 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {TeamCardComponent} from './team-card/team-card.component';
 import {HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./clash-bot.service";
+import { ErrorHandlerComponent } from './error-handler/error-handler.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TeamCardComponent
+    TeamCardComponent,
+    ErrorHandlerComponent
   ],
   imports: [
     BrowserModule,
@@ -26,6 +29,7 @@ import {ClashBotService} from "./clash-bot.service";
     MatButtonModule,
     MatToolbarModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   providers: [ClashBotService],
   bootstrap: [AppComponent]

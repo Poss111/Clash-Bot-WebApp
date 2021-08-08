@@ -1,7 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClashTeam} from "./clash-team";
 import {ClashBotService} from "./clash-bot.service";
-import {Subscription} from "rxjs";
+import {Subscription, throwError} from "rxjs";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {catchError} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -10,40 +12,28 @@ import {Subscription} from "rxjs";
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Clash-Bot';
-  teams: ClashTeam[] = [
-    {
-      teamName: 'Team Got',
-      playersDetails: [
-        {
-          name: 'Roïdräge',
-          champions: ['Volibear', 'Ornn', 'Sett'],
-          role: 'Top'
-        },
-        {
-          name: 'TheIncentive',
-          champions: ['Lucian'],
-          role: 'ADC'
-        },
-        {
-          name: 'Pepe Conrad',
-          champions: ['Lucian'],
-          role: 'Jg'
-        }
-      ]
-    }
-  ];
+  teams: ClashTeam[] = [];
   clashServiceSubscription: Subscription | undefined;
 
 
-  constructor(private clashBotService: ClashBotService) {
+  constructor(private clashBotService: ClashBotService, private _snackBar : MatSnackBar) {
   }
 
   ngOnInit(): void {
     this.clashServiceSubscription = this.clashBotService
       .getClashTeams()
+      .pipe(
+        catchError(err => {
+          console.error(err);
+          this._snackBar.open('Failed to retrieve Teams. Please try again later.', 'X', { duration: 5*1000});
+          this.teams.push({ error: err });
+          return throwError(err);
+        })
+      )
       .subscribe((data: ClashTeam[]) => {
         this.teams = data;
       });
+
   }
 
   ngOnDestroy(): void {
