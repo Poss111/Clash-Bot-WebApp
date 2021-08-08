@@ -9,9 +9,9 @@ export class ClashBotService {
   constructor(private httpClient: HttpClient) { }
 
 
-  getClashTeams(): Observable<ClashTeam[]> {
+  getClashTeams(server: string): Observable<ClashTeam[]> {
     if (isDevMode()) {
-      return this.httpClient.get<ClashTeam[]>(`${window.location.protocol}//${window.location.hostname}:80/api/teams`);
+      return this.httpClient.get<ClashTeam[]>(`${window.location.protocol}//${window.location.hostname}:80/api/teams/${server}`);
     } else {
       return this.httpClient.get<ClashTeam[]>(`/api/teams`);
     }

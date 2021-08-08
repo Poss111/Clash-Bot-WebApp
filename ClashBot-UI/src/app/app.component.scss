@@ -8,6 +8,7 @@
 }
 
 .main-page {
+  padding: 1em;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-evenly;
@@ -25,11 +26,16 @@
 }
 
 .team-card {
-  padding: 1em;
+  padding-top: 1em;
+  padding-bottem: 1em;
 }
 
 .copyright-text {
   text-align: left;
+}
+
+.chips-list {
+  width: 100%;
 }
 
 .progress-spinner {

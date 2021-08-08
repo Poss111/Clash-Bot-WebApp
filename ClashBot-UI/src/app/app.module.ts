@@ -14,6 +14,9 @@ import {HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./clash-bot.service";
 import { ErrorHandlerComponent } from './error-handler/error-handler.component';
 import { MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import { MatChipsModule} from "@angular/material/chips";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatFormFieldModule } from "@angular/material/form-field";
 
 @NgModule({
   declarations: [
@@ -32,6 +35,10 @@ import { MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     MatIconModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
   ],
   providers: [ClashBotService],
   bootstrap: [AppComponent]

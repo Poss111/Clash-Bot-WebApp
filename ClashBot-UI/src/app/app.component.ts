@@ -3,7 +3,11 @@ import {ClashTeam} from "./clash-team";
 import {ClashBotService} from "./clash-bot.service";
 import {Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {catchError, finalize} from "rxjs/operators";
+import {catchError, finalize, timeout} from "rxjs/operators";
+import {MatChip, MatChipSelectionChange} from "@angular/material/chips";
+import {FormControl} from "@angular/forms";
+import {COMMA, ENTER} from "@angular/cdk/keycodes";
+import {Server} from "./server";
 
 @Component({
   selector: 'app-root',
@@ -18,28 +22,25 @@ export class AppComponent implements OnInit, OnDestroy {
   mode: any;
   value: any;
   showSpinner: boolean;
+  servers: Server[] = [
+    {
+      name: 'Goon Squad',
+      state: false
+    },
+    {
+      name: 'quiet souls',
+      state: false
+    }
+  ];
+  formControl = new FormControl([this.servers[0].name]);
 
-  constructor(private clashBotService: ClashBotService, private _snackBar : MatSnackBar) {
-    this.showSpinner = true;
+  constructor(private clashBotService: ClashBotService, private _snackBar: MatSnackBar) {
+    this.showSpinner = false;
   }
 
   ngOnInit(): void {
     this.color = 'primary';
     this.mode = 'indeterminate';
-    this.clashServiceSubscription = this.clashBotService
-      .getClashTeams()
-      .pipe(
-        catchError(err => {
-          console.error(err);
-          this._snackBar.open('Failed to retrieve Teams. Please try again later.', 'X', { duration: 5*1000});
-          this.teams.push({ error: err });
-          return throwError(err);
-        }),
-        finalize(() => this.showSpinner = false)
-      )
-      .subscribe((data: ClashTeam[]) => {
-        this.teams = data;
-      });
   }
 
   ngOnDestroy(): void {
@@ -48,4 +49,34 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeSelected(server: Server) {
+    server.state = false;
+  }
+
+  filterTeam(chip: MatChip) {
+    chip.selectViaInteraction();
+    this.showSpinner = true;
+    this.teams = [];
+    this.clashServiceSubscription = this.clashBotService
+      .getClashTeams(this.formControl.value.trimLeft())
+      .pipe(
+        timeout(7000),
+        catchError(err => {
+          console.error(err);
+          this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+            'X',
+            {duration: 5 * 1000});
+          this.teams.push({error: err});
+          return throwError(err);
+        }),
+        finalize(() => this.showSpinner = false)
+      )
+      .subscribe((data: ClashTeam[]) => {
+        if (data.length < 1) {
+          this.teams = [{ error: 'No data' }];
+        } else {
+          this.teams = data;
+        }
+      });
+  }
 }

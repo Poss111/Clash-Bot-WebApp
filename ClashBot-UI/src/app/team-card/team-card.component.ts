@@ -15,7 +15,6 @@ export class TeamCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(JSON.stringify(this.team));
     if (this.team && !this.team.tournamentDetails) {
       this.team.tournamentDetails = {
         tournamentName: 'Placeholder',

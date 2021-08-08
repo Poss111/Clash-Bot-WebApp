@@ -12,31 +12,37 @@ clashTeamsDbImpl.initialize().then(() => {
     app.use((req, res, next) => {
         console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
         next();
+        console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
     })
 
-    app.get(`${urlPrefix}/teams`, (req, res) => {
-        console.log('Returning team information...');
-        clashTeamsDbImpl.getTeams('Goon Squad').then((data) => {
-                console.log('Successfully retrieved teams.');
-                console.log(JSON.stringify(data));
-                let payload = [];
-                data.forEach(team => {
-                    if (team && team.players) {
-                        payload.push({
-                            teamName: team.teamName,
-                            tournamentDetails: {
-                                tournamentName: team.tournamentName,
-                                tournamentDay: team.tournamentDay
-                            },
-                            playersDetails: Array.isArray(team.players) ? team.players.map(data => {
-                                return {name: data }
-                            }) : {}
-                        });
-                    }
-                });
-                res.send(payload);
-            }
-        ).catch(err => console.error(err));
+    app.get(`${urlPrefix}/teams/:serverName`, (req, res, next) => {
+        if (req.params.serverName) {
+            console.log('Returning team information...');
+            console.log(`Querying for server : ${req.params.serverName}`);
+            clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
+                    console.log('Successfully retrieved teams.');
+                    console.log(JSON.stringify(data));
+                    let payload = [];
+                    data.forEach(team => {
+                        if (team && team.players) {
+                            payload.push({
+                                teamName: team.teamName,
+                                tournamentDetails: {
+                                    tournamentName: team.tournamentName,
+                                    tournamentDay: team.tournamentDay
+                                },
+                                playersDetails: Array.isArray(team.players) ? team.players.map(data => {
+                                    return {name: data}
+                                }) : {}
+                            });
+                        }
+                    });
+                    res.send(payload);
+                }
+            ).catch(err => console.error(err));
+        } else {
+            res.status(400).send({error: 'No server name passed.'});
+        }
     })
 
     app.get(`${urlPrefix}/health`, (req, res) => {
