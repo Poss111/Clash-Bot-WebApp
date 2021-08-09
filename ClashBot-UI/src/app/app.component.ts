@@ -7,7 +7,6 @@ import {catchError, finalize, timeout} from "rxjs/operators";
 import {MatChip} from "@angular/material/chips";
 import {FormControl} from "@angular/forms";
 import {Server} from "./server";
-import * as moment from "moment-timezone";
 
 @Component({
   selector: 'app-root',
@@ -41,7 +40,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.color = 'primary';
     this.mode = 'indeterminate';
-    moment.tz.setDefault(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 
   ngOnDestroy(): void {
