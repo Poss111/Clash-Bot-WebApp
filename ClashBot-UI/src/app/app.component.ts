@@ -4,10 +4,10 @@ import {ClashBotService} from "./clash-bot.service";
 import {Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {catchError, finalize, timeout} from "rxjs/operators";
-import {MatChip, MatChipSelectionChange} from "@angular/material/chips";
+import {MatChip} from "@angular/material/chips";
 import {FormControl} from "@angular/forms";
-import {COMMA, ENTER} from "@angular/cdk/keycodes";
 import {Server} from "./server";
+import * as moment from "moment-timezone";
 
 @Component({
   selector: 'app-root',
@@ -41,6 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.color = 'primary';
     this.mode = 'indeterminate';
+    moment.tz.setDefault(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 
   ngOnDestroy(): void {

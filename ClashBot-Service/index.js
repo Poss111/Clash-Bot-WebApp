@@ -31,6 +31,8 @@ clashTeamsDbImpl.initialize().then(() => {
                                     tournamentName: team.tournamentName,
                                     tournamentDay: team.tournamentDay
                                 },
+                                serverName: team.serverName,
+                                startTime: team.startTime,
                                 playersDetails: Array.isArray(team.players) ? team.players.map(data => {
                                     return {name: data}
                                 }) : {}

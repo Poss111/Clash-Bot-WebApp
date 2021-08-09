@@ -2,9 +2,10 @@
   <div  *ngIf="!team.error; else elseBlock">
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>{{team.teamName}}</mat-card-title>
+      <mat-card-title>{{team.serverName}} - {{team.teamName}}</mat-card-title>
       <mat-card-subtitle *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -
         Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
+      <mat-card-subtitle>Start Time: {{team.startTime}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
       <div *ngFor="let player of team.playersDetails; index as i; first as isFirst">
