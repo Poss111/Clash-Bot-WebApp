@@ -40,7 +40,7 @@
         </mat-chip>
       </mat-chip-list>
     </div>
-    <div *ngFor="let team of teams; index as i; first as isFirst" class="team-card">
+    <div *ngFor="let team of teams; index as i;" class="team-card">
       <app-team-card [team]="team"></app-team-card>
     </div>
   </div>

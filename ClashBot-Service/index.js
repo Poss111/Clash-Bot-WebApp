@@ -17,7 +17,6 @@ clashTeamsDbImpl.initialize().then(() => {
 
     app.get(`${urlPrefix}/teams/:serverName`, (req, res, next) => {
         if (req.params.serverName) {
-            console.log('Returning team information...');
             console.log(`Querying for server : ${req.params.serverName}`);
             clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
                     console.log('Successfully retrieved teams.');
