@@ -12,10 +12,7 @@ export class WelcomeDashboardComponent {
 
   constructor(private clashBotService: ClashBotService) {
     this.clashBotService.getClashTournaments().subscribe((data) => {
-      data.forEach(tournament => {
-        this.tournamentDays.push(new Date(tournament.startTime))
-        console.log(`Month : ${new Date(tournament.startTime).getMonth() + 1} Day : ${new Date(tournament.startTime).getDate() + 1}`);
-      });
+      data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
       this.dataLoaded = true;
     });
   }

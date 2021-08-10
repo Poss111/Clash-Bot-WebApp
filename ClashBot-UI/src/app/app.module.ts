@@ -9,15 +9,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {TeamCardComponent} from './team-card/team-card.component';
 import {HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./clash-bot.service";
 import { ErrorHandlerComponent } from './error-handler/error-handler.component';
-import { MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import { MatChipsModule} from "@angular/material/chips";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { TeamsDashboardComponent } from './teams-dashboard/teams-dashboard.component';
 import { WelcomeDashboardComponent } from './welcome-dashboard/welcome-dashboard.component';
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule} from "@angular/material/core";
@@ -28,9 +22,7 @@ import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calen
 @NgModule({
   declarations: [
     AppComponent,
-    TeamCardComponent,
     ErrorHandlerComponent,
-    TeamsDashboardComponent,
     WelcomeDashboardComponent,
     ClashTournamentCalendarComponent,
     ClashTournamentCalendarHeaderComponent
@@ -45,11 +37,6 @@ import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calen
     MatToolbarModule,
     MatIconModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,

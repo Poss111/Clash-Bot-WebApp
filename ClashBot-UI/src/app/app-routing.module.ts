@@ -1,16 +1,16 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import {TeamsDashboardComponent} from "./teams-dashboard/teams-dashboard.component";
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {WelcomeDashboardComponent} from "./welcome-dashboard/welcome-dashboard.component";
 
 const routes: Routes = [
-  { path: '', component: WelcomeDashboardComponent},
-  { path: 'teams', component: TeamsDashboardComponent},
-  { path: '**', redirectTo: ''}
+  {path: '', component: WelcomeDashboardComponent},
+  {path: 'teams', loadChildren: () => import('./teams-module/teams.module').then(m => m.TeamsModule)},
+  {path: '**', redirectTo: ''}
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}
