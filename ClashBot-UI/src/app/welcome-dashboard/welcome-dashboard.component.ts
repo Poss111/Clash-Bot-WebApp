@@ -1,7 +1,11 @@
 import {Component, ViewEncapsulation} from '@angular/core';
 import {ClashBotService} from "../clash-bot.service";
-import {AuthConfig, OAuthService } from "angular-oauth2-oidc";
+import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../environments/environment";
+import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
+import {DiscordService} from "../discord.service";
+import {UserDetailsService} from "../user-details.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -19,7 +23,7 @@ export class WelcomeDashboardComponent {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
     tokenEndpoint: 'https://discord.com/api/oauth2/token',
     revocationEndpoint: 'https://discord.com/api/oauth2/revoke',
-    redirectUri: window.location.origin + '/login',
+    redirectUri: window.location.origin,
     clientId: environment.discordClientId,
     responseType: 'code',
     scope: 'identify guilds',
@@ -29,13 +33,34 @@ export class WelcomeDashboardComponent {
   }
 
   constructor(private oauthService: OAuthService,
-              private clashBotService: ClashBotService) {
+              private clashBotService: ClashBotService,
+              private discordService: DiscordService,
+              private userDetailsService: UserDetailsService,
+              private _snackBar: MatSnackBar) {
     this.clashBotService.getClashTournaments().subscribe((data) => {
       data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
       this.dataLoaded = true;
     });
-    this.oauthService.configure(this.authCodeFlowConfig);
     this.loggedIn = oauthService.hasValidAccessToken();
+    this.oauthService.configure(this.authCodeFlowConfig);
+    if (sessionStorage.getItem('LoginAttempt')) {
+      this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+      this.oauthService.configure(this.authCodeFlowConfig);
+      this.oauthService.tryLogin().then(() => {
+        this.discordService.getUserDetails().subscribe((data) => {
+          this.userDetailsService.setUserDetails(data);
+        });
+        this.loggedIn = true;
+      }).catch(err => {
+        console.error(err);
+        this._snackBar.open('Failed to login to discord.',
+          'X',
+          {duration: 5 * 1000});
+        this.loggedIn = false;
+      });
+    } else {
+      this.loggedIn = oauthService.hasValidAccessToken();
+    }
   }
 
   refresh() {
@@ -44,6 +69,7 @@ export class WelcomeDashboardComponent {
 
   loginToDiscord(): void {
     this.oauthService.initLoginFlow();
+    sessionStorage.setItem('LoginAttempt', 'true');
   }
 
 }
