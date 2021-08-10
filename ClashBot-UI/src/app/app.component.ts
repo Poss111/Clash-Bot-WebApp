@@ -1,5 +1,8 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {Router} from "@angular/router";
+import {UserDetailsService} from "./user-details.service";
+import {UserDetails} from "./user-details";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -7,8 +10,12 @@ import {ActivatedRoute, Router} from "@angular/router";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  user$?: Observable<UserDetails>;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private router: Router,
+              private userDetailsService: UserDetailsService) {
+    this.user$ = this.userDetailsService.getUserDetails();
+  }
 
   navigateToWelcomePage() {
     this.router.navigate(['/'])
@@ -17,4 +24,5 @@ export class AppComponent {
   navigateToTeams() {
     this.router.navigate(['/teams'])
   }
+
 }

@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  discordClientId: '837629412328734740'
 };

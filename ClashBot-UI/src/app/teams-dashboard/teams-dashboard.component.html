@@ -1,4 +1,3 @@
-
 <div class="progress-spinner" *ngIf="showSpinner">
   <mat-progress-spinner
     class="example-margin"
@@ -8,7 +7,7 @@
     aria-label="Loading Team Data...">
   </mat-progress-spinner>
   <div class="loading-text">
-    <h2>Loading your Server's Teams</h2>
+    <h2>Loading your requested data</h2>
     <div class="loading-animation">
       <h2 class="animated-dot-one">.</h2>
       <h2 class="animated-dot-two">.</h2>
@@ -17,7 +16,7 @@
   </div>
 </div>
 <div class="chips-list" *ngIf="!showSpinner">
-  <h2>Servers</h2>
+  <h2>Your available Servers to filter by</h2>
   <mat-chip-list
     [formControl]="formControl"
     [multiple]="false">

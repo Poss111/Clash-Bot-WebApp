@@ -8,9 +8,17 @@
         at <a
           href="https://top.gg/bot/837629412328734740">Top.gg</a>.
       </mat-card-content>
-      <mat-card-header class="header">Site Usage</mat-card-header>
-      <mat-card-content>Please use the menu above to see the available content.</mat-card-content>
+      <mat-card-content *ngIf="!loggedIn">
+        Please login to discord using the button below before continuing.
+      </mat-card-content>
+      <mat-card-header class="header" *ngIf="loggedIn">Site Usage</mat-card-header>
+      <mat-card-content *ngIf="loggedIn">Please use the menu above to see the available content.</mat-card-content>
+      <button mat-menu-item (click)="loginToDiscord()" *ngIf="!loggedIn">
+        <mat-icon>discord</mat-icon>
+        <span>Login to Discord</span>
+      </button>
     </mat-card>
+    <p>{{guilds}}</p>
   </div>
   <app-clash-tournament-calendar [daysSelected]="tournamentDays" *ngIf="dataLoaded"></app-clash-tournament-calendar>
 </div>

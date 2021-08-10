@@ -2,13 +2,14 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClashTeam} from "../clash-team";
 import {TeamFilter} from "../team-filter";
 import {Subscription, throwError} from "rxjs";
-import {Server} from "../server";
 import {FormControl} from "@angular/forms";
 import {ClashBotService} from "../clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../filter-type";
 import {catchError, finalize, timeout} from "rxjs/operators";
 import {MatChip} from "@angular/material/chips";
+import {DiscordService} from "../discord.service";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -23,33 +24,43 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
   mode: any;
   value: any;
   showSpinner: boolean;
-  servers: Server[] = [
-    {
-      name: 'Goon Squad',
-      state: false
-    },
-    {
-      name: 'quiet souls',
-      state: false
-    }
-  ];
-  formControl = new FormControl([this.servers[0].name]);
+  formControl = new FormControl([]);
 
-  constructor(private clashBotService: ClashBotService, private _snackBar: MatSnackBar) {
+  constructor(private clashBotService: ClashBotService, private discordService: DiscordService, private _snackBar: MatSnackBar) {
     this.showSpinner = false;
   }
 
   ngOnInit(): void {
-    this.teamFilters.push({
-      value: 'Goon Squad',
-      type: FilterType.SERVER,
-      state: false
-    });
-    this.teamFilters.push({
-      value: 'quiet souls',
-      type: FilterType.SERVER,
-      state: false
-    });
+    this.showSpinner = true;
+    this.discordService.getGuilds()
+      .pipe(
+        timeout(7000),
+        catchError((err: HttpErrorResponse) => {
+          console.error(err);
+          if (err.status === 401) {
+            this._snackBar.open('Invalid Discord Token. Please login to Discord again.',
+              'X',
+              {duration: 5 * 1000});
+
+          } else {
+            this._snackBar.open('Failed to retrieve Servers. Please try again later.',
+              'X',
+              {duration: 5 * 1000});
+          }
+          this.teams.push({error: err.message});
+          return throwError(err);
+        }),
+        finalize(() => this.showSpinner = false)
+      )
+      .subscribe((data: any) => {
+        data.forEach((record:any) => {
+          this.teamFilters.push({
+            value: record.name,
+            type: FilterType.SERVER,
+            state: false
+          });
+        })
+      });
     this.color = 'primary';
     this.mode = 'indeterminate';
   }
@@ -68,12 +79,19 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
       .getClashTeams(this.formControl.value.trimLeft())
       .pipe(
         timeout(7000),
-        catchError(err => {
+        catchError((err: HttpErrorResponse) => {
           console.error(err);
-          this._snackBar.open('Failed to retrieve Teams. Please try again later.',
-            'X',
-            {duration: 5 * 1000});
-          this.teams.push({error: err});
+          if (err.status === 401) {
+            this._snackBar.open('Invalid Discord Token. Please login to Discord again.',
+              'X',
+              {duration: 5 * 1000});
+
+          } else {
+            this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+              'X',
+              {duration: 5 * 1000});
+          }
+          this.teams.push({error: err.message});
           return throwError(err);
         }),
         finalize(() => this.showSpinner = false)

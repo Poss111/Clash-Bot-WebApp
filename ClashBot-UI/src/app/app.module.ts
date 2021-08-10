@@ -9,7 +9,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./clash-bot.service";
 import { ErrorHandlerComponent } from './error-handler/error-handler.component';
 import { WelcomeDashboardComponent } from './welcome-dashboard/welcome-dashboard.component';
@@ -18,6 +18,9 @@ import { MatNativeDateModule} from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";
 import { ClashTournamentCalendarComponent } from './clash-tournament-calendar/clash-tournament-calendar.component';
 import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calendar-header/clash-tournament-calendar-header.component';
+import {OAuthModule} from "angular-oauth2-oidc";
+import { LoginSuccessfulComponent } from './login-successful/login-successful.component';
+import {DiscordInterceptor} from "./discord-interceptor.service";
 
 @NgModule({
   declarations: [
@@ -25,7 +28,8 @@ import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calen
     ErrorHandlerComponent,
     WelcomeDashboardComponent,
     ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent
+    ClashTournamentCalendarHeaderComponent,
+    LoginSuccessfulComponent
   ],
   imports: [
     BrowserModule,
@@ -40,8 +44,9 @@ import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calen
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,
+    OAuthModule.forRoot(),
   ],
-  providers: [ClashBotService],
+  providers: [ClashBotService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })
 export class AppModule {
