@@ -108,7 +108,7 @@ class ClashTeamsDbImpl {
                             resolve(record.attrs);
                         }
                     };
-                    
+
                     availableTeam = Array.isArray(availableTeam) ? availableTeam.find(record => !record.players) : availableTeam;
 
                     if (availableTeam) {
@@ -271,11 +271,13 @@ class ClashTeamsDbImpl {
     getTeams(serverName) {
         return new Promise((resolve, reject) => {
             let teams = [];
-            let stream = this.Team.scan()
-                .filterExpression('#serverName = :name')
-                .expressionAttributeValues({':name': `${serverName}`})
-                .expressionAttributeNames({'#serverName': 'serverName'})
-                .exec();
+            let stream = this.Team.scan();
+            if (serverName) {
+                stream.filterExpression('#serverName = :name')
+                    .expressionAttributeValues({':name': `${serverName}`})
+                    .expressionAttributeNames({'#serverName': 'serverName'})
+            }
+            stream = stream.exec();
             stream.on('readable', function () {
                 let read = stream.read();
                 if (read) {

@@ -17,12 +17,23 @@ import { MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import { MatChipsModule} from "@angular/material/chips";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { TeamsDashboardComponent } from './teams-dashboard/teams-dashboard.component';
+import { WelcomeDashboardComponent } from './welcome-dashboard/welcome-dashboard.component';
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatNativeDateModule} from "@angular/material/core";
+import { MatMenuModule } from "@angular/material/menu";
+import { ClashTournamentCalendarComponent } from './clash-tournament-calendar/clash-tournament-calendar.component';
+import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calendar-header/clash-tournament-calendar-header.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TeamCardComponent,
-    ErrorHandlerComponent
+    ErrorHandlerComponent,
+    TeamsDashboardComponent,
+    WelcomeDashboardComponent,
+    ClashTournamentCalendarComponent,
+    ClashTournamentCalendarHeaderComponent
   ],
   imports: [
     BrowserModule,
@@ -39,6 +50,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatMenuModule,
   ],
   providers: [ClashBotService],
   bootstrap: [AppComponent]

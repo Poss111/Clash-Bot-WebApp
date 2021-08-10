@@ -1,0 +1,38 @@
+
+<div class="progress-spinner" *ngIf="showSpinner">
+  <mat-progress-spinner
+    class="example-margin"
+    [color]="color"
+    [mode]="mode"
+    [value]="value"
+    aria-label="Loading Team Data...">
+  </mat-progress-spinner>
+  <div class="loading-text">
+    <h2>Loading your Server's Teams</h2>
+    <div class="loading-animation">
+      <h2 class="animated-dot-one">.</h2>
+      <h2 class="animated-dot-two">.</h2>
+      <h2 class="animated-dot-three">.</h2>
+    </div>
+  </div>
+</div>
+<div class="chips-list" *ngIf="!showSpinner">
+  <h2>Servers</h2>
+  <mat-chip-list
+    [formControl]="formControl"
+    [multiple]="false">
+    <mat-chip
+      class="example-box"
+      cdkDrag
+      #chip="matChip"
+      *ngFor="let filter of teamFilters"
+      [selected]="filter.state"
+      (selectionChange)="changeSelected(filter)"
+      (click)="filterTeam(chip)">
+      {{filter.value}}
+    </mat-chip>
+  </mat-chip-list>
+</div>
+<div class="team-cards">
+  <app-team-card *ngFor="let team of teams; index as i;" [team]="team" class="team-card" ></app-team-card>
+</div>

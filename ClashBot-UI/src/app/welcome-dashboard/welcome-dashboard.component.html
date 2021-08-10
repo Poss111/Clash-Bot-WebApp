@@ -1,0 +1,9 @@
+<div class="main-container">
+  <div class="welcome-message-container">
+    <h2>Welcome to Clash-Bot!</h2>
+    <p>This site is here to help you and your friends quickly group up through discord to compete in a League of Legends
+      Clash Tournament. We have a Discord Bot if you'd like to use it with your Server, you can add it to your Server at <a
+        href="https://top.gg/bot/837629412328734740">Top.gg</a>.</p>
+  </div>
+  <app-clash-tournament-calendar [daysSelected]="tournamentDays" *ngIf="dataLoaded"></app-clash-tournament-calendar>
+</div>

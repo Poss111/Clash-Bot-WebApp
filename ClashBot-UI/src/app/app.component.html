@@ -1,48 +1,24 @@
 <div class="dashboard">
   <div class="header">
     <mat-toolbar color="primary">
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigateToWelcomePage()">
+          <mat-icon>house</mat-icon>
+          <span>Welcome Page</span>
+        </button>
+        <button mat-menu-item (click)="navigateToTeams()">
+          <mat-icon>groups</mat-icon>
+          <span>Clash Teams</span>
+        </button>
+      </mat-menu>
       <span>Clash Bot</span>
     </mat-toolbar>
   </div>
   <div class="main-page">
-    <div class="progress-spinner" *ngIf="showSpinner">
-      <mat-progress-spinner
-        class="example-margin"
-        [color]="color"
-        [mode]="mode"
-        [value]="value"
-        aria-label="Loading Team Data...">
-      </mat-progress-spinner>
-      <div class="loading-text">
-        <h2>Loading your Server's Teams</h2>
-        <div class="loading-animation">
-          <h2 class="animated-dot-one">.</h2>
-          <h2 class="animated-dot-two">.</h2>
-          <h2 class="animated-dot-three">.</h2>
-        </div>
-      </div>
-    </div>
-    <div class="chips-list" *ngIf="!showSpinner">
-      <h2>Available Servers</h2>
-      <mat-chip-list
-        [formControl]="formControl"
-        [multiple]="false">
-        <mat-chip
-          class="example-box"
-          cdkDrag
-          #chip="matChip"
-          *ngFor="let server of servers"
-          [selected]="server.state"
-          [selectable]="true"
-          (selectionChange)="changeSelected(server)"
-          (click)="filterTeam(chip)">
-          {{server.name}}
-        </mat-chip>
-      </mat-chip-list>
-    </div>
-    <div *ngFor="let team of teams; index as i;" class="team-card">
-      <app-team-card [team]="team"></app-team-card>
-    </div>
+    <router-outlet class="dashboard"></router-outlet>
   </div>
   <div class="footer">
     <p class="copyright-text">Copyright 2021</p>
