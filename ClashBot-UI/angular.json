@@ -87,6 +87,18 @@
           },
           "defaultConfiguration": "development"
         },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "conf.js",
+            "devServerTarget": "clash-bot-webapp:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "quickstart-demo:serve:production"
+            }
+          }
+        },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
