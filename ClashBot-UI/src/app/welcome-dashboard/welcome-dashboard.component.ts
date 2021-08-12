@@ -45,26 +45,21 @@ export class WelcomeDashboardComponent {
     this.oauthService.configure(this.authCodeFlowConfig);
     if (sessionStorage.getItem('LoginAttempt')) {
       this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-      this.oauthService.configure(this.authCodeFlowConfig);
       this.oauthService.tryLogin().then(() => {
         this.discordService.getUserDetails().subscribe((data) => {
+          this.loggedIn = true;
           this.userDetailsService.setUserDetails(data);
-        });
-        this.loggedIn = true;
+        }).unsubscribe();
       }).catch(err => {
         console.error(err);
+        this.loggedIn = false;
         this._snackBar.open('Failed to login to discord.',
           'X',
           {duration: 5 * 1000});
-        this.loggedIn = false;
       });
     } else {
       this.loggedIn = oauthService.hasValidAccessToken();
     }
-  }
-
-  refresh() {
-    this.oauthService.refreshToken();
   }
 
   loginToDiscord(): void {

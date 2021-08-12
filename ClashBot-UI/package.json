@@ -41,6 +41,7 @@
     "@types/node": "^12.11.1",
     "cypress": "^8.2.0",
     "jest": "^27.0.6",
+    "jest-marbles": "^2.5.1",
     "jest-preset-angular": "^9.0.5",
     "karma-coverage": "~2.0.3",
     "typescript": "~4.3.5"
