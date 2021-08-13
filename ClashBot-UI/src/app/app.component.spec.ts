@@ -42,18 +42,7 @@ describe('AppComponent', () => {
   });
 
   test('The user details should be loaded when created.', () => {
-    let mockUserData: UserDetails = {
-      "id": "299370234228506627",
-      "username": "Roïdräge",
-      "avatar": "4393f322cfd8882c2d74648ad321c1eb",
-      "discriminator": "2657",
-      "public_flags": 0,
-      "flags": 0,
-      "locale": "en-US",
-      "mfa_enabled": false
-    };
     let subject = new Subject<UserDetails>();
-    subject.next(mockUserData);
     getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
