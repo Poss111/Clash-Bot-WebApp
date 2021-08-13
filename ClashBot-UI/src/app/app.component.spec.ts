@@ -1,35 +1,65 @@
-import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AppComponent } from './app.component';
+import {TestBed} from '@angular/core/testing';
+import {RouterTestingModule} from '@angular/router/testing';
+import {AppComponent} from './app.component';
+import {UserDetailsService} from "./user-details.service";
+import {Subject} from "rxjs";
+import {UserDetails} from "./user-details";
+import Mock = jest.Mock;
+import {MatButtonModule} from "@angular/material/button";
+import {MatIconModule} from "@angular/material/icon";
+import {MatMenuModule} from "@angular/material/menu";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatCardModule} from "@angular/material/card";
+
+jest.mock('./user-details.service');
 
 describe('AppComponent', () => {
+  let userDetailsServiceMock: UserDetailsService;
+  let getUserDetailsMock: Mock<Subject<UserDetails>> = jest.fn();
+
   beforeEach(async () => {
+    jest.resetAllMocks();
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatToolbarModule,
+        MatCardModule
       ],
-      declarations: [
-        AppComponent
-      ],
+      declarations: [AppComponent],
+      providers: [UserDetailsService]
     }).compileComponents();
+    userDetailsServiceMock = TestBed.inject(UserDetailsService);
+    userDetailsServiceMock.getUserDetails = getUserDetailsMock;
   });
 
-  it('should create the app', () => {
+  test('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'Clash-Bot'`, () => {
+  test('The user details should be loaded when created.', () => {
+    let mockUserData: UserDetails = {
+      "id": "299370234228506627",
+      "username": "Roïdräge",
+      "avatar": "4393f322cfd8882c2d74648ad321c1eb",
+      "discriminator": "2657",
+      "public_flags": 0,
+      "flags": 0,
+      "locale": "en-US",
+      "mfa_enabled": false
+    };
+    let subject = new Subject<UserDetails>();
+    subject.next(mockUserData);
+    getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Clash-Bot');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('Clash-Bot app is running!');
-  });
+    expect(app.user$).toEqual(subject);
+  })
+
+
 });
