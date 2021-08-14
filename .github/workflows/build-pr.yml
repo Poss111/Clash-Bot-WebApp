@@ -185,6 +185,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check
+        run: echo "${{ needs.build-service.result }} ${{ needs.integration-ui.result }} ${{ needs.lint-ui.result }} ${{ needs.test-ui.result }}"
+
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         if: ${{ needs.build-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure'}}
@@ -196,7 +199,7 @@ jobs:
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.build-service.result != 'failure' || needs.integration-ui.result != 'failure' || needs.lint-ui.result != 'failure' || needs.test-ui.result != 'failure'}}
+        if: ${{ needs.build-service.result != 'failure' && needs.integration-ui.result != 'failure' && needs.lint-ui.result != 'failure' && needs.test-ui.result != 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - PR check finished - Notification"
