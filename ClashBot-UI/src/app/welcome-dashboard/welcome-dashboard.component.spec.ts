@@ -17,6 +17,7 @@ import {environment} from "../../environments/environment";
 import {UserDetailsService} from "../user-details.service";
 import {UserDetails} from "../user-details";
 import {MatSnackBarConfig} from "@angular/material/snack-bar/snack-bar-config";
+import {TestScheduler} from "rxjs/testing";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../clash-bot.service");
@@ -57,8 +58,12 @@ describe('WelcomeDashboardComponent', () => {
     oidc: false,
     sessionChecksEnabled: true
   }
+  let testScheduler: TestScheduler;
 
   beforeEach(async () => {
+    testScheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
+    });
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
       declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent],
@@ -107,6 +112,41 @@ describe('WelcomeDashboardComponent', () => {
     expect(component.loggedIn).toBeTruthy();
   })
 
+  test('Should attempt to login with existing tournaments Days upon load up if there has not been a Login Attempt', () => {
+    testScheduler.run((helpers) => {
+      const {cold, expectObservable, flush} = helpers;
+      let mockTournaments = [
+        {
+          "tournamentName": "bandle_city",
+          "tournamentDay": "3",
+          "startTime": "August 21 2021 07:00 pm PDT",
+          "registrationTime": "August 21 2021 04:15 pm PDT"
+        },
+        {
+          "tournamentName": "bandle_city",
+          "tournamentDay": "4",
+          "startTime": "August 22 2021 07:00 pm PDT",
+          "registrationTime": "August 22 2021 04:15 pm PDT"
+        }
+      ];
+      const expectedObservable = cold('-x|', {
+        x: mockTournaments
+      });
+      clashBotMock.getClashTournaments = jest.fn().mockReturnValue(expectedObservable);
+      fixture = TestBed.createComponent(WelcomeDashboardComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
+      expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
+      expect(component.loggedIn).toBeTruthy();
+      fixture.detectChanges();
+      expectObservable(expectedObservable).toBe('-x|', {x: mockTournaments})
+      flush();
+      expect(component.tournamentDays).toHaveLength(2);
+      expect(component.dataLoaded).toBeTruthy();
+    });
+  })
+
   test('If login has been attempted, should then try to Login with the token and it is successful.', (done) => {
     sessionStorage.setItem('LoginAttempt', 'true');
     tryLoginMock.mockResolvedValue(true);
@@ -124,12 +164,12 @@ describe('WelcomeDashboardComponent', () => {
       "mfa_enabled": false
     };
     getUserDetailsMock.mockReturnValue(of(expectedUserObject));
-    let validateUserObject = (data : UserDetails) => {
+    let validateUserObject = (data: UserDetails) => {
       try {
         expect(data).toEqual(expectedUserObject);
         expect(component.loggedIn).toBeTruthy();
         done();
-      } catch(err) {
+      } catch (err) {
         done(err);
       }
     };
@@ -148,10 +188,10 @@ describe('WelcomeDashboardComponent', () => {
       try {
         expect(message).toEqual('Failed to login to discord.');
         expect(action).toEqual('X');
-        expect(config).toEqual({ duration: 5000 });
+        expect(config).toEqual({duration: 5000});
         expect(component.loggedIn).toBeFalsy();
         done();
-      } catch(err) {
+      } catch (err) {
         done(err);
       }
     };

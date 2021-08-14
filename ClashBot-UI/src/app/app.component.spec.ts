@@ -1,4 +1,5 @@
-import {TestBed} from '@angular/core/testing';
+import {fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {Location} from '@angular/common';
 import {RouterTestingModule} from '@angular/router/testing';
 import {AppComponent} from './app.component';
 import {UserDetailsService} from "./user-details.service";
@@ -10,29 +11,52 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatCardModule} from "@angular/material/card";
+import {Router} from "@angular/router";
+import {WelcomeDashboardComponent} from "./welcome-dashboard/welcome-dashboard.component";
+import {TeamsDashboardComponent} from "./teams-dashboard/teams-dashboard.component";
+import {NO_ERRORS_SCHEMA} from "@angular/core";
+import {MatChipsModule} from "@angular/material/chips";
+import {DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {ClashBotService} from "./clash-bot.service";
+import {DiscordService} from "./discord.service";
+import {MatSnackBarModule} from "@angular/material/snack-bar";
 
 jest.mock('./user-details.service');
 
 describe('AppComponent', () => {
   let userDetailsServiceMock: UserDetailsService;
   let getUserDetailsMock: Mock<Subject<UserDetails>> = jest.fn();
+  let router: Router;
+  let location: Location;
 
   beforeEach(async () => {
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule,
+        RouterTestingModule.withRoutes([
+          {path: '', component: WelcomeDashboardComponent},
+          {path: 'teams', component: TeamsDashboardComponent},
+          {path: '**', redirectTo: ''}
+        ]),
         MatButtonModule,
         MatIconModule,
         MatMenuModule,
         MatToolbarModule,
-        MatCardModule
+        MatCardModule,
+        MatChipsModule,
+        HttpClientTestingModule,
+        MatSnackBarModule
       ],
-      declarations: [AppComponent],
-      providers: [UserDetailsService]
+      declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
+      providers: [UserDetailsService, OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ClashBotService, DiscordService],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
+    router = TestBed.inject(Router);
+    location = TestBed.inject(Location);
     userDetailsServiceMock.getUserDetails = getUserDetailsMock;
+    router.initialNavigation();
   });
 
   test('should create the app', () => {
@@ -50,5 +74,25 @@ describe('AppComponent', () => {
     expect(app.user$).toEqual(subject);
   })
 
+  test('When navigateToWelcomePage is called, it should invoke the router to navigate to /', () => {
+    let subject = new Subject<UserDetails>();
+    getUserDetailsMock.mockReturnValue(subject);
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.navigateToWelcomePage();
+    expect(location.path()).toBe('/');
+  })
+
+  test('When navigateToTeams is called, it should invoke the router to navigate to /teams', fakeAsync(() => {
+    let subject = new Subject<UserDetails>();
+    getUserDetailsMock.mockReturnValue(subject);
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.navigateToTeams();
+    tick();
+    expect(location.path()).toBe('/teams');
+  }))
 
 });

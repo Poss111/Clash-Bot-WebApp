@@ -55,11 +55,18 @@ describe('ClashTournamentCalendarComponent', () => {
   })
 
   test('The minimum date for the calendar should be set to today.', () => {
-    expect(component.minDate).toEqual(new Date());
+    expect(isToday(component.minDate)).toBeTruthy();
   })
 
   test('The calendar header component should be of instance ClashTournamentCalendarHeaderComponent', () => {
-    expect(component.calendarHeaderComponent instanceof ClashTournamentCalendarHeaderComponent).toBeTruthy();
+    expect(component.calendarHeaderComponent).toBeTruthy();
   })
+
+  let isToday = (date: Date) => {
+    let today = new Date();
+    return date.getDay() === today.getDay() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+  }
 
 });

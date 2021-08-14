@@ -2,7 +2,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {TeamCardComponent} from './team-card.component';
 import {MatCardModule} from "@angular/material/card";
-import {ClashTeam} from "../clash-team";
 
 describe('TeamCardComponent', () => {
   let component: TeamCardComponent;
@@ -21,7 +20,7 @@ describe('TeamCardComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
+  test('should create', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
