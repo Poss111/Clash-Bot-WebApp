@@ -211,7 +211,7 @@ jobs:
     needs:
       - integration-ui
       - build-service
-    if: ${{ integration-ui.status }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     steps:
