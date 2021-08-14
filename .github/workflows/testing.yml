@@ -1,5 +1,10 @@
 name: Test out dependent jobs
 
+on:
+  push:
+    branches:
+      - '*'
+
 jobs:
   check-applications:
     runs-on: ubuntu-latest
