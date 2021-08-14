@@ -216,15 +216,15 @@ jobs:
 
     steps:
       - name: Check others
-        run: echo ${{ integration-ui.status }}
+        run: echo ${{ needs.integration-ui.status }}
 
       - name: Check service
-        run: echo ${ build-service.status }}
+        run: echo ${ needs.build-service.status }}
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: "Clash Bot Web App - Testing Finished - Notification ${{ build-service.status }} ${{ integration-ui.status }}"
+          title: "Clash Bot Web App - Testing Finished - Notification ${{ needs.build-service.status }} ${{ needs.integration-ui.status }}"
           message: 'PR is good to merge!'
           message-color: '65345'
