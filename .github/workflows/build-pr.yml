@@ -181,6 +181,8 @@ jobs:
     needs:
       - integration-ui
       - build-service
+      - lint-ui
+      - test-ui
     if: ${{ always() }}
     runs-on: ubuntu-latest
 
