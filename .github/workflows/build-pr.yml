@@ -94,7 +94,7 @@ jobs:
         run: npm i
 
       - name: Zip UI project
-        run: zip -r ClashBot-UI.zip ClashBot-UI
+        run: zip -q -r ClashBot-UI.zip ClashBot-UI
 
       - name: Archive service artifact
         uses: actions/upload-artifact@v2
@@ -122,8 +122,11 @@ jobs:
         with:
           name: UI-Build
 
+      - name: Check
+        run: ls -lha
+
       - name: Unzip UI project
-        run: unzip ClashBot-UI.zip ClashBot-UI
+        run: unzip -q ClashBot-UI.zip
 
       - name: Check
         run: ls -lha
