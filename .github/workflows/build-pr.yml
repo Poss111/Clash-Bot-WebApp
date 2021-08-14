@@ -219,7 +219,7 @@ jobs:
         run: echo ${{ needs.integration-ui.status }}
 
       - name: Check service
-        run: echo ${ needs.build-service.status }}
+        run: echo ${{ needs.build-service.status }}
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
