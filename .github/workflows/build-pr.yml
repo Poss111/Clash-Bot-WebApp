@@ -122,27 +122,21 @@ jobs:
         with:
           name: UI-Build
 
-      - name: Check
-        run: ls -lha
-
       - name: Unzip UI project
         run: unzip -q ClashBot-UI.zip
 
-      - name: Check
-        run: ls -lha
+      - name: Run Tests
+        working-directory: ./ClashBot-UI
+        run: npm run-script test
 
-#      - name: Run Tests
-#        working-directory: ./ClashBot-UI
-#        run: npm run-script test
-#
-#      - name: Test Failed Discord Webhook
-#        uses: Poss111/discord-hook-action@v1.6.8
-#        if: ${{ failure() }}
-#        with:
-#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-#          title: 'Clash Bot Web App - UI Integration Test - Notification'
-#          message: 'UI Test Failed!'
-#          message-color: '16711680'
+      - name: Test Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Integration Test - Notification'
+          message: 'UI Test Failed!'
+          message-color: '16711680'
 #
 #  integration-ui:
 #    needs:
