@@ -3,7 +3,7 @@ name: Test out dependent jobs
 on:
   push:
     branches:
-      - '*'
+      - 'feature/e2eTests'
 
 jobs:
   check-applications:
