@@ -129,6 +129,7 @@ jobs:
         run: ls -lha ClashBot-UI
 
       - name: Install depedencies
+        working-directory: ./ClashBot-UI
         run: npm i
 
       - name: Run Tests
