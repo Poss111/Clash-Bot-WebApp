@@ -62,7 +62,7 @@ describe('AppComponent', () => {
   test('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app).toBeFalsy();
+    expect(app).toBeTruthy();
   });
 
   test('The user details should be loaded when created.', () => {

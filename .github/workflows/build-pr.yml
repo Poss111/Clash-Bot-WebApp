@@ -196,7 +196,7 @@ jobs:
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - Testing Finished - Notification "
-          message: 'PR build completed. There is an issue with one or more of the builds. Please check the job. *Build Service*: ${{ needs.build-service.result }} \\n *Linting*: ${{ needs.lint-ui.result }} \\n *UI Tests*: ${{ needs.test-ui.result }} \\n *Integration UI*: ${{ needs.integration-ui.result }}'
+          message: 'PR build completed. There is an issue with one or more of the builds. Please check the job. **Build Service**: ${{ needs.build-service.result }} \\n **Linting**: ${{ needs.lint-ui.result }} \\n **UI Tests**: ${{ needs.test-ui.result }} \\n **Integration UI**: ${{ needs.integration-ui.result }}'
           message-color: '16711680'
 
       - name: Testing completed Discord Webhook
