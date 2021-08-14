@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Running..."
-echo "$(git branch)"
+echo "$(git branch --list)"
 serviceUpdate=false
 uiUpdate=false
 for i in $(git diff master --name-only )
