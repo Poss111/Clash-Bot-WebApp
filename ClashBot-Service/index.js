@@ -20,7 +20,7 @@ Promise.all([
         })
 
         app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
-            console.log(`Querying for server : ${req.params.serverName}`);
+            console.log(`Querying for servers : ${req.params.serverName}`);
             clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
                     console.log('Successfully retrieved teams.');
                     console.log(JSON.stringify(data));
