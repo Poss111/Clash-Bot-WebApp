@@ -1,9 +1,8 @@
 #!/bin/bash
 echo "Running..."
-echo "$(git branch --list)"
 serviceUpdate=false
 uiUpdate=false
-for i in $(git diff master --name-only )
+for i in $(git diff origin/master HEAD --name-only )
 do
   if [[ "$i" == *"ClashBot-Service/"*  && !$serviceUpdate ]];
   then
