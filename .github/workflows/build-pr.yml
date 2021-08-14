@@ -117,25 +117,25 @@ jobs:
           message: 'Test in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install depedencies
-        working-directory: ./ClashBot-UI
-        run: npm i
-
-      - name: Run Tests
-        working-directory: ./ClashBot-UI
-        run: npm run-script test
-
-      - name: Test Failed Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ failure() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Integration Test - Notification'
-          message: 'UI Test Failed!'
-          message-color: '16711680'
+#      - name: Checkout repo
+#        uses: actions/checkout@v2
+#
+#      - name: Install depedencies
+#        working-directory: ./ClashBot-UI
+#        run: npm i
+#
+#      - name: Run Tests
+#        working-directory: ./ClashBot-UI
+#        run: npm run-script test
+#
+#      - name: Test Failed Discord Webhook
+#        uses: Poss111/discord-hook-action@v1.6.8
+#        if: ${{ failure() }}
+#        with:
+#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#          title: 'Clash Bot Web App - UI Integration Test - Notification'
+#          message: 'UI Test Failed!'
+#          message-color: '16711680'
 
   integration-ui:
     needs:
@@ -153,25 +153,25 @@ jobs:
           message: 'Integration Test in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
-
-      - name: Run Integration Tests
-        working-directory: ./ClashBot-UI
-        run: npm run-script cy
-
-      - name: Integration Test Failed Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ failure() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Integration Test - Notification'
-          message: 'UI Integration Test Failed!'
-          message-color: '16711680'
+#      - name: Checkout repo
+#        uses: actions/checkout@v2
+#
+#      - name: Install Dependencies
+#        working-directory: ./ClashBot-UI
+#        run: npm i
+#
+#      - name: Run Integration Tests
+#        working-directory: ./ClashBot-UI
+#        run: npm run-script cy
+#
+#      - name: Integration Test Failed Discord Webhook
+#        uses: Poss111/discord-hook-action@v1.6.8
+#        if: ${{ failure() }}
+#        with:
+#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#          title: 'Clash Bot Web App - UI Integration Test - Notification'
+#          message: 'UI Integration Test Failed!'
+#          message-color: '16711680'
 
   lint-ui:
     needs: check-applications
@@ -187,38 +187,44 @@ jobs:
           message: 'Linting in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
-
-      - name: Run Linting
-        working-directory: ./ClashBot-UI
-        run: npm run-script lint
-
-      - name: Linting Failed Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ failure() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Linting - Notification'
-          message: 'Linting Failed!'
-          message-color: '16711680'
+#      - name: Checkout repo
+#        uses: actions/checkout@v2
+#
+#      - name: Install Dependencies
+#        working-directory: ./ClashBot-UI
+#        run: npm i
+#
+#      - name: Run Linting
+#        working-directory: ./ClashBot-UI
+#        run: npm run-script lint
+#
+#      - name: Linting Failed Discord Webhook
+#        uses: Poss111/discord-hook-action@v1.6.8
+#        if: ${{ failure() }}
+#        with:
+#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#          title: 'Clash Bot Web App - UI Linting - Notification'
+#          message: 'Linting Failed!'
+#          message-color: '16711680'
 
   concluded-testing:
     needs:
       - integration-ui
-      - lint-ui
       - build-service
+    if: ${{ integration-ui.status }}
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check others
+        run: echo ${{ integration-ui.status }}
+
+      - name: Check service
+        run: echo ${ build-service.status }}
+
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Testing Finished - Notification'
+          title: "Clash Bot Web App - Testing Finished - Notification ${{ build-service.status }} ${{ integration-ui.status }}"
           message: 'PR is good to merge!'
           message-color: '65345'
