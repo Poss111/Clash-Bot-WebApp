@@ -89,6 +89,31 @@ jobs:
         working-directory: ./ClashBot-UI
         run: npm run-script test
 
+  integration-ui:
+    needs: test-ui
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Testing In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Integration Test - Notification'
+          message: 'Integration Test in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Build distribution
+        working-directory: ./ClashBot-UI
+        run: npm run-script cy
+
   lint-ui:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
@@ -113,3 +138,19 @@ jobs:
       - name: Build distribution
         working-directory: ./ClashBot-UI
         run: npm run-script lint
+
+  concluded-testing:
+    needs:
+      - integration-ui
+      - lint-ui
+      - build-service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Testing completed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Testing Finished - Notification'
+          message: 'PR is good to merge!'
+          message-color: '65345'
