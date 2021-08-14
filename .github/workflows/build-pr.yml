@@ -104,7 +104,7 @@ jobs:
           path: ClashBot-UI.zip
 
   test-ui:
-    needs: check-applications
+    needs: install-ui-libraries
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
