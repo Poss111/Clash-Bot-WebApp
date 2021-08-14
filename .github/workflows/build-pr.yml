@@ -1,0 +1,115 @@
+name: Build - Clash Bot WebApp
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**/README.md'
+      - '**/.gitignore'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  check-applications:
+    runs-on: ubuntu-latest
+
+    outputs:
+      deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
+      deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run shell to check which App to deploy
+        id: check-apps
+        run: |
+          chmod 755 ./check_diff_between_tags.sh
+          ./check_diff_between_tags.sh
+
+      - name: Check Output for Service
+        run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
+
+      - name: Check Output for UI
+        run: echo ${{ steps.check-apps.outputs.uiUpdate }}
+
+  build-service:
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Service Build - Notification'
+          message: 'Build in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Deploy Service
+        run: |
+          echo "Running Service!"
+          ls -lha
+
+      - name: Archive service artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: service
+          if-no-files-found: error
+          path: ClashBot-Service
+
+  test-ui:
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Testing In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Test - Notification'
+          message: 'Test in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Build distribution
+        working-directory: ./ClashBot-UI
+        run: npm run-script test
+
+  lint-ui:
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Linting In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Linting - Notification'
+          message: 'Linting in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Build distribution
+        working-directory: ./ClashBot-UI
+        run: npm run-script lint
