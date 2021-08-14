@@ -36,9 +36,9 @@ jobs:
         run: echo 'Hi'
 
   deploy-ui:
-    needs: |
-      build-ui
-      build-service
+    needs:
+      - build-ui
+      - build-service
     runs-on: ubuntu-latest
 
     steps:
