@@ -187,7 +187,7 @@ jobs:
     steps:
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.build-service.result == 'failed' || needs.integration-ui.result == 'failed' || needs.lint-ui.result == 'failed' || needs.test-ui.result == 'failed'}}
+        if: ${{ needs.build-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - Testing Finished - Notification "
@@ -196,7 +196,7 @@ jobs:
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.build-service.result != 'failed' || needs.integration-ui.result != 'failed' || needs.lint-ui.result != 'failed' || needs.test-ui.result != 'failed'}}
+        if: ${{ needs.build-service.result != 'failure' || needs.integration-ui.result != 'failure' || needs.lint-ui.result != 'failure' || needs.test-ui.result != 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - PR check finished - Notification"
