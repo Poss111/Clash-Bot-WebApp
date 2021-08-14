@@ -215,16 +215,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check others
-        run: echo ${{ needs.integration-ui.result }}
-
-      - name: Check service
-        run: echo ${{ needs.build-service.result }}
+      - name: Testing completed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ needs.build-service.result == 'failed' || needs.integration-ui.result == 'failed' || needs.lint-ui.result == 'failed' || needs.test-ui.result == 'failed'}}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "Clash Bot Web App - Testing Finished - Notification "
+          message: 'PR build completed. There is an issue with one or more of the builds. Please check the job. Build Service: ${{ needs.build-service.result }} \n Linting: ${{ needs.lint-ui.result }} \n UI Tests: ${{needs.test-ui.result}} \n Integration UI: ${{ needs.integration-ui.result }}'
+          message-color: '16711680'
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: "Clash Bot Web App - Testing Finished - Notification ${{ needs.build-service.result }} ${{ needs.integration-ui.result }}"
-          message: 'PR is good to merge!'
+          title: "Clash Bot Web App - PR check finished - Notification"
+          message: 'PR build completed. You are good to merge!!'
           message-color: '65345'
