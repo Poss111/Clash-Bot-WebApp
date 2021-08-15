@@ -4,9 +4,12 @@
   "description": "Used to support the ClashBot UI",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "integration-windows": "node integration/integration-setup.js && set INTEGRATION_TEST=true && node index.js",
-    "integration": "node integration/integration-setup.js && INTEGRATION_TEST=true node index.js",
+    "start": "node index.js",
+    "nodemon": "nodemon index.js",
+    "preintegration-windows": "node integration/integration-setup.js",
+    "integration-windows": "set INTEGRATION_TEST=true && node index.js",
+    "preintegration": "node integration/integration-setup.js",
+    "integration": "INTEGRATION_TEST=true node index.js &",
     "test": "jest --silent"
   },
   "author": "Daniel Poss",
@@ -21,10 +24,12 @@
     "supertest": "^6.1.5"
   },
   "devDependencies": {
+    "forever": "^4.0.1",
     "jest": "^27.0.6",
     "jest-each": "^27.0.6",
     "nodemon": "^2.0.12",
     "stream-mock": "^2.0.5",
-    "streamtest": "^2.0.0"
+    "streamtest": "^2.0.0",
+    "wait-on": "^6.0.0"
   }
 }

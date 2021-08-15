@@ -208,6 +208,7 @@ jobs:
         run: npm i
 
       - name: Start up Service for Integratiton Testing
+        working-directory: ./ClashBot-Service
         run: npm run-script integration &
 
       - name: Run Integration Tests
