@@ -18,7 +18,6 @@ class DynamoDbHelper {
                         endpoint: `http://${process.env.HOST}:8000`,
                         accessKeyId: 'Dummy',
                         secretAccessKey: 'Dummy',
-                        maxRetries: 0,
                         httpOptions: {
                             connectTimeout: 2000,
                             timeout: 2000
