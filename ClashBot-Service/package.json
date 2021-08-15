@@ -9,7 +9,6 @@
     "preintegration-windows": "node integration/integration-setup.js",
     "integration-windows": "set INTEGRATION_TEST=true && node index.js",
     "preintegration": "node integration/integration-setup.js",
-    "integration": "INTEGRATION_TEST=true node index.js &",
     "test": "jest --silent"
   },
   "author": "Daniel Poss",
