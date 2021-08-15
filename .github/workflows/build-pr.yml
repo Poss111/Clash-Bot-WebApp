@@ -189,9 +189,23 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install Dependencies
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.0
+        with:
+          sharedDb: true
+          port: 8000
+          cors: '*'
+
+      - name: Install Dependencies for UI
         working-directory: ./ClashBot-UI
         run: npm i
+
+      - name: Install Dependencies for Service
+        working-directory: ./ClashBot-Service
+        run: npm i
+
+      - name: Start up Service for Integratiton Testing
+        run: npm run-script integration &
 
       - name: Run Integration Tests
         working-directory: ./ClashBot-UI
