@@ -66,12 +66,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          file: ClashBot-Service/Dockerfile
-          tags: poss11111/clash-bot-service:test
+      - name: Build and push Docker Image
+        working-directory: ./ClashBot-Service
+        run: |
+          docker build -t poss11111/clash-bot-service:test .
+          docker push poss11111/clash-bot-service:test
 
       - name: Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
