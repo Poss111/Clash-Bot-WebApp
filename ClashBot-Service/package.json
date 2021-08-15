@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "integration-windows": "node integration/integration-setup.js && set INTEGRATION_TEST=true && node index.js",
+    "integration": "node integration/integration-setup.js && INTEGRATION_TEST=true && node index.js",
     "test": "jest --silent"
   },
   "author": "Daniel Poss",
