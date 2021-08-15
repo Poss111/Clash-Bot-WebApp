@@ -1,8 +1,8 @@
 const clashTeamsDbImpl = require('../clash-teams-db-impl');
-const dynamoDbHelper = require('../dynamo-db-helper');
+const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
-const randomNames = require('../random-names');
+const randomNames = require('../../random-names');
 const each = require('jest-each').default;
 const Joi = require('joi');
 

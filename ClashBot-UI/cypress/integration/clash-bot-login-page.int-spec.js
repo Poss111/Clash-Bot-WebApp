@@ -1,13 +1,11 @@
-import * as mocks from '../mocks/welcomePageMocks';
-
 describe('Simple Clash-Bot Webapp Application workflow', () => {
   beforeEach(() => {
-    cy.server();
-    cy.fixture('example.json').then(rc => {
-      mocks.getWelcomePageData(rc.getSamplePayload, {}, '');
-    })
+    // cy.server();
+    // cy.fixture('example.json').then(rc => {
+    //   mocks.getWelcomePageData(rc.getSamplePayload, {}, '');
+    // })
     cy.visit('http://localhost:4200');
-    cy.wait('@getWelcomePageData');
+    // cy.wait('@getWelcomePageData');
   })
 
   it('Check to see if welcome message is displayed', () => {

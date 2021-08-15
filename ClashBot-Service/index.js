@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const clashTeamsDbImpl = require('./clash-teams-db-impl');
-const clashTimeDbImpl = require('./clash-time-db-impl');
+const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
+const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const app = express();
 const port = 80;
 const urlPrefix = '/api';
