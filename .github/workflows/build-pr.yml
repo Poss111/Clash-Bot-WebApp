@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Service In Progress Discord Webhooks
+      - name: Test Service In Progress Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -71,7 +71,7 @@ jobs:
         with:
           push: true
           file: ClashBot-Service/Dockerfile
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/clash-bot-service:test
+          tags: poss11111/clash-bot-service:test
 
       - name: Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
