@@ -56,9 +56,9 @@ jobs:
         working-directory: ./ClashBot-Service
         run: npm i
 
-      - name: Test Service
-        working-directory: ./ClashBot-Service
-        run: npm test
+#      - name: Test Service
+#        working-directory: ./ClashBot-Service
+#        run: npm test
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -210,7 +210,7 @@ jobs:
 
       - name: Start service container
         working-directory: ./ClashBot-Service
-        run: docker-compose up
+        run: docker-compose up -d
 
       - name: Run Integration Tests
         working-directory: ./ClashBot-UI
