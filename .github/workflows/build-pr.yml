@@ -207,7 +207,7 @@ jobs:
 
       - name: Install Dependencies for UI
         working-directory: ./ClashBot-UI
-        run: npm
+        run: npm i
 
       - name: Start service container
         working-directory: ./ClashBot-Service
