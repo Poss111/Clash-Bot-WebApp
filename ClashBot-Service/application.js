@@ -23,7 +23,11 @@ let startUpApp = async () => {
         })
 
         app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
-            console.log(`Querying for server : ${req.params.serverName}`);
+            if (req.params.serverName) {
+                console.log(`Querying for server : ('${req.params.serverName}')...`);
+            } else {
+                console.log('Querying for all teams...');
+            }
             clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
                     console.log('Successfully retrieved teams.');
                     console.log(JSON.stringify(data));

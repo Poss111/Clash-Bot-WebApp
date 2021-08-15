@@ -110,7 +110,7 @@ describe('Update preferred Champion', () => {
         });
     })
 
-    test('Should be able to update a record of the Users preferred champions if the user does exist.', () => {
+    test('Should be able to update a record of the Users preferred champions if the user does exist.', async () => {
         let id = '12345667';
         let server = 'TestServer';
         let championToAdd = 'Aatrox';
@@ -132,8 +132,9 @@ describe('Update preferred Champion', () => {
             update: jest.fn().mockImplementation((userData, callback) => {
                 if (userData.id === expectedData.id) {
                     callback(undefined, {attrs: expectedData});
+                } else {
+                    callback();
                 }
-                callback();
             })
         };
         return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then(data => {

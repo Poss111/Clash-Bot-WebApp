@@ -35,42 +35,36 @@ jobs:
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
-  build-service:
+  test-service:
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Build In Progress Discord Webhook
+      - name: Test Service In Progress Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Service Build - Notification'
-          message: 'Build in progress...'
+          title: 'Clash Bot Web App - Service Test - Notification'
+          message: 'Testing in progress...'
           message-color: '16750902'
 
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Deploy Service
-        run: |
-          echo "Running Service!"
-          ls -lha
+      - name: Build Service
+        run: npm i
 
-      - name: Archive service artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: service
-          if-no-files-found: error
-          path: ClashBot-Service
+      - name: Test Service
+        run: npm test
 
       - name: Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         if: ${{ failure() }}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Service Build - Notification'
-          message: 'Service Build Failed!'
+          title: 'Clash Bot Web App - Service Test - Notification'
+          message: 'Service Test Failed!'
           message-color: '16711680'
 
   test-ui:
@@ -103,44 +97,8 @@ jobs:
         if: ${{ failure() }}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Integration Test - Notification'
+          title: 'Clash Bot Web App - UI Test - Notification'
           message: 'UI Test Failed!'
-          message-color: '16711680'
-
-  integration-ui:
-    needs:
-      - test-ui
-      - lint-ui
-    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Testing In Progress Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Integration Test - Notification'
-          message: 'Integration Test in progress...'
-          message-color: '16750902'
-
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
-
-      - name: Run Integration Tests
-        working-directory: ./ClashBot-UI
-        run: npm run-script cy
-
-      - name: Integration Test Failed Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ failure() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - UI Integration Test - Notification'
-          message: 'UI Integration Test Failed!'
           message-color: '16711680'
 
   lint-ui:
@@ -177,31 +135,103 @@ jobs:
           message: 'Linting Failed!'
           message-color: '16711680'
 
+  prod-build-check:
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Produciton build check In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Prod Build Check - Notification'
+          message: 'Prod build check in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Run Prod Build Check
+        working-directory: ./ClashBot-UI
+        run: npm run-script build
+
+      - name: Linting Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Prod Build Check - Notification'
+          message: 'Prod build check Failed!'
+          message-color: '16711680'
+
+  integration-ui:
+    needs:
+      - test-ui
+      - lint-ui
+      - prod-build-check
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Testing In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Integration Test - Notification'
+          message: 'Integration Test in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Run Integration Tests
+        working-directory: ./ClashBot-UI
+        run: npm run-script cy
+
+      - name: Integration Test Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - UI Integration Test - Notification'
+          message: 'UI Integration Test Failed!'
+          message-color: '16711680'
+
   concluded-testing:
     needs:
       - integration-ui
-      - build-service
+      - test-service
       - lint-ui
+      - prod-build-check
       - test-ui
     if: ${{ always() }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Check
-        run: echo "${{ needs.build-service.result }} ${{ needs.integration-ui.result }} ${{ needs.lint-ui.result }} ${{ needs.test-ui.result }}"
+        run: echo "${{ needs.test-service.result }} ${{ needs.integration-ui.result }} ${{ needs.lint-ui.result }} ${{ needs.test-ui.result }} ${{ needs.prod-build-check.result }}"
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.build-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure'}}
+        if: ${{ needs.test-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure' || needs.prod-build-check.result == 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - Testing Finished - Notification "
-          message: 'PR build completed. There is an issue with one or more of the builds. Please check the job. **Build Service**: ${{ needs.build-service.result }} \\n **Linting**: ${{ needs.lint-ui.result }} \\n **UI Tests**: ${{ needs.test-ui.result }} \\n **Integration UI**: ${{ needs.integration-ui.result }}'
+          message: 'PR build completed. There is an issue with one or more of the builds. Please check the job. **Build Service**: ${{ needs.test-service.result }} **Linting**: ${{ needs.lint-ui.result }} **UI Tests**: ${{ needs.test-ui.result }} **Prod Build Check** ${{ needs.prod-build-check.result  }} **Integration UI**: ${{ needs.integration-ui.result }}'
           message-color: '16711680'
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.build-service.result != 'failure' && needs.integration-ui.result != 'failure' && needs.lint-ui.result != 'failure' && needs.test-ui.result != 'failure'}}
+        if: ${{ needs.test-service.result != 'failure' && needs.integration-ui.result != 'failure' && needs.lint-ui.result != 'failure' && needs.test-ui.result != 'failure' || needs.prod-build-check.result == 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - PR check finished - Notification"
