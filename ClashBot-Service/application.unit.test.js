@@ -157,6 +157,43 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
+    describe('Clash Team Registration', () => {
+        test('As a User, I should be able to call /api/team/register to register with a specific team.', (done) => {
+            let expectedUser = 'Player1';
+            let expectedServer = 'Integration Server'
+            let expectedTeam = 'Team Abra';
+            const mockReturnedTeam =
+                {
+                    tournamentDay: "1",
+                    tournamentName: "awesome_sauce",
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    playersDetails: [
+                        {name: expectedUser}
+                    ]
+                };
+            request(application)
+                .post('/api/team/register')
+                .send(
+                    {
+                        id: '12345',
+                        username: expectedUser,
+                        teamName: expectedTeam,
+                        serverName: expectedServer,
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                )
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockReturnedTeam);
+                    done();
+                })
+        })
+    })
+
     describe('Health Check', () => {
         test('As a User, when I call /api/health I should be returned a simple json payload stating it is healthy.', (done) => {
             request(application)
@@ -179,7 +216,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(404, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual({ error: 'Path not found.' });
+                    expect(res.body).toEqual({error: 'Path not found.'});
                     done();
                 })
         })

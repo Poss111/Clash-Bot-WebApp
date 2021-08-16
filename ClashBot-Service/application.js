@@ -56,6 +56,17 @@ let startUpApp = async () => {
             });
         })
 
+        app.post(`${urlPrefix}/team/register`, (req, res) => {
+            console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
+            let copy = JSON.parse(JSON.stringify(req.body));
+            delete copy.id;
+            delete copy.username;
+            copy.playersDetails = [{
+                name: req.body.username
+            }];
+            res.json(copy);
+        })
+
         app.get(`${urlPrefix}/tournaments`, (req, res) => {
             clashTimeDbImpl.findTournament().then(tournaments => {
                 let tournamentsPayload = [];
