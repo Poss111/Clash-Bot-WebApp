@@ -1,11 +1,31 @@
 version: '3.8'
 services:
   dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    command: "-jar DynamoDBLocal.jar -sharedDb"
     image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
+    container_name: clash-bot-dynamodb-local
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
+  clash-bot-service-data-setup:
+    image: "poss11111/clash-bot-service:test"
+    command: "node integration/integration-setup.js"
+    container_name: clash-bot-service-data-setup
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
+  clash-bot-service:
+    image: "poss11111/clash-bot-service:test"
+    container_name: clash-bot-service
+    ports:
+      - "0.0.0.0:80:80"
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
+  clash-bot-ui:
+    image: "poss11111/clash-bot-ui:test"
+    container_name: clash-bot-ui
+    ports:
+      - "0.0.0.0:4200:80"

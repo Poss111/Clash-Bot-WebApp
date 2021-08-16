@@ -1,7 +1,7 @@
 const dynamodb = require('dynamodb');
-const dynamoDbHelper = require('./dynamo-db-helper');
+const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
-const names = require('./random-names');
+const names = require('../random-names');
 
 class ClashTeamsDbImpl {
     Team;

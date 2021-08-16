@@ -4,7 +4,8 @@ export interface ClashTeam {
   tournamentDetails?: TournamentDetails,
   serverName?: string,
   startTime?: string
-  error?: string
+  error?: string,
+  id?: string
 }
 
 interface PlayerDetails {

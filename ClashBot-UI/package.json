@@ -2,14 +2,20 @@
   "name": "clash-bot",
   "version": "0.0.0",
   "description": "The ui for the Clash Bot Webapp.",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "jest",
+    "test": "jest --silent",
     "test:coverage": "jest --coverage",
-    "test:realtime": "jest --watch"
+    "test:realtime": "jest --watch",
+    "e2e": "ng e2e",
+    "lint": "ng lint",
+    "cypress:open": "cypress open",
+    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
+    "cy": "cypress run"
   },
   "private": true,
   "dependencies": {
@@ -25,6 +31,7 @@
     "@angular/router": "~12.2.0",
     "angular-oauth2-oidc": "^12.0.2",
     "angular-oauth2-oidc-jwks": "^12.0.0",
+    "dotenv": "^10.0.0",
     "gzipper": "^5.0.0",
     "npm": "^6.14.14",
     "rxjs": "~6.6.0",
@@ -33,14 +40,26 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~12.2.0",
+    "@angular-eslint/builder": "12.3.1",
+    "@angular-eslint/eslint-plugin": "12.3.1",
+    "@angular-eslint/eslint-plugin-template": "12.3.1",
+    "@angular-eslint/schematics": "12.3.1",
+    "@angular-eslint/template-parser": "12.3.1",
     "@angular/cli": "~12.2.0",
     "@angular/compiler-cli": "~12.2.0",
     "@types/jest": "^26.0.24",
     "@types/node": "^12.11.1",
+    "@typescript-eslint/eslint-plugin": "4.28.2",
+    "@typescript-eslint/parser": "4.28.2",
+    "cypress": "^8.2.0",
+    "eslint": "^7.26.0",
+    "forever": "^4.0.1",
     "jest": "^27.0.6",
+    "jest-marbles": "^2.5.1",
     "jest-preset-angular": "^9.0.5",
     "karma-coverage": "~2.0.3",
-    "typescript": "~4.3.5"
+    "typescript": "~4.3.5",
+    "wait-on": "^6.0.0"
   },
   "jest": {
     "preset": "jest-preset-angular",

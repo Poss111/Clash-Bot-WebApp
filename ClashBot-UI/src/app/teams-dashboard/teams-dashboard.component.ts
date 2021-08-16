@@ -57,7 +57,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
           this.teamFilters.push({
             value: record.name,
             type: FilterType.SERVER,
-            state: false
+            state: false,
+            id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
           });
         })
       });
@@ -81,16 +82,9 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         timeout(7000),
         catchError((err: HttpErrorResponse) => {
           console.error(err);
-          if (err.status === 401) {
-            this._snackBar.open('Invalid Discord Token. Please login to Discord again.',
-              'X',
-              {duration: 5 * 1000});
-
-          } else {
-            this._snackBar.open('Failed to retrieve Teams. Please try again later.',
-              'X',
-              {duration: 5 * 1000});
-          }
+          this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+            'X',
+            {duration: 5 * 1000});
           this.teams.push({error: err.message});
           return throwError(err);
         }),
@@ -100,7 +94,10 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         if (data.length < 1) {
           this.teams = [{error: 'No data'}];
         } else {
-          this.teams = data;
+          this.teams = data.map(record => {
+            record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
+            return record;
+          },);
         }
       });
   }

@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, OnDestroy, ViewEncapsulation} from '@angular/core';
 import {ClashBotService} from "../clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../environments/environment";
@@ -13,11 +13,12 @@ import {MatSnackBar} from "@angular/material/snack-bar";
   styleUrls: ['./welcome-dashboard.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class WelcomeDashboardComponent {
+export class WelcomeDashboardComponent implements OnDestroy{
   tournamentDays: any[] = [];
   dataLoaded: boolean = false;
   guilds: any[] = [];
   loggedIn: boolean = false;
+  $discordServiceSubscription: any;
 
   authCodeFlowConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
@@ -45,31 +46,33 @@ export class WelcomeDashboardComponent {
     this.oauthService.configure(this.authCodeFlowConfig);
     if (sessionStorage.getItem('LoginAttempt')) {
       this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-      this.oauthService.configure(this.authCodeFlowConfig);
       this.oauthService.tryLogin().then(() => {
-        this.discordService.getUserDetails().subscribe((data) => {
+        this.$discordServiceSubscription = this.discordService.getUserDetails().subscribe((data) => {
+          this.loggedIn = true;
+          console.log(JSON.stringify(data));
           this.userDetailsService.setUserDetails(data);
         });
-        this.loggedIn = true;
       }).catch(err => {
         console.error(err);
+        this.loggedIn = false;
         this._snackBar.open('Failed to login to discord.',
           'X',
           {duration: 5 * 1000});
-        this.loggedIn = false;
       });
     } else {
       this.loggedIn = oauthService.hasValidAccessToken();
     }
   }
 
-  refresh() {
-    this.oauthService.refreshToken();
-  }
-
   loginToDiscord(): void {
     this.oauthService.initLoginFlow();
     sessionStorage.setItem('LoginAttempt', 'true');
+  }
+
+  ngOnDestroy(): void {
+    if (this.$discordServiceSubscription) {
+      this.$discordServiceSubscription.unsubscribe();
+    }
   }
 
 }

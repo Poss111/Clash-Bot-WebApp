@@ -1,0 +1,16 @@
+{
+  "getSamplePayload": [
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "3",
+      "startTime": "August 21 2021 07:00 pm PDT",
+      "registrationTime": "August 21 2021 04:15 pm PDT"
+    },
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "4",
+      "startTime": "August 22 2021 07:00 pm PDT",
+      "registrationTime": "August 22 2021 04:15 pm PDT"
+    }
+  ]
+}

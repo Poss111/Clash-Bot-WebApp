@@ -16,7 +16,7 @@
   </div>
 </div>
 <div class="chips-list" *ngIf="!showSpinner">
-  <h2>Your available Servers to filter by</h2>
+  <h2 id="clash-bot-teams-header">Your available Servers to filter by</h2>
   <mat-chip-list
     [formControl]="formControl"
     [multiple]="false">
@@ -25,6 +25,7 @@
       cdkDrag
       #chip="matChip"
       *ngFor="let filter of teamFilters"
+      id="clash-bot-teams-{{filter.id}}"
       [selected]="filter.state"
       (selectionChange)="changeSelected(filter)"
       (click)="filterTeam(chip)">
@@ -33,5 +34,5 @@
   </mat-chip-list>
 </div>
 <div class="team-cards">
-  <app-team-card *ngFor="let team of teams; index as i;" [team]="team" class="team-card" ></app-team-card>
+  <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team" class="team-card" ></app-team-card>
 </div>
