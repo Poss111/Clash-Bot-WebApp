@@ -26,7 +26,7 @@ import {DiscordService} from "./discord.service";
     AppComponent,
     WelcomeDashboardComponent,
     ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent,
+    ClashTournamentCalendarHeaderComponent
   ],
   imports: [
     BrowserModule,

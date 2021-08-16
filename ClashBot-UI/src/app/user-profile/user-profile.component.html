@@ -1,0 +1,39 @@
+<mat-accordion class="example-headers-align" multi>
+  <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Username
+      </mat-panel-title>
+      <mat-panel-description>
+        User information used when registering for a LoL Clash Tournament
+        <mat-icon>account_circle</mat-icon>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-form-field class="example-chip-list" appearance="fill">
+      <mat-label>Current Preferred Champions</mat-label>
+      <mat-chip-list #chipList aria-label="Fruit selection">
+        <mat-chip
+          *ngFor="let champion of preferredChampions"
+          [selectable]="selectable"
+          [removable]="removable"
+          (removed)="remove(champion)">
+          {{champion}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+          placeholder="Add Champion..."
+          #championInput
+          [formControl]="championCtrl"
+          [matAutocomplete]="auto"
+          [matChipInputFor]="chipList"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="add($event)">
+      </mat-chip-list>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+        <mat-option *ngFor="let champion of filteredChampions | async" [value]="champion">
+          {{champion}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </mat-expansion-panel>
+</mat-accordion>
