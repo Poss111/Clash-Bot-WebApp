@@ -223,7 +223,7 @@ jobs:
 
       - name: Start service container
         working-directory: ./ClashBot-Service
-        run: docker-compose up
+        run: docker-compose up -d
 
       - name: Check Service
         run: curl http://localhost/api/tournaments
