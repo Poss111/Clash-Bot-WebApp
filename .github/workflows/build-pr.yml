@@ -238,6 +238,12 @@ jobs:
           message: 'UI Integration Test Failed!'
           message-color: '16711680'
 
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: failures
+          path: ClashBot-UI/cypress/screenshots
+
 #  concluded-testing:
 #    needs:
 #      - integration-ui
