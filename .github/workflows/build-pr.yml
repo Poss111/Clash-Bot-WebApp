@@ -231,7 +231,7 @@ jobs:
 
       - name: Populate mock data into Local DynamoDB
         working-directory: ./ClashBot-Service
-        run: npm preintegration
+        run: npm run-script preintegration
 
       - name: Run Integration Tests
         working-directory: ./ClashBot-UI
