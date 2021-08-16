@@ -14,7 +14,7 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "cypress:open": "cypress open",
-    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:4200/api/health",
+    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
     "cy": "cypress run"
   },
   "private": true,
