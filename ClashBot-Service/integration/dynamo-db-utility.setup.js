@@ -16,8 +16,8 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
     let currentDate = new moment();
     let formattedCurrentDate = currentDate.add(1, 'hour').format(dateFormat);
     let currentDatePlusOne = currentDate.add(1, 'day').format(dateFormat);
-    let currentDatePlusTwo = currentDate.add(2, 'day').format(dateFormat);
-    let currentDatePlusThree = currentDate.add(3, 'day').format(dateFormat);
+    let currentDatePlusTwo = currentDate.add(4, 'day').format(dateFormat);
+    let currentDatePlusThree = currentDate.add(5, 'day').format(dateFormat);
     let overrides = {
         tournamentName: 'awesome_sauce',
         currentDate: formattedCurrentDate,
