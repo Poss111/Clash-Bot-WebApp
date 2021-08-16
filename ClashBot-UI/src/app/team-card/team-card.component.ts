@@ -1,5 +1,7 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClashTeam} from "../clash-team";
+import {MatDialog} from "@angular/material/dialog";
+import {ConfirmationDialogComponent} from "../confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-team-card',
@@ -11,7 +13,10 @@ export class TeamCardComponent implements OnInit {
   @Input()
   team: ClashTeam = {};
 
-  constructor() {
+  @Output()
+  registerUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+
+  constructor(private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -21,5 +26,14 @@ export class TeamCardComponent implements OnInit {
         tournamentDay: '1'
       };
     }
+  }
+
+  registerToTeam() {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.registerUser.emit(this.team);
+      }
+    })
   }
 }

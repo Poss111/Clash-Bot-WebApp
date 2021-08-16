@@ -8,10 +8,14 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {TeamCardComponent} from "../team-card/team-card.component";
 import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
+import {MatDialogModule} from "@angular/material/dialog";
+import {ConfirmationDialogComponent} from "../confirmation-dialog/confirmation-dialog.component";
 
 
 @NgModule({
-  declarations: [TeamsDashboardComponent, TeamCardComponent],
+  declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent],
   imports: [
     CommonModule,
     TeamsRoutingModule,
@@ -20,7 +24,10 @@ import {MatCardModule} from '@angular/material/card';
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatCardModule
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule
   ]
 })
 export class TeamsModule {

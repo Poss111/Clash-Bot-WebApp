@@ -1,9 +1,10 @@
 <mat-card class="example-card">
-  <div  *ngIf="!team.error; else elseBlock">
+  <div *ngIf="!team.error; else elseBlock">
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
       <mat-card-title id="clash-bot-team-card-title">{{team.serverName}} - {{team.teamName}}</mat-card-title>
-      <mat-card-subtitle id="clash-bot-team-card-subtitle-tournament" *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -
+      <mat-card-subtitle id="clash-bot-team-card-subtitle-tournament"
+                         *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -
         Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
       <mat-card-subtitle id="clash-bot-team-card-subtitle-start">Start Time: {{team.startTime}}</mat-card-subtitle>
     </mat-card-header>
@@ -13,6 +14,14 @@
           <h2>{{player.role}} - {{player.name}}</h2>
           <p *ngIf="player.champions">Champions: {{player.champions}}</p>
         </div>
+      </div>
+    </mat-card-content>
+    <mat-card-content id="clash-bot-team-card-add-button">
+      <div class="clash-bot-button-container">
+        <button mat-mini-fab color="primary" *ngIf="team.playersDetails && team.playersDetails.length < 5"
+                (click)="registerToTeam()" aria-label="Register with this Team">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
     </mat-card-content>
   </div>
