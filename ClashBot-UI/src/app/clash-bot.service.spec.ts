@@ -3,7 +3,6 @@ import {ClashBotService} from './clash-bot.service';
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 import {UserDetails} from "./user-details";
 import {ClashTeam} from "./clash-team";
-import mock = jest.mock;
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
