@@ -225,12 +225,9 @@ jobs:
         working-directory: ./ClashBot-Service
         run: docker-compose up -d
 
-      - name: Check Service
-        run: curl http://localhost:80/api/tournaments
-
-#      - name: Run Integration Tests
-#        working-directory: ./ClashBot-UI
-#        run: npm run-script cy
+      - name: Run Integration Tests
+        working-directory: ./ClashBot-UI
+        run: npm run-script cy
 
       - name: Integration Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
