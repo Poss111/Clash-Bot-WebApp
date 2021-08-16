@@ -228,10 +228,10 @@ jobs:
       - name: Run Integration Tests
         working-directory: ./ClashBot-UI
         run: |
-          set APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
-          set AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
-          set AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
-          set APP_AUTH0_SCOPE=${{ secrets.DISCORD_GRANT_TYPE }}
+          export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
+          export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
+          export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
+          export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
           npm run-script cy
 
       - name: Integration Test Failed Discord Webhook
