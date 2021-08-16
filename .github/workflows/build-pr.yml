@@ -226,7 +226,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Check Service
-        run: curl http://localhost/api/tournaments
+        run: curl http://localhost:80/api/tournaments
 
 #      - name: Run Integration Tests
 #        working-directory: ./ClashBot-UI
