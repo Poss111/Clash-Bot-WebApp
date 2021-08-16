@@ -8,7 +8,8 @@ describe('DiscordService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule]
+      imports: [HttpClientTestingModule],
+      providers: [DiscordService]
     });
     service = TestBed.inject(DiscordService);
     httpMock = TestBed.inject(HttpTestingController);

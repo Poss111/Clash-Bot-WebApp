@@ -22,6 +22,7 @@ describe('DiscordInterceptorInterceptor', () => {
       providers: [
         OAuthService,
         ClashBotService,
+        DiscordService,
         {
           provide: HTTP_INTERCEPTORS,
           useClass: DiscordInterceptor,
