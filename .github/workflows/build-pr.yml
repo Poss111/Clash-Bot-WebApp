@@ -196,7 +196,8 @@ jobs:
 #          message-color: '16711680'
 
   integration-ui:
-#    needs:
+    needs:
+      - check-applications
 #      - test-ui
 #      - lint-ui
 #      - prod-build-check
