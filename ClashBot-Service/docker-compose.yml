@@ -9,6 +9,13 @@ services:
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
+  clash-bot-service-data-setup:
+    image: "poss11111/clash-bot-service:test"
+    command: "node integration/integration-setup.js"
+    container_name: clash-bot-service-data-setup
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
   clash-bot-service:
     image: "poss11111/clash-bot-service:test"
     container_name: clash-bot-service

@@ -221,17 +221,9 @@ jobs:
         working-directory: ./ClashBot-UI
         run: npm i
 
-      - name: Install Dependencies for Service
-        working-directory: ./ClashBot-Service
-        run: npm i
-
       - name: Start service container
         working-directory: ./ClashBot-Service
         run: docker-compose up -d
-
-      - name: Populate mock data into Local DynamoDB
-        working-directory: ./ClashBot-Service
-        run: npm run-script preintegration
 
       - name: Run Integration Tests
         working-directory: ./ClashBot-UI
