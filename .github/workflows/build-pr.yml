@@ -1,11 +1,6 @@
 name: Build - Clash Bot WebApp
 
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-      - '**/README.md'
-      - '**/.gitignore'
   pull_request:
     branches: [ master ]
 
