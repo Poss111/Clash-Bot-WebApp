@@ -19,6 +19,7 @@ import { ClashTournamentCalendarComponent } from './clash-tournament-calendar/cl
 import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calendar-header/clash-tournament-calendar-header.component';
 import {OAuthModule} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./discord-interceptor.service";
+import {DiscordService} from "./discord.service";
 
 @NgModule({
   declarations: [
@@ -42,7 +43,7 @@ import {DiscordInterceptor} from "./discord-interceptor.service";
     MatMenuModule,
     OAuthModule.forRoot(),
   ],
-  providers: [ClashBotService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
+  providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })
 export class AppModule {

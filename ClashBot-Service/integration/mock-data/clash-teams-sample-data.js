@@ -1,7 +1,7 @@
 module.exports = {
     Items: [
         {
-            startTime: ":currentDate",
+            startTime: ":currentDateOne",
             serverName: ":serverName",
             teamName: "Team Abra",
             tournamentName: ":tournamentName",
@@ -10,7 +10,7 @@ module.exports = {
             key: "Team Abra#:serverName#:tournamentName#:tournamentDayOne"
         },
         {
-            startTime: ":currentDate",
+            startTime: ":currentDateOne",
             serverName: ":serverName",
             players: [
                 "Silv3rshard"
@@ -22,7 +22,7 @@ module.exports = {
             key: "Team Absol#:serverName#:tournamentName#:tournamentDayOne"
         },
         {
-            startTime: ":currentDatePlusOneDay",
+            startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
                 "cosmic"
@@ -34,7 +34,7 @@ module.exports = {
             key: "Team Hoho#:serverName#:tournamentName#:tournamentDayTwo"
         },
         {
-            startTime: ":currentDatePlusOneDay",
+            startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
                 "Garmetzon",

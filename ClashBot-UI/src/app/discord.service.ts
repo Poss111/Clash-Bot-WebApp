@@ -3,9 +3,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {UserDetails} from "./user-details";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DiscordService {
 
   hostName: string = 'https://discord.com/api';

@@ -1,25 +1,27 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+Cypress.Commands.add('loginThroughOAuth', () => {
+  const client_id = Cypress.env('auth0_client_id')
+  const client_secret = Cypress.env('auth0_client_secret')
+  const scope = Cypress.env('auth0_scope')
+  const grant_type = Cypress.env('auth0_grant_type')
+
+  cy.request({
+    method: 'POST',
+    url: 'https://discord.com/api/oauth2/token',
+    auth: {
+      user: client_id,
+      pass: client_secret
+    },
+    body: {
+      'grant_type': grant_type,
+      'scope': scope
+    },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  }).then(({ body }) => {
+    window.sessionStorage.setItem('access_token', body.access_token)
+    window.sessionStorage.setItem('LoginAttempt', 'true')
+    cy.visit('/')
+  })
+
+})

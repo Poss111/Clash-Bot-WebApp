@@ -88,10 +88,12 @@ describe('TeamsDashboardComponent', () => {
         "permissions_new": "274877906943"
       }];
       const expectedTeamsFilter = mockObservableGuilds.map((record) => {
+        let id = record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
         return {
           value: record.name,
           type: FilterType.SERVER,
-          state: false
+          state: false,
+          id: id
         }
       });
       const guildObservable$ = cold('----x|', {x: mockObservableGuilds});
@@ -232,9 +234,10 @@ describe('TeamsDashboardComponent', () => {
       getGuildsMock.mockReturnValue(guildObservable$);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      let mockClashTeams = [
+      let mockClashTeams: ClashTeam[] = [
         {
           teamName: 'Team Abra',
+          serverName: 'Test Server',
           playersDetails: [
             {
               name: 'Roïdräge',
@@ -254,6 +257,14 @@ describe('TeamsDashboardComponent', () => {
           ]
         }
       ];
+      let expectedClashTeam: ClashTeam[] = mockClashTeams.map(record => {
+        return {
+          teamName: record.teamName,
+          serverName: record.serverName,
+          playersDetails: record.playersDetails,
+          id: `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase(),
+        }
+      })
       const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
       getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
       const mockMatChip: MatChip = ({
@@ -269,7 +280,7 @@ describe('TeamsDashboardComponent', () => {
       flush();
       expect(getClashTeamsMock).toBeCalledWith(expectedSearchPhrase);
       expect(component.showSpinner).toBeFalsy();
-      expect(component.teams).toEqual(mockClashTeams);
+      expect(component.teams).toEqual(expectedClashTeam);
     })
   })
 
@@ -412,9 +423,10 @@ describe('TeamsDashboardComponent', () => {
       getGuildsMock.mockReturnValue(guildObservable$);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      let mockClashTeams = [
+      let mockClashTeams: ClashTeam[] = [
         {
           teamName: 'Team Abra',
+          serverName: 'Test Server',
           playersDetails: [
             {
               name: 'Roïdräge',
@@ -460,7 +472,8 @@ describe('TeamsDashboardComponent', () => {
     let teamFilter: TeamFilter = {
       value: 'Filterah',
       type: FilterType.SERVER,
-      state: true
+      state: true,
+      id: 'filterah'
     }
     component = fixture.componentInstance;
     component.changeSelected(teamFilter);
