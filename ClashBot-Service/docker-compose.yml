@@ -17,3 +17,8 @@ services:
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local
+  clash-bot-ui:
+    image: "poss11111/clash-bot-ui:test"
+    container_name: clash-bot-ui
+    ports:
+      - "0.0.0.0:4200:80"

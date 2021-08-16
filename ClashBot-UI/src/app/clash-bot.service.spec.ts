@@ -1,21 +1,25 @@
 import {TestBed} from '@angular/core/testing';
 import {ClashBotService} from './clash-bot.service';
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {DevModeService} from "./dev-mode.service";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
   let httpMock: HttpTestingController;
-  let devModeServiceMock: DevModeService;
+
+  function stubLocation(location: any) {
+    jest.spyOn(window, "location", "get").mockReturnValue({
+      ...window.location,
+      ...location,
+    });
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ClashBotService, DevModeService]
+      providers: [ClashBotService]
     });
     service = TestBed.inject(ClashBotService);
     httpMock = TestBed.inject(HttpTestingController);
-    devModeServiceMock = TestBed.inject(DevModeService);
   });
 
   afterEach(() => {
@@ -27,7 +31,7 @@ describe('ClashBotService', () => {
   });
 
   test('When I call to retrieve Clash Teams from local host, I should use localhost with port 80 and retrieve Observable<ClashTeam[]>', () => {
-    devModeServiceMock.isDevMode = jest.fn().mockReturnValue(true);
+    stubLocation({ hostname: "localhost" });
     const mockResponse = [
       {
         teamName: 'Team Abra',
@@ -81,7 +85,7 @@ describe('ClashBotService', () => {
   })
 
   test('When I call to retrieve Clash Teams from local host, I should use localhost with port 80 and retrieve Observable<ClashTeam[]>', () => {
-    devModeServiceMock.isDevMode = jest.fn().mockReturnValue(false);
+    stubLocation({ hostname: "clash-bot.ninja" });
     const mockResponse = [
       {
         teamName: 'Team Abra',
@@ -135,7 +139,7 @@ describe('ClashBotService', () => {
   })
 
   test('When I retrieve Clash Tournaments and I am not in dev mode, I should use prod and be returned a Observable<ClashTeam[]>', () => {
-    devModeServiceMock.isDevMode = jest.fn().mockReturnValue(false);
+    stubLocation({ hostname: "clash-bot.ninja" });
     const mockResponse = [
       {
         "tournamentName": "bandle_city",
@@ -159,7 +163,7 @@ describe('ClashBotService', () => {
   })
 
   test('When I retrieve Clash Tournaments,  I should use localhost with port 80 and be returned a Observable<ClashTeam[]>', () => {
-    devModeServiceMock.isDevMode = jest.fn().mockReturnValue(true);
+    stubLocation({ hostname: "localhost" });
     const mockResponse = [
       {
         "tournamentName": "bandle_city",
