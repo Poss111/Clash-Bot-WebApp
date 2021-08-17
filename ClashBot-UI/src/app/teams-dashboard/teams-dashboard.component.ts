@@ -11,6 +11,7 @@ import {MatChip} from "@angular/material/chips";
 import {DiscordService} from "../discord.service";
 import {HttpErrorResponse} from "@angular/common/http";
 import {UserDetailsService} from "../user-details.service";
+import {UserDetails} from "../user-details";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -88,6 +89,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             'X',
             {duration: 5 * 1000});
           this.teams = [{error: 'No data'}];
+          this.showSpinner = false;
         } else {
           this.clashBotService
             .getClashTeams(this.formControl.value.trimLeft())
@@ -108,15 +110,20 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
               if (data.length < 1) {
                 this.teams = [{error: 'No data'}];
               } else {
-                this.teams = data.map(record => {
-                  record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
-                  record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
-                  return record;
-                });
+                this.teams = this.mapDynamicValues(data, userDetails);
               }
             })
         }
       })
+  }
+
+  private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
+    return data.map(record => {
+      record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+      record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
+      console.log(`User on Team ${record.teamName} -> ${record.userOnTeam}`);
+      return record;
+    });
   }
 
   changeSelected(team: TeamFilter) {
@@ -126,13 +133,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
   registerForTeam($event: ClashTeam) {
     this.userDetailsService.getUserDetails()
       .pipe(take(1))
-      .subscribe((data) => {
-        if (!data || !data.username || data.username === '') {
+      .subscribe((userDetails) => {
+        if (!userDetails || !userDetails.username || userDetails.username === '') {
           this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
             'X',
             {duration: 5 * 1000});
         } else {
-          this.clashBotService.registerUserForTeam(data, $event)
+          this.clashBotService.registerUserForTeam(userDetails, $event)
             .pipe(
               timeout(7000),
               catchError((err) => {
@@ -153,7 +160,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                   this.clashBotService.getClashTeams($event.serverName)
                     .pipe(take(1), finalize(() => this.showSpinner = false))
                     .subscribe((updatedTeams) => {
-                      this.teams = updatedTeams;
+                      this.teams = this.mapDynamicValues(updatedTeams, userDetails)
                     })
                 }
               }))

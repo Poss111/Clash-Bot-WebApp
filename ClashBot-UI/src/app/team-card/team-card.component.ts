@@ -16,10 +16,14 @@ export class TeamCardComponent implements OnInit {
   @Output()
   registerUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
+  @Output()
+  unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+
   constructor(private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
+    console.log(JSON.stringify(this.team));
     if (this.team && !this.team.tournamentDetails) {
       this.team.tournamentDetails = {
         tournamentName: 'Placeholder',
@@ -29,10 +33,19 @@ export class TeamCardComponent implements OnInit {
   }
 
   registerToTeam() {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent);
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: { message: 'Are you sure you want to register to this Team?'}});
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.registerUser.emit(this.team);
+      }
+    })
+  }
+
+  unregisterFromTeam() {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: { message: 'Are you sure you want to unregister from this Team?'}});
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.unregisterUser.emit(this.team);
       }
     })
   }

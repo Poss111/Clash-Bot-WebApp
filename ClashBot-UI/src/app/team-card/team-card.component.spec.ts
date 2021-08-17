@@ -103,4 +103,26 @@ describe('TeamCardComponent', () => {
       })
     })
   })
+
+  describe('Emit unregisterToTeam Event', () => {
+    test('When I emit an event to unregisterFromTeam and the dialog is accepted, then I should emit the Team for the card.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedObservable = cold('-x|', {
+          x: true
+        });
+        jest.spyOn(component.unregisterUser, 'emit');
+        let mockedDialogReturn = {
+          afterClosed: () => {
+            return expectedObservable;
+          }
+        };
+        openMock.mockReturnValue(mockedDialogReturn);
+        component.unregisterFromTeam();
+        expectObservable(expectedObservable).toBe('-x|', {x: true})
+        flush();
+        expect(component.unregisterUser.emit).toHaveBeenCalled();
+      })
+    })
+  })
 });

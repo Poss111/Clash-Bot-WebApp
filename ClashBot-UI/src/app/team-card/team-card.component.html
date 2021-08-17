@@ -18,7 +18,12 @@
     </mat-card-content>
     <mat-card-content id="clash-bot-team-card-add-button">
       <div class="clash-bot-button-container">
-        <button mat-mini-fab color="primary" *ngIf="team.playersDetails && team.playersDetails.length < 5"
+        <button mat-mini-fab color="primary" *ngIf="team.userOnTeam" (click)="unregisterFromTeam()"
+                aria-label="Unregister with this Team">
+          <mat-icon>remove</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary"
+                *ngIf="!team.userOnTeam && team.playersDetails && team.playersDetails.length < 5"
                 (click)="registerToTeam()" aria-label="Register with this Team">
           <mat-icon>add</mat-icon>
         </button>
