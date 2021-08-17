@@ -4,6 +4,7 @@ import {ClashTeam} from "./clash-team";
 import {Observable} from "rxjs";
 import {ClashTournaments} from "./clash-tournaments";
 import {UserDetails} from "./user-details";
+import {ClashBotGenericResponse} from "./clash-bot-generic-response";
 
 @Injectable()
 export class ClashBotService {
@@ -29,6 +30,18 @@ export class ClashBotService {
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     }
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team/register'), payload);
+  }
+
+  unregisterUserFromTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashBotGenericResponse> {
+    let payload = {
+      id: userDetail.id,
+      username: userDetail.username,
+      teamName: teamRequest.teamName,
+      serverName: teamRequest.serverName,
+      tournamentName: teamRequest.tournamentDetails?.tournamentName,
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+    };
+    return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/team/register'), { body: payload});
   }
 
   buildHostUrl(url: string): string {

@@ -3,6 +3,7 @@ import {ClashBotService} from './clash-bot.service';
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 import {UserDetails} from "./user-details";
 import {ClashTeam} from "./clash-team";
+import {ClashBotGenericResponse} from "./clash-bot-generic-response";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
@@ -193,7 +194,7 @@ describe('ClashBotService', () => {
 
   })
 
-  describe('POST Register to Clash Team', () => {
+  describe('Method POST Register to Clash Team', () => {
     test('When I request to register a player to a Clash Tournament from localhost, I should use localhost with port 80 and be returned a payload of Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
       const mockResponse: ClashTeam =
@@ -298,6 +299,113 @@ describe('ClashBotService', () => {
       req.flush(mockResponse);
     })
   })
+
+  describe('Method DELETE Unregister from Clash Team', () => {
+    test('When I request to unregister form a Team and from localhost, I should make a call to the Clash Bot register controller localhost with port 80 with method DELETE and be returned Observable<ClashBotGenericResponse>',() => {
+      stubLocation({hostname: "localhost"});
+      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team' };
+      const teamRequest: ClashTeam =
+        {
+          teamName: 'Team Abra',
+          serverName: 'Integration Server',
+          tournamentDetails: {
+            tournamentDay: 'awesome_sauce',
+            tournamentName: '1',
+          },
+          playersDetails: [
+            {
+              name: 'Roïdräge',
+              champions: ['Volibear', 'Ornn', 'Sett'],
+              role: 'Top'
+            },
+            {
+              name: 'TheIncentive',
+              champions: ['Lucian'],
+              role: 'ADC'
+            },
+            {
+              name: 'Pepe Conrad',
+              champions: ['Lucian'],
+              role: 'Jg'
+            }
+          ]
+        };
+      const userDetail: UserDetails = {
+        id: '1234',
+        username: 'Test User',
+        discriminator: ';lkj213412'
+      };
+      const expectedPayload = {
+        id: userDetail.id,
+        username: userDetail.username,
+        teamName: teamRequest.teamName,
+        serverName: teamRequest.serverName,
+        tournamentName: teamRequest.tournamentDetails?.tournamentName,
+        tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+      }
+      service.unregisterUserFromTeam(userDetail, teamRequest).subscribe(data => {
+        expect(data).toBeTruthy();
+        expect(data).toEqual(mockResponse);
+      });
+      const req = httpMock.expectOne(`http://localhost:80/api/team/register`);
+      expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toEqual(expectedPayload);
+      req.flush(mockResponse);
+    })
+
+    test('When I request to unregister form a Team, I should make a call to the Clash Bot register controller with method DELETE and be returned Observable<ClashBotGenericResponse>',() => {
+      stubLocation({hostname: "clash-bot.ninja"});
+      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team' };
+      const teamRequest: ClashTeam =
+        {
+          teamName: 'Team Abra',
+          serverName: 'Integration Server',
+          tournamentDetails: {
+            tournamentDay: 'awesome_sauce',
+            tournamentName: '1',
+          },
+          playersDetails: [
+            {
+              name: 'Roïdräge',
+              champions: ['Volibear', 'Ornn', 'Sett'],
+              role: 'Top'
+            },
+            {
+              name: 'TheIncentive',
+              champions: ['Lucian'],
+              role: 'ADC'
+            },
+            {
+              name: 'Pepe Conrad',
+              champions: ['Lucian'],
+              role: 'Jg'
+            }
+          ]
+        };
+      const userDetail: UserDetails = {
+        id: '1234',
+        username: 'Test User',
+        discriminator: ';lkj213412'
+      };
+      const expectedPayload = {
+        id: userDetail.id,
+        username: userDetail.username,
+        teamName: teamRequest.teamName,
+        serverName: teamRequest.serverName,
+        tournamentName: teamRequest.tournamentDetails?.tournamentName,
+        tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+      }
+      service.unregisterUserFromTeam(userDetail, teamRequest).subscribe(data => {
+        expect(data).toBeTruthy();
+        expect(data).toEqual(mockResponse);
+      });
+      const req = httpMock.expectOne(`/api/team/register`);
+      expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toEqual(expectedPayload);
+      req.flush(mockResponse);
+    })
+  })
+
   describe('Build Host Url', () => {
     test('When I request the host to use from buildHostUrl and it is localhost, I should be returned a url with the prefix of http://localHost:80', () => {
       stubLocation({hostname: "localhost", port: 'http'});
