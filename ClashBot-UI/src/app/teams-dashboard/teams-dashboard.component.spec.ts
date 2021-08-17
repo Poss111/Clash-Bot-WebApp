@@ -33,6 +33,7 @@ describe('TeamsDashboardComponent', () => {
   let getGuildsMock: any;
   let getUserDetailsObjectMock: any;
   let registerUserForTeamMock: any;
+  let unregisterUserFromTeamMock: any;
   let snackBarMock: MatSnackBar;
   let snackBarOpenMock: any;
   let getClashTeamsMock: any;
@@ -55,6 +56,7 @@ describe('TeamsDashboardComponent', () => {
     getClashTeamsMock = jest.fn();
     getUserDetailsObjectMock = jest.fn();
     registerUserForTeamMock = jest.fn();
+    unregisterUserFromTeamMock = jest.fn();
     clashBotServiceMock = TestBed.inject(ClashBotService);
     discordServiceMock = TestBed.inject(DiscordService);
     snackBarMock = TestBed.inject(MatSnackBar);
@@ -65,6 +67,7 @@ describe('TeamsDashboardComponent', () => {
     clashBotServiceMock.getClashTeams = getClashTeamsMock;
     userDetailsMock.getUserDetails = getUserDetailsObjectMock;
     clashBotServiceMock.registerUserForTeam = registerUserForTeamMock;
+    clashBotServiceMock.unregisterUserFromTeam = unregisterUserFromTeamMock;
   });
 
   beforeEach(() => {
@@ -781,6 +784,436 @@ describe('TeamsDashboardComponent', () => {
       });
     })
 
+  })
 
+  describe('Unregister from Team', () => {
+    test('When I call unregister from Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to unregister a user from team.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        expectedMockClashTeamResponse[0].playersDetails.pop();
+        let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
+
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
+        let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
+        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual(expectedMockClashTeamResponse);
+        expect(getClashTeamsMock).toHaveBeenCalledWith(expectedServer);
+      });
+    })
+
+    test('Error - Missing User Details - When I call unregister from Team, it should subscribe to retrieve the latest User Details and if the Users Details are empty then it should show a snackbar error.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '', username: '', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
+
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
+        let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual([{error: 'No data'}]);
+        expect(getUserDetailsObjectMock).toHaveBeenCalled();
+        expect(snackBarOpenMock).toHaveBeenCalledTimes(1);
+        expect(snackBarOpenMock).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
+      })
+    })
+
+    test('Error - Unregister Failed - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        expectedMockClashTeamResponse[0].playersDetails.pop();
+
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost.com/api/teams/unregister'
+          });
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('-#', undefined, expectedError);
+        let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+        expectObservable(unregisterUserFromTeamColdObservable).toBe('-#', undefined, expectedError);
+        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual(expectedMockClashTeamResponse);
+        expect(getClashTeamsMock).toHaveBeenCalledWith(expectedServer);
+        expect(snackBarOpenMock).toHaveBeenCalledTimes(1);
+        expect(snackBarOpenMock).toHaveBeenCalledWith('Oops! Failed to unregister you from the Team.', 'X', {duration: 5000});
+      });
+    })
+
+    test('Error - Timeout for Unregister - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        expectedMockClashTeamResponse[0].playersDetails.pop();
+        let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
+
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost.com/api/teams/unregister'
+          });
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('7000ms x|', { x: mockUnregisterFromTeamResponse });
+        let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+        expectObservable(unregisterUserFromTeamColdObservable).toBe('7000ms x|', { x: mockUnregisterFromTeamResponse });
+        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual(expectedMockClashTeamResponse);
+        expect(getClashTeamsMock).toHaveBeenCalledWith(expectedServer);
+        expect(snackBarOpenMock).toHaveBeenCalledTimes(1);
+        expect(snackBarOpenMock).toHaveBeenCalledWith('Oops! Your request timed out, please try again!', 'X', {duration: 5000});
+      });
+    })
+
+    test('Error - Retrieving updated Teams - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        expectedMockClashTeamResponse[0].playersDetails.pop();
+        let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost.com/api/teams'
+          });
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
+        let clashTeamsObservable$ = cold('#', undefined, expectedError);
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
+        expectObservable(clashTeamsObservable$).toBe('#', undefined, expectedError);
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual([{error: 'Http failure response for https://localhost.com/api/teams: 400 Bad Request'}]);
+        expect(getClashTeamsMock).toHaveBeenCalledWith(expectedServer);
+        expect(snackBarOpenMock).toHaveBeenCalledTimes(1);
+        expect(snackBarOpenMock).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
+      });
+    })
+
+    test('Error - Timeout for update Teams - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        const expectedServer = 'Test Server';
+        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
+        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+        let mockClashTeams: ClashTeam[] = [
+          {
+            teamName: 'Team Abra',
+            serverName: expectedServer,
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              },
+              {
+                name: mockUserDetails.username
+              }
+            ]
+          }
+        ];
+        let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+        let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+        expectedMockClashTeamResponse[0].playersDetails.pop();
+        let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost.com/api/teams'
+          });
+        component = fixture.componentInstance;
+        expect(component.showSpinner).toBeFalsy();
+        fixture.detectChanges();
+        component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+
+        let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+        let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
+        let clashTeamsObservable$ = cold('7000ms x|', {x: expectedMockClashTeamResponse});
+
+        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
+        unregisterUserFromTeamMock.mockReturnValue(unregisterUserFromTeamColdObservable);
+        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
+
+        fixture.detectChanges();
+
+        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
+        expectObservable(clashTeamsObservable$).toBe('7000ms x|', {x: expectedMockClashTeamResponse});
+
+        component.unregisterFromTeam(mockTeamToUnregisterFrom);
+
+        flush();
+        expect(component.teams).toEqual([{error: 'Timeout has occurred'}]);
+        expect(getClashTeamsMock).toHaveBeenCalledWith(expectedServer);
+        expect(snackBarOpenMock).toHaveBeenCalledTimes(1);
+        expect(snackBarOpenMock).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
+      });
+    })
   })
 });

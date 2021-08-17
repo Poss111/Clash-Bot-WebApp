@@ -27,6 +27,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
   value: any;
   showSpinner: boolean;
   formControl = new FormControl([]);
+  private readonly MAX_TIMEOUT = 4000;
 
   constructor(private clashBotService: ClashBotService,
               private discordService: DiscordService,
@@ -155,8 +156,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
               }),
               take(1),
               finalize(() => {
-                this.showSpinner = true;
                 if ($event.serverName) {
+                  this.showSpinner = true;
                   this.clashBotService.getClashTeams($event.serverName)
                     .pipe(take(1), finalize(() => this.showSpinner = false))
                     .subscribe((updatedTeams) => {
@@ -168,4 +169,54 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
       })
   }
+
+  unregisterFromTeam($event: ClashTeam) {
+    this.userDetailsService.getUserDetails()
+      .pipe(take(1))
+      .subscribe((userDetails) => {
+        if (!userDetails || !userDetails.username || userDetails.username === '') {
+          this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+            'X',
+            {duration: 5 * 1000});
+          this.teams = [{error: 'No data'}];
+        } else {
+          this.clashBotService.unregisterUserFromTeam(userDetails, $event)
+            .pipe(
+              timeout(7000),
+              take(1),
+              catchError((err) => {
+                console.error(err);
+                let errorMessage = 'Oops! Failed to unregister you from the Team.';
+                if (err.name === 'TimeoutError') {
+                  errorMessage = 'Oops! Your request timed out, please try again!';
+                }
+                this._snackBar.open(errorMessage,
+                  'X',
+                  {duration: 5 * 1000});
+                return throwError(err);
+              }),
+              finalize(() => {
+                if ($event.serverName) {
+                  this.showSpinner = true;
+                  this.clashBotService.getClashTeams($event.serverName)
+                    .pipe(
+                      take(1),
+                      timeout(this.MAX_TIMEOUT),
+                      catchError((err: HttpErrorResponse) => {
+                        console.error(err);
+                        this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+                          'X',
+                          {duration: 5 * 1000});
+                        this.teams = [{error: err.message}];
+                        return throwError(err);
+                      }),
+                      finalize(() => this.showSpinner = false))
+                    .subscribe((updatedTeams) => this.teams = this.mapDynamicValues(updatedTeams, userDetails))
+                }
+              }))
+            .subscribe((response) => console.log('Unregistered User successfully.'));
+        }
+      });
+  }
+
 }
