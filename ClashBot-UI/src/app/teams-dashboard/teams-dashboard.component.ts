@@ -80,30 +80,43 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     chip.selected ? chip.deselect() : chip.selectViaInteraction();
     this.showSpinner = true;
     this.teams = [];
-    this.clashTeamsServiceSubscription = this.clashBotService
-      .getClashTeams(this.formControl.value.trimLeft())
-      .pipe(
-        timeout(7000),
-        catchError((err: HttpErrorResponse) => {
-          console.error(err);
-          this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+    this.userDetailsService.getUserDetails()
+      .pipe(take(1))
+      .subscribe((userDetails) => {
+        if (!userDetails.username || userDetails.username === '') {
+          this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
             'X',
             {duration: 5 * 1000});
-          this.teams.push({error: err.message});
-          return throwError(err);
-        }),
-        finalize(() => this.showSpinner = false)
-      )
-      .subscribe((data: ClashTeam[]) => {
-        if (data.length < 1) {
           this.teams = [{error: 'No data'}];
         } else {
-          this.teams = data.map(record => {
-            record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
-            return record;
-          },);
+          this.clashBotService
+            .getClashTeams(this.formControl.value.trimLeft())
+            .pipe(
+              take(1),
+              timeout(7000),
+              catchError((err: HttpErrorResponse) => {
+                console.error(err);
+                this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+                  'X',
+                  {duration: 5 * 1000});
+                this.teams.push({error: err.message});
+                return throwError(err);
+              }),
+              finalize(() => this.showSpinner = false)
+            )
+            .subscribe((data: ClashTeam[]) => {
+              if (data.length < 1) {
+                this.teams = [{error: 'No data'}];
+              } else {
+                this.teams = data.map(record => {
+                  record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+                  record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
+                  return record;
+                });
+              }
+            })
         }
-      });
+      })
   }
 
   changeSelected(team: TeamFilter) {
@@ -116,8 +129,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         if (!data || !data.username || data.username === '') {
           this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-          'X',
-          {duration: 5 * 1000});
+            'X',
+            {duration: 5 * 1000});
         } else {
           this.clashBotService.registerUserForTeam(data, $event)
             .pipe(
@@ -133,10 +146,18 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                   {duration: 5 * 1000});
                 return throwError(err);
               }),
-              take(1))
-            .subscribe(() => {
-              this.teams.find(record => record.teamName === $event.teamName)?.playersDetails?.push({name: data.username});
-            });
+              take(1),
+              finalize(() => {
+                this.showSpinner = true;
+                if ($event.serverName) {
+                  this.clashBotService.getClashTeams($event.serverName)
+                    .pipe(take(1), finalize(() => this.showSpinner = false))
+                    .subscribe((updatedTeams) => {
+                      this.teams = updatedTeams;
+                    })
+                }
+              }))
+            .subscribe(() => console.log('Registered successfully.'));
         }
       })
   }

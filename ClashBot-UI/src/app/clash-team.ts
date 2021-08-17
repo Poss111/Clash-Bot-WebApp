@@ -1,4 +1,5 @@
 export interface ClashTeam {
+  userOnTeam?: boolean;
   teamName?: string,
   playersDetails?: PlayerDetails[]
   tournamentDetails?: TournamentDetails,
