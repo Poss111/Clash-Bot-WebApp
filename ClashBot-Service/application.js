@@ -57,14 +57,49 @@ let startUpApp = async () => {
         })
 
         app.post(`${urlPrefix}/team/register`, (req, res) => {
-            console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
-            let copy = JSON.parse(JSON.stringify(req.body));
-            delete copy.id;
-            delete copy.username;
-            copy.playersDetails = [{
-                name: req.body.username
-            }];
-            res.json(copy);
+            if (!req.body.username || !req.body.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing User to persist.'});
+            } else if (!req.body.teamName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Team to persist with.'});
+            } else if (!req.body.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Server to persist with.'});
+            } else if (!req.body.tournamentName || !req.body.tournamentDay) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Tournament Details to persist with.'});
+            } else {
+                console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
+                let teamName = req.body.teamName.split(' ')[1];
+                clashTeamsDbImpl.registerWithSpecificTeam(req.body.username, req.body.serverName, [{
+                    tournamentName: req.body.tournamentName,
+                    tournamentDay: req.body.tournamentDay
+                }], teamName).then(data => {
+                    let payload;
+                    if (!data) {
+                        res.statusCode = 400;
+                        payload = {error: 'Unable to find the Team requested to be persisted.'};
+                    } else {
+                        payload = {
+                            teamName: data.teamName,
+                            tournamentDetails: {
+                                tournamentName: data.tournamentName,
+                                tournamentDay: data.tournamentDay
+                            },
+                            serverName: data.serverName,
+                            startTime: data.startTime,
+                            playersDetails: Array.isArray(data.players) ? data.players.map(player => {
+                                return {name: player}
+                            }) : {}
+                        };
+                    }
+                    res.json(payload);
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to persist User to Team.')
+                })
+            }
         })
 
         app.get(`${urlPrefix}/tournaments`, (req, res) => {
@@ -94,7 +129,7 @@ let startUpApp = async () => {
         app.use((req, res) => {
             console.error(`Path not found ('${req.url}')`);
             res.statusCode = 404;
-            res.json({ error: 'Path not found.'})
+            res.json({error: 'Path not found.'})
         })
 
         return app;

@@ -6,7 +6,7 @@
       <mat-card-subtitle id="clash-bot-team-card-subtitle-tournament"
                          *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -
         Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
-      <mat-card-subtitle id="clash-bot-team-card-subtitle-start">Start Time: {{team.startTime}}</mat-card-subtitle>
+      <mat-card-subtitle id="clash-bot-team-card-subtitle-start">Start Time: {{team.startTime}} PDT</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content id="clash-bot-team-card-players">
       <div *ngFor="let player of team.playersDetails; index as i; first as isFirst">
