@@ -34,5 +34,5 @@
   </mat-chip-list>
 </div>
 <div class="team-cards">
-  <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team" class="team-card" ></app-team-card>
+  <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team" class="team-card" (registerUser)="registerForTeam($event)"></app-team-card>
 </div>
