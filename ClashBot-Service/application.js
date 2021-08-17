@@ -98,7 +98,38 @@ let startUpApp = async () => {
                 }).catch(err => {
                     console.error(err);
                     errorHandler.errorHandler(res, 'Failed to persist User to Team.')
-                })
+                });
+            }
+        })
+
+        app.delete(`${urlPrefix}/team/register`, (req, res) => {
+            if (!req.body.username || !req.body.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing User to unregister with.'});
+            } else if (!req.body.teamName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Team to unregister from.'});
+            } else if (!req.body.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Server to unregister Team with.'});
+            } else if (!req.body.tournamentName || !req.body.tournamentDay) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Tournament Details to unregister with.'});
+            } else {
+                clashTeamsDbImpl.deregisterPlayer(req.body.username, req.body.serverName, [{
+                    tournamentName: req.body.tournamentName,
+                    tournamentDay: req.body.tournamentDay
+                }]).then((data) => {
+                    let payload = {message: 'Successfully removed from Team.'};
+                    if (!data) {
+                        res.statusCode = 400;
+                        payload = {error: 'User not found on requested Team.'};
+                    }
+                    res.json(payload);
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to unregister User from Team due.')
+                });
             }
         })
 
