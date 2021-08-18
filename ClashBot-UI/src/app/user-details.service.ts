@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import {UserDetails} from "./user-details";
-import {Subject} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserDetailsService {
 
-  user: Subject<UserDetails> = new Subject<UserDetails>();
+  user: BehaviorSubject<UserDetails> = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
 
   constructor() {}
 
-  getUserDetails(): Subject<UserDetails> {
+  getUserDetails(): BehaviorSubject<UserDetails> {
     return this.user;
   }
 

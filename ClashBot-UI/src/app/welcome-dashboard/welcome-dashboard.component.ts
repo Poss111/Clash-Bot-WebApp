@@ -6,6 +6,7 @@ import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../discord.service";
 import {UserDetailsService} from "../user-details.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {ApplicationDetailsService} from "../application-details.service";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -37,10 +38,12 @@ export class WelcomeDashboardComponent implements OnDestroy{
               private clashBotService: ClashBotService,
               private discordService: DiscordService,
               private userDetailsService: UserDetailsService,
+              private applicationDetailsService: ApplicationDetailsService,
               private _snackBar: MatSnackBar) {
     this.clashBotService.getClashTournaments().subscribe((data) => {
       data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
       this.dataLoaded = true;
+      applicationDetailsService.setApplicationDetails({ currentTournaments: data });
     });
     this.loggedIn = oauthService.hasValidAccessToken();
     this.oauthService.configure(this.authCodeFlowConfig);

@@ -3,7 +3,7 @@ import {Location} from '@angular/common';
 import {RouterTestingModule} from '@angular/router/testing';
 import {AppComponent} from './app.component';
 import {UserDetailsService} from "./user-details.service";
-import {Subject} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 import {UserDetails} from "./user-details";
 import Mock = jest.Mock;
 import {MatButtonModule} from "@angular/material/button";
@@ -21,12 +21,14 @@ import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {ClashBotService} from "./clash-bot.service";
 import {DiscordService} from "./discord.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSelectModule} from "@angular/material/select";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 
 jest.mock('./user-details.service');
 
 describe('AppComponent', () => {
   let userDetailsServiceMock: UserDetailsService;
-  let getUserDetailsMock: Mock<Subject<UserDetails>> = jest.fn();
+  let getUserDetailsMock: Mock<BehaviorSubject<UserDetails>> = jest.fn();
   let router: Router;
   let location: Location;
 
@@ -46,10 +48,19 @@ describe('AppComponent', () => {
         MatCardModule,
         MatChipsModule,
         HttpClientTestingModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatSelectModule,
+        MatDialogModule
       ],
       declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
-      providers: [UserDetailsService, OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ClashBotService, DiscordService],
+      providers: [UserDetailsService,
+        OAuthService,
+        UrlHelperService,
+        OAuthLogger,
+        DateTimeProvider,
+        ClashBotService,
+        DiscordService,
+        MatDialog],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
@@ -66,7 +77,7 @@ describe('AppComponent', () => {
   });
 
   test('The user details should be loaded when created.', () => {
-    let subject = new Subject<UserDetails>();
+    let subject = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
     getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
@@ -75,7 +86,7 @@ describe('AppComponent', () => {
   })
 
   test('When navigateToWelcomePage is called, it should invoke the router to navigate to /', () => {
-    let subject = new Subject<UserDetails>();
+    let subject = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
     getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
@@ -85,7 +96,7 @@ describe('AppComponent', () => {
   })
 
   test('When navigateToTeams is called, it should invoke the router to navigate to /teams', fakeAsync(() => {
-    let subject = new Subject<UserDetails>();
+    let subject = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
     getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
