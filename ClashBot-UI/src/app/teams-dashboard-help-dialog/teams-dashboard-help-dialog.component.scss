@@ -1,0 +1,29 @@
+.clash-bot-teams-dashboard-help-dialog-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 425px;
+}
+
+.clash-bot-teams-dashboard-help-dialog-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.clash-bot-teams-dashboard-help-dialog-content-row {
+  display: flex;
+  flex-wrap: nowrap;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.clash-bot-teams-dashboard-help-dialog-content-icon {
+  flex-basis: 8em;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+}
+
+.clash-bot-teams-dashboard-help-dialog-content-description {
+  flex: 1;
+}

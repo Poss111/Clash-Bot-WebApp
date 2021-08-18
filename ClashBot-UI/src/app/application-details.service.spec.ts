@@ -24,7 +24,9 @@ describe('ApplicationDetailsService', () => {
     let applicationDetails: ApplicationDetails = {
       currentTournaments: [{
         tournamentName: 'awesome_sauce',
-        tournamentDay: '1'
+        tournamentDay: '1',
+        startTime: new Date().toISOString(),
+        registrationTime: new Date().toISOString()
       }]
     };
     service.setApplicationDetails(applicationDetails);

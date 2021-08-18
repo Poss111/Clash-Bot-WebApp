@@ -15,6 +15,8 @@ import {UserDetails} from "../user-details";
 import {ClashTournaments} from "../clash-tournaments";
 import {ApplicationDetailsService} from "../application-details.service";
 import {MatOption} from "@angular/material/core";
+import {MatDialog} from "@angular/material/dialog";
+import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -38,7 +40,8 @@ export class TeamsDashboardComponent implements OnInit {
               private discordService: DiscordService,
               private _snackBar: MatSnackBar,
               private userDetailsService: UserDetailsService,
-              private applicationDetailsService: ApplicationDetailsService) {
+              private applicationDetailsService: ApplicationDetailsService,
+              private dialog: MatDialog) {
     this.showSpinner = false;
     this.creatingNewTeam = false;
   }
@@ -285,5 +288,9 @@ export class TeamsDashboardComponent implements OnInit {
           .subscribe(() => console.log('Successfully created new team.'));
       })
     this.creatingNewTeam = false;
+  }
+
+  showHelpDialog() {
+    this.dialog.open(TeamsDashboardHelpDialogComponent);
   }
 }

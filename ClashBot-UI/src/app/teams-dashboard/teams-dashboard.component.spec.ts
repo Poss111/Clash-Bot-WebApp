@@ -349,42 +349,6 @@ describe('TeamsDashboardComponent', () => {
       })
     })
 
-    test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and no Teams are retrieve then a error with no data should be sent.', () => {
-      testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
-        const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        setupGuildObservable(cold);
-        let mockClashTeams: ClashTeam[] = [];
-
-        const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-        const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-
-        getUserDetailsObjectMock.mockReturnValue(userDetailsColdObservable);
-        getClashTeamsMock.mockReturnValue(clashTeamsObservable$);
-
-        const mockMatChip: MatChip = ({
-          selected: () => {
-          },
-          deselect: () => {
-          },
-          selectViaInteraction: () => {
-          }
-        } as any);
-        const expectedSearchPhrase = 'Goon Squad';
-        component.formControl.setValue(expectedSearchPhrase);
-        fixture.detectChanges();
-        component.filterTeam(mockMatChip);
-        expectObservable(clashTeamsObservable$).toBe('----x|', {x: mockClashTeams});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        flush();
-        expect(getClashTeamsMock).toBeCalledWith(expectedSearchPhrase);
-        expect(component.showSpinner).toBeFalsy();
-        expect(component.teams).toEqual([{error: "No data"}]);
-      })
-    })
-
     test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if an generic error occurs the Snack Bar should be called with a generic message..', () => {
       testScheduler.run((helpers) => {
         const {cold, expectObservable, flush} = helpers;
