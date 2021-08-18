@@ -39,7 +39,7 @@ describe('TeamCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  test('Should add placeholder values for Tournament if no values are given', () => {
+  test('Should add placeholder values for Tournament if no values are given and set the image url.', () => {
     component.team = {
       teamName: 'Test Team',
       startTime: '123'
@@ -48,6 +48,7 @@ describe('TeamCardComponent', () => {
     expect(component.team.tournamentDetails).toBeTruthy();
     expect(component.team.tournamentDetails?.tournamentName).toEqual('Placeholder');
     expect(component.team.tournamentDetails?.tournamentDay).toEqual('1');
+    expect(component.imageUrl).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/team.gif')
   })
 
   test('Should not modify tournament Details if they are given', () => {
@@ -62,6 +63,7 @@ describe('TeamCardComponent', () => {
     component.team = JSON.parse(JSON.stringify(expectedTeam));
     fixture.detectChanges();
     expect(component.team.tournamentDetails).toEqual(expectedTeam.tournamentDetails);
+    expect(component.imageUrl).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/team.gif')
   })
 
   describe('Emit registerToTeam Event', () => {

@@ -21,8 +21,7 @@ export class TeamCardComponent implements OnInit {
 
   imageUrl: string = '';
 
-  constructor(private dialog: MatDialog) {
-  }
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit(): void {
     console.log(JSON.stringify(this.team));
