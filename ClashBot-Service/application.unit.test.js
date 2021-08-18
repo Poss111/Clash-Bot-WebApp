@@ -661,6 +661,250 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
+    function convertTeamDbToTeamPayload(expectedNewTeam) {
+        return {
+            teamName: expectedNewTeam.teamName,
+            tournamentDetails: {
+                tournamentName: expectedNewTeam.tournamentName,
+                tournamentDay: expectedNewTeam.tournamentDay
+            },
+            serverName: expectedNewTeam.serverName,
+            startTime: expectedNewTeam.startTime,
+            playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+                return {name: data}
+            }) : {}
+        };
+    }
+
+    describe('Clash Create New Team', () => {
+        test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '12312',
+                    username: 'Test User',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            let expectedNewTeam = {
+                teamName: 'New Team',
+                serverName: expectedServer,
+                players: [expectedPayload.username],
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay,
+                startTime: 'Aug 12th 2021 7:00 pm PDT'
+            }
+            clashTeamsDbImpl.registerPlayer.mockResolvedValue(expectedNewTeam);
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(convertTeamDbToTeamPayload(expectedNewTeam));
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}])
+                    done();
+                })
+        })
+
+        test('Error - No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '12312',
+                    username: 'Test User',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            let expectedNewTeam = [{
+                teamName: 'New Team',
+                serverName: expectedServer,
+                players: [expectedPayload.username],
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay,
+                startTime: 'Aug 12th 2021 7:00 pm PDT',
+                exist: true
+            }]
+            clashTeamsDbImpl.registerPlayer.mockResolvedValue(expectedNewTeam);
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Player is not eligible to create a new Team.'});
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}]);
+                    done();
+                })
+        })
+
+        test('Error - Failed to create Team - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '12312',
+                    username: 'Test User',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            let error = new Error('Failed to create new team.');
+            clashTeamsDbImpl.registerPlayer.mockRejectedValue(error);
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Failed to create new Team.'});
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}])
+                    done();
+                })
+        })
+
+        test('Bad Request - missing User id - Create New Team I should be returned a 400 Bad Request if the User Id is missing.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    username: 'Test User',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing User to persist.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+
+        test('Bad Request - missing Username - Create New Team I should be returned a 400 Bad Request if the Username is missing.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '24323123',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing User to persist.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+
+        test('Bad Request - missing Server - Create New Team I should be returned a 400 Bad Request if the Server Name is missing.', (done) => {
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '24323123',
+                    username: 'Test User',
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing Server to persist with.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+
+        test('Bad Request - missing Tournament Name - Create New Team I should be returned a 400 Bad Request if the Tournament Name is missing.', (done) => {
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '24323123',
+                    username: 'Test User',
+                    teamName: expectedTeam,
+                    serverName: 'Test Server',
+                    tournamentDay: expectedTournamentDay
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing Tournament Details to persist with.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+
+        test('Bad Request - missing Tournament Day - Create New Team I should be returned a 400 Bad Request if the Tournament Day is missing.', (done) => {
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            const expectedPayload =
+                {
+                    id: '24323123',
+                    username: 'Test User',
+                    teamName: expectedTeam,
+                    serverName: 'Test Server',
+                    tournamentName: expectedTournamentName
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing Tournament Details to persist with.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+    })
+
     describe('Health Check', () => {
         test('As a User, when I call /api/health I should be returned a simple json payload stating it is healthy.', (done) => {
             request(application)

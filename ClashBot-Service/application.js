@@ -19,7 +19,50 @@ let startUpApp = async () => {
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
-            console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
+            console.log(`Response Path ('${res.url}') Status Code ('${res.statusCode}')`);
+        })
+
+        let convertTeamDbToTeamPayload = (expectedNewTeam) => {
+            return {
+                teamName: expectedNewTeam.teamName,
+                tournamentDetails: {
+                    tournamentName: expectedNewTeam.tournamentName,
+                    tournamentDay: expectedNewTeam.tournamentDay
+                },
+                serverName: expectedNewTeam.serverName,
+                startTime: expectedNewTeam.startTime,
+                playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+                    return {name: data}
+                }) : {}
+            };
+        }
+
+        app.post(`${urlPrefix}/team`, (req, res) => {
+            if (!req.body.username || !req.body.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing User to persist.'});
+            } else if (!req.body.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Server to persist with.'});
+            } else if (!req.body.tournamentName || !req.body.tournamentDay) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Tournament Details to persist with.'});
+            } else {
+                clashTeamsDbImpl.registerPlayer(req.body.username, req.body.serverName, [{
+                    tournamentName: req.body.tournamentName,
+                    tournamentDay: req.body.tournamentDay
+                }]).then((newTeam) => {
+                    if (Array.isArray(newTeam) && newTeam[0].exist) {
+                        res.statusCode = 400;
+                        res.json({ error: 'Player is not eligible to create a new Team.'});
+                    } else {
+                        res.json(convertTeamDbToTeamPayload(newTeam));
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to create new Team.');
+                });
+            }
         })
 
         app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
