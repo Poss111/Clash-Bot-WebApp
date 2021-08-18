@@ -25,7 +25,8 @@ module.exports = {
             startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
-                "cosmic"
+                "cosmic",
+                "Roïdräge"
             ],
             teamName: "Team Ho-oh",
             tournamentName: ":tournamentName",
@@ -48,6 +49,30 @@ module.exports = {
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayTwo",
             key: "Team Pikachu#:serverName#:tournamentName#:tournamentDayTwo"
+        },
+        {
+            startTime: ":datePlusOneDay",
+            serverName: ":serverName",
+            players: [
+                "Roïdräge"
+            ],
+            teamName: "Team Blastoise",
+            tournamentName: ":tournamentName",
+            updatedAt: "2021-07-24T23:40:54.973Z",
+            tournamentDay: ":tournamentDayThree",
+            key: "Team Blastoise#:serverName#:tournamentName#:tournamentDayThree"
+        },
+        {
+            startTime: ":datePlusOneDay",
+            serverName: ":serverName",
+            players: [
+                "TheIncentive"
+            ],
+            teamName: "Team Blaziken",
+            tournamentName: ":tournamentName",
+            updatedAt: "2021-07-24T23:40:54.973Z",
+            tournamentDay: ":tournamentDayThree",
+            key: "Team Blaziken#:serverName#:tournamentName#:tournamentDayThree"
         }
     ]
 }

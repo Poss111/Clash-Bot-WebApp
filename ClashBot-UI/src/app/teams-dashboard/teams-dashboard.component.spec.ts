@@ -1500,9 +1500,38 @@ describe('TeamsDashboardComponent', () => {
     })
 
     test('When an empty Team list is passed, it should populate the teams list with an error of No data', () => {
-      component = fixture.componentInstance;
-      component.syncTeamInformation([], {id: '123321', username: 'Hi', discriminator: '123123jsaf'});
-      expect(component.teams).toEqual([{error: 'No data'}]);
+      testScheduler.run((helpers) => {
+        const {cold, expectObservable, flush} = helpers;
+        component = fixture.componentInstance;
+        let mockTournaments: ClashTournaments[] = [
+          {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1',
+            startTime: new Date().toISOString(),
+            registrationTime: new Date().toISOString()
+          },
+          {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2',
+            startTime: new Date().toISOString(),
+            registrationTime: new Date().toISOString()
+          },
+        ]
+
+        let mockApplicationDetails: ApplicationDetails = {currentTournaments: mockTournaments}
+        let mockApplicationDetailsObservable = cold('-x|', {x: mockApplicationDetails});
+
+        getApplicationDetailsMock.mockReturnValue(mockApplicationDetailsObservable);
+
+        expectObservable(mockApplicationDetailsObservable).toBe('-x|', {x: mockApplicationDetails});
+
+        component.syncTeamInformation([], {id: '123321', username: 'Hi', discriminator: '123123jsaf'});
+
+        flush();
+        expect(component.teams).toEqual([{error: 'No data'}]);
+        expect(getApplicationDetailsMock).toBeCalledTimes(1);
+        expect(component.eligibleTournaments).toEqual(mockTournaments);
+      });
     })
   })
 

@@ -2,13 +2,13 @@
   <div *ngIf="!team.error; else elseBlock">
     <mat-card-header>
       <div mat-card-avatar [ngStyle]="{'background-image': 'url(' + imageUrl + ')', 'background-size': 'cover'}"></div>
-      <mat-card-title id="clash-bot-team-card-title">{{team.serverName}} - {{team.teamName}}</mat-card-title>
-      <mat-card-subtitle id="clash-bot-team-card-subtitle-tournament"
+      <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.serverName}} - {{team.teamName}}</mat-card-title>
+      <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-tournament'"
                          *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -
         Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
-      <mat-card-subtitle id="clash-bot-team-card-subtitle-start">Start Time: {{team.startTime}} PDT</mat-card-subtitle>
+      <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-start'">Start Time: {{team.startTime}} PDT</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content id="clash-bot-team-card-players">
+    <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
       <div *ngFor="let player of team.playersDetails; index as i; first as isFirst">
         <div>
           <h2>{{player.role}} - {{player.name}}</h2>
@@ -16,13 +16,16 @@
         </div>
       </div>
     </mat-card-content>
-    <mat-card-content id="clash-bot-team-card-add-button">
+    <mat-card-content>
       <div class="clash-bot-button-container">
-        <button mat-mini-fab color="primary" *ngIf="team.userOnTeam" (click)="unregisterFromTeam()"
+        <button mat-mini-fab color="primary"
+                [id]="'clash-bot-team-card-' + team.id + '-unregister-button'"
+                *ngIf="team.userOnTeam" (click)="unregisterFromTeam()"
                 aria-label="Unregister with this Team">
           <mat-icon>remove</mat-icon>
         </button>
         <button mat-mini-fab color="primary"
+                [id]="'clash-bot-team-card-' + team.id + '-register-button'"
                 *ngIf="!team.userOnTeam && team.playersDetails && team.playersDetails.length < 5"
                 (click)="registerToTeam()" aria-label="Register with this Team">
           <mat-icon>add</mat-icon>

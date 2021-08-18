@@ -116,14 +116,15 @@ export class TeamsDashboardComponent implements OnInit {
   }
 
   syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {
-    if (data.length < 1) {
-      this.teams = [{error: 'No data'}];
-    } else {
-      this.teams = this.mapDynamicValues(data, userDetails);
-      this.applicationDetailsService.getApplicationDetails()
-        .pipe(take(1))
-        .subscribe((applicationDetails) => {
-          if (applicationDetails && applicationDetails.currentTournaments) {
+    this.teams = this.mapDynamicValues(data, userDetails);
+    this.applicationDetailsService.getApplicationDetails()
+      .pipe(take(1))
+      .subscribe((applicationDetails) => {
+        if (applicationDetails && applicationDetails.currentTournaments) {
+          if (data.length < 1) {
+            this.teams = [{error: 'No data'}];
+            this.eligibleTournaments = applicationDetails.currentTournaments;
+          } else {
             let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
             let newEligibleTournaments: ClashTournaments[] = [];
             map.forEach((value, key) => {
@@ -133,8 +134,8 @@ export class TeamsDashboardComponent implements OnInit {
             });
             this.eligibleTournaments = newEligibleTournaments;
           }
-        });
-    }
+        }
+      });
   }
 
   private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
