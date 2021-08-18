@@ -1,14 +1,15 @@
 describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('http://localhost:4200');
+    cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
+    cy.get('#clash-bot-discord-username').should('have.text', 'Roïdräge');
   })
 
   it('Check to see if welcome message is displayed', () => {
     cy.get('#WelcomeMessage-Title').should('have.text', 'Welcome to Clash-Bot!');
     cy.get('#WelcomeMessage-LoginMessage').should('not.exist');
     cy.get('#WelcomeMessage-DiscordLogin-Btn').should('not.exist');
-    cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.get('#clash-bot-menu').click();
     cy.get('#clash-bot-menu-welcome-page').should('exist');
     cy.get('#clash-bot-menu-teams-page').should('exist');

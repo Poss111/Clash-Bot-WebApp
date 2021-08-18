@@ -17,10 +17,10 @@
 </div>
 <div class="chips-list" *ngIf="!showSpinner">
   <div class="clash-bot-teams-dashboard-header">
+    <h2 id="clash-bot-teams-header">Your available Servers to filter by</h2>
     <button aria-label="Help Me!" mat-icon-button (click)="showHelpDialog()">
       <mat-icon>help_outline</mat-icon>
     </button>
-    <h2 id="clash-bot-teams-header">Your available Servers to filter by</h2>
   </div>
   <mat-chip-list
     [formControl]="formControl"

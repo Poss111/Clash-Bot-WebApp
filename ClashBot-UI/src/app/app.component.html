@@ -16,7 +16,7 @@
       </mat-menu>
       <span>Clash Bot</span>
       <span class="example-spacer"></span>
-      <span *ngIf="user$ | async as user">{{ user.username }}</span>
+      <span *ngIf="user$ | async as user" id="clash-bot-discord-username">{{ user.username }}</span>
       <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="navigateToWelcomePage()">
           <mat-icon>house</mat-icon>
