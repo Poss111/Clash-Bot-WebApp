@@ -1,7 +1,7 @@
 <mat-card class="example-card">
   <div *ngIf="!team.error; else elseBlock">
     <mat-card-header>
-      <div mat-card-avatar class="example-header-image"></div>
+      <div mat-card-avatar [ngStyle]="{'background-image': 'url(' + imageUrl + ')', 'background-size': 'cover'}"></div>
       <mat-card-title id="clash-bot-team-card-title">{{team.serverName}} - {{team.teamName}}</mat-card-title>
       <mat-card-subtitle id="clash-bot-team-card-subtitle-tournament"
                          *ngIf="team.tournamentDetails">{{team.tournamentDetails.tournamentName}} -

@@ -27,11 +27,11 @@ module.exports = {
             players: [
                 "cosmic"
             ],
-            teamName: "Team Hoho",
+            teamName: "Team Ho-oh",
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-18T09:25:42.680Z",
             tournamentDay: ":tournamentDayTwo",
-            key: "Team Hoho#:serverName#:tournamentName#:tournamentDayTwo"
+            key: "Team Ho-oh#:serverName#:tournamentName#:tournamentDayTwo"
         },
         {
             startTime: ":datePlusOneDay",

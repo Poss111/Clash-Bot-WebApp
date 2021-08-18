@@ -19,6 +19,8 @@ export class TeamCardComponent implements OnInit {
   @Output()
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
+  imageUrl: string = '';
+
   constructor(private dialog: MatDialog) {
   }
 
@@ -29,6 +31,9 @@ export class TeamCardComponent implements OnInit {
         tournamentName: 'Placeholder',
         tournamentDay: '1'
       };
+    }
+    if(this.team && this.team.teamName) {
+      this.imageUrl = this.buildPokemonGifUrl(this.team.teamName.split(' ')[1]);
     }
   }
 
@@ -49,4 +54,9 @@ export class TeamCardComponent implements OnInit {
       }
     })
   }
+
+    buildPokemonGifUrl(pokemonName: string) {
+        let name = pokemonName.toLowerCase();
+        return `https://img.pokemondb.net/sprites/black-white/anim/normal/${name}.gif`;
+    }
 }

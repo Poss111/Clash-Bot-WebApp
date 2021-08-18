@@ -125,4 +125,11 @@ describe('TeamCardComponent', () => {
       })
     })
   })
+
+  describe('Build team card poke image url', () => {
+    test('When a pokemon name is passed, a url should be returned reflecting the correct image url for it.', () => {
+      let exepectedName = 'Pikachu';
+      expect(component.buildPokemonGifUrl(exepectedName)).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/pikachu.gif');
+    })
+  })
 });
