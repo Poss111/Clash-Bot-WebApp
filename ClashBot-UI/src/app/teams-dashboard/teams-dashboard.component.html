@@ -35,13 +35,18 @@
 </div>
 <div class="team-cards">
   <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team" class="team-card" (registerUser)="registerForTeam($event)" (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-  <mat-card class="example-card">
-    <h2>Create a new Team</h2>
+  <mat-card *ngIf="eligibleTournaments.length > 0" class="example-card">
+    <h2  *ngIf="!creatingNewTeam">Create a new Team</h2>
     <div class="clash-bot-teams-card-create-new-container">
-      <button mat-mini-fab color="primary" aria-label="Create a new Team">
+      <button *ngIf="!creatingNewTeam" mat-mini-fab color="primary" aria-label="Create a new Team" (click)="creatingNewTeam = true">
         <mat-icon>add</mat-icon>
       </button>
+      <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
+        <mat-label>Choose a Tournament</mat-label>
+        <mat-select [formControl]="createNewTeamFormControl">
+          <mat-option #option="matOption" (click)="createNewTeam(option)" *ngFor="let eligibleTournament of eligibleTournaments" value="{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}">{{eligibleTournament.tournamentName}} - Day {{eligibleTournament.tournamentDay}}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
   </mat-card>
-
 </div>

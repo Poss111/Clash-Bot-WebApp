@@ -58,7 +58,8 @@ export class ClashBotService {
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
-      tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay,
+      startTime: teamRequest.startTime
     };
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
   }

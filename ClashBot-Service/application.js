@@ -50,7 +50,8 @@ let startUpApp = async () => {
             } else {
                 clashTeamsDbImpl.registerPlayer(req.body.username, req.body.serverName, [{
                     tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay
+                    tournamentDay: req.body.tournamentDay,
+                    startTime: req.body.startTime
                 }]).then((newTeam) => {
                     if (Array.isArray(newTeam) && newTeam[0].exist) {
                         res.statusCode = 400;

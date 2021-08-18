@@ -18,6 +18,8 @@ import {UserDetailsService} from "../user-details.service";
 import {UserDetails} from "../user-details";
 import {MatSnackBarConfig} from "@angular/material/snack-bar/snack-bar-config";
 import {TestScheduler} from "rxjs/testing";
+import {ApplicationDetailsService} from "../application-details.service";
+import {ClashTournaments} from "../clash-tournaments";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../clash-bot.service");
@@ -41,11 +43,13 @@ describe('WelcomeDashboardComponent', () => {
   let userDetailsServiceMock: UserDetailsService;
   let oAuthServiceMock: OAuthService;
   let matSnackBarMock: MatSnackBar;
+  let applicationDetailsServiceMock: ApplicationDetailsService;
   let validAccessTokenMock: any;
   let tryLoginMock: any;
   let getUserDetailsMock: any;
   let setUserDetailsMock: any;
   let matSnackBarOpenMock: any;
+  let setApplicationDetailsMock: any;
   const expectedOAuthConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
     tokenEndpoint: 'https://discord.com/api/oauth2/token',
@@ -76,17 +80,20 @@ describe('WelcomeDashboardComponent', () => {
     discordServiceMock = TestBed.inject(DiscordService);
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     oAuthServiceMock = TestBed.inject(OAuthService);
+    applicationDetailsServiceMock = TestBed.inject(ApplicationDetailsService);
     matSnackBarMock = TestBed.inject(MatSnackBar);
     validAccessTokenMock = jest.fn().mockReturnValueOnce(false);
     tryLoginMock = jest.fn();
     getUserDetailsMock = jest.fn();
     setUserDetailsMock = jest.fn();
     matSnackBarOpenMock = jest.fn();
+    setApplicationDetailsMock = jest.fn();
     clashBotMock.getClashTournaments = jest.fn().mockReturnValue(of([]));
     oAuthServiceMock.hasValidAccessToken = validAccessTokenMock;
     oAuthServiceMock.tryLogin = tryLoginMock;
     discordServiceMock.getUserDetails = getUserDetailsMock;
     userDetailsServiceMock.setUserDetails = setUserDetailsMock;
+    applicationDetailsServiceMock.setApplicationDetails = setApplicationDetailsMock;
     matSnackBarMock.open = matSnackBarOpenMock;
   });
 
@@ -115,7 +122,7 @@ describe('WelcomeDashboardComponent', () => {
   test('Should attempt to login with existing tournaments Days upon load up if there has not been a Login Attempt', () => {
     testScheduler.run((helpers) => {
       const {cold, expectObservable, flush} = helpers;
-      let mockTournaments = [
+      let mockTournaments: ClashTournaments[] = [
         {
           "tournamentName": "bandle_city",
           "tournamentDay": "3",
@@ -129,9 +136,7 @@ describe('WelcomeDashboardComponent', () => {
           "registrationTime": "August 22 2021 04:15 pm PDT"
         }
       ];
-      const expectedObservable = cold('-x|', {
-        x: mockTournaments
-      });
+      const expectedObservable = cold('-x|', {x: mockTournaments});
       clashBotMock.getClashTournaments = jest.fn().mockReturnValue(expectedObservable);
       fixture = TestBed.createComponent(WelcomeDashboardComponent);
       component = fixture.componentInstance;
@@ -144,6 +149,7 @@ describe('WelcomeDashboardComponent', () => {
       flush();
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
+      expect(setApplicationDetailsMock).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
     });
   })
 
