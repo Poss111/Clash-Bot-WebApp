@@ -50,4 +50,16 @@ export class ClashBotService {
     }
     return url;
   }
+
+  createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
+    let payload = {
+      id: userDetail.id,
+      username: userDetail.username,
+      teamName: teamRequest.teamName,
+      serverName: teamRequest.serverName,
+      tournamentName: teamRequest.tournamentDetails?.tournamentName,
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+    };
+    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
+  }
 }

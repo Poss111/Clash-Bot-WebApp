@@ -194,6 +194,112 @@ describe('ClashBotService', () => {
 
   })
 
+  describe('POST Clash Create New Team - \\api\\team', () => {
+    test('When I request to create a new Team from localhost, I should use localhost with port 80 and be returned Observable<ClashTeam>', () => {
+      stubLocation({hostname: "localhost"});
+      const mockResponse: ClashTeam =
+          {
+            teamName: 'Team Abra',
+            serverName: 'Integration Server',
+            tournamentDetails: {
+              tournamentDay: 'awesome_sauce',
+              tournamentName: '1',
+            },
+            playersDetails: [
+              {
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              }
+            ]
+          };
+      const teamRequest: ClashTeam = mockResponse;
+      const userDetail: UserDetails = {
+        id: '1234',
+        username: 'Test User',
+        discriminator: ';lkj213412'
+      };
+      const expectedPayload = {
+        id: userDetail.id,
+        username: userDetail.username,
+        teamName: teamRequest.teamName,
+        serverName: teamRequest.serverName,
+        tournamentName: teamRequest.tournamentDetails?.tournamentName,
+        tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+      }
+      service.createNewTeam(userDetail, teamRequest).subscribe(data => {
+        expect(data).toBeTruthy();
+        expect(data).toEqual(mockResponse);
+      });
+      const req = httpMock.expectOne(`http://localhost:80/api/team`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(expectedPayload);
+      req.flush(mockResponse);
+    })
+
+    test('When I request to create a new Team, I should use the window host and be returned Observable<ClashTeam>', () => {
+      stubLocation({hostname: "clashbot.ninja"});
+      const mockResponse: ClashTeam =
+          {
+              teamName: 'Team Abra',
+              serverName: 'Integration Server',
+              tournamentDetails: {
+                  tournamentDay: 'awesome_sauce',
+                  tournamentName: '1',
+              },
+              playersDetails: [
+                  {
+                      name: 'Roïdräge',
+                      champions: ['Volibear', 'Ornn', 'Sett'],
+                      role: 'Top'
+                  },
+                  {
+                      name: 'TheIncentive',
+                      champions: ['Lucian'],
+                      role: 'ADC'
+                  },
+                  {
+                      name: 'Pepe Conrad',
+                      champions: ['Lucian'],
+                      role: 'Jg'
+                  }
+              ]
+          };
+      const teamRequest: ClashTeam = mockResponse;
+      const userDetail: UserDetails = {
+          id: '1234',
+          username: 'Test User',
+          discriminator: ';lkj213412'
+      };
+      const expectedPayload = {
+          id: userDetail.id,
+          username: userDetail.username,
+          teamName: teamRequest.teamName,
+          serverName: teamRequest.serverName,
+          tournamentName: teamRequest.tournamentDetails?.tournamentName,
+          tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+      }
+      service.createNewTeam(userDetail, teamRequest).subscribe(data => {
+          expect(data).toBeTruthy();
+          expect(data).toEqual(mockResponse);
+      });
+      const req = httpMock.expectOne(`/api/team`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(expectedPayload);
+      req.flush(mockResponse);
+    })
+  })
+
   describe('Method POST Register to Clash Team', () => {
     test('When I request to register a player to a Clash Tournament from localhost, I should use localhost with port 80 and be returned a payload of Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
