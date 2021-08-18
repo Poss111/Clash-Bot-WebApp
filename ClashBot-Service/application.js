@@ -47,6 +47,9 @@ let startUpApp = async () => {
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
                 res.statusCode = 400;
                 res.json({error: 'Missing Tournament Details to persist with.'});
+            } else if (!req.body.startTime) {
+                res.statusCode = 400;
+                res.json({error: 'Missing Tournament start time to persist.'});
             } else {
                 clashTeamsDbImpl.registerPlayer(req.body.username, req.body.serverName, [{
                     tournamentName: req.body.tournamentName,

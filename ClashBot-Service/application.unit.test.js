@@ -689,7 +689,8 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
-                    tournamentDay: expectedTournamentDay
+                    tournamentDay: expectedTournamentDay,
+                    startTime: 'Aug 12th 2021 7:00 pm PDT'
                 };
             let expectedNewTeam = {
                 teamName: 'New Team',
@@ -708,7 +709,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(convertTeamDbToTeamPayload(expectedNewTeam));
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}])
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}])
                     done();
                 })
         })
@@ -725,7 +726,8 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
-                    tournamentDay: expectedTournamentDay
+                    tournamentDay: expectedTournamentDay,
+                    startTime: 'Aug 12th 2021 7:00 pm PDT'
                 };
             let expectedNewTeam = [{
                 teamName: 'New Team',
@@ -745,7 +747,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(400, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual({ error: 'Player is not eligible to create a new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}]);
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}]);
                     done();
                 })
         })
@@ -762,7 +764,8 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
-                    tournamentDay: expectedTournamentDay
+                    tournamentDay: expectedTournamentDay,
+                    startTime: 'Aug 12th 2021 7:00 pm PDT'
                 };
             let error = new Error('Failed to create new team.');
             clashTeamsDbImpl.registerPlayer.mockRejectedValue(error);
@@ -774,7 +777,34 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(500, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual({ error: 'Failed to create new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}])
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}])
+                    done();
+                })
+        })
+
+        test('Bad Request - missing start time - Create New Team I should be returned a 400 Bad Request if the Start Time is missing.', (done) => {
+            let expectedServer = 'Test Server';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            const expectedPayload =
+                {
+                    id: '24323123',
+                    username: 'Test User',
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                };
+            request(application)
+                .post('/api/team')
+                .send(expectedPayload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing Tournament start time to persist.'});
+                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
                     done();
                 })
         })
