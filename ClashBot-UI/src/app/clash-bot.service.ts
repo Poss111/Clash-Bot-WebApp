@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {ClashTeam} from "./clash-team";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {ClashTournaments} from "./clash-tournaments";
 import {UserDetails} from "./user-details";
 import {ClashBotGenericResponse} from "./clash-bot-generic-response";
+import {ClashBotUserDetails} from "./clash-bot-user-details";
 
 @Injectable()
 export class ClashBotService {
@@ -62,5 +63,20 @@ export class ClashBotService {
       startTime: teamRequest.startTime
     };
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
+  }
+
+  getUserDetails(): Observable<ClashBotUserDetails> {
+    const userSubscriptionSettings = new Map<string, boolean>();
+    userSubscriptionSettings.set('UpcomingClashTournamentDiscordDM', true);
+    const preferredChampions = new Set<string>();
+    preferredChampions.add('Volibear');
+    preferredChampions.add('Ornn');
+    preferredChampions.add('Sett');
+    return of({
+      id: '12345566',
+      username: 'Roïdräge',
+      preferredChampions: preferredChampions,
+      subscriptions: userSubscriptionSettings
+    })
   }
 }

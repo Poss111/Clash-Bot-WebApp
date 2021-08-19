@@ -2,38 +2,82 @@
   <mat-expansion-panel [expanded]="true">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Username
+        User Information
       </mat-panel-title>
       <mat-panel-description>
         User information used when registering for a LoL Clash Tournament
         <mat-icon>account_circle</mat-icon>
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <mat-form-field class="example-chip-list" appearance="fill">
-      <mat-label>Current Preferred Champions</mat-label>
-      <mat-chip-list #chipList aria-label="Fruit selection">
-        <mat-chip
-          *ngFor="let champion of preferredChampions"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="remove(champion)">
-          {{champion}}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <input
-          placeholder="Add Champion..."
-          #championInput
-          [formControl]="championCtrl"
-          [matAutocomplete]="auto"
-          [matChipInputFor]="chipList"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="add($event)">
-      </mat-chip-list>
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-        <mat-option *ngFor="let champion of filteredChampions | async" [value]="champion">
-          {{champion}}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
+    <mat-list>
+      <mat-list-item>
+        <mat-icon mat-list-icon>discord</mat-icon>
+        <div mat-line>{{username}}</div>
+      </mat-list-item>
+    </mat-list>
   </mat-expansion-panel>
+
+  <form-group [formGroup]="userDetailsForm" (ngSubmit)="onSubmit()">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Preferred LoL Champions
+        </mat-panel-title>
+        <mat-panel-description>
+          League of Legends User Preferences
+          <mat-icon>groups</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-form-field class="example-chip-list" appearance="fill">
+        <mat-label>Current Preferred Champions</mat-label>
+        <mat-chip-list #chipList aria-label="Fruit selection">
+          <mat-chip
+            *ngFor="let champion of preferredChampions"
+            [selectable]="selectable"
+            [removable]="removable"
+            (removed)="remove(champion)">
+            {{champion}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Add Champion..."
+            #championInput
+            [formControl]="championCtrl"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="add($event)">
+          <mat-error *ngIf="userDetailsForm.controls.preferredChampionsFC.hasError('forbiddenName')">
+            Invalid Champion Name
+          </mat-error>
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+          <mat-option *ngFor="let champion of filteredChampions | async" [value]="champion">
+            {{champion}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Notification Subscriptions
+        </mat-panel-title>
+        <mat-panel-description>
+          Clash Bot notification settings for the User
+          <mat-icon>notifications</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-slide-toggle
+        class="example-margin"
+        formControlName="subscribedDiscordDMFC"
+        [checked]="subscribedDiscordDM">
+        Monday before Tournament Discord direct message
+      </mat-slide-toggle>
+    </mat-expansion-panel>
+    <div class="clash-bot-user-profile-save-button-container">
+      <button mat-raised-button [disabled]="!userDetailsForm.dirty">Undo</button>
+      <button mat-raised-button type="submit" color="primary" [disabled]="!userDetailsForm.dirty">Save</button>
+    </div>
+  </form-group>
 </mat-accordion>

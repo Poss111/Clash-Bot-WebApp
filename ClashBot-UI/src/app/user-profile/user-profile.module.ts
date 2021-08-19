@@ -11,6 +11,11 @@ import {MatChipsModule} from "@angular/material/chips";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatOptionModule} from "@angular/material/core";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioModule} from "@angular/material/radio";
+import {MatSliderModule} from "@angular/material/slider";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {ClashBotService} from "../clash-bot.service";
+import {MatButtonModule} from "@angular/material/button";
 
 
 
@@ -28,7 +33,12 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
     FormsModule,
     ReactiveFormsModule,
     MatOptionModule,
-    MatAutocompleteModule
-  ]
+    MatAutocompleteModule,
+    MatRadioModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatButtonModule
+  ],
+  providers: [ClashBotService]
 })
 export class UserProfileModule { }

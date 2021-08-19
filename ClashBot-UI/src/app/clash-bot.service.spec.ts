@@ -4,6 +4,7 @@ import {HttpClientTestingModule, HttpTestingController} from "@angular/common/ht
 import {UserDetails} from "./user-details";
 import {ClashTeam} from "./clash-team";
 import {ClashBotGenericResponse} from "./clash-bot-generic-response";
+import {ClashBotUserDetails} from "./clash-bot-user-details";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
@@ -509,6 +510,23 @@ describe('ClashBotService', () => {
       expect(req.request.method).toBe('DELETE');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
+    })
+  })
+
+  describe('GET Clash Bot User Information', () => {
+    test('When I request for user information from localhost, I should responsd with an Observable<ClashBotUserDetails>', (done) => {
+      const userSubscriptionSettings = new Map<string, boolean>();
+      userSubscriptionSettings.set('UpcomingClashTournamentDiscordDM', true);
+      const expectedUserDetails: ClashBotUserDetails = {
+        id: '12345566',
+        username: 'Roïdräge',
+        preferredChampions: new Set<string>(),
+        subscriptions: userSubscriptionSettings
+      };
+      service.getUserDetails().subscribe((data) => {
+        expect(data).toEqual(expectedUserDetails);
+        done();
+      })
     })
   })
 
