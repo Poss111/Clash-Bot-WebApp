@@ -3,26 +3,64 @@ import {HttpClient} from "@angular/common/http";
 import {ClashTeam} from "./clash-team";
 import {Observable} from "rxjs";
 import {ClashTournaments} from "./clash-tournaments";
+import {UserDetails} from "./user-details";
+import {ClashBotGenericResponse} from "./clash-bot-generic-response";
 
 @Injectable()
 export class ClashBotService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+  }
 
   getClashTeams(server: string): Observable<ClashTeam[]> {
-    if (window.location.hostname === 'localhost') {
-      return this.httpClient.get<ClashTeam[]>(`${window.location.protocol}//${window.location.hostname}:80/api/teams/${server}`);
-    } else {
-      return this.httpClient.get<ClashTeam[]>(`/api/teams/${server}`);
-    }
+    return this.httpClient.get<ClashTeam[]>(this.buildHostUrl(`/api/teams/${server}`));
   }
 
   getClashTournaments(): Observable<ClashTournaments[]> {
-    if (window.location.hostname === 'localhost') {
-      return this.httpClient.get<ClashTournaments[]>(`${window.location.protocol}//${window.location.hostname}:80/api/tournaments`);
-    } else {
-      return this.httpClient.get<ClashTournaments[]>(`/api/tournaments`);
-    }
+    return this.httpClient.get<ClashTournaments[]>(this.buildHostUrl('/api/tournaments'));
   }
 
+  registerUserForTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
+    let payload = {
+      id: userDetail.id,
+      username: userDetail.username,
+      teamName: teamRequest.teamName,
+      serverName: teamRequest.serverName,
+      tournamentName: teamRequest.tournamentDetails?.tournamentName,
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+    }
+    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team/register'), payload);
+  }
+
+  unregisterUserFromTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashBotGenericResponse> {
+    let payload = {
+      id: userDetail.id,
+      username: userDetail.username,
+      teamName: teamRequest.teamName,
+      serverName: teamRequest.serverName,
+      tournamentName: teamRequest.tournamentDetails?.tournamentName,
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+    };
+    return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/team/register'), { body: payload});
+  }
+
+  buildHostUrl(url: string): string {
+    if (window.location.hostname === 'localhost') {
+      return `${window.location.protocol}//${window.location.hostname}:80${url}`;
+    }
+    return url;
+  }
+
+  createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
+    let payload = {
+      id: userDetail.id,
+      username: userDetail.username,
+      teamName: teamRequest.teamName,
+      serverName: teamRequest.serverName,
+      tournamentName: teamRequest.tournamentDetails?.tournamentName,
+      tournamentDay: teamRequest.tournamentDetails?.tournamentDay,
+      startTime: teamRequest.startTime
+    };
+    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
+  }
 }

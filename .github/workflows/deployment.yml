@@ -48,11 +48,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Deploy Service
-        run: |
-          echo "Running Service!"
-          ls -lha
-
       - name: Archive service artifact
         uses: actions/upload-artifact@v2
         with:
@@ -77,9 +72,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: service
-
-      - name: Check directory
-        run: ls -lha
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -151,9 +143,6 @@ jobs:
           message: 'Build in progress...'
           message-color: '16750902'
 
-      - name: Deploy UI
-        run: echo "Running UI!"
-
       - name: Checkout repo
         uses: actions/checkout@v2
 
@@ -170,7 +159,7 @@ jobs:
         with:
           name: dist
           if-no-files-found: error
-          path: ClashBot-UI/dist/Clash-Bot
+          path: ClashBot-UI/dist/Clash-Bot-gzip
 
   deploy-ui:
     needs: build-ui
@@ -204,10 +193,10 @@ jobs:
         run: aws s3 rm ${{ secrets.S3_BUCKET_NAME }} --recursive
 
       - name: Push to index.html s3
-        run: aws s3 cp index.html ${{ secrets.S3_BUCKET_NAME }} --cache-control max-age=0
+        run: aws s3 cp index.html ${{ secrets.S3_BUCKET_NAME }} --content-encoding gzip --cache-control max-age=0
 
       - name: Push to dist s3
-        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --exclude "index.html" --recursive
+        run: aws s3 cp . ${{ secrets.S3_BUCKET_NAME }} --content-encoding gzip --exclude "index.html" --recursive
 
       - name: Deployment Succeeded Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
