@@ -13,20 +13,14 @@
           <mat-icon>groups</mat-icon>
           <span>Clash Teams</span>
         </button>
+        <button *ngIf="user$ | async as user" mat-menu-item (click)="navigateToUserProfile()">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </button>
       </mat-menu>
       <span>Clash Bot</span>
       <span class="example-spacer"></span>
       <span *ngIf="user$ | async as user" id="clash-bot-discord-username">{{ user.username }}</span>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="navigateToWelcomePage()">
-          <mat-icon>house</mat-icon>
-          <span>Welcome Page</span>
-        </button>
-        <button mat-menu-item (click)="navigateToTeams()">
-          <mat-icon>groups</mat-icon>
-          <span>Clash Teams</span>
-        </button>
-      </mat-menu>
     </mat-toolbar>
   </div>
   <div class="main-page">

@@ -16,6 +16,7 @@ import {MatSliderModule} from "@angular/material/slider";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ClashBotService} from "../clash-bot.service";
 import {MatButtonModule} from "@angular/material/button";
+import {UserDetailsService} from "../user-details.service";
 
 
 
@@ -39,6 +40,6 @@ import {MatButtonModule} from "@angular/material/button";
     MatSlideToggleModule,
     MatButtonModule
   ],
-  providers: [ClashBotService]
+  providers: [ClashBotService, UserDetailsService]
 })
 export class UserProfileModule { }
