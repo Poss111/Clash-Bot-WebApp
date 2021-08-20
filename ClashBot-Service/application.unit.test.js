@@ -712,7 +712,11 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(convertTeamDbToTeamPayload(expectedNewTeam));
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}])
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                        tournamentName: expectedTournamentName,
+                        tournamentDay: expectedTournamentDay,
+                        startTime: expectedPayload.startTime
+                    }])
                     done();
                 })
         })
@@ -749,8 +753,12 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual({ error: 'Player is not eligible to create a new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}]);
+                    expect(res.body).toEqual({error: 'Player is not eligible to create a new Team.'});
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                        tournamentName: expectedTournamentName,
+                        tournamentDay: expectedTournamentDay,
+                        startTime: expectedPayload.startTime
+                    }]);
                     done();
                 })
         })
@@ -779,8 +787,12 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual({ error: 'Failed to create new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{ tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedPayload.startTime}])
+                    expect(res.body).toEqual({error: 'Failed to create new Team.'});
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                        tournamentName: expectedTournamentName,
+                        tournamentDay: expectedTournamentDay,
+                        startTime: expectedPayload.startTime
+                    }])
                     done();
                 })
         })
@@ -938,7 +950,7 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
-    describe('User', () => {
+    describe('GET User', () => {
         test('When I ask to retrieve the User information based on the User Id with a GET on /api/user, and it should respond with a User Details payload.', (done) => {
             const userId = '12321312';
             const mockDbResponse = {
@@ -948,7 +960,11 @@ describe('Clash Bot Service API Controller', () => {
                 subscribed: 'true',
                 preferredChampions: ['Sett']
             };
-            const mockResponseValue = {id: userId, preferredChampions: ['Sett'], subscriptions: {'UpcomingClashTournamentDiscordDM': true}}
+            const mockResponseValue = {
+                id: userId,
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': true}
+            }
             clashSubscriptionDb.retrieveUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
                 .get(`/api/user?id=${userId}`)
@@ -992,6 +1008,147 @@ describe('Clash Bot Service API Controller', () => {
                     if (err) return done(err);
                     expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledTimes(1);
                     expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+    })
+
+    describe('POST User - /api/user', () => {
+        test('As a User, when I request to create my data, I can do it through post.', (done) => {
+            let payload = {
+                id: '1234556778',
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            const mockDbResponse = {
+                key: payload.id,
+                serverName: 'Some Server',
+                timeAdded: new Date().toISOString(),
+                subscribed: 'true',
+                preferredChampions: ['Sett']
+            };
+            const mockResponseValue = {
+                id: payload.id,
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            clashSubscriptionDb.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDb.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
+                    done();
+                })
+        })
+
+        test('As a User, if the subscriptions is empty then UpcomingClashTournamentDiscordDM should be defaulted to false, I can do it through post.', (done) => {
+            let payload = {
+                id: '1234556778',
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {}
+            };
+            const mockDbResponse = {
+                key: payload.id,
+                serverName: 'Some Server',
+                timeAdded: new Date().toISOString(),
+                preferredChampions: ['Sett']
+            };
+            const mockResponseValue = {
+                id: payload.id,
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'false'}
+            };
+            clashSubscriptionDb.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDb.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
+                    done();
+                })
+        })
+
+        test('Bad Request - missing id - As a User, when I request to create my data, I want to recieve an error related to the Id passed if it is missing.', (done) => {
+            let payload = {
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Missing required User Id'});
+                    done();
+                })
+        })
+
+        test('Bad Request - missing Server Name - As a User, when I request to create my data, I want to receive an error related to the Server Name passed if it is missing.', (done) => {
+            let payload = {
+                id: '12312312',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Missing required Server Name'});
+                    done();
+                })
+        })
+
+        test('Bad Request - missing preferredChampions - As a User, when I request to create my data, I want to receive an error related to the preferredChampions passed if it is missing.', (done) => {
+            let payload = {
+                id: '12312312',
+                serverName: 'Good Squad',
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Missing required Preferred Champions'});
+                    done();
+                })
+        })
+
+        test('Bad Request - missing subscriptions - As a User, when I request to create my data, I want to receive an error related to the subscriptions passed if it is missing.', (done) => {
+            let payload = {
+                id: '12312312',
+                serverName: 'Good Squad',
+                preferredChampions: []
+            };
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Missing required Subscriptions'});
                     done();
                 })
         })

@@ -60,7 +60,7 @@ let startUpApp = async () => {
                 }]).then((newTeam) => {
                     if (Array.isArray(newTeam) && newTeam[0].exist) {
                         res.statusCode = 400;
-                        res.json({ error: 'Player is not eligible to create a new Team.'});
+                        res.json({error: 'Player is not eligible to create a new Team.'});
                     } else {
                         res.json(convertTeamDbToTeamPayload(newTeam));
                     }
@@ -217,6 +217,47 @@ let startUpApp = async () => {
                     };
                     res.json(payload);
                 }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to retrieve User.');
+                })
+            }
+        })
+
+        app.post(`${urlPrefix}/user`, (req, res) => {
+            if (!req.body.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required User Id'});
+            } else if (!req.body.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Server Name'});
+            } else if (!req.body.preferredChampions) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Preferred Champions'});
+            }  else if (!req.body.subscriptions) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Subscriptions'});
+            } else {
+                clashUserDbImpl.createUpdateUserDetails(req.body.id,
+                    req.body.serverName,
+                    req.body.preferredChampions,
+                    req.body.subscriptions.UpcomingClashTournamentDiscordDM)
+                    .then(data => {
+                        let payload = {
+                            id: data.key,
+                            serverName: data.serverName,
+                            preferredChampions: data.preferredChampions,
+                        };
+                        if (!data.subscribed) {
+                            payload.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: 'false'
+                            }
+                        } else {
+                            payload.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: 'true'
+                            }
+                        }
+                        res.json(payload);
+                    }).catch(err => {
                     console.error(err);
                     errorHandler.errorHandler(res, 'Failed to retrieve User.');
                 })
