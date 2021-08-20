@@ -336,12 +336,12 @@ describe('Create User Subscription', () => {
         let id = '123456789';
         let server = 'Goon Squad';
         let preferredChampions = ['Akali'];
-        let subscribed = 'true';
+        let subscribed = true;
         let expectedResults = {
             key: id,
             serverName: server,
             preferredChampions: preferredChampions,
-            subscribed: subscribed,
+            subscribed: JSON.stringify(subscribed),
             timeAdded: expect.anything()
         };
         clashSubscriptionDbImpl.clashSubscriptionTable = {

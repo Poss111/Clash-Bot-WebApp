@@ -1020,20 +1020,20 @@ describe('Clash Bot Service API Controller', () => {
                 id: '1234556778',
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
-                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+                subscriptions: {'UpcomingClashTournamentDiscordDM': true}
             };
             const mockDbResponse = {
                 key: payload.id,
                 serverName: 'Some Server',
                 timeAdded: new Date().toISOString(),
-                subscribed: 'true',
+                subscribed: true,
                 preferredChampions: ['Sett']
             };
             const mockResponseValue = {
                 id: payload.id,
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
-                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+                subscriptions: {'UpcomingClashTournamentDiscordDM': true}
             };
             clashSubscriptionDb.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
@@ -1066,7 +1066,7 @@ describe('Clash Bot Service API Controller', () => {
                 id: payload.id,
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
-                subscriptions: {'UpcomingClashTournamentDiscordDM': 'false'}
+                subscriptions: {'UpcomingClashTournamentDiscordDM': false}
             };
             clashSubscriptionDb.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
