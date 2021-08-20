@@ -361,7 +361,7 @@ describe('Create User Subscription', () => {
         let id = '123456789';
         let server = 'Goon Squad';
         let preferredChampions = ['Akali'];
-        let subscribed = 'false';
+        let subscribed = false;
         let expectedResults = {
             key: id,
             serverName: server,

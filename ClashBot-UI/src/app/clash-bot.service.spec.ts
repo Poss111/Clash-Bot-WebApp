@@ -199,31 +199,31 @@ describe('ClashBotService', () => {
     test('When I request to create a new Team from localhost, I should use localhost with port 80 and be returned Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
       const mockResponse: ClashTeam =
-          {
-            teamName: 'Team Abra',
-            serverName: 'Integration Server',
-            tournamentDetails: {
-              tournamentDay: 'awesome_sauce',
-              tournamentName: '1',
+        {
+          teamName: 'Team Abra',
+          serverName: 'Integration Server',
+          tournamentDetails: {
+            tournamentDay: 'awesome_sauce',
+            tournamentName: '1',
+          },
+          playersDetails: [
+            {
+              name: 'Roïdräge',
+              champions: ['Volibear', 'Ornn', 'Sett'],
+              role: 'Top'
             },
-            playersDetails: [
-              {
-                name: 'Roïdräge',
-                champions: ['Volibear', 'Ornn', 'Sett'],
-                role: 'Top'
-              },
-              {
-                name: 'TheIncentive',
-                champions: ['Lucian'],
-                role: 'ADC'
-              },
-              {
-                name: 'Pepe Conrad',
-                champions: ['Lucian'],
-                role: 'Jg'
-              }
-            ]
-          };
+            {
+              name: 'TheIncentive',
+              champions: ['Lucian'],
+              role: 'ADC'
+            },
+            {
+              name: 'Pepe Conrad',
+              champions: ['Lucian'],
+              role: 'Jg'
+            }
+          ]
+        };
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
         id: '1234',
@@ -251,48 +251,48 @@ describe('ClashBotService', () => {
     test('When I request to create a new Team, I should use the window host and be returned Observable<ClashTeam>', () => {
       stubLocation({hostname: "clashbot.ninja"});
       const mockResponse: ClashTeam =
-          {
-              teamName: 'Team Abra',
-              serverName: 'Integration Server',
-              tournamentDetails: {
-                  tournamentDay: 'awesome_sauce',
-                  tournamentName: '1',
-              },
-              playersDetails: [
-                  {
-                      name: 'Roïdräge',
-                      champions: ['Volibear', 'Ornn', 'Sett'],
-                      role: 'Top'
-                  },
-                  {
-                      name: 'TheIncentive',
-                      champions: ['Lucian'],
-                      role: 'ADC'
-                  },
-                  {
-                      name: 'Pepe Conrad',
-                      champions: ['Lucian'],
-                      role: 'Jg'
-                  }
-              ]
-          };
+        {
+          teamName: 'Team Abra',
+          serverName: 'Integration Server',
+          tournamentDetails: {
+            tournamentDay: 'awesome_sauce',
+            tournamentName: '1',
+          },
+          playersDetails: [
+            {
+              name: 'Roïdräge',
+              champions: ['Volibear', 'Ornn', 'Sett'],
+              role: 'Top'
+            },
+            {
+              name: 'TheIncentive',
+              champions: ['Lucian'],
+              role: 'ADC'
+            },
+            {
+              name: 'Pepe Conrad',
+              champions: ['Lucian'],
+              role: 'Jg'
+            }
+          ]
+        };
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
-          id: '1234',
-          username: 'Test User',
-          discriminator: ';lkj213412'
+        id: '1234',
+        username: 'Test User',
+        discriminator: ';lkj213412'
       };
       const expectedPayload = {
-          id: userDetail.id,
-          username: userDetail.username,
-          teamName: teamRequest.teamName,
-          serverName: teamRequest.serverName,
-          tournamentName: teamRequest.tournamentDetails?.tournamentName,
-          tournamentDay: teamRequest.tournamentDetails?.tournamentDay
+        id: userDetail.id,
+        username: userDetail.username,
+        teamName: teamRequest.teamName,
+        serverName: teamRequest.serverName,
+        tournamentName: teamRequest.tournamentDetails?.tournamentName,
+        tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
       service.createNewTeam(userDetail, teamRequest).subscribe(data => {
-          expect(data).toBeTruthy();
-          expect(data).toEqual(mockResponse);
+        expect(data).toBeTruthy();
+        expect(data).toEqual(mockResponse);
       });
       const req = httpMock.expectOne(`/api/team`);
       expect(req.request.method).toBe('POST');
@@ -408,9 +408,9 @@ describe('ClashBotService', () => {
   })
 
   describe('Method DELETE Unregister from Clash Team', () => {
-    test('When I request to unregister form a Team and from localhost, I should make a call to the Clash Bot register controller localhost with port 80 with method DELETE and be returned Observable<ClashBotGenericResponse>',() => {
+    test('When I request to unregister form a Team and from localhost, I should make a call to the Clash Bot register controller localhost with port 80 with method DELETE and be returned Observable<ClashBotGenericResponse>', () => {
       stubLocation({hostname: "localhost"});
-      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team' };
+      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team'};
       const teamRequest: ClashTeam =
         {
           teamName: 'Team Abra',
@@ -460,9 +460,9 @@ describe('ClashBotService', () => {
       req.flush(mockResponse);
     })
 
-    test('When I request to unregister form a Team, I should make a call to the Clash Bot register controller with method DELETE and be returned Observable<ClashBotGenericResponse>',() => {
+    test('When I request to unregister form a Team, I should make a call to the Clash Bot register controller with method DELETE and be returned Observable<ClashBotGenericResponse>', () => {
       stubLocation({hostname: "clash-bot.ninja"});
-      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team' };
+      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team'};
       const teamRequest: ClashTeam =
         {
           teamName: 'Team Abra',
@@ -515,11 +515,12 @@ describe('ClashBotService', () => {
 
   describe('GET Clash Bot User Information', () => {
     test('When I request for user information from localhost, I should respond with an Observable<ClashBotUserDetails>', (done) => {
+      stubLocation({hostname: "localhost"});
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
         serverName: 'Some Guild',
         preferredChampions: [],
-        subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
+        subscriptions: {'UpcomingClashTournamentDiscordDM': true}
       };
 
       service.getUserDetails(expectedUserDetails.id).subscribe((data) => {
@@ -537,7 +538,7 @@ describe('ClashBotService', () => {
         id: '12345566',
         serverName: 'Some Guild',
         preferredChampions: [],
-        subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
+        subscriptions: {'UpcomingClashTournamentDiscordDM': true}
       };
 
       service.getUserDetails(expectedUserDetails.id).subscribe((data) => {
@@ -547,6 +548,48 @@ describe('ClashBotService', () => {
       const req = httpMock.expectOne(`/api/user?id=${expectedUserDetails.id}`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedUserDetails);
+    })
+  })
+
+  describe('POST Clash Bot User Information', () => {
+    test('When I request to persist data of the User to localhost, I should use the local host and be returned an Observable<ClashBotUser>', () => {
+      stubLocation({hostname: "localhost"});
+      let payload = {
+        id: '1234556778',
+        serverName: 'Some Server',
+        preferredChampions: ['Sett'],
+        subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+      };
+      const set = new Set<string>();
+      set.add('Sett');
+      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions).subscribe(data => {
+        expect(data).toBeTruthy();
+        expect(data).toEqual(payload);
+      });
+      const req = httpMock.expectOne(`http://localhost:80/api/user`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(payload);
+      req.flush(payload);
+    })
+
+    test('When I request to persist data of the User t, I should be returned an Observable<ClashBotUser>', () => {
+      stubLocation({hostname: "clash-bot.ninja"});
+      let payload = {
+        id: '1234556778',
+        serverName: 'Some Server',
+        preferredChampions: ['Sett'],
+        subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+      };
+      const set = new Set<string>();
+      set.add('Sett');
+      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions).subscribe(data => {
+        expect(data).toBeTruthy();
+        expect(data).toEqual(payload);
+      });
+      const req = httpMock.expectOne(`/api/user`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(payload);
+      req.flush(payload);
     })
   })
 

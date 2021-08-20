@@ -69,4 +69,14 @@ export class ClashBotService {
     const opts = { params: new HttpParams({fromString: `id=${id}`}) };
     return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
   }
+
+  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any): Observable<ClashBotUserDetails> {
+    let payload = {
+      id: id,
+      serverName: serverName,
+      preferredChampions: Array.from(preferredChampionList),
+      subscriptions: subscriptions
+    };
+    return this.httpClient.post<ClashBotUserDetails>(this.buildHostUrl('/api/user'), payload);
+  }
 }

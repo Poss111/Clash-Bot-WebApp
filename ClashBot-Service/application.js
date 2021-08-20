@@ -21,7 +21,7 @@ let startUpApp = async () => {
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
-            console.log(`Response Path ('${res.url}') Status Code ('${res.statusCode}')`);
+            console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
         })
 
         let convertTeamDbToTeamPayload = (expectedNewTeam) => {
@@ -250,11 +250,11 @@ let startUpApp = async () => {
                         };
                         if (!data.subscribed) {
                             payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: 'false'
+                                UpcomingClashTournamentDiscordDM: false
                             }
                         } else {
                             payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: 'true'
+                                UpcomingClashTournamentDiscordDM: true
                             }
                         }
                         res.json(payload);

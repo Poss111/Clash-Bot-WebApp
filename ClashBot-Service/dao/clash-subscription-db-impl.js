@@ -134,8 +134,8 @@ class ClashSubscriptionDbImpl {
                 timeAdded: new moment().format(dateFormat),
                 preferredChampions: preferredChampions
             };
-            if (subscribed === 'true') {
-                subscription.subscribed = subscribed;
+            if (subscribed) {
+                subscription.subscribed = JSON.stringify(subscribed);
             }
             this.updateUser(subscription, reject, resolve);
         })
