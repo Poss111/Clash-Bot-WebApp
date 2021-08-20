@@ -1,10 +1,5 @@
-.example-card {
+.clash-bot-card {
   max-width: 400px;
-}
-
-.example-header-image {
-  background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
-  background-size: cover;
 }
 
 .main-page {
@@ -26,6 +21,11 @@
   opacity: 30%;
 }
 
-.example-spacer {
+.clash-bot-spacer {
   flex: 1 1 auto;
+}
+
+.clash-bot-footer-details-container {
+  display: flex;
+  justify-content: space-between;
 }

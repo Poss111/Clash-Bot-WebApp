@@ -42,7 +42,7 @@
   <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team"
                  class="team-card" (registerUser)="registerForTeam($event)"
                  (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-  <mat-card id="clash-bot-teams-card-create-new-team-card" *ngIf="eligibleTournaments.length > 0" class="example-card">
+  <mat-card id="clash-bot-teams-card-create-new-team-card" *ngIf="eligibleTournaments.length > 0" class="clash-bot-card">
     <h2 *ngIf="!creatingNewTeam">Create a new Team</h2>
     <div class="clash-bot-teams-card-create-new-container">
       <button id="clash-bot-teams-card-create-new-button" *ngIf="!creatingNewTeam" mat-mini-fab color="primary"

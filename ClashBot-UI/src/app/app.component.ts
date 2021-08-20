@@ -3,6 +3,7 @@ import {Router} from "@angular/router";
 import {UserDetailsService} from "./user-details.service";
 import {UserDetails} from "./user-details";
 import {Observable} from "rxjs";
+import {environment} from "../environments/environment";
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import {Observable} from "rxjs";
 })
 export class AppComponent implements OnInit{
   user$?: Observable<UserDetails>;
+  appVersion: string = environment.version;
 
   constructor(private router: Router,
               private userDetailsService: UserDetailsService) {}

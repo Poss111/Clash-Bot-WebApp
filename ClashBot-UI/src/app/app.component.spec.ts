@@ -23,6 +23,7 @@ import {DiscordService} from "./discord.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatSelectModule} from "@angular/material/select";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
+import {environment} from "../environments/environment";
 
 jest.mock('./user-details.service');
 
@@ -105,5 +106,11 @@ describe('AppComponent', () => {
     tick();
     expect(location.path()).toBe('/teams');
   }))
+
+  test('If the version is set via the environment file, then it should be displayed.', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.appVersion).toEqual(environment.version)
+  })
 
 });

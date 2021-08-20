@@ -1,5 +1,6 @@
 import {ClashTournaments} from "./clash-tournaments";
 
 export interface ApplicationDetails {
-    currentTournaments?: ClashTournaments[]
+  currentTournaments?: ClashTournaments[],
+  defaultGuild?: string
 }
