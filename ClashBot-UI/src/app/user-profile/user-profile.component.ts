@@ -42,6 +42,7 @@ export class UserProfileComponent implements OnInit {
 
     ngOnInit(): void {
         this.userDetailsService.getUserDetails().pipe(take(1)).subscribe((userDetails) => {
+          this.username = userDetails.username;
             this.clashBotService.getUserDetails(userDetails.id).pipe(take(1)).subscribe((data: ClashBotUserDetails) => {
                 this.riotDdragonService.getListOfChampions().pipe(take(1)).subscribe((championData) => {
                     this.listOfChampions = Object.keys(championData.data);

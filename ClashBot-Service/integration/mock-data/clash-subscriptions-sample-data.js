@@ -5,12 +5,12 @@ module.exports = {
             updatedAt: "2021-07-25T22:44:04.258Z",
             timeAdded: "July 25 2021 03:40 pm PDT",
             createdAt: "2021-07-25T22:40:44.633Z",
-            subscribed: "true",
-            key: "321654987",
+            key: "299370234228506627",
             preferredChampions: [
                 "Urgot",
                 "Sett",
-                "Volibear"
+                "Volibear",
+                "Ornn"
             ]
         },
         {
