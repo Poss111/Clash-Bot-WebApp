@@ -936,7 +936,8 @@ describe('UserProfileComponent', () => {
             preferredChampionsFC: ['Sett'],
             subscribedDiscordDMFC: true
           },
-          markAsPristine: jest.fn()
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
         } as any);
         component.userDetails = {
           id: '123321312',
@@ -967,6 +968,7 @@ describe('UserProfileComponent', () => {
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
             {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
         } else {
           expect(true).toBeFalsy();
@@ -984,7 +986,8 @@ describe('UserProfileComponent', () => {
             preferredChampionsFC: ['Sett'],
             subscribedDiscordDMFC: true
           },
-          markAsPristine: jest.fn()
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
         } as any);
         component.userDetails = {
           id: '123321312',
@@ -1024,6 +1027,7 @@ describe('UserProfileComponent', () => {
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
             {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
         } else {
           expect(true).toBeFalsy();
@@ -1041,7 +1045,8 @@ describe('UserProfileComponent', () => {
             preferredChampionsFC: ['Sett'],
             subscribedDiscordDMFC: true
           },
-          markAsPristine: jest.fn()
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
         } as any);
         component.userDetails = {
           id: '123321312',
@@ -1078,6 +1083,7 @@ describe('UserProfileComponent', () => {
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
             {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
         } else {
           expect(true).toBeFalsy();
