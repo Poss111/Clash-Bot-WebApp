@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {ClashTeam} from "./clash-team";
-import {Observable, of} from "rxjs";
+import {Observable} from "rxjs";
 import {ClashTournaments} from "./clash-tournaments";
 import {UserDetails} from "./user-details";
 import {ClashBotGenericResponse} from "./clash-bot-generic-response";
@@ -65,18 +65,8 @@ export class ClashBotService {
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
   }
 
-  getUserDetails(): Observable<ClashBotUserDetails> {
-    const userSubscriptionSettings = new Map<string, boolean>();
-    userSubscriptionSettings.set('UpcomingClashTournamentDiscordDM', true);
-    const preferredChampions = new Set<string>();
-    preferredChampions.add('Volibear');
-    preferredChampions.add('Ornn');
-    preferredChampions.add('Sett');
-    return of({
-      id: '12345566',
-      username: 'Roïdräge',
-      preferredChampions: preferredChampions,
-      subscriptions: userSubscriptionSettings
-    })
+  getUserDetails(id: string): Observable<ClashBotUserDetails> {
+    const opts = { params: new HttpParams({fromString: `id=${id}`}) };
+    return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
   }
 }

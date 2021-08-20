@@ -514,19 +514,37 @@ describe('ClashBotService', () => {
   })
 
   describe('GET Clash Bot User Information', () => {
-    test('When I request for user information from localhost, I should responsd with an Observable<ClashBotUserDetails>', (done) => {
-      const userSubscriptionSettings = new Map<string, boolean>();
-      userSubscriptionSettings.set('UpcomingClashTournamentDiscordDM', true);
+    test('When I request for user information from localhost, I should respond with an Observable<ClashBotUserDetails>', (done) => {
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
-        username: 'Roïdräge',
         preferredChampions: new Set<string>(),
-        subscriptions: userSubscriptionSettings
+        subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
       };
-      service.getUserDetails().subscribe((data) => {
+
+      service.getUserDetails(expectedUserDetails.id).subscribe((data) => {
         expect(data).toEqual(expectedUserDetails);
         done();
       })
+      const req = httpMock.expectOne(`http://localhost:80/api/user?id=${expectedUserDetails.id}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(expectedUserDetails);
+    })
+
+    test('When I request for user information, I should respond with an Observable<ClashBotUserDetails>', (done) => {
+      stubLocation({hostname: "clash-bot.ninja"});
+      const expectedUserDetails: ClashBotUserDetails = {
+        id: '12345566',
+        preferredChampions: new Set<string>(),
+        subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
+      };
+
+      service.getUserDetails(expectedUserDetails.id).subscribe((data) => {
+        expect(data).toEqual(expectedUserDetails);
+        done();
+      })
+      const req = httpMock.expectOne(`/api/user?id=${expectedUserDetails.id}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(expectedUserDetails);
     })
   })
 
