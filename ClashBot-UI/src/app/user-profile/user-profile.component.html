@@ -61,7 +61,7 @@
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
         </mat-chip-list>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-          <mat-option *ngFor="let champion of filteredChampions | async" [value]="champion">
+          <mat-option *ngFor="let champion of championsAutofillArray | async" [value]="champion">
             {{champion}}
           </mat-option>
         </mat-autocomplete>
