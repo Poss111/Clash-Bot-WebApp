@@ -16,6 +16,7 @@ import {MatSliderModule} from "@angular/material/slider";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ClashBotService} from "../clash-bot.service";
 import {MatButtonModule} from "@angular/material/button";
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [ UserProfileComponent ],
@@ -35,7 +36,8 @@ import {MatButtonModule} from "@angular/material/button";
     MatRadioModule,
     MatSliderModule,
     MatSlideToggleModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSelectModule
   ],
   providers: [ClashBotService]
 })

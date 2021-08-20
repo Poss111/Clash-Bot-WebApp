@@ -962,6 +962,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const mockResponseValue = {
                 id: userId,
+                serverName: mockDbResponse.serverName,
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': true}
             }

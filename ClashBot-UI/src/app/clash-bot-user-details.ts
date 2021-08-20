@@ -1,5 +1,6 @@
 export interface ClashBotUserDetails {
   id: string,
-  preferredChampions: Set<string>,
+  serverName: string,
+  preferredChampions: string[],
   subscriptions: {[key: string]: boolean}
 }

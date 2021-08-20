@@ -8,6 +8,8 @@ import {ClashBotService} from "../clash-bot.service";
 import {ClashBotUserDetails} from "../clash-bot-user-details";
 import {RiotDdragonService} from "../riot-ddragon.service";
 import {UserDetailsService} from "../user-details.service";
+import {DiscordService} from "../discord.service";
+import {DiscordGuild} from "../discord-guild";
 
 @Component({
     selector: 'app-user-profile',
@@ -26,11 +28,17 @@ export class UserProfileComponent implements OnInit {
     listOfChampions: string[] = [];
     initialFormControlState: any = {};
     initialAutoCompleteArray: string[] = [];
+    defaultGuild: string = '';
+    guilds: DiscordGuild[] = [];
+
 
     @ViewChild('championInput') championInput: any = '';
     userDetailsForm?: FormGroup;
 
-    constructor(private clashBotService: ClashBotService, private userDetailsService: UserDetailsService, private riotDdragonService: RiotDdragonService) {
+    constructor(private discordService: DiscordService,
+                private clashBotService: ClashBotService,
+                private userDetailsService: UserDetailsService,
+                private riotDdragonService: RiotDdragonService) {
     }
 
     notInListValidator(): ValidatorFn {
@@ -41,18 +49,24 @@ export class UserProfileComponent implements OnInit {
     }
 
     ngOnInit(): void {
+      this.discordService.getGuilds().subscribe((guilds) => {
+        guilds.forEach(guild => {
+          this.guilds.push(guild);
+        });
         this.userDetailsService.getUserDetails().pipe(take(1)).subscribe((userDetails) => {
           this.username = userDetails.username;
             this.clashBotService.getUserDetails(userDetails.id).pipe(take(1)).subscribe((data: ClashBotUserDetails) => {
+              this.defaultGuild = data.serverName;
                 this.riotDdragonService.getListOfChampions().pipe(take(1)).subscribe((championData) => {
                     this.listOfChampions = Object.keys(championData.data);
-                    this.listOfChampions = this.listOfChampions.filter(record => !data.preferredChampions.has(record));
+                    this.listOfChampions = this.listOfChampions.filter(record => !data.preferredChampions.includes(record));
                     this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
                 })
                 // this.username = data.username;
                 this.userDetailsForm = new FormGroup({
                     preferredChampionsFC: new FormControl([...data.preferredChampions]),
-                    subscribedDiscordDMFC: new FormControl(data.subscriptions.UpcomingClashTournamentDiscordDM)
+                    subscribedDiscordDMFC: new FormControl(data.subscriptions.UpcomingClashTournamentDiscordDM),
+                    defaultGuildFC: new FormControl(this.defaultGuild)
                 });
                 this.preferredChampions = new Set<string>(data.preferredChampions);
                 this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
@@ -61,6 +75,7 @@ export class UserProfileComponent implements OnInit {
                     map((champion: string | null) => champion ? this._filter(champion) : this.listOfChampions.slice()));
             })
         })
+      })
     }
 
     private syncChampionsList(value: string) {

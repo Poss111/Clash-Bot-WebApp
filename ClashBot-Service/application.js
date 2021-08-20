@@ -210,6 +210,7 @@ let startUpApp = async () => {
                     let payload = {
                         username: data.username,
                         id: data.key,
+                        serverName: data.serverName,
                         preferredChampions: data.preferredChampions,
                         subscriptions: {
                             'UpcomingClashTournamentDiscordDM': !!data.subscribed

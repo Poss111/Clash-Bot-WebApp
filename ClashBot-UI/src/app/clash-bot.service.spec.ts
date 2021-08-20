@@ -517,7 +517,8 @@ describe('ClashBotService', () => {
     test('When I request for user information from localhost, I should respond with an Observable<ClashBotUserDetails>', (done) => {
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
-        preferredChampions: new Set<string>(),
+        serverName: 'Some Guild',
+        preferredChampions: [],
         subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
       };
 
@@ -534,7 +535,8 @@ describe('ClashBotService', () => {
       stubLocation({hostname: "clash-bot.ninja"});
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
-        preferredChampions: new Set<string>(),
+        serverName: 'Some Guild',
+        preferredChampions: [],
         subscriptions: { 'UpcomingClashTournamentDiscordDM': true}
       };
 
