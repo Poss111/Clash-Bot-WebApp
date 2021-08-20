@@ -9,7 +9,7 @@
           <mat-icon>house</mat-icon>
           <span>Welcome Page</span>
         </button>
-        <button id='clash-bot-menu-teams-page' mat-menu-item *ngIf="user$ | async as user" (click)="navigateToTeams()">
+        <button id='clash-bot-menu-teams-page' *ngIf="user$ | async as user" mat-menu-item  (click)="navigateToTeams()">
           <mat-icon>groups</mat-icon>
           <span>Clash Teams</span>
         </button>

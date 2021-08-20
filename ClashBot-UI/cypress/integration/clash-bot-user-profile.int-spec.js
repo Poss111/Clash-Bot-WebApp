@@ -15,7 +15,7 @@ describe('Validate User Profile of Clash Bot', () => {
   it('I should be able to successfully navigate to the User Profile, edit my information and save then validate it has been updated by navigating away and back.', () => {
     cy.get('#clash-bot-menu').click();
     cy.get('#clash-bot-menu-user-profile-page').click();
-    cy.get('#clash-bot-user-profile-username').should('have.text', 'Roïdräge');
+    cy.get('#clash-bot-user-profile-username', { timeout: 15000 }).should('have.text', 'Roïdräge');
     cy.get('#clash-bot-user-profile-default-guild').should('have.text', 'LoL-ClashBotSupport');
     cy.get('#clash-bot-user-profile-default-guild').click();
     cy.get('#clash-bot-user-profile-autocomplete-lolclashbotsupport-guild').should('contain.text', 'LoL-ClashBotSupport');
