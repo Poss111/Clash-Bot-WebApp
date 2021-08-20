@@ -17,7 +17,7 @@
     </mat-list>
   </mat-expansion-panel>
 
-  <form-group [formGroup]="userDetailsForm" (ngSubmit)="onSubmit()">
+  <form *ngIf="userDetailsForm" [formGroup]="userDetailsForm" (ngSubmit)="userDetailsForm.valid && onSubmit()">
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -42,14 +42,10 @@
           <input
             placeholder="Add Champion..."
             #championInput
-            [formControl]="championCtrl"
+            [formControl]="championAutoCompleteCtrl"
             [matAutocomplete]="auto"
             [matChipInputFor]="chipList"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            (matChipInputTokenEnd)="add($event)">
-          <mat-error *ngIf="userDetailsForm.controls.preferredChampionsFC.hasError('forbiddenName')">
-            Invalid Champion Name
-          </mat-error>
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
         </mat-chip-list>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
           <mat-option *ngFor="let champion of filteredChampions | async" [value]="champion">
@@ -71,13 +67,13 @@
       <mat-slide-toggle
         class="example-margin"
         formControlName="subscribedDiscordDMFC"
-        [checked]="subscribedDiscordDM">
+      (change)="sliderUpdate()">
         Monday before Tournament Discord direct message
       </mat-slide-toggle>
     </mat-expansion-panel>
     <div class="clash-bot-user-profile-save-button-container">
-      <button mat-raised-button [disabled]="!userDetailsForm.dirty">Undo</button>
+      <button mat-raised-button type="reset" [disabled]="!userDetailsForm.dirty" (click)="resetState()">Undo</button>
       <button mat-raised-button type="submit" color="primary" [disabled]="!userDetailsForm.dirty">Save</button>
     </div>
-  </form-group>
+  </form>
 </mat-accordion>

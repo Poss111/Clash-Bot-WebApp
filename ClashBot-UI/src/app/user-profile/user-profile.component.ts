@@ -1,9 +1,8 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable, of} from "rxjs";
-import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators} from "@angular/forms";
+import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} from "@angular/forms";
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
-import {map, startWith, tap} from "rxjs/operators";
-import {MatChipInputEvent} from "@angular/material/chips";
+import {map, startWith, take} from "rxjs/operators";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ClashBotService} from "../clash-bot.service";
 import {ClashBotUserDetails} from "../clash-bot-user-details";
@@ -17,21 +16,18 @@ import {RiotDdragonService} from "../riot-ddragon.service";
 export class UserProfileComponent implements OnInit {
 
   username?: string;
-  subscribedDiscordDM?: boolean = false;
   selectable = true;
   removable = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
-  championCtrl = new FormControl();
+  championAutoCompleteCtrl = new FormControl();
   filteredChampions: Observable<string[]> = of();
   preferredChampions: Set<string> = new Set<string>();
   listOfChampions: string[] = [];
-
+  initialFormControlState: any = {};
+  initialAutoCompleteArray: string[] = [];
 
   @ViewChild('championInput') championInput: any = '';
-  userDetailsForm = new FormGroup({
-    preferredChampionsFC: new FormControl([], this.notInListValidator()),
-    subscribedDiscordDMFC: new FormControl(true)
-  });
+  userDetailsForm?: FormGroup;
 
   constructor(private clashBotService: ClashBotService, private riotDdragonService: RiotDdragonService) {
   }
@@ -44,59 +40,56 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.clashBotService.getUserDetails().subscribe((data: ClashBotUserDetails) => {
-      this.riotDdragonService.getListOfChampions().subscribe((championData) => {
+    this.clashBotService.getUserDetails().pipe(take(1)).subscribe((data: ClashBotUserDetails) => {
+      this.riotDdragonService.getListOfChampions().pipe(take(1)).subscribe((championData) => {
         this.listOfChampions = Object.keys(championData.data);
-        console.log(`Starting ('${this.listOfChampions.length}')`);
         this.listOfChampions = this.listOfChampions.filter(record => !data.preferredChampions.has(record));
-        console.log(`Ending ('${this.listOfChampions.length}')`);
+        this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
       })
       this.username = data.username;
-      this.subscribedDiscordDM = data.subscriptions.get('UpcomingClashTournamentDiscordDM');
-      this.userDetailsForm.patchValue({preferredChampionsFC: [...data.preferredChampions]});
-      this.preferredChampions = data.preferredChampions;
-      this.filteredChampions = this.championCtrl.valueChanges.pipe(
+      this.userDetailsForm = new FormGroup({
+          preferredChampionsFC: new FormControl([...data.preferredChampions]),
+        subscribedDiscordDMFC: new FormControl(data.subscriptions.get('UpcomingClashTournamentDiscordDM'))
+      });
+      this.preferredChampions = new Set<string>(data.preferredChampions);
+      this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
+      this.filteredChampions = this.championAutoCompleteCtrl.valueChanges.pipe(
         startWith(null),
         map((champion: string | null) => champion ? this._filter(champion) : this.listOfChampions.slice()));
     })
-    this.userDetailsForm.valueChanges.subscribe((data) => {
-      console.log(data);
-      console.log(this.userDetailsForm.valid);
-    });
   }
 
-  add(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-    console.log('Add event');
-
-    // Add our fruit
-    if (value && this.userDetailsForm.valid) {
+  private syncChampionsList(value: string) {
+    if (this.listOfChampions.indexOf(value) > -1) {
       this.listOfChampions.splice(this.listOfChampions.indexOf(value), 1);
       this.listOfChampions.sort();
       this.preferredChampions.add(value);
-
-      // Clear the input value
-      event.chipInput!.clear();
-
-      this.championCtrl.setValue(null);
     } else {
-      console.error(this.userDetailsForm.controls.preferredChampionsFC.hasError('forbiddenName'));
-      console.error(`Not a valid name ('${value}')`);
+      this.preferredChampions.delete(value);
+      this.listOfChampions.push(value);
+      this.listOfChampions.sort();
+    }
+    this.userDetailsForm?.controls.preferredChampionsFC.setValue([...this.preferredChampions]);
+    this.checkFormState();
+  }
+
+  private checkFormState() {
+    if (this.compareArray([...this.preferredChampions], this.initialFormControlState.preferredChampionsFC)
+        && this.userDetailsForm?.controls.subscribedDiscordDMFC.value === this.initialFormControlState.subscribedDiscordDMFC) {
+      this.userDetailsForm?.markAsPristine()
+    } else {
+      this.userDetailsForm?.markAsDirty();
     }
   }
 
   remove(champion: string): void {
-    this.listOfChampions.push(champion);
-    this.listOfChampions.sort();
-    this.preferredChampions.delete(champion);
+    this.syncChampionsList(champion);
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    this.listOfChampions.splice(this.listOfChampions.indexOf(event.option.viewValue), 1);
-    this.listOfChampions.sort();
-    this.preferredChampions.add(event.option.viewValue);
+    this.syncChampionsList(event.option.viewValue);
     this.championInput.nativeElement.value = '';
-    this.championCtrl.setValue(null);
+    this.championAutoCompleteCtrl.setValue(null);
   }
 
   private _filter(value: string): string[] {
@@ -104,7 +97,35 @@ export class UserProfileComponent implements OnInit {
     return this.listOfChampions.filter(champion => champion.toLowerCase().includes(filterValue));
   }
 
+  resetState() {
+    console.log(`${JSON.stringify(this.initialFormControlState)}`);
+    this.userDetailsForm?.reset(this.initialFormControlState);
+    this.preferredChampions = new Set<string>(this.initialFormControlState.preferredChampionsFC);
+    this.listOfChampions = JSON.parse(JSON.stringify(this.initialAutoCompleteArray));
+  }
+
   onSubmit() {
-    console.warn(this.userDetailsForm.value);
+    console.log(`SUBMIT ${JSON.stringify(this.initialFormControlState)}`);
+    console.log(this.userDetailsForm?.value);
+    this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm?.value));
+    this.userDetailsForm?.markAsPristine();
+    console.log(this.userDetailsForm?.pristine);
+    console.log(`AFTER SUBMIT ${JSON.stringify(this.initialFormControlState)}`);
+  }
+
+  sliderUpdate() {
+    this.checkFormState();
+  }
+
+  compareArray(arr1: any[], arr2: any[]): boolean {
+    if(arr1.length === arr2.length) {
+      for (let value of arr2) {
+        if (!arr1.includes(value)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 }

@@ -1,10 +1,12 @@
 const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
+const clashSubscriptionDb = require('./dao/clash-subscription-db-impl');
 const startUpApp = require('./application');
 const request = require('supertest');
 
 jest.mock('./dao/clash-teams-db-impl');
 jest.mock('./dao/clash-time-db-impl');
+jest.mock('./dao/clash-subscription-db-impl');
 
 describe('Clash Bot Service API Controller', () => {
     let application;
@@ -13,6 +15,7 @@ describe('Clash Bot Service API Controller', () => {
     beforeAll(async () => {
         clashTimeDbImpl.initialize.mockResolvedValue(true);
         clashTeamsDbImpl.initialize.mockResolvedValue(true);
+        clashSubscriptionDb.initialize.mockResolvedValue(true);
         application = await startUpApp();
         server = await application.listen();
     })
@@ -933,6 +936,78 @@ describe('Clash Bot Service API Controller', () => {
                     done();
                 })
         })
+    })
+
+    describe('User', () => {
+        test('When I ask to retrieve the User information based on the User Id with a GET on /api/user, and it should respond with a User Details payload.', (done) => {
+            const userId = '12321312';
+            const mockDbResponse = {
+                key: userId,
+                serverName: 'Some Server',
+                timeAdded: new Date().toISOString(),
+                subscribed: 'true',
+                preferredChampions: ['Sett']
+            };
+            const mockResponseValue = {id: userId, preferredChampions: ['Sett'], subscriptions: {'UpcomingClashTournamentDiscordDM': true}}
+            clashSubscriptionDb.retrieveUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+
+        test('When I ask to retrieve a User that is not available, it should respond with an empty payload.', (done) => {
+            const userId = '12321312';
+            const mockDbResponse = {};
+            const mockResponseValue = {subscriptions: {'UpcomingClashTournamentDiscordDM': false}}
+            clashSubscriptionDb.retrieveUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+
+        test('Error - Failed to retrieve User - If the database fails to retrieve the User then it should respond with an generic error.', (done) => {
+            const userId = '12321312';
+            clashSubscriptionDb.retrieveUserDetails.mockRejectedValue(new Error('Failed to retrieve.'));
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err) => {
+                    if (err) return done(err);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDb.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+    })
+
+    test('Bad request - Missing User Id - If the request does not have the expected query parameter, return bad request.', (done) => {
+        request(application)
+            .get(`/api/user`)
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(400, (err, res) => {
+                if (err) return done(err);
+                expect(res.body).toEqual({error: 'Missing required query parameter.'});
+                expect(clashSubscriptionDb.retrieveUserDetails).not.toHaveBeenCalled();
+                done();
+            })
     })
 
     describe('Health Check', () => {

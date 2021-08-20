@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
+const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const errorHandler = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -11,7 +12,8 @@ let startUpApp = async () => {
     try {
         await Promise.all([
             clashTeamsDbImpl.initialize(),
-            clashTimeDbImpl.initialize()]);
+            clashTimeDbImpl.initialize(),
+            clashUserDbImpl.initialize()]);
 
         app.use(express.json());
         app.use(cors())
@@ -198,8 +200,31 @@ let startUpApp = async () => {
             });
         })
 
+        app.get(`${urlPrefix}/user`, (req, res) => {
+            console.log(req.query.id)
+            if (!req.query.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required query parameter.'});
+            } else {
+                clashUserDbImpl.retrieveUserDetails(req.query.id).then(data => {
+                    let payload = {
+                        username: data.username,
+                        id: data.key,
+                        preferredChampions: data.preferredChampions,
+                        subscriptions: {
+                            'UpcomingClashTournamentDiscordDM': !!data.subscribed
+                        }
+                    };
+                    res.json(payload);
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to retrieve User.');
+                })
+            }
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
-            res.send({
+            res.json({
                 status: 'Healthy'
             });
         })
