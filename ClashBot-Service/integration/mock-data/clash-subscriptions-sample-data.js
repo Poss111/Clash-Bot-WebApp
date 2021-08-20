@@ -10,8 +10,7 @@ module.exports = {
             preferredChampions: [
                 "Urgot",
                 "Sett",
-                "Volibear",
-                "Khazix"
+                "Volibear"
             ]
         },
         {
