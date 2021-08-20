@@ -13,7 +13,7 @@
           <mat-icon>groups</mat-icon>
           <span>Clash Teams</span>
         </button>
-        <button *ngIf="user$ | async as user" mat-menu-item (click)="navigateToUserProfile()">
+        <button id='clash-bot-menu-user-profile-page' *ngIf="user$ | async as user" mat-menu-item (click)="navigateToUserProfile()">
           <mat-icon>settings</mat-icon>
           <span>Settings</span>
         </button>

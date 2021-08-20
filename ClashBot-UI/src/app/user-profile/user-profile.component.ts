@@ -159,6 +159,7 @@ export class UserProfileComponent implements OnInit {
 
   onSubmit() {
     if (this.userDetailsForm && this.userDetails) {
+      this.userDetailsForm.markAsPending();
       this.clashBotService.postUserDetails(this.userDetails.id,
         this.userDetailsForm.value.defaultGuildFC,
         new Set<string>(this.userDetailsForm.value.preferredChampionsFC),

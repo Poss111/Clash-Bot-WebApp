@@ -13,13 +13,13 @@
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon>discord</mat-icon>
-          <div mat-line>{{userDetails?.username}}</div>
+          <div id="clash-bot-user-profile-username" mat-line>{{userDetails?.username}}</div>
         </mat-list-item>
         <mat-list-item>
           <mat-form-field appearance="fill">
             <mat-label>Default Guild</mat-label>
-            <mat-select name="defaultGuild" formControlName="defaultGuildFC">
-              <mat-option *ngFor="let guild of guilds" [value]="guild.name">
+            <mat-select id="clash-bot-user-profile-default-guild" name="defaultGuild" formControlName="defaultGuildFC">
+              <mat-option  id="clash-bot-user-profile-autocomplete-{{ guild.name | kebabcase }}-guild" *ngFor="let guild of guilds" [value]="guild.name">
                 {{guild.name}}
               </mat-option>
             </mat-select>
@@ -43,25 +43,27 @@
       </mat-expansion-panel-header>
       <mat-form-field class="example-chip-list" appearance="fill">
         <mat-label>Current Preferred Champions</mat-label>
-        <mat-chip-list #chipList aria-label="Fruit selection">
+        <mat-chip-list id="clash-bot-user-profile-preferred-champions-list" #chipList aria-label="Fruit selection">
           <mat-chip
             *ngFor="let champion of preferredChampions"
+            id="clash-bot-user-profile-preferred-champion-{{ champion | lowercase }}"
             [selectable]="selectable"
             [removable]="removable"
             (removed)="remove(champion)">
             {{champion}}
-            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            <mat-icon id="clash-bot-user-profile-preferred-champion-{{ champion }}-remove" matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
           <input
             placeholder="Add Champion..."
             #championInput
+            id="clash-bot-user-profile-preferred-champion-input"
             [formControl]="championAutoCompleteCtrl"
             [matAutocomplete]="auto"
             [matChipInputFor]="chipList"
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
         </mat-chip-list>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-          <mat-option *ngFor="let champion of championsAutofillArray | async" [value]="champion">
+          <mat-option *ngFor="let champion of championsAutofillArray | async" id="clash-bot-user-profile-preferred-champion-{{ champion | lowercase }}-autocomplete" [value]="champion">
             {{champion}}
           </mat-option>
         </mat-autocomplete>
@@ -79,14 +81,16 @@
       </mat-expansion-panel-header>
       <mat-slide-toggle
         class="example-margin"
+        id="clash-bot-user-profile-discord-dm-notification-toggle"
         formControlName="subscribedDiscordDMFC"
         (change)="sliderUpdate()">
         Monday before Tournament Discord direct message
       </mat-slide-toggle>
     </mat-expansion-panel>
     <div class="clash-bot-user-profile-save-button-container">
-      <button mat-raised-button type="reset" [disabled]="!userDetailsForm.dirty" (click)="resetState()">Undo</button>
-      <button mat-raised-button type="submit" color="primary" [disabled]="!userDetailsForm.dirty">Save</button>
+      <mat-progress-bar id="clash-bot-user-profile-call-in-progress-bar" *ngIf="userDetailsForm && userDetailsForm.pending && !userDetailsForm.pristine" mode="indeterminate"></mat-progress-bar>
+      <button mat-raised-button id="clash-bot-user-profile-undo" type="reset" [disabled]="!userDetailsForm.dirty" (click)="resetState()">Undo</button>
+      <button mat-raised-button id="clash-bot-user-profile-submit" type="submit" color="primary" [disabled]="!userDetailsForm.dirty">Save</button>
     </div>
   </form>
 </mat-accordion>

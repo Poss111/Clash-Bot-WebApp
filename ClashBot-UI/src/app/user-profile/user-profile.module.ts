@@ -17,9 +17,11 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ClashBotService} from "../clash-bot.service";
 import {MatButtonModule} from "@angular/material/button";
 import {MatSelectModule} from "@angular/material/select";
+import {KebabCasePipe} from "../kebab-case.pipe";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 @NgModule({
-  declarations: [ UserProfileComponent ],
+  declarations: [ UserProfileComponent, KebabCasePipe],
   imports: [
     CommonModule,
     UserProfileRoutingModule,
@@ -37,7 +39,8 @@ import {MatSelectModule} from "@angular/material/select";
     MatSliderModule,
     MatSlideToggleModule,
     MatButtonModule,
-    MatSelectModule
+    MatSelectModule,
+    MatProgressBarModule
   ],
   providers: [ClashBotService]
 })
