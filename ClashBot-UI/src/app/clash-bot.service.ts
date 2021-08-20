@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {ClashTeam} from "./clash-team";
 import {Observable} from "rxjs";
 import {ClashTournaments} from "./clash-tournaments";
 import {UserDetails} from "./user-details";
 import {ClashBotGenericResponse} from "./clash-bot-generic-response";
+import {ClashBotUserDetails} from "./clash-bot-user-details";
 
 @Injectable()
 export class ClashBotService {
@@ -62,5 +63,20 @@ export class ClashBotService {
       startTime: teamRequest.startTime
     };
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
+  }
+
+  getUserDetails(id: string): Observable<ClashBotUserDetails> {
+    const opts = { params: new HttpParams({fromString: `id=${id}`}) };
+    return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
+  }
+
+  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any): Observable<ClashBotUserDetails> {
+    let payload = {
+      id: id,
+      serverName: serverName,
+      preferredChampions: Array.from(preferredChampionList),
+      subscriptions: subscriptions
+    };
+    return this.httpClient.post<ClashBotUserDetails>(this.buildHostUrl('/api/user'), payload);
   }
 }

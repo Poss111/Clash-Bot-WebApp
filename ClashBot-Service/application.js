@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
+const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const errorHandler = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -11,7 +12,8 @@ let startUpApp = async () => {
     try {
         await Promise.all([
             clashTeamsDbImpl.initialize(),
-            clashTimeDbImpl.initialize()]);
+            clashTimeDbImpl.initialize(),
+            clashUserDbImpl.initialize()]);
 
         app.use(express.json());
         app.use(cors())
@@ -19,7 +21,7 @@ let startUpApp = async () => {
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
-            console.log(`Response Path ('${res.url}') Status Code ('${res.statusCode}')`);
+            console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
         })
 
         let convertTeamDbToTeamPayload = (expectedNewTeam) => {
@@ -58,7 +60,7 @@ let startUpApp = async () => {
                 }]).then((newTeam) => {
                     if (Array.isArray(newTeam) && newTeam[0].exist) {
                         res.statusCode = 400;
-                        res.json({ error: 'Player is not eligible to create a new Team.'});
+                        res.json({error: 'Player is not eligible to create a new Team.'});
                     } else {
                         res.json(convertTeamDbToTeamPayload(newTeam));
                     }
@@ -198,8 +200,73 @@ let startUpApp = async () => {
             });
         })
 
+        app.get(`${urlPrefix}/user`, (req, res) => {
+            console.log(req.query.id)
+            if (!req.query.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required query parameter.'});
+            } else {
+                clashUserDbImpl.retrieveUserDetails(req.query.id).then(data => {
+                    let payload = {
+                        username: data.username,
+                        id: data.key,
+                        serverName: data.serverName,
+                        preferredChampions: data.preferredChampions,
+                        subscriptions: {
+                            'UpcomingClashTournamentDiscordDM': !!data.subscribed
+                        }
+                    };
+                    res.json(payload);
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to retrieve User.');
+                })
+            }
+        })
+
+        app.post(`${urlPrefix}/user`, (req, res) => {
+            if (!req.body.id) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required User Id'});
+            } else if (!req.body.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Server Name'});
+            } else if (!req.body.preferredChampions) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Preferred Champions'});
+            }  else if (!req.body.subscriptions) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required Subscriptions'});
+            } else {
+                clashUserDbImpl.createUpdateUserDetails(req.body.id,
+                    req.body.serverName,
+                    req.body.preferredChampions,
+                    req.body.subscriptions.UpcomingClashTournamentDiscordDM)
+                    .then(data => {
+                        let payload = {
+                            id: data.key,
+                            serverName: data.serverName,
+                            preferredChampions: data.preferredChampions,
+                        };
+                        if (!data.subscribed) {
+                            payload.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: false
+                            }
+                        } else {
+                            payload.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: true
+                            }
+                        }
+                        res.json(payload);
+                    }).catch(err => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to retrieve User.');
+                })
+            }
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
-            res.send({
+            res.json({
                 status: 'Healthy'
             });
         })

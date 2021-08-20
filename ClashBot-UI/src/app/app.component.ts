@@ -16,15 +16,18 @@ export class AppComponent implements OnInit{
               private userDetailsService: UserDetailsService) {}
 
   navigateToWelcomePage() {
-    this.router.navigate(['/'])
+    this.router.navigate(['/']);
   }
 
   navigateToTeams() {
-    this.router.navigate(['/teams'])
+    this.router.navigate(['/teams']);
   }
 
   ngOnInit(): void {
     this.user$ = this.userDetailsService.getUserDetails();
   }
 
+  navigateToUserProfile() {
+    this.router.navigate(['/user-profile']);
+  }
 }

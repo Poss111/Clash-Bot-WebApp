@@ -122,6 +122,25 @@ class ClashSubscriptionDbImpl {
             });
         });
     }
+
+    createUpdateUserDetails(id, server, preferredChampions, subscribed) {
+        return new Promise((resolve, reject) => {
+            const dateFormat = 'MMMM DD yyyy hh:mm a z';
+            const timeZone = 'America/Los_Angeles';
+            moment.tz.setDefault(timeZone);
+            let subscription = {
+                key: id,
+                serverName: server,
+                timeAdded: new moment().format(dateFormat),
+                preferredChampions: preferredChampions
+            };
+            if (subscribed) {
+                subscription.subscribed = JSON.stringify(subscribed);
+            }
+            this.updateUser(subscription, reject, resolve);
+        })
+    }
+
 }
 
 module.exports = new ClashSubscriptionDbImpl;

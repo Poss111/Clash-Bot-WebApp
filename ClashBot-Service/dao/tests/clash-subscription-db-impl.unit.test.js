@@ -330,3 +330,54 @@ describe('Get User Subscription', () => {
             .catch(err => expect(err).toEqual(new Error('Failed to retrieve')))
     })
 })
+
+describe('Create User Subscription', () => {
+    test('I should be able to pass all required details and create the requested user.', () => {
+        let id = '123456789';
+        let server = 'Goon Squad';
+        let preferredChampions = ['Akali'];
+        let subscribed = true;
+        let expectedResults = {
+            key: id,
+            serverName: server,
+            preferredChampions: preferredChampions,
+            subscribed: JSON.stringify(subscribed),
+            timeAdded: expect.anything()
+        };
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            create: jest.fn().mockImplementation((data, callback) => {
+                callback(undefined, data);
+            })
+        }
+        return clashSubscriptionDbImpl
+            .createUpdateUserDetails(id, server, preferredChampions, subscribed)
+            .then(data => {
+                console.log(data);
+                expect(data).toEqual(expectedResults);
+            }).catch(err => expect(err).toBeFalsy());
+    })
+
+    test('I should be able to pass all required details and create the requested user and if subscribed is given as false, I should not persist it.', () => {
+        let id = '123456789';
+        let server = 'Goon Squad';
+        let preferredChampions = ['Akali'];
+        let subscribed = false;
+        let expectedResults = {
+            key: id,
+            serverName: server,
+            preferredChampions: preferredChampions,
+            timeAdded: expect.anything()
+        };
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            create: jest.fn().mockImplementation((data, callback) => {
+                callback(undefined, data);
+            })
+        }
+        return clashSubscriptionDbImpl
+            .createUpdateUserDetails(id, server, preferredChampions, subscribed)
+            .then(data => {
+                console.log(data);
+                expect(data).toEqual(expectedResults);
+            }).catch(err => expect(err).toBeFalsy());
+    })
+})
