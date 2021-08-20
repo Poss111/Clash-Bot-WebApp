@@ -17,11 +17,19 @@
   flex-basis: 0;
 }
 
-.example-headers-align .mat-expansion-panel-header-description {
+.example-headers-align .mat-expansion-panel-header-description .mat-panel-title {
   justify-content: space-between;
-  align-items: center;
 }
 
 .example-headers-align .mat-form-field + .mat-form-field {
   margin-left: 8px;
 }
+
+mat-expansion-panel {
+  padding: 2em 0 2em 0;
+}
+
+mat-expansion-panel.mat-expansion-panel:nth-of-type(1n+1) {
+  margin-top: 1em !important;
+}
+
