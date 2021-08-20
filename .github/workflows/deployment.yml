@@ -150,6 +150,13 @@ jobs:
         working-directory: ./ClashBot-UI
         run: npm i
 
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "--APP-VERSION--"
+          replace: "${{ GITHUB_REF##*/ }}"
+          include: "ClashBot-UI/src/environments/environment.prod.ts"
+
       - name: Build distribution
         working-directory: ./ClashBot-UI
         run: npm run-script build
