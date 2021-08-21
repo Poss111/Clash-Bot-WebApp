@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {UserDetails} from "./user-details";
+import {UserDetails} from "../interfaces/user-details";
 import {BehaviorSubject} from "rxjs";
 
 @Injectable({

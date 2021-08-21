@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {ClashTeam} from "./clash-team";
+import {ClashTeam} from "../interfaces/clash-team";
 import {Observable} from "rxjs";
-import {ClashTournaments} from "./clash-tournaments";
-import {UserDetails} from "./user-details";
-import {ClashBotGenericResponse} from "./clash-bot-generic-response";
-import {ClashBotUserDetails} from "./clash-bot-user-details";
+import {ClashTournaments} from "../interfaces/clash-tournaments";
+import {UserDetails} from "../interfaces/user-details";
+import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
+import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 
 @Injectable()
 export class ClashBotService {

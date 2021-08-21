@@ -1,10 +1,10 @@
 import {TestBed} from '@angular/core/testing';
 import {ClashBotService} from './clash-bot.service';
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {UserDetails} from "./user-details";
-import {ClashTeam} from "./clash-team";
-import {ClashBotGenericResponse} from "./clash-bot-generic-response";
-import {ClashBotUserDetails} from "./clash-bot-user-details";
+import {UserDetails} from "../interfaces/user-details";
+import {ClashTeam} from "../interfaces/clash-team";
+import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
+import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;

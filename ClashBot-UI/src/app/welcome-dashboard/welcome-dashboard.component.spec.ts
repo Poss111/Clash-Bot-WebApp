@@ -6,20 +6,20 @@ import {ClashTournamentCalendarComponent} from "../clash-tournament-calendar/cla
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {AuthConfig, DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {ClashBotService} from "../clash-bot.service";
-import {DiscordService} from "../discord.service";
+import {ClashBotService} from "../services/clash-bot.service";
+import {DiscordService} from "../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {of} from "rxjs";
 import {MatNativeDateModule} from "@angular/material/core";
 import {ClashTournamentCalendarHeaderComponent} from "../clash-tournament-calendar-header/clash-tournament-calendar-header.component";
 import {NgModule} from "@angular/core";
 import {environment} from "../../environments/environment";
-import {UserDetailsService} from "../user-details.service";
-import {UserDetails} from "../user-details";
+import {UserDetailsService} from "../services/user-details.service";
+import {UserDetails} from "../interfaces/user-details";
 import {MatSnackBarConfig} from "@angular/material/snack-bar/snack-bar-config";
 import {TestScheduler} from "rxjs/testing";
-import {ApplicationDetailsService} from "../application-details.service";
-import {ClashTournaments} from "../clash-tournaments";
+import {ApplicationDetailsService} from "../services/application-details.service";
+import {ClashTournaments} from "../interfaces/clash-tournaments";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../clash-bot.service");

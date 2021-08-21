@@ -1,12 +1,13 @@
 import {Component, OnDestroy, ViewEncapsulation} from '@angular/core';
-import {ClashBotService} from "../clash-bot.service";
+import {ClashBotService} from "../services/clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../environments/environment";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
-import {DiscordService} from "../discord.service";
-import {UserDetailsService} from "../user-details.service";
+import {DiscordService} from "../services/discord.service";
+import {UserDetailsService} from "../services/user-details.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {ApplicationDetailsService} from "../application-details.service";
+import {ApplicationDetailsService} from "../services/application-details.service";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -14,12 +15,11 @@ import {ApplicationDetailsService} from "../application-details.service";
   styleUrls: ['./welcome-dashboard.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class WelcomeDashboardComponent implements OnDestroy{
+export class WelcomeDashboardComponent {
   tournamentDays: any[] = [];
   dataLoaded: boolean = false;
   guilds: any[] = [];
   loggedIn: boolean = false;
-  $discordServiceSubscription: any;
 
   authCodeFlowConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
@@ -45,37 +45,33 @@ export class WelcomeDashboardComponent implements OnDestroy{
       this.dataLoaded = true;
       applicationDetailsService.setApplicationDetails({ currentTournaments: data });
     });
-    this.loggedIn = oauthService.hasValidAccessToken();
-    this.oauthService.configure(this.authCodeFlowConfig);
-    if (sessionStorage.getItem('LoginAttempt')) {
-      this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-      this.oauthService.tryLogin().then(() => {
-        this.$discordServiceSubscription = this.discordService.getUserDetails().subscribe((data) => {
+    // this.loggedIn = oauthService.hasValidAccessToken();
+    // this.oauthService.configure(this.authCodeFlowConfig);
+    // if (sessionStorage.getItem('LoginAttempt')) {
+    //   this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+    //   this.oauthService.tryLogin().then(() => {
+        this.discordService.getUserDetails()
+            .pipe(take(1))
+            .subscribe((data) => {
           this.loggedIn = true;
           console.log(JSON.stringify(data));
           this.userDetailsService.setUserDetails(data);
         });
-      }).catch(err => {
-        console.error(err);
-        this.loggedIn = false;
-        this._snackBar.open('Failed to login to discord.',
-          'X',
-          {duration: 5 * 1000});
-      });
-    } else {
-      this.loggedIn = oauthService.hasValidAccessToken();
-    }
+    //   }).catch(err => {
+    //     console.error(err);
+    //     this.loggedIn = false;
+    //     this._snackBar.open('Failed to login to discord.',
+    //       'X',
+    //       {duration: 5 * 1000});
+    //   });
+    // } else {
+    //   this.loggedIn = oauthService.hasValidAccessToken();
+    // }
   }
 
   loginToDiscord(): void {
     this.oauthService.initLoginFlow();
     sessionStorage.setItem('LoginAttempt', 'true');
-  }
-
-  ngOnDestroy(): void {
-    if (this.$discordServiceSubscription) {
-      this.$discordServiceSubscription.unsubscribe();
-    }
   }
 
 }

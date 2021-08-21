@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { UserDetailsService } from './user-details.service';
-import {UserDetails} from "./user-details";
+import {UserDetails} from "../interfaces/user-details";
 
 describe('UserDetailsService', () => {
   let service: UserDetailsService;

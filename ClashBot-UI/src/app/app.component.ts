@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
-import {UserDetailsService} from "./user-details.service";
-import {UserDetails} from "./user-details";
+import {UserDetailsService} from "./services/user-details.service";
+import {UserDetails} from "./interfaces/user-details";
 import {Observable} from "rxjs";
 import {environment} from "../environments/environment";
 

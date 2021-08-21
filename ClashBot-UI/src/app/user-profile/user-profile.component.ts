@@ -4,13 +4,13 @@ import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} 
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
 import {catchError, map, startWith, take, timeout} from "rxjs/operators";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
-import {ClashBotService} from "../clash-bot.service";
-import {ClashBotUserDetails} from "../clash-bot-user-details";
-import {RiotDdragonService} from "../riot-ddragon.service";
-import {UserDetailsService} from "../user-details.service";
-import {DiscordService} from "../discord.service";
-import {DiscordGuild} from "../discord-guild";
-import {UserDetails} from "../user-details";
+import {ClashBotService} from "../services/clash-bot.service";
+import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
+import {RiotDdragonService} from "../services/riot-ddragon.service";
+import {UserDetailsService} from "../services/user-details.service";
+import {DiscordService} from "../services/discord.service";
+import {DiscordGuild} from "../interfaces/discord-guild";
+import {UserDetails} from "../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
