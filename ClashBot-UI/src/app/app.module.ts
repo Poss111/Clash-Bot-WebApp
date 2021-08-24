@@ -11,7 +11,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./services/clash-bot.service";
-import { WelcomeDashboardComponent } from './welcome-dashboard/welcome-dashboard.component';
+import { WelcomeDashboardComponent } from './pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component';
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule} from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";

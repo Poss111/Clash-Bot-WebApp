@@ -1,12 +1,12 @@
 import {Component, OnDestroy, ViewEncapsulation} from '@angular/core';
-import {ClashBotService} from "../services/clash-bot.service";
+import {ClashBotService} from "../../../services/clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
-import {environment} from "../../environments/environment";
+import {environment} from "../../../../environments/environment";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
-import {DiscordService} from "../services/discord.service";
-import {UserDetailsService} from "../services/user-details.service";
+import {DiscordService} from "../../../services/discord.service";
+import {UserDetailsService} from "../../../services/user-details.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {ApplicationDetailsService} from "../services/application-details.service";
+import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {take} from "rxjs/operators";
 
 @Component({

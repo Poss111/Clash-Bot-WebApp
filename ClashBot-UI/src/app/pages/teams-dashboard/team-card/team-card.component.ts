@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ClashTeam} from "../interfaces/clash-team";
+import {ClashTeam} from "../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
-import {ConfirmationDialogComponent} from "../confirmation-dialog/confirmation-dialog.component";
+import {ConfirmationDialogComponent} from "../../../confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-team-card',
