@@ -17,16 +17,16 @@ export class AppComponent implements OnInit{
   constructor(private router: Router,
               private userDetailsService: UserDetailsService) {}
 
+  ngOnInit(): void {
+    this.user$ = this.userDetailsService.getUserDetails();
+  }
+
   navigateToWelcomePage() {
     this.router.navigate(['/']);
   }
 
   navigateToTeams() {
     this.router.navigate(['/teams']);
-  }
-
-  ngOnInit(): void {
-    this.user$ = this.userDetailsService.getUserDetails();
   }
 
   navigateToUserProfile() {
