@@ -16,11 +16,13 @@ import {TestScheduler} from "rxjs/testing";
 import {ChampionData} from "../../../interfaces/championData";
 import Mock = jest.Mock;
 import {HttpErrorResponse} from "@angular/common/http";
+import {ApplicationDetailsService} from "../../../services/application-details.service";
 
-jest.mock('../discord.service')
-jest.mock('../clash-bot.service')
-jest.mock('../riot-ddragon.service')
-jest.mock('../user-details.service')
+jest.mock('../../../services/discord.service')
+jest.mock('../../../services/clash-bot.service')
+jest.mock('../../../services/riot-ddragon.service')
+jest.mock('../../../services/user-details.service')
+jest.mock('../../../services/application-details.service')
 
 describe('UserProfileComponent', () => {
   let component: UserProfileComponent;
@@ -30,6 +32,7 @@ describe('UserProfileComponent', () => {
   let discordServiceMock: DiscordService;
   let riotDDragonServiceMock: RiotDdragonService;
   let userDetailsServiceMock: UserDetailsService;
+  let applicationDetailsMock: any;
   let matSnackBarMock: MatSnackBar;
   let openMatSnackBarMock: any;
 
@@ -43,7 +46,7 @@ describe('UserProfileComponent', () => {
         BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule],
-      providers: [DiscordService, RiotDdragonService, UserDetailsService]
+      providers: [DiscordService, RiotDdragonService, UserDetailsService, ApplicationDetailsService]
     })
       .compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
@@ -51,6 +54,7 @@ describe('UserProfileComponent', () => {
     riotDDragonServiceMock = TestBed.inject(RiotDdragonService);
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     matSnackBarMock = TestBed.inject(MatSnackBar);
+    applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
     openMatSnackBarMock = jest.fn();
     matSnackBarMock.open = openMatSnackBarMock;
   });
@@ -928,7 +932,7 @@ describe('UserProfileComponent', () => {
   describe('Submit', () => {
     test('When onSubmit is called, it should take the values from the userDetailsForm as well as the User Id and post the update to the ClashBot API to update the user details', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         createComponent();
         component.userDetailsForm = ({
           value: {
@@ -952,9 +956,9 @@ describe('UserProfileComponent', () => {
         }
 
         let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
+        let applicationDetailsObsMock = cold('x|', {x: {}});
         (clashBotServiceMock.postUserDetails as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-
-        expectObservable(clashBotUserDetailsObservableMock).toBe('x|', {x: userDetailsResponse});
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -970,6 +974,9 @@ describe('UserProfileComponent', () => {
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: userDetailsResponse.serverName });
         } else {
           expect(true).toBeFalsy();
         }

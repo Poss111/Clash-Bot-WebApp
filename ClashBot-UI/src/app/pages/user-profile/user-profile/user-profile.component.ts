@@ -12,6 +12,7 @@ import {DiscordService} from "../../../services/discord.service";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
 import {UserDetails} from "../../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {ApplicationDetailsService} from "../../../services/application-details.service";
 
 @Component({
   selector: 'app-user-profile',
@@ -40,6 +41,7 @@ export class UserProfileComponent implements OnInit {
               private clashBotService: ClashBotService,
               private userDetailsService: UserDetailsService,
               private riotDdragonService: RiotDdragonService,
+              private applicationDetailsService: ApplicationDetailsService,
               private matSnackBar: MatSnackBar) {
   }
 
@@ -173,6 +175,12 @@ export class UserProfileComponent implements OnInit {
         .subscribe(() => {
           this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm?.value));
           this.userDetailsForm?.markAsPristine();
+          this.applicationDetailsService.getApplicationDetails()
+              .pipe(take(1))
+              .subscribe((appDetails) => {
+            appDetails.defaultGuild = this.userDetailsForm?.value.defaultGuildFC;
+            this.applicationDetailsService.setApplicationDetails(appDetails);
+          })
         });
     }
   }
