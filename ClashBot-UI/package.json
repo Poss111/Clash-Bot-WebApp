@@ -15,11 +15,7 @@
     "build:stats": "ng build --stats-json",
     "build:gzip": "rm -rf ./dist/*-gzip && gzipper compress --output-file-format [filename].[ext] ./dist/Clash-Bot ./dist/Clash-Bot-gzip",
     "analyze": "webpack-bundle-analyzer dist/Clash-Bot/stats.json",
-    "e2e": "ng e2e",
-    "lint": "ng lint",
-    "cypress:open": "cypress open",
-    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
-    "cy": "cypress run"
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -55,7 +51,6 @@
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
-    "cypress": "^8.2.0",
     "eslint": "^7.26.0",
     "forever": "^4.0.1",
     "jest": "^27.0.6",

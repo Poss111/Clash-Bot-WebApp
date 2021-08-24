@@ -1,0 +1,16 @@
+{
+  "name": "clashbot-e2e",
+  "version": "1.0.0",
+  "description": "E2E automation for ClashBot-WebApp",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "../ClashBot-E2E/cypress open",
+    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
+    "cy": "../ClashBot-E2E/cypress run"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^8.3.0"
+  }
+}
