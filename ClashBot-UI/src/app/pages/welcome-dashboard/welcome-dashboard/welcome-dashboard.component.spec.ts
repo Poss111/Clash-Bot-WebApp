@@ -20,11 +20,13 @@ import {MatSnackBarConfig} from "@angular/material/snack-bar/snack-bar-config";
 import {TestScheduler} from "rxjs/testing";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
+import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 
 jest.mock("angular-oauth2-oidc");
-jest.mock("../clash-bot.service");
-jest.mock("../discord.service");
-jest.mock("../user-details.service");
+jest.mock("../../../services/clash-bot.service");
+jest.mock("../../../services/discord.service");
+jest.mock("../../../services/user-details.service");
+jest.mock("../../../services/application-details.service");
 jest.mock("@angular/material/snack-bar");
 
 @NgModule({
@@ -34,22 +36,60 @@ jest.mock("@angular/material/snack-bar");
 class WelcomeDashboardTestModule {
 }
 
+function createMockTournaments() {
+  return [
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "3",
+      "startTime": "August 21 2021 07:00 pm PDT",
+      "registrationTime": "August 21 2021 04:15 pm PDT"
+    },
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "4",
+      "startTime": "August 22 2021 07:00 pm PDT",
+      "registrationTime": "August 22 2021 04:15 pm PDT"
+    }
+  ];
+}
+
+function createMockUser() {
+  return {
+    "id": "299370234228506627",
+    "username": "Roïdräge",
+    "avatar": "4393f322cfd8882c2d74648ad321c1eb",
+    "discriminator": "2657",
+    "public_flags": 0,
+    "flags": 0,
+    "banner": null,
+    "banner_color": "#eb0000",
+    "accent_color": 15400960,
+    "locale": "en-US",
+    "mfa_enabled": false
+  };
+}
+
+function createMockClashBotUser(mockUser: { banner_color: string; accent_color: number; flags: number; banner: null; mfa_enabled: boolean; id: string; avatar: string; public_flags: number; locale: string; username: string; discriminator: string }) {
+  return {
+    preferredChampions: [],
+    subscriptions: {},
+    id: mockUser.id,
+    serverName: 'GoonSquad'
+  };
+}
+
 describe('WelcomeDashboardComponent', () => {
   let component: WelcomeDashboardComponent;
   let fixture: ComponentFixture<WelcomeDashboardComponent>;
   let httpMock: HttpTestingController;
-  let clashBotMock: ClashBotService;
-  let discordServiceMock: DiscordService;
-  let userDetailsServiceMock: UserDetailsService;
+  let clashBotMock: any;
+  let discordServiceMock: any;
+  let userDetailsServiceMock: any;
   let oAuthServiceMock: OAuthService;
-  let matSnackBarMock: MatSnackBar;
-  let applicationDetailsServiceMock: ApplicationDetailsService;
+  let matSnackBarMock: any;
+  let applicationDetailsServiceMock: any;
   let validAccessTokenMock: any;
   let tryLoginMock: any;
-  let getUserDetailsMock: any;
-  let setUserDetailsMock: any;
-  let matSnackBarOpenMock: any;
-  let setApplicationDetailsMock: any;
   const expectedOAuthConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
     tokenEndpoint: 'https://discord.com/api/oauth2/token',
@@ -72,7 +112,7 @@ describe('WelcomeDashboardComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent],
       imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule],
-      providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
+      providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
     })
       .compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
@@ -84,17 +124,9 @@ describe('WelcomeDashboardComponent', () => {
     matSnackBarMock = TestBed.inject(MatSnackBar);
     validAccessTokenMock = jest.fn().mockReturnValueOnce(false);
     tryLoginMock = jest.fn();
-    getUserDetailsMock = jest.fn();
-    setUserDetailsMock = jest.fn();
-    matSnackBarOpenMock = jest.fn();
-    setApplicationDetailsMock = jest.fn();
     clashBotMock.getClashTournaments = jest.fn().mockReturnValue(of([]));
     oAuthServiceMock.hasValidAccessToken = validAccessTokenMock;
     oAuthServiceMock.tryLogin = tryLoginMock;
-    discordServiceMock.getUserDetails = getUserDetailsMock;
-    userDetailsServiceMock.setUserDetails = setUserDetailsMock;
-    applicationDetailsServiceMock.setApplicationDetails = setApplicationDetailsMock;
-    matSnackBarMock.open = matSnackBarOpenMock;
   });
 
   beforeEach(() => {
@@ -122,22 +154,13 @@ describe('WelcomeDashboardComponent', () => {
   test('Should attempt to login with existing tournaments Days upon load up if there has not been a Login Attempt', () => {
     testScheduler.run((helpers) => {
       const {cold, expectObservable, flush} = helpers;
-      let mockTournaments: ClashTournaments[] = [
-        {
-          "tournamentName": "bandle_city",
-          "tournamentDay": "3",
-          "startTime": "August 21 2021 07:00 pm PDT",
-          "registrationTime": "August 21 2021 04:15 pm PDT"
-        },
-        {
-          "tournamentName": "bandle_city",
-          "tournamentDay": "4",
-          "startTime": "August 22 2021 07:00 pm PDT",
-          "registrationTime": "August 22 2021 04:15 pm PDT"
-        }
-      ];
+
+      let mockTournaments: ClashTournaments[] = createMockTournaments();
       const expectedObservable = cold('-x|', {x: mockTournaments});
+      const expectedApplicationDetails = cold('-x', {x: {}});
+
       clashBotMock.getClashTournaments = jest.fn().mockReturnValue(expectedObservable);
+      applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(expectedApplicationDetails);
       fixture = TestBed.createComponent(WelcomeDashboardComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -149,27 +172,16 @@ describe('WelcomeDashboardComponent', () => {
       flush();
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
-      expect(setApplicationDetailsMock).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
+      expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+      expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
     });
   })
 
   test('If login has been attempted, should then try to Login with the token and it is successful.', (done) => {
     sessionStorage.setItem('LoginAttempt', 'true');
     tryLoginMock.mockResolvedValue(true);
-    let expectedUserObject = {
-      "id": "299370234228506627",
-      "username": "Roïdräge",
-      "avatar": "4393f322cfd8882c2d74648ad321c1eb",
-      "discriminator": "2657",
-      "public_flags": 0,
-      "flags": 0,
-      "banner": null,
-      "banner_color": "#eb0000",
-      "accent_color": 15400960,
-      "locale": "en-US",
-      "mfa_enabled": false
-    };
-    getUserDetailsMock.mockReturnValue(of(expectedUserObject));
+    let expectedUserObject = createMockUser();
+    discordServiceMock.getUserDetails.mockReturnValue(of(expectedUserObject));
     let validateUserObject = (data: UserDetails) => {
       try {
         expect(data).toEqual(expectedUserObject);
@@ -179,7 +191,7 @@ describe('WelcomeDashboardComponent', () => {
         done(err);
       }
     };
-    setUserDetailsMock.mockImplementation(validateUserObject);
+    userDetailsServiceMock.setUserDetails.mockImplementation(validateUserObject);
     fixture = TestBed.createComponent(WelcomeDashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -201,7 +213,7 @@ describe('WelcomeDashboardComponent', () => {
         done(err);
       }
     };
-    matSnackBarOpenMock.mockImplementation(snackBarOpenImpl);
+    matSnackBarMock.open.mockImplementation(snackBarOpenImpl);
     fixture = TestBed.createComponent(WelcomeDashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -211,25 +223,45 @@ describe('WelcomeDashboardComponent', () => {
 
   test('When loginToDiscord is called, it should call the initLoginFlow for the oauthService and should set a LoginAttempt in the sessionStorage.', () => {
     tryLoginMock.mockResolvedValue(true);
-    let expectedUserObject = {
-      "id": "299370234228506627",
-      "username": "Roïdräge",
-      "avatar": "4393f322cfd8882c2d74648ad321c1eb",
-      "discriminator": "2657",
-      "public_flags": 0,
-      "flags": 0,
-      "banner": null,
-      "banner_color": "#eb0000",
-      "accent_color": 15400960,
-      "locale": "en-US",
-      "mfa_enabled": false
-    };
-    getUserDetailsMock.mockReturnValue(of(expectedUserObject));
+    let expectedUserObject = createMockUser();
+    discordServiceMock.getUserDetails.mockReturnValue(of(expectedUserObject));
     fixture = TestBed.createComponent(WelcomeDashboardComponent);
     component = fixture.componentInstance;
     component.loginToDiscord();
     expect(oAuthServiceMock.initLoginFlow).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem('LoginAttempt')).toBeTruthy();
+  })
+
+  describe('Set User Details', () => {
+    test('When setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details.', () => {
+      testScheduler.run(helpers => {
+        const { cold, flush } = helpers;
+
+        let mockUser = createMockUser();
+        let mockClashBotUser: ClashBotUserDetails = createMockClashBotUser(mockUser)
+
+        let coldObservable = cold('x|', {x: mockUser});
+        let coldClashBotUserObs = cold('x|', {x: mockClashBotUser})
+        let coldApplicationDetailsObs = cold('x|', {x: {}});
+
+        discordServiceMock.getUserDetails.mockReturnValue(coldObservable);
+        clashBotMock.getUserDetails.mockReturnValue(coldClashBotUserObs);
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
+
+        fixture = TestBed.createComponent(WelcomeDashboardComponent);
+        component = fixture.componentInstance;
+
+        component.setUserDetails();
+
+        flush();
+
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
+        expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName});
+      })
+    })
   })
 
 });

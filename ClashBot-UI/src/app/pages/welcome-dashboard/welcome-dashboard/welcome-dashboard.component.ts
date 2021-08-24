@@ -1,4 +1,4 @@
-import {Component, OnDestroy, ViewEncapsulation} from '@angular/core';
+import {Component, ViewEncapsulation} from '@angular/core';
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../../../environments/environment";
@@ -40,33 +40,53 @@ export class WelcomeDashboardComponent {
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
               private _snackBar: MatSnackBar) {
-    this.clashBotService.getClashTournaments().subscribe((data) => {
+    this.clashBotService.getClashTournaments()
+        .pipe(take(1))
+        .subscribe((data) => {
       data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
       this.dataLoaded = true;
-      applicationDetailsService.setApplicationDetails({ currentTournaments: data });
+      this.applicationDetailsService.getApplicationDetails()
+          .pipe(take(1))
+          .subscribe((appDetails) => {
+        appDetails.currentTournaments = data;
+        applicationDetailsService.setApplicationDetails(appDetails);
+      })
     });
-    // this.loggedIn = oauthService.hasValidAccessToken();
-    // this.oauthService.configure(this.authCodeFlowConfig);
-    // if (sessionStorage.getItem('LoginAttempt')) {
-    //   this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-    //   this.oauthService.tryLogin().then(() => {
-        this.discordService.getUserDetails()
-            .pipe(take(1))
-            .subscribe((data) => {
+    this.loggedIn = oauthService.hasValidAccessToken();
+    this.oauthService.configure(this.authCodeFlowConfig);
+    if (sessionStorage.getItem('LoginAttempt')) {
+      this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+      this.oauthService.tryLogin()
+          .then(() => this.setUserDetails())
+          .catch(err => {
+        console.error(err);
+        this.loggedIn = false;
+        this._snackBar.open('Failed to login to discord.',
+          'X',
+          {duration: 5 * 1000});
+      });
+    } else {
+      this.loggedIn = oauthService.hasValidAccessToken();
+    }
+  }
+
+  setUserDetails() {
+    this.discordService.getUserDetails()
+        .pipe(take(1))
+        .subscribe((data) => {
           this.loggedIn = true;
-          console.log(JSON.stringify(data));
           this.userDetailsService.setUserDetails(data);
+          this.clashBotService.getUserDetails(data.id)
+              .pipe(take(1))
+              .subscribe((clashBotUser) => {
+            this.applicationDetailsService.getApplicationDetails()
+                .pipe(take(1))
+                .subscribe((appDetails) => {
+              appDetails.defaultGuild = clashBotUser.serverName;
+              this.applicationDetailsService.setApplicationDetails(appDetails);
+            })
+          });
         });
-    //   }).catch(err => {
-    //     console.error(err);
-    //     this.loggedIn = false;
-    //     this._snackBar.open('Failed to login to discord.',
-    //       'X',
-    //       {duration: 5 * 1000});
-    //   });
-    // } else {
-    //   this.loggedIn = oauthService.hasValidAccessToken();
-    // }
   }
 
   loginToDiscord(): void {
