@@ -46,7 +46,7 @@
         <mat-chip-list id="clash-bot-user-profile-preferred-champions-list" #chipList aria-label="Fruit selection">
           <mat-chip
             *ngFor="let champion of preferredChampions"
-            id="clash-bot-user-profile-preferred-champion-{{ champion | lowercase }}"
+            id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}"
             [selectable]="selectable"
             [removable]="removable"
             (removed)="remove(champion)">
@@ -63,7 +63,7 @@
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
         </mat-chip-list>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-          <mat-option *ngFor="let champion of championsAutofillArray | async" id="clash-bot-user-profile-preferred-champion-{{ champion | lowercase }}-autocomplete" [value]="champion">
+          <mat-option *ngFor="let champion of championsAutofillArray | async" id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}-autocomplete" [value]="champion">
             {{champion}}
           </mat-option>
         </mat-autocomplete>
