@@ -15,7 +15,7 @@
     </div>
   </div>
 </div>
-<div class="chips-list" *ngIf="!showSpinner">
+<div class="chips-list" *ngIf="!showSpinner && formControl">
   <div class="clash-bot-teams-dashboard-header">
     <h2 id="clash-bot-teams-header">Your available Servers to filter by</h2>
     <button aria-label="Help Me!" mat-icon-button (click)="showHelpDialog()">
@@ -26,13 +26,11 @@
     [formControl]="formControl"
     [multiple]="false">
     <mat-chip
-      class="example-box"
-      cdkDrag
       #chip="matChip"
       *ngFor="let filter of teamFilters"
       id="clash-bot-teams-{{filter.id}}"
       [selected]="filter.state"
-      (selectionChange)="changeSelected(filter)"
+      [value]="filter.value"
       (click)="filterTeam(chip)">
       {{filter.value}}
     </mat-chip>

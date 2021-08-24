@@ -21,6 +21,15 @@ export class DiscordService {
         owner: true,
         permissions: 1,
         permissions_new: '0'
+      },
+      {
+        features: [],
+        icon: '12321321',
+        id: '2',
+        name: 'Goon Squad',
+        owner: true,
+        permissions: 1,
+        permissions_new: '0'
       }
     ]
     return of(discordGuilds);

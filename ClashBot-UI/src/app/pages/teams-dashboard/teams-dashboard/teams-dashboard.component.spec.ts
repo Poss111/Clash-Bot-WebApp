@@ -14,7 +14,6 @@ import {TestScheduler} from "rxjs/testing";
 import {FilterType} from "../../../interfaces/filter-type";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTeam} from "../../../interfaces/clash-team";
-import {TeamFilter} from "../../../interfaces/team-filter";
 import {UserDetails} from "../../../interfaces/user-details";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {MatIconModule} from "@angular/material/icon";
@@ -471,18 +470,6 @@ describe('TeamsDashboardComponent', () => {
         expect(component.teams).toEqual([{error: "No data"}]);
       })
     })
-  })
-
-  test('When changedSelected is called with a valid TeamFilter then it should set the state to false.', () => {
-    let teamFilter: TeamFilter = {
-      value: 'Filterah',
-      type: FilterType.SERVER,
-      state: true,
-      id: 'filterah'
-    }
-    component = fixture.componentInstance;
-    component.changeSelected(teamFilter);
-    expect(teamFilter.state).toBeFalsy();
   })
 
   function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {

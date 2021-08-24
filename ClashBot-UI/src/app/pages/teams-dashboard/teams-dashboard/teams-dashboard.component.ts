@@ -50,6 +50,7 @@ export class TeamsDashboardComponent implements OnInit {
     this.showSpinner = true;
     this.discordService.getGuilds()
       .pipe(
+        take(1),
         timeout(7000),
         catchError((err: HttpErrorResponse) => {
           console.error(err);
@@ -76,7 +77,7 @@ export class TeamsDashboardComponent implements OnInit {
                   this.teamFilters.push({
                     value: record.name,
                     type: FilterType.SERVER,
-                    state: false,
+                    state: record.name === appDetails.defaultGuild,
                     id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
                   });
                 })
@@ -158,15 +159,11 @@ export class TeamsDashboardComponent implements OnInit {
   }
 
   private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
-    return data.map(record => {
-      record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
-      record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
-      return record;
-    });
-  }
-
-  changeSelected(team: TeamFilter) {
-    team.state = false;
+      return data.map(record => {
+          record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+          record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
+          return record;
+      });
   }
 
   registerForTeam($event: ClashTeam) {
@@ -283,6 +280,7 @@ export class TeamsDashboardComponent implements OnInit {
     }
     element.deselect();
     this.userDetailsService.getUserDetails()
+        .pipe(take(1))
       .subscribe((userDetails) => {
         this.clashBotService.createNewTeam(userDetails, {
           serverName: serverName,
@@ -292,6 +290,7 @@ export class TeamsDashboardComponent implements OnInit {
           },
           startTime: clashTournaments?.startTime
         }).pipe(
+            take(1),
           finalize(() => {
             if (serverName) {
               this.showSpinner = true;

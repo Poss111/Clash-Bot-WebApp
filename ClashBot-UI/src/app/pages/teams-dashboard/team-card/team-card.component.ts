@@ -24,8 +24,8 @@ export class TeamCardComponent implements OnInit {
   constructor(private dialog: MatDialog) {}
 
   ngOnInit(): void {
-    console.log(JSON.stringify(this.team));
-    if (this.team && !this.team.tournamentDetails) {
+    if (this.team
+        && !this.team.tournamentDetails) {
       this.team.tournamentDetails = {
         tournamentName: 'Placeholder',
         tournamentDay: '1'
