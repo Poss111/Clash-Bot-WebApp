@@ -16,7 +16,6 @@ export class ApplicationDetailsService {
     }
 
     setApplicationDetails(applicationDetails: ApplicationDetails) {
-        console.log(JSON.stringify(applicationDetails));
         this.applicationDetails.next(applicationDetails);
     }
 }
