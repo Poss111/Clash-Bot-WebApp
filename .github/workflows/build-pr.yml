@@ -197,7 +197,7 @@ jobs:
       - lint-ui
       - prod-build-check
       - test-service
-    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     steps:
