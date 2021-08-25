@@ -1,6 +1,6 @@
 export const environment = {
-  production: true,
+  production: false,
   discordClientId: '837629412328734740',
-  gTag: 'G-3V8T97537S',
-  version: '--APP-VERSION--'
+  version: 'v4.0.1',
+  gTag: undefined
 };

@@ -24,11 +24,14 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatSelectModule} from "@angular/material/select";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {environment} from "../environments/environment";
+import {GoogleAnalyticsService} from "./google-analytics.service";
 
-jest.mock('./user-details.service');
+jest.mock('./services/user-details.service');
+jest.mock('./google-analytics.service');
 
 describe('AppComponent', () => {
   let userDetailsServiceMock: UserDetailsService;
+  let googleAnalyticsService: any;
   let getUserDetailsMock: Mock<BehaviorSubject<UserDetails>> = jest.fn();
   let router: Router;
   let location: Location;
@@ -61,10 +64,12 @@ describe('AppComponent', () => {
         DateTimeProvider,
         ClashBotService,
         DiscordService,
-        MatDialog],
+        MatDialog,
+        GoogleAnalyticsService],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
+    googleAnalyticsService = TestBed.inject(GoogleAnalyticsService);
     router = TestBed.inject(Router);
     location = TestBed.inject(Location);
     userDetailsServiceMock.getUserDetails = getUserDetailsMock;
@@ -86,15 +91,21 @@ describe('AppComponent', () => {
     expect(app.user$).toEqual(subject);
   })
 
-  test('When navigateToWelcomePage is called, it should invoke the router to navigate to /', () => {
+  test('When navigateToWelcomePage is called, it should invoke the router to navigate to /', fakeAsync(() => {
     let subject = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
     getUserDetailsMock.mockReturnValue(subject);
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     fixture.detectChanges();
+    app.navigateToTeams();
+    tick();
+    fixture.detectChanges();
     app.navigateToWelcomePage();
+    tick();
     expect(location.path()).toBe('/');
-  })
+    expect(googleAnalyticsService.sendPageNavigationEvent).toHaveBeenCalledTimes(2);
+    expect(googleAnalyticsService.sendPageNavigationEvent).toHaveBeenCalledWith('/');
+  }))
 
   test('When navigateToTeams is called, it should invoke the router to navigate to /teams', fakeAsync(() => {
     let subject = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
@@ -105,6 +116,8 @@ describe('AppComponent', () => {
     app.navigateToTeams();
     tick();
     expect(location.path()).toBe('/teams');
+    expect(googleAnalyticsService.sendPageNavigationEvent).toHaveBeenCalledTimes(1);
+    expect(googleAnalyticsService.sendPageNavigationEvent).toHaveBeenCalledWith('/teams');
   }))
 
   test('If the version is set via the environment file, then it should be displayed.', () => {

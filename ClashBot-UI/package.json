@@ -7,6 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build-int": "ng build --configuration=integration",
     "postbuild": "rm -rf ./dist/*-gzip && gzipper compress --output-file-format [filename].[ext] ./dist/Clash-Bot ./dist/Clash-Bot-gzip",
     "watch": "ng build --watch --configuration development",
     "test": "jest --silent",
