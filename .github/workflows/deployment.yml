@@ -154,7 +154,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@master
         with:
           find: "--APP-VERSION--"
-          replace: "${{ GITHUB_REF##*/ }}"
+          replace: "${GITHUB_REF##*/}"
           include: "ClashBot-UI/src/environments/environment.prod.ts"
 
       - name: Build distribution
