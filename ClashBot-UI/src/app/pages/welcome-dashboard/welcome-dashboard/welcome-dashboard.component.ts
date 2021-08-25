@@ -7,7 +7,8 @@ import {DiscordService} from "../../../services/discord.service";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
-import {take} from "rxjs/operators";
+import {catchError, mergeMap, retryWhen, take} from "rxjs/operators";
+import {throwError, timer} from "rxjs";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -72,10 +73,32 @@ export class WelcomeDashboardComponent {
 
   setUserDetails() {
     this.discordService.getUserDetails()
-        .pipe(take(1))
+        .pipe(retryWhen(error =>
+            error.pipe(
+                take(3),
+                mergeMap((response) => {
+                 if (response.status == 429) {
+                   this._snackBar.open('Hit a retry error!', 'X',{ duration: 10000 });
+                   return timer(response.error.retry_after);
+                 } else {
+                   return throwError(response);}
+                })
+          )),
+          catchError(error => throwError(error)))
         .subscribe((data) => {
           this.userDetailsService.setUserDetails(data);
-          this.discordService.getGuilds().subscribe((guilds) => {
+          this.discordService.getGuilds()
+              .pipe(retryWhen(error =>
+              error.pipe(
+                  take(3),
+                  mergeMap((response) => {
+                    if (response.status == 429) {
+                      this._snackBar.open(`You are being rate limited. You are a dirty spammer! You will need to wait ${response.error.retry_after}ms.`, 'X',{ duration: 10000 });
+                      return timer(response.error.retry_after);
+                    } else {
+                      return throwError(response);}
+                  })
+              ))).subscribe((guilds) => {
               this.clashBotService.getUserDetails(data.id)
                   .pipe(take(1))
                   .subscribe((clashBotUser) => {

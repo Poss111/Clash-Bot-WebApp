@@ -189,7 +189,6 @@ describe('WelcomeDashboardComponent', () => {
     let validateUserObject = (data: UserDetails) => {
       try {
         expect(data).toEqual(expectedUserObject);
-        expect(component.loggedIn).toBeTruthy();
         done();
       } catch (err) {
         done(err);
