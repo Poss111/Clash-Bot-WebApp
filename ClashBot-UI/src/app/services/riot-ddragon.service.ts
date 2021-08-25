@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Observable, of} from "rxjs";
+import {Observable} from "rxjs";
 import {ChampionData} from "../interfaces/championData";
 
 @Injectable({
@@ -13,18 +13,6 @@ export class RiotDdragonService {
   constructor(private httpClient: HttpClient) { }
 
   getListOfChampions(): Observable<ChampionData> {
-    const championPayload: ChampionData = {
-      type: '1',
-      format: 'json',
-      version: '1.23',
-      data: {
-        'Aatrox': {},
-        'Ahri': {},
-        'Anivia': {},
-        'Annie': {}
-      }
-    }
-    return of(championPayload);
-      // return this.httpClient.get<ChampionData>(`${this.host}/champion.json`);
+      return this.httpClient.get<ChampionData>(`${this.host}/champion.json`);
   }
 }

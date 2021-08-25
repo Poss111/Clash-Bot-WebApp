@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  discordClientId: '837629412328734740',
+  discordClientId: '839586949748228156',
   version: 'v4.0.1',
   gTag: false
 };

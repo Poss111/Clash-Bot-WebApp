@@ -8,5 +8,10 @@ describe('Simple Clash-Bot Webapp Application workflow', () => {
     cy.get('#WelcomeMessage-LoginMessage').should('have.text', ' Please login to discord using the button below before continuing. ');
     cy.get('#WelcomeMessage-DiscordLogin-Btn').should('exist');
     cy.get('#WelcomeMessage-Calendar').should('exist');
+    cy.get('#clash-bot-calendar-header-button-prev').should('be.disabled');
+    cy.get('#clash-bot-calendar-header-button-next').should('not.be.disabled');
+    cy.get('#clash-bot-calendar-header-button-next').click();
+    cy.get('#clash-bot-calendar-header-button-prev').should('not.be.disabled');
+    cy.get('#clash-bot-calendar-header-button-next').should('not.be.disabled');
   })
 })

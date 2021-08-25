@@ -39,5 +39,8 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get('#clash-bot-menu-user-profile-page').click();
     cy.get('#clash-bot-user-profile-preferred-champion-sett').should('exist');
     cy.get('#clash-bot-user-profile-discord-dm-notification-toggle>label>div>input').should('be.checked');
+    cy.get('#clash-bot-menu').click();
+    cy.get('#clash-bot-menu-teams-page').click();
+    cy.get('#clash-bot-teams-lol-clashbotsupport', { timeout: 10000 }).should('have.attr', 'aria-selected');
   })
 })
