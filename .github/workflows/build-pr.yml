@@ -212,16 +212,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install Dependencies for UI
-        working-directory: ./ClashBot-UI
+      - name: Install Dependencies for E2E Suite
+        working-directory: ./ClashBot-E2E
         run: npm i
 
-      - name: Start service container
+      - name: Start App container
         working-directory: ./ClashBot-Service
         run: docker-compose up -d
 
       - name: Run Integration Tests
-        working-directory: ./ClashBot-UI
+        working-directory: ./ClashBot-E2E
         run: |
           export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
