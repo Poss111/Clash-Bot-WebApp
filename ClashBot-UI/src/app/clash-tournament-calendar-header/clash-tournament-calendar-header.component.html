@@ -1,1 +1,11 @@
-<h2>Upcoming Clash Tournaments</h2>
+<div class="clash-bot-calendar-header">
+    <h2>Upcoming Clash Tournaments</h2>
+    <div class="clash-bot-calendar-header-button-container">
+        <button mat-icon-button id="clash-bot-calendar-header-button-prev" (click)="prevClicked()" [disabled]="monthsPastDate <= 0" aria-label="previous">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button mat-icon-button id="clash-bot-calendar-header-button-next" (click)="nextClicked()" aria-label="next">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+</div>

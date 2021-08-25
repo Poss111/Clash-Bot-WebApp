@@ -64,6 +64,27 @@
               ],
               "outputHashing": "all"
             },
+            "integration": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1.5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.int.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
             "development": {
               "buildOptimizer": false,
               "optimization": false,
@@ -81,23 +102,14 @@
             "production": {
               "browserTarget": "Clash-Bot:build:production"
             },
+            "integration": {
+              "browserTarget": "Clash-Bot:build:integration"
+            },
             "development": {
               "browserTarget": "Clash-Bot:build:development"
             }
           },
           "defaultConfiguration": "development"
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "conf.js",
-            "devServerTarget": "clash-bot-webapp:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "quickstart-demo:serve:production"
-            }
-          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

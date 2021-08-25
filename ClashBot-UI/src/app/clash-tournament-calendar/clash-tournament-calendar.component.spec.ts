@@ -5,11 +5,13 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatCardModule} from "@angular/material/card";
 import {NgModule} from "@angular/core";
 import {ClashTournamentCalendarHeaderComponent} from "../clash-tournament-calendar-header/clash-tournament-calendar-header.component";
+import {MatIconModule} from "@angular/material/icon";
 
 
 @NgModule({
   declarations: [ClashTournamentCalendarHeaderComponent],
-  entryComponents: [ClashTournamentCalendarHeaderComponent]
+  entryComponents: [ClashTournamentCalendarHeaderComponent],
+  imports: [MatIconModule]
 })
 class ClashTournamentCalendarHeaderTestModule {
 }

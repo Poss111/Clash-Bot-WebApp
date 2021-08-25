@@ -1,0 +1,96 @@
+<mat-accordion class="example-headers-align" multi>
+  <form *ngIf="userDetailsForm" [formGroup]="userDetailsForm" (ngSubmit)="userDetailsForm.valid && onSubmit()">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          User Information
+        </mat-panel-title>
+        <mat-panel-description>
+          Clash Bot User Information
+          <mat-icon>account_circle</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-list>
+        <mat-list-item>
+          <mat-icon mat-list-icon>discord</mat-icon>
+          <div id="clash-bot-user-profile-username" mat-line>{{userDetails?.username}}</div>
+        </mat-list-item>
+        <mat-list-item>
+          <mat-form-field appearance="fill">
+            <mat-label>Default Guild</mat-label>
+            <mat-select id="clash-bot-user-profile-default-guild" name="defaultGuild" formControlName="defaultGuildFC">
+              <mat-option  id="clash-bot-user-profile-autocomplete-{{ guild.name | kebabcase }}-guild" *ngFor="let guild of guilds" [value]="guild.name">
+                {{guild.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-list-item>
+        <mat-list-item>
+          <p>NOTE: This will affect the guild sent with your Discord DM.</p>
+        </mat-list-item>
+      </mat-list>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          League of Legends
+        </mat-panel-title>
+        <mat-panel-description>
+          League of Legends User Preferences
+          <mat-icon>groups</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-form-field class="example-chip-list" appearance="fill">
+        <mat-label>Current Preferred Champions</mat-label>
+        <mat-chip-list id="clash-bot-user-profile-preferred-champions-list" #chipList aria-label="Fruit selection">
+          <mat-chip
+            *ngFor="let champion of preferredChampions"
+            id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}"
+            [selectable]="selectable"
+            [removable]="removable"
+            (removed)="remove(champion)">
+            {{champion}}
+            <mat-icon id="clash-bot-user-profile-preferred-champion-{{ champion }}-remove" matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Add Champion..."
+            #championInput
+            id="clash-bot-user-profile-preferred-champion-input"
+            [formControl]="championAutoCompleteCtrl"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+          <mat-option *ngFor="let champion of championsAutofillArray | async" id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}-autocomplete" [value]="champion">
+            {{champion}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Notification Subscriptions
+        </mat-panel-title>
+        <mat-panel-description>
+          Clash Bot notification settings
+          <mat-icon>notifications</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-slide-toggle
+        class="example-margin"
+        id="clash-bot-user-profile-discord-dm-notification-toggle"
+        formControlName="subscribedDiscordDMFC"
+        (change)="sliderUpdate()">
+        Monday before Tournament Discord direct message
+      </mat-slide-toggle>
+    </mat-expansion-panel>
+    <div class="clash-bot-user-profile-save-button-container">
+      <mat-progress-bar id="clash-bot-user-profile-call-in-progress-bar" *ngIf="userDetailsForm && userDetailsForm.pending && !userDetailsForm.pristine" mode="indeterminate"></mat-progress-bar>
+      <button mat-raised-button id="clash-bot-user-profile-undo" type="reset" [disabled]="!userDetailsForm.dirty" (click)="resetState()">Undo</button>
+      <button mat-raised-button id="clash-bot-user-profile-submit" type="submit" color="primary" [disabled]="!userDetailsForm.dirty">Save</button>
+    </div>
+  </form>
+</mat-accordion>
