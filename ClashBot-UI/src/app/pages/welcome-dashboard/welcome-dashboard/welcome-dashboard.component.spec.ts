@@ -154,7 +154,7 @@ describe('WelcomeDashboardComponent', () => {
 
   test('Should attempt to login with existing tournaments Days upon load up if there has not been a Login Attempt', () => {
     testScheduler.run((helpers) => {
-      const {cold, expectObservable, flush} = helpers;
+      const {cold, flush} = helpers;
 
       let mockTournaments: ClashTournaments[] = createMockTournaments();
       const expectedObservable = cold('-x|', {x: mockTournaments});
@@ -162,18 +162,21 @@ describe('WelcomeDashboardComponent', () => {
 
       clashBotMock.getClashTournaments = jest.fn().mockReturnValue(expectedObservable);
       applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(expectedApplicationDetails);
+
       fixture = TestBed.createComponent(WelcomeDashboardComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
+
       expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
       expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
       expect(component.loggedIn).toBeTruthy();
+
       fixture.detectChanges();
-      expectObservable(expectedObservable).toBe('-x|', {x: mockTournaments})
+
       flush();
+
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
-      expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
       expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
     });
   })
@@ -240,12 +243,15 @@ describe('WelcomeDashboardComponent', () => {
 
         let mockUser = createMockUser();
         let mockClashBotUser: ClashBotUserDetails = createMockClashBotUser(mockUser)
+        let mockGuilds = mockDiscordGuilds();
 
         let coldObservable = cold('x|', {x: mockUser});
         let coldClashBotUserObs = cold('x|', {x: mockClashBotUser})
         let coldApplicationDetailsObs = cold('x|', {x: {}});
+        const mockDiscordGuildsObs = cold('-x', {x: mockGuilds});
 
         discordServiceMock.getUserDetails.mockReturnValue(coldObservable);
+        discordServiceMock.getGuilds.mockReturnValue(mockDiscordGuildsObs);
         clashBotMock.getUserDetails.mockReturnValue(coldClashBotUserObs);
         applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
 
@@ -260,9 +266,38 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName});
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
       })
     })
   })
 
 });
+
+
+function mockDiscordGuilds() {
+  return [{
+    "id": "136278926191362058",
+    "name": "Garret's Discord",
+    "icon": "17ce03186d96453d4f2b341649b2b7cc",
+    "owner": false,
+    "permissions": 37215809,
+    "features": [],
+    "permissions_new": "246997835329"
+  }, {
+    "id": "434172219472609281",
+    "name": "The Other Other Guys",
+    "icon": "87580ac4ffcd87347a7e1d566e9285ce",
+    "owner": false,
+    "permissions": 104324673,
+    "features": [],
+    "permissions_new": "247064944193"
+  }, {
+    "id": "837685892885512202",
+    "name": "LoL-ClashBotSupport",
+    "icon": null,
+    "owner": true,
+    "permissions": 2147483647,
+    "features": [],
+    "permissions_new": "274877906943"
+  }];
+}

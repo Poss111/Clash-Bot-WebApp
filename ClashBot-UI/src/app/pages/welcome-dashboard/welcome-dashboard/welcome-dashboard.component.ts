@@ -76,15 +76,18 @@ export class WelcomeDashboardComponent {
         .subscribe((data) => {
           this.loggedIn = true;
           this.userDetailsService.setUserDetails(data);
-          this.clashBotService.getUserDetails(data.id)
-              .pipe(take(1))
-              .subscribe((clashBotUser) => {
-            this.applicationDetailsService.getApplicationDetails()
-                .pipe(take(1))
-                .subscribe((appDetails) => {
-              appDetails.defaultGuild = clashBotUser.serverName;
-              this.applicationDetailsService.setApplicationDetails(appDetails);
-            })
+          this.discordService.getGuilds().subscribe((guilds) => {
+              this.clashBotService.getUserDetails(data.id)
+                  .pipe(take(1))
+                  .subscribe((clashBotUser) => {
+                this.applicationDetailsService.getApplicationDetails()
+                    .pipe(take(1))
+                    .subscribe((appDetails) => {
+                  appDetails.defaultGuild = clashBotUser.serverName;
+                  appDetails.userGuilds = guilds;
+                  this.applicationDetailsService.setApplicationDetails(appDetails);
+                })
+              })
           });
         });
   }
