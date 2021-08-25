@@ -3,7 +3,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {UserProfileComponent} from './user-profile.component';
 import {UserProfileModule} from "./user-profile.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {DiscordService} from "../../../services/discord.service";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {RiotDdragonService} from "../../../services/riot-ddragon.service";
@@ -17,8 +16,8 @@ import {ChampionData} from "../../../interfaces/championData";
 import Mock = jest.Mock;
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
+import {ApplicationDetails} from "../../../interfaces/application-details";
 
-jest.mock('../../../services/discord.service')
 jest.mock('../../../services/clash-bot.service')
 jest.mock('../../../services/riot-ddragon.service')
 jest.mock('../../../services/user-details.service')
@@ -29,7 +28,6 @@ describe('UserProfileComponent', () => {
   let fixture: ComponentFixture<UserProfileComponent>;
   let testScheduler: TestScheduler;
   let clashBotServiceMock: ClashBotService;
-  let discordServiceMock: DiscordService;
   let riotDDragonServiceMock: RiotDdragonService;
   let userDetailsServiceMock: UserDetailsService;
   let applicationDetailsMock: any;
@@ -46,11 +44,10 @@ describe('UserProfileComponent', () => {
         BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule],
-      providers: [DiscordService, RiotDdragonService, UserDetailsService, ApplicationDetailsService]
+      providers: [RiotDdragonService, UserDetailsService, ApplicationDetailsService]
     })
       .compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
-    discordServiceMock = TestBed.inject(DiscordService);
     riotDDragonServiceMock = TestBed.inject(RiotDdragonService);
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     matSnackBarMock = TestBed.inject(MatSnackBar);
@@ -62,7 +59,7 @@ describe('UserProfileComponent', () => {
   describe('On Init', () => {
     test('Should instantiate all values for the User Profile page.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         let mockGuilds: DiscordGuild[] = [{
           features: [],
           icon: '1233213123',
@@ -95,17 +92,18 @@ describe('UserProfileComponent', () => {
             'Volibear': {}
           }
         };
-        let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+        let mockAppDetails: ApplicationDetails = {
+          currentTournaments: [],
+          defaultGuild: '',
+          userGuilds: mockGuilds
+        };
+
+        let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
         let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
         let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
         let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
 
-        expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-        expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-        expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-        expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-        (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
         (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
         (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -114,7 +112,7 @@ describe('UserProfileComponent', () => {
         fixture.detectChanges();
         flush();
 
-        expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
+        expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
         expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
         expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
         expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
@@ -135,6 +133,7 @@ describe('UserProfileComponent', () => {
         };
         expect(component.initialFormControlState).toEqual(expectedInitialFormControlState);
         expect(component.defaultGuild).toEqual('Goon Squad');
+        expect(component.guilds).toEqual(mockGuilds);
         expect(component.listOfChampions)
           .toEqual(Object.keys(mockDdragonChampionList.data).filter(record =>
             !mockClashBotUserDetails.preferredChampions.includes(record)));
@@ -144,155 +143,10 @@ describe('UserProfileComponent', () => {
       })
     });
 
-    describe('Retrieve Guilds', () => {
-      test('Error - Failed to load guilds - Should make a call to the Snack Bar with a generic message and not proceed to load any other data.', () => {
-        testScheduler.run((helpers) => {
-          const {cold, expectObservable, flush} = helpers;
-          let mockUserDetails: UserDetails = {
-            id: '12312321312',
-            username: 'Roidrage',
-            discriminator: '12312312'
-          };
-          let mockClashBotUserDetails: ClashBotUserDetails = {
-            id: '12312321312',
-            serverName: 'Goon Squad',
-            preferredChampions: ['Sett'],
-            subscriptions: {
-              UpcomingClashTournamentDiscordDM: true
-            }
-          };
-          let mockDdragonChampionList: ChampionData = {
-            type: '12312',
-            format: 'json',
-            version: '19.13',
-            data: {
-              'Aatrox': {},
-              'Sett': {},
-              'Volibear': {}
-            }
-          };
-
-          const expectedError =
-            new HttpErrorResponse({
-              error: 'Failed to make call.',
-              headers: undefined,
-              status: 401,
-              statusText: 'Not allowed to make call',
-              url: 'https://discord.com/api'
-            });
-          let discordUserGuildsColdObservable = cold('#', undefined, expectedError);
-          let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
-          let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
-          let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
-
-          expectObservable(discordUserGuildsColdObservable).toBe('#', undefined, expectedError);
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
-          (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
-          (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
-
-          createComponent();
-          fixture.detectChanges();
-          flush();
-
-          expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
-          expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to load your guild information.', 'X', {duration: 5000});
-
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
-          expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(0);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(0);
-          expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(0);
-          expect(component.userDetails).toBeFalsy();
-          expect(component.userDetailsForm).toBeFalsy();
-          expect(component.preferredChampions).toEqual(new Set());
-          expect(component.initialFormControlState).toEqual({});
-          expect(component.defaultGuild).toEqual('');
-          expect(component.listOfChampions.length).toBeLessThan(1);
-          expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
-        })
-      })
-
-      test('Error - timeout loading guilds - Should make a call to the Snack Bar with a generic message and not proceed to load any other data.', () => {
-        testScheduler.run((helpers) => {
-          const {cold, expectObservable, flush} = helpers;
-          let mockGuilds: DiscordGuild[] = [{
-            features: [],
-            icon: '1233213123',
-            id: '8109283091283021',
-            name: 'Some Special Awesomenautic Server',
-            owner: true,
-            permissions: 0,
-            permissions_new: '0'
-          }];
-          let mockUserDetails: UserDetails = {
-            id: '12312321312',
-            username: 'Roidrage',
-            discriminator: '12312312'
-          };
-          let mockClashBotUserDetails: ClashBotUserDetails = {
-            id: '12312321312',
-            serverName: 'Goon Squad',
-            preferredChampions: ['Sett'],
-            subscriptions: {
-              UpcomingClashTournamentDiscordDM: true
-            }
-          };
-          let mockDdragonChampionList: ChampionData = {
-            type: '12312',
-            format: 'json',
-            version: '19.13',
-            data: {
-              'Aatrox': {},
-              'Sett': {},
-              'Volibear': {}
-            }
-          };
-
-          let discordUserGuildsColdObservable = cold('7000ms x|', {x: mockGuilds});
-          let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
-          let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
-          let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
-
-          expectObservable(discordUserGuildsColdObservable).toBe('7000ms x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
-          (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
-          (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
-
-          createComponent();
-          fixture.detectChanges();
-          flush();
-
-          expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
-          expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to load your guild information.', 'X', {duration: 5000});
-
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
-          expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(0);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(0);
-          expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(0);
-          expect(component.userDetails).toBeFalsy();
-          expect(component.userDetailsForm).toBeFalsy();
-          expect(component.preferredChampions).toEqual(new Set());
-          expect(component.initialFormControlState).toEqual({});
-          expect(component.defaultGuild).toEqual('');
-          expect(component.listOfChampions.length).toBeLessThan(1);
-          expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
-        })
-      })
-    })
-
     describe('Retrieve Application Loaded User Information', () => {
       test('Error - No Application User Information - If the user information passed is default data, then show a Snack Bar with a generic error message for User information.', () => {
         testScheduler.run((helpers) => {
-          const {cold, expectObservable, flush} = helpers;
+          const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = [{
             features: [],
             icon: '1233213123',
@@ -321,17 +175,19 @@ describe('UserProfileComponent', () => {
               'Volibear': {}
             }
           };
-          let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+
+          let mockAppDetails: ApplicationDetails = {
+            currentTournaments: [],
+            defaultGuild: '',
+            userGuilds: mockGuilds
+          };
+
+          let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
           let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
           let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
           let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
 
-          expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+          applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
           (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -343,7 +199,6 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! You are not logged in. Please navigate back to the home screen and log in.', 'X', {duration: 5000});
 
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
           expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(0);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(0);
@@ -364,7 +219,7 @@ describe('UserProfileComponent', () => {
     describe('Load Clash Bot User Details', () => {
       test('If the user does not exist on the Clash Bot Service, initialize forms with default values.', () => {
         testScheduler.run(helpers => {
-          const {cold, expectObservable, flush} = helpers;
+          const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = [{
             features: [],
             icon: '1233213123',
@@ -390,17 +245,18 @@ describe('UserProfileComponent', () => {
               'Volibear': {}
             }
           };
-          let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+          let mockAppDetails: ApplicationDetails = {
+            currentTournaments: [],
+            defaultGuild: '',
+            userGuilds: mockGuilds
+          };
+
+          let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
           let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
           let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
           let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
 
-          expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+          applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
           (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -409,7 +265,6 @@ describe('UserProfileComponent', () => {
           fixture.detectChanges();
           flush();
 
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
           expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
@@ -439,7 +294,7 @@ describe('UserProfileComponent', () => {
 
       test('Error - Failed to retrieve Clash Bot User Information - If the call to the clash bot to retrieve persisted User Information fails then a Snack Bar should be called with a generic error message', () => {
         testScheduler.run(helpers => {
-          const {cold, expectObservable, flush} = helpers;
+          const {cold, flush} = helpers;
 
           let mockGuilds: DiscordGuild[] = [{
             features: [],
@@ -466,24 +321,26 @@ describe('UserProfileComponent', () => {
             }
           };
           const expectedError =
-            new HttpErrorResponse({
-              error: 'Failed to make call.',
-              headers: undefined,
-              status: 401,
-              statusText: 'Not allowed to make call',
-              url: 'https://localhost:80/api/user'
-            });
-          let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+              new HttpErrorResponse({
+                error: 'Failed to make call.',
+                headers: undefined,
+                status: 401,
+                statusText: 'Not allowed to make call',
+                url: 'https://localhost:80/api/user'
+              });
+
+          let mockAppDetails: ApplicationDetails = {
+            currentTournaments: [],
+            defaultGuild: '',
+            userGuilds: mockGuilds
+          };
+
+          let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
           let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
           let clashBotUserDetailsColdObservable = cold('#', undefined, expectedError);
           let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
 
-          expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('#', undefined, expectedError);
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+          applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
           (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -495,7 +352,6 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
 
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
           expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
@@ -514,7 +370,7 @@ describe('UserProfileComponent', () => {
 
       test('Error - timeout retrieving Clash Bot User Information - If the call to the clash bot to retrieve persisted User Information fails then a Snack Bar should be called with a generic error message', () => {
         testScheduler.run(helpers => {
-          const {cold, expectObservable, flush} = helpers;
+          const {cold, flush} = helpers;
 
           let mockGuilds: DiscordGuild[] = [{
             features: [],
@@ -548,17 +404,18 @@ describe('UserProfileComponent', () => {
               'Volibear': {}
             }
           };
-          let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+          let mockAppDetails: ApplicationDetails = {
+            currentTournaments: [],
+            defaultGuild: '',
+            userGuilds: mockGuilds
+          };
+
+          let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
           let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
           let clashBotUserDetailsColdObservable = cold('7000ms x|', {x: mockClashBotUserDetails});
           let ddragonServiceListOfChampionsColdObservable = cold('x|', {x: mockDdragonChampionList});
 
-          expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('7000ms x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('x|', {x: mockDdragonChampionList});
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+          applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
           (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -570,7 +427,6 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
 
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
           expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
@@ -591,7 +447,7 @@ describe('UserProfileComponent', () => {
     describe('Load LoL Champion Data', () => {
       test('Error - Champion Data fails to load from Riot - If the champion names fail to load then there should be a Snack Bar with a generic message printed out.', () => {
         testScheduler.run((helpers) => {
-          const {cold, expectObservable, flush} = helpers;
+          const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = [{
             features: [],
             icon: '1233213123',
@@ -614,7 +470,6 @@ describe('UserProfileComponent', () => {
               UpcomingClashTournamentDiscordDM: true
             }
           };
-
           const expectedError =
             new HttpErrorResponse({
               error: 'Failed to make call.',
@@ -623,17 +478,19 @@ describe('UserProfileComponent', () => {
               statusText: 'Not allowed to make call',
               url: 'https://riot.com/datas'
             });
-          let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+
+          let mockAppDetails: ApplicationDetails = {
+            currentTournaments: [],
+            defaultGuild: '',
+            userGuilds: mockGuilds
+          };
+
+          let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
           let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
           let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
           let ddragonServiceListOfChampionsColdObservable = cold('#', undefined, expectedError);
 
-          expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-          expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-          expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-          expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('#', undefined, expectedError);
-
-          (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+          applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
           (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -645,7 +502,6 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
 
-          expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
           expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
           expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
@@ -664,7 +520,7 @@ describe('UserProfileComponent', () => {
 
     test('Error - Champion Data timesout - If the champion names fail to load then there should be a Snack Bar with a generic message printed out.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         let mockGuilds: DiscordGuild[] = [{
           features: [],
           icon: '1233213123',
@@ -698,17 +554,18 @@ describe('UserProfileComponent', () => {
           }
         };
 
-        let discordUserGuildsColdObservable = cold('x|', {x: mockGuilds});
+        let mockAppDetails: ApplicationDetails = {
+          currentTournaments: [],
+          defaultGuild: '',
+          userGuilds: mockGuilds
+        };
+
+        let applicationDetailsColdObs = cold('x|', {x: mockAppDetails});
         let discordUserDetailsColdObservable = cold('x|', {x: mockUserDetails});
         let clashBotUserDetailsColdObservable = cold('x|', {x: mockClashBotUserDetails});
         let ddragonServiceListOfChampionsColdObservable = cold('7000ms x|', {x: mockDdragonChampionList});
 
-        expectObservable(discordUserGuildsColdObservable).toBe('x|', {x: mockGuilds});
-        expectObservable(discordUserDetailsColdObservable).toBe('x|', {x: mockUserDetails});
-        expectObservable(clashBotUserDetailsColdObservable).toBe('x|', {x: mockClashBotUserDetails});
-        expectObservable(ddragonServiceListOfChampionsColdObservable).toBe('7000ms x|', {x: mockDdragonChampionList});
-
-        (discordServiceMock.getGuilds as Mock).mockReturnValue(discordUserGuildsColdObservable);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
         (userDetailsServiceMock.getUserDetails as Mock).mockReturnValue(discordUserDetailsColdObservable);
         (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
@@ -720,7 +577,6 @@ describe('UserProfileComponent', () => {
         expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
         expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
 
-        expect(discordServiceMock.getGuilds).toBeCalledTimes(1);
         expect(userDetailsServiceMock.getUserDetails).toBeCalledTimes(1);
         expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
         expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);

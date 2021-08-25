@@ -8,7 +8,6 @@ import {ClashBotService} from "../../../services/clash-bot.service";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {RiotDdragonService} from "../../../services/riot-ddragon.service";
 import {UserDetailsService} from "../../../services/user-details.service";
-import {DiscordService} from "../../../services/discord.service";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
 import {UserDetails} from "../../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -37,8 +36,7 @@ export class UserProfileComponent implements OnInit {
   @ViewChild('championInput') championInput: any = '';
   userDetailsForm?: FormGroup;
 
-  constructor(private discordService: DiscordService,
-              private clashBotService: ClashBotService,
+  constructor(private clashBotService: ClashBotService,
               private userDetailsService: UserDetailsService,
               private riotDdragonService: RiotDdragonService,
               private applicationDetailsService: ApplicationDetailsService,
@@ -53,65 +51,62 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.discordService.getGuilds()
-      .pipe(take(1),
-        timeout(4000),
-        catchError((err) => {
-          console.error(err);
-          this.matSnackBar.open('Oops! Failed to load your guild information.', 'X', {duration: 5000});
-          return throwError(err);
-        })).subscribe((guilds) => {
-      guilds.forEach(guild => {
-        this.guilds.push(guild);
-      });
-      this.userDetailsService.getUserDetails().pipe(take(1)).subscribe((userDetails) => {
-        if (!userDetails || !userDetails.id || userDetails.id == '') {
-          this.matSnackBar.open('Oops! You are not logged in. Please navigate back to the home screen and log in.', 'X', {duration: 5000})
-        } else {
-          this.userDetails = userDetails;
-          this.clashBotService.getUserDetails(userDetails.id)
-            .pipe(take(1),
-              timeout(4000),
-              catchError((err) => {
-                console.error(err);
-                this.matSnackBar.open('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
-                return throwError(err);
-              }))
-            .subscribe((data: ClashBotUserDetails) => {
-              if (!data || !data.id) {
-                data.serverName = guilds[0].name;
-                data.preferredChampions = [];
-                data.subscriptions = {
-                  UpcomingClashTournamentDiscordDM: false
-                };
-              }
-              this.defaultGuild = data.serverName;
-              let preferredChampions = Array.isArray(data.preferredChampions) ? data.preferredChampions : [];
-              this.riotDdragonService.getListOfChampions()
-                .pipe(take(1),
-                  timeout(4000),
-                  catchError((err) => {
-                    console.error(err);
-                    this.matSnackBar.open('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
-                    return throwError(err);
-                  })).subscribe((championData) => {
-                this.listOfChampions = Object.keys(championData.data);
-                this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
-                this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
-                this.userDetailsForm = new FormGroup({
-                  preferredChampionsFC: new FormControl([...preferredChampions]),
-                  subscribedDiscordDMFC: new FormControl(data.subscriptions.UpcomingClashTournamentDiscordDM),
-                  defaultGuildFC: new FormControl(this.defaultGuild)
-                });
-                this.preferredChampions = new Set<string>(data.preferredChampions);
-                this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
-                this.championsAutofillArray = this.championAutoCompleteCtrl.valueChanges.pipe(
-                  startWith(null),
-                  map((champion: string | null) => champion ? this._filter(champion) : this.listOfChampions.slice()));
+    this.applicationDetailsService.getApplicationDetails()
+      .pipe(take(1))
+      .subscribe((appDetails) => {
+          let defaultGuild = '';
+          if (appDetails.userGuilds) {
+            defaultGuild = appDetails.userGuilds[0].name;
+            appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
+          }
+        this.userDetailsService.getUserDetails().pipe(take(1)).subscribe((userDetails) => {
+          if (!userDetails || !userDetails.id || userDetails.id == '') {
+            this.matSnackBar.open('Oops! You are not logged in. Please navigate back to the home screen and log in.', 'X', {duration: 5000})
+          } else {
+            this.userDetails = userDetails;
+            this.clashBotService.getUserDetails(userDetails.id)
+              .pipe(take(1),
+                timeout(4000),
+                catchError((err) => {
+                  console.error(err);
+                  this.matSnackBar.open('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
+                  return throwError(err);
+                }))
+              .subscribe((data: ClashBotUserDetails) => {
+                if (!data || !data.id) {
+                  data.serverName = defaultGuild;
+                  data.preferredChampions = [];
+                  data.subscriptions = {
+                    UpcomingClashTournamentDiscordDM: false
+                  };
+                }
+                this.defaultGuild = data.serverName;
+                let preferredChampions = Array.isArray(data.preferredChampions) ? data.preferredChampions : [];
+                this.riotDdragonService.getListOfChampions()
+                  .pipe(take(1),
+                    timeout(4000),
+                    catchError((err) => {
+                      console.error(err);
+                      this.matSnackBar.open('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
+                      return throwError(err);
+                    })).subscribe((championData) => {
+                  this.listOfChampions = Object.keys(championData.data);
+                  this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
+                  this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
+                  this.userDetailsForm = new FormGroup({
+                    preferredChampionsFC: new FormControl([...preferredChampions]),
+                    subscribedDiscordDMFC: new FormControl(data.subscriptions.UpcomingClashTournamentDiscordDM),
+                    defaultGuildFC: new FormControl(this.defaultGuild)
+                  });
+                  this.preferredChampions = new Set<string>(data.preferredChampions);
+                  this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
+                  this.championsAutofillArray = this.championAutoCompleteCtrl.valueChanges.pipe(
+                    startWith(null),
+                    map((champion: string | null) => champion ? this._filter(champion) : this.listOfChampions.slice()));
+                })
               })
-            })
-        }
-      })
+          }
+        })
     })
   }
 
