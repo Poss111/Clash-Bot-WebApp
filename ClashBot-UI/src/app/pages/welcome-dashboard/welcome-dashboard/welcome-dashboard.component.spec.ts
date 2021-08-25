@@ -31,7 +31,8 @@ jest.mock("@angular/material/snack-bar");
 
 @NgModule({
   declarations: [ClashTournamentCalendarHeaderComponent],
-  entryComponents: [ClashTournamentCalendarHeaderComponent]
+  entryComponents: [ClashTournamentCalendarHeaderComponent],
+  imports: [MatIconModule]
 })
 class WelcomeDashboardTestModule {
 }
@@ -111,7 +112,7 @@ describe('WelcomeDashboardComponent', () => {
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
       declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent],
-      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule],
+      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule ],
       providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
     })
       .compileComponents();
