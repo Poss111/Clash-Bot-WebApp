@@ -12,6 +12,7 @@ jobs:
     outputs:
       deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
       deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
+      tag: ${{ steps.check-apps.outputs.parsedTag }}
 
     steps:
       - name: Checkout repo
@@ -30,6 +31,9 @@ jobs:
 
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
+
+      - name: Check Tag
+        run: echo ${{ steps.check-apps.outputs.parsedTag }}
 
   build-service:
     needs: check-applications
@@ -154,7 +158,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@master
         with:
           find: "--APP-VERSION--"
-          replace: "${GITHUB_REF##*/}"
+          replace: ${{ needs.check-applications.outputs.tag }}
           include: "ClashBot-UI/src/environments/environment.prod.ts"
 
       - name: Build distribution

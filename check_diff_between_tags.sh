@@ -14,8 +14,11 @@ do
   fi
 done
 
+parsedTag=${GITHUB_REF##*/}
+
 echo "::set-output name=serviceUpdate::$serviceUpdate"
 echo "::set-output name=uiUpdate::$uiUpdate"
+echo "::set-output name=parsedTag::$parsedTag"
 echo "Finished"
 
 
