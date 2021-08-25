@@ -9,7 +9,6 @@ import {MatCardModule} from "@angular/material/card";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {DiscordService} from "../../../services/discord.service";
 import {TestScheduler} from "rxjs/testing";
 import {FilterType} from "../../../interfaces/filter-type";
 import {HttpErrorResponse} from "@angular/common/http";
@@ -24,10 +23,10 @@ import {ApplicationDetailsService} from "../../../services/application-details.s
 import {MatOption, MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {ApplicationDetails} from "../../../interfaces/application-details";
+import {DiscordGuild} from "../../../interfaces/discord-guild";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");
-jest.mock("../../../services/discord.service");
 jest.mock("../../../services/user-details.service");
 jest.mock("@angular/material/snack-bar");
 
@@ -35,7 +34,6 @@ describe('TeamsDashboardComponent', () => {
   let component: TeamsDashboardComponent;
   let fixture: ComponentFixture<TeamsDashboardComponent>;
   let clashBotServiceMock: any;
-  let discordServiceMock: any;
   let userDetailsMock: any;
   let applicationDetailsMock: any;
   let snackBarMock: any;
@@ -58,11 +56,10 @@ describe('TeamsDashboardComponent', () => {
         MatDialogModule,
         MatOptionModule,
         MatSelectModule],
-      providers: [ClashBotService, DiscordService, UserDetailsService, ApplicationDetailsService, MatSnackBar],
+      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar],
     })
       .compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
-    discordServiceMock = TestBed.inject(DiscordService);
     snackBarMock = TestBed.inject(MatSnackBar);
     userDetailsMock = TestBed.inject(UserDetailsService);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
@@ -73,7 +70,7 @@ describe('TeamsDashboardComponent', () => {
   });
 
   describe('On Init', () => {
-    test('Whenever the component is created, a call to the discordService should be made which will then turn the progress spinner off and if the User has a default guild it will be set and then a call to retrieve the teams will be made.', () => {
+    test('Whenever the component is created, a call to the Application Details should be made and if the User has a default guild it will be set and then a call to retrieve the teams will be made.', () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
@@ -92,14 +89,14 @@ describe('TeamsDashboardComponent', () => {
         });
         const mockApplicationsDetails: ApplicationDetails = {
           currentTournaments: mockClashTournaments,
-          defaultGuild: 'Goon Squad'
+          defaultGuild: 'Goon Squad',
+          userGuilds: mockObservableGuilds
         }
-        const guildObservable$ = cold('----x|', {x: mockObservableGuilds});
+
         let coldApplicationDetailsObs = cold('x|', {x: mockApplicationsDetails});
         let coldUserDetailsObs = cold('x|', { x: mockUserDetails});
         let coldClashTeamsObs = cold('x|', {x: mockClashTeams});
 
-        discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
         userDetailsMock.getUserDetails.mockReturnValue(coldUserDetailsObs);
         clashBotServiceMock.getClashTeams.mockReturnValue(coldClashTeamsObs);
@@ -129,7 +126,7 @@ describe('TeamsDashboardComponent', () => {
       })
     })
 
-    test('Whenever the component is created, a call to the discordService should be made which will then turn the progress spinner off and if the User does not have a default guild, then none shall be chosen.', () => {
+    test('Whenever the component is created, a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.', () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         let mockObservableGuilds = mockDiscordGuilds();
@@ -143,17 +140,15 @@ describe('TeamsDashboardComponent', () => {
           }
         });
         const mockApplicationsDetails: ApplicationDetails = {
-          currentTournaments: []
+          currentTournaments: [],
+          userGuilds: mockObservableGuilds
         }
-        const guildObservable$ = cold('----x|', {x: mockObservableGuilds});
+
         let coldApplicationDetailsObs = cold('x|', {x: mockApplicationsDetails});
 
-        discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
 
         component = fixture.componentInstance;
-
-        expect(component.showSpinner).toBeFalsy();
         expect(component.formControl).toBeFalsy();
 
         fixture.detectChanges();
@@ -173,74 +168,6 @@ describe('TeamsDashboardComponent', () => {
           expect(component.formControl).toBeTruthy();
         }
       })
-    })
-  })
-
-  test('Whenever the component is created, a call to the discordService and the call times out after 7 seconds then a generic error message should be displayed.', () => {
-    testScheduler.run((helpers) => {
-      const {cold, expectObservable, flush} = helpers;
-      let mockObservableGuilds = mockDiscordGuilds();
-      const guildObservable$ = cold('7000ms x|', {x: mockObservableGuilds});
-      discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-      component = fixture.componentInstance;
-      expect(component.showSpinner).toBeFalsy();
-      fixture.detectChanges();
-      expectObservable(guildObservable$).toBe('7000ms x|', {x: mockObservableGuilds});
-      flush();
-      expect(component.showSpinner).toBeFalsy();
-      expect(component.teamFilters).toHaveLength(0);
-      expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-      expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Servers. Please try again later.', 'X', {duration: 5000});
-      expect(component.color).toEqual('primary');
-      expect(component.mode).toEqual('indeterminate');
-    })
-  })
-
-  test('Whenever the component is created, a call to the discordService should be made and if it times out a SnackBar module should be created with a generic message.', () => {
-    testScheduler.run((helpers) => {
-      const {cold, expectObservable, flush} = helpers;
-      const expectedError = new Error('Failed to make call.');
-      const guildObservable$ = cold('----#', undefined, expectedError);
-      discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-      component = fixture.componentInstance;
-      expect(component.showSpinner).toBeFalsy();
-      fixture.detectChanges();
-      expectObservable(guildObservable$).toBe('----#', undefined, expectedError);
-      flush();
-      expect(component.showSpinner).toBeFalsy();
-      expect(component.teamFilters).toHaveLength(0);
-      expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-      expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Servers. Please try again later.', 'X', {duration: 5000});
-      expect(component.color).toEqual('primary');
-      expect(component.mode).toEqual('indeterminate');
-    })
-  })
-
-
-  test('Whenever the component is created, a call to the discordService should be made and if the call fails with a unauthorized then a SnackBar module should be created.', () => {
-    testScheduler.run((helpers) => {
-      const {cold, expectObservable, flush} = helpers;
-      const expectedError =
-        new HttpErrorResponse({
-          error: 'Failed to make call.',
-          headers: undefined,
-          status: 401,
-          statusText: 'Not allowed to make call',
-          url: 'https://discord.com/api'
-        });
-      const guildObservable$ = cold('----#', undefined, expectedError);
-      discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-      component = fixture.componentInstance;
-      expect(component.showSpinner).toBeFalsy();
-      fixture.detectChanges();
-      expectObservable(guildObservable$).toBe('----#', undefined, expectedError);
-      flush();
-      expect(component.showSpinner).toBeFalsy();
-      expect(component.teamFilters).toHaveLength(0);
-      expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-      expect(snackBarMock.open).toHaveBeenCalledWith('Invalid Discord Token. Please login to Discord again.', 'X', {duration: 5000});
-      expect(component.color).toEqual('primary');
-      expect(component.mode).toEqual('indeterminate');
     })
   })
 
@@ -404,9 +331,9 @@ describe('TeamsDashboardComponent', () => {
       testScheduler.run((helpers) => {
         const {cold, expectObservable, flush} = helpers;
         const mockUserDetails: UserDetails = {id: '', username: '', discriminator: '12312asd'};
-        setupGuildObservable(cold);
+
         component = fixture.componentInstance;
-        fixture.detectChanges();
+
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -454,10 +381,11 @@ describe('TeamsDashboardComponent', () => {
           }
         } as any);
         const expectedSearchPhrase = 'Goon Squad';
+        component.formControl = new FormControl();
         if (component.formControl) {
           component.formControl.setValue(expectedSearchPhrase);
         }
-        fixture.detectChanges();
+
         component.filterTeam(mockMatChip);
 
         expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
@@ -499,17 +427,17 @@ describe('TeamsDashboardComponent', () => {
       "permissions_new": "274877906943"
     }];
     const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-    discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+    // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
     return {mockObservableGuilds, guildObservable$};
   }
 
   describe('Register for Team', () => {
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to register a user to the team.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -539,7 +467,7 @@ describe('TeamsDashboardComponent', () => {
 
         component = fixture.componentInstance;
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -550,16 +478,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(registerUserForTeamColdObservable).toBe('-x|', {x: mockRetrieveUserResponse});
-        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
-
         component.registerForTeam(mockRetrieveUserResponse);
 
         flush();
+
         expect(component.teams).toEqual(expectedMockClashTeamResponse);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
       });
@@ -567,54 +489,28 @@ describe('TeamsDashboardComponent', () => {
 
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and if the Users Details are empty then it should show a snackbar error.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
-        let mockObservableGuilds = [{
-          "id": "136278926191362058",
-          "name": "Garret's Discord",
-          "icon": "17ce03186d96453d4f2b341649b2b7cc",
-          "owner": false,
-          "permissions": 37215809,
-          "features": [],
-          "permissions_new": "246997835329"
-        }, {
-          "id": "434172219472609281",
-          "name": "The Other Other Guys",
-          "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-          "owner": false,
-          "permissions": 104324673,
-          "features": [],
-          "permissions_new": "247064944193"
-        }, {
-          "id": "837685892885512202",
-          "name": "LoL-ClashBotSupport",
-          "icon": null,
-          "owner": true,
-          "permissions": 2147483647,
-          "features": [],
-          "permissions_new": "274877906943"
-        }];
-        const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-        discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+        const {cold, flush} = helpers;
+
         component = fixture.componentInstance;
-        expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         const mockUserDetails: UserDetails = {id: '', username: '', discriminator: '12312asd'};
         const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
+
         component.teams = [{teamName: 'Team Awesome', playersDetails: []}]
+
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse})
+
         userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
-        fixture.detectChanges();
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(registerUserForTeamColdObservable).toBe('-x|', {x: mockRetrieveUserResponse});
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
+
         component.registerForTeam(mockRetrieveUserResponse);
+
         flush();
+
         expect(component.teams).toEqual([{
           teamName: 'Team Awesome',
-          playersDetails: [],
-          tournamentDetails: {tournamentDay: "1", tournamentName: "Placeholder"}
+          playersDetails: []
         }]);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
@@ -623,36 +519,9 @@ describe('TeamsDashboardComponent', () => {
 
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
-        let mockObservableGuilds = [{
-          "id": "136278926191362058",
-          "name": "Garret's Discord",
-          "icon": "17ce03186d96453d4f2b341649b2b7cc",
-          "owner": false,
-          "permissions": 37215809,
-          "features": [],
-          "permissions_new": "246997835329"
-        }, {
-          "id": "434172219472609281",
-          "name": "The Other Other Guys",
-          "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-          "owner": false,
-          "permissions": 104324673,
-          "features": [],
-          "permissions_new": "247064944193"
-        }, {
-          "id": "837685892885512202",
-          "name": "LoL-ClashBotSupport",
-          "icon": null,
-          "owner": true,
-          "permissions": 2147483647,
-          "features": [],
-          "permissions_new": "274877906943"
-        }];
-        const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-        discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+        const {cold, flush} = helpers;
         component = fixture.componentInstance;
-        fixture.detectChanges();
+
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
         const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
         component.teams = [{teamName: 'Team Awesome', playersDetails: []}];
@@ -666,18 +535,17 @@ describe('TeamsDashboardComponent', () => {
           });
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('-#', undefined, expectedError);
+
         userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
-        fixture.detectChanges();
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(registerUserForTeamColdObservable).toBe('-#', undefined, expectedError);
+
         component.registerForTeam(mockRetrieveUserResponse);
+
         flush();
+
         expect(component.teams).toEqual([{
           teamName: 'Team Awesome',
-          playersDetails: [],
-          tournamentDetails: {tournamentDay: "1", tournamentName: "Placeholder"}
+          playersDetails: []
         }]);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Failed to register you to the Team, missing required details.', 'X', {duration: 5000});
@@ -686,54 +554,26 @@ describe('TeamsDashboardComponent', () => {
 
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
-        let mockObservableGuilds = [{
-          "id": "136278926191362058",
-          "name": "Garret's Discord",
-          "icon": "17ce03186d96453d4f2b341649b2b7cc",
-          "owner": false,
-          "permissions": 37215809,
-          "features": [],
-          "permissions_new": "246997835329"
-        }, {
-          "id": "434172219472609281",
-          "name": "The Other Other Guys",
-          "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-          "owner": false,
-          "permissions": 104324673,
-          "features": [],
-          "permissions_new": "247064944193"
-        }, {
-          "id": "837685892885512202",
-          "name": "LoL-ClashBotSupport",
-          "icon": null,
-          "owner": true,
-          "permissions": 2147483647,
-          "features": [],
-          "permissions_new": "274877906943"
-        }];
-        const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-        discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+        const {cold, flush} = helpers;
+
         component = fixture.componentInstance;
-        fixture.detectChanges();
+
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
         const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
+
         component.teams = [{teamName: 'Team Awesome', playersDetails: []}];
+
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('7000ms -x|', {x: mockUserDetails});
+
         userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
-        fixture.detectChanges();
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(registerUserForTeamColdObservable).toBe('7000ms -x|', {x: mockUserDetails});
+
         component.registerForTeam(mockRetrieveUserResponse);
+
         flush();
-        expect(component.teams).toEqual([{
-          teamName: 'Team Awesome',
-          playersDetails: [],
-          tournamentDetails: {tournamentDay: "1", tournamentName: "Placeholder"}
-        }]);
+
+        expect(component.teams).toEqual([{teamName: 'Team Awesome', playersDetails: []}]);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your registration timed out, please try again!', 'X', {duration: 5000});
       });
@@ -744,10 +584,10 @@ describe('TeamsDashboardComponent', () => {
   describe('Unregister from Team', () => {
     test('When I call unregister from Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to unregister a user from team.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -781,7 +621,6 @@ describe('TeamsDashboardComponent', () => {
 
         component = fixture.componentInstance;
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -792,16 +631,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
-        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual(expectedMockClashTeamResponse);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
       });
@@ -809,10 +642,11 @@ describe('TeamsDashboardComponent', () => {
 
     test('Error - Missing User Details - When I call unregister from Team, it should subscribe to retrieve the latest User Details and if the Users Details are empty then it should show a snackbar error.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
+
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '', username: '', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
+
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -845,8 +679,9 @@ describe('TeamsDashboardComponent', () => {
         let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
 
         component = fixture.componentInstance;
+
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -857,14 +692,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual([{error: 'No data'}]);
         expect(userDetailsMock.getUserDetails).toHaveBeenCalled();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
@@ -874,10 +705,9 @@ describe('TeamsDashboardComponent', () => {
 
     test('Error - Unregister Failed - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -909,8 +739,9 @@ describe('TeamsDashboardComponent', () => {
         expectedMockClashTeamResponse[0].playersDetails.pop();
 
         component = fixture.componentInstance;
+
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         const expectedError =
@@ -929,16 +760,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(unregisterUserFromTeamColdObservable).toBe('-#', undefined, expectedError);
-        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual(expectedMockClashTeamResponse);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
@@ -948,10 +773,9 @@ describe('TeamsDashboardComponent', () => {
 
     test('Error - Timeout for Unregister - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -985,7 +809,6 @@ describe('TeamsDashboardComponent', () => {
 
         component = fixture.componentInstance;
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -996,16 +819,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(unregisterUserFromTeamColdObservable).toBe('7000ms x|', {x: mockUnregisterFromTeamResponse});
-        expectObservable(clashTeamsObservable$).toBe('x|', {x: expectedMockClashTeamResponse});
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual(expectedMockClashTeamResponse);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
@@ -1015,10 +832,9 @@ describe('TeamsDashboardComponent', () => {
 
     test('Error - Retrieving updated Teams - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -1059,8 +875,9 @@ describe('TeamsDashboardComponent', () => {
             url: 'https://localhost.com/api/teams'
           });
         component = fixture.componentInstance;
+
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -1071,16 +888,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
-        expectObservable(clashTeamsObservable$).toBe('#', undefined, expectedError);
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual([{error: 'Http failure response for https://localhost.com/api/teams: 400 Bad Request'}]);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
@@ -1090,10 +901,9 @@ describe('TeamsDashboardComponent', () => {
 
     test('Error - Timeout for update Teams - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
       testScheduler.run((helpers) => {
-        const {cold, expectObservable, flush} = helpers;
+        const {cold, flush} = helpers;
         const expectedServer = 'Test Server';
         const mockUserDetails: UserDetails = {id: '12321', username: 'Test User', discriminator: '12312asd'};
-        let {mockObservableGuilds, guildObservable$} = setupGuildObservable(cold);
         let mockClashTeams: ClashTeam[] = [
           {
             teamName: 'Team Abra',
@@ -1126,8 +936,9 @@ describe('TeamsDashboardComponent', () => {
         let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
 
         component = fixture.componentInstance;
+
         expect(component.showSpinner).toBeFalsy();
-        fixture.detectChanges();
+
         component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
@@ -1138,16 +949,10 @@ describe('TeamsDashboardComponent', () => {
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
-        fixture.detectChanges();
-
-        expectObservable(guildObservable$).toBe('x|', {x: mockObservableGuilds});
-        expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-        expectObservable(unregisterUserFromTeamColdObservable).toBe('-x|', {x: mockUnregisterFromTeamResponse});
-        expectObservable(clashTeamsObservable$).toBe('7000ms x|', {x: expectedMockClashTeamResponse});
-
         component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
         flush();
+
         expect(component.teams).toEqual([{error: 'Timeout has occurred'}]);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(expectedServer);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
@@ -1442,7 +1247,7 @@ describe('TeamsDashboardComponent', () => {
 
 });
 
-function mockDiscordGuilds() {
+function mockDiscordGuilds(): DiscordGuild[] {
   return [{
     "id": "136278926191362058",
     "name": "Garret's Discord",
@@ -1462,7 +1267,7 @@ function mockDiscordGuilds() {
   }, {
     "id": "837685892885512202",
     "name": "LoL-ClashBotSupport",
-    "icon": null,
+    "icon": '123123123',
     "owner": true,
     "permissions": 2147483647,
     "features": [],

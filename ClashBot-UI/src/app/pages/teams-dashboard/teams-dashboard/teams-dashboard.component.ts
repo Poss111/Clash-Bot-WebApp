@@ -8,7 +8,6 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
 import {catchError, finalize, take, timeout} from "rxjs/operators";
 import {MatChip} from "@angular/material/chips";
-import {DiscordService} from "../../../services/discord.service";
 import {HttpErrorResponse} from "@angular/common/http";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {UserDetails} from "../../../interfaces/user-details";
@@ -37,7 +36,6 @@ export class TeamsDashboardComponent implements OnInit {
   creatingNewTeam: boolean;
 
   constructor(private clashBotService: ClashBotService,
-              private discordService: DiscordService,
               private _snackBar: MatSnackBar,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
@@ -47,46 +45,24 @@ export class TeamsDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.showSpinner = true;
-    this.discordService.getGuilds()
-      .pipe(
-        take(1),
-        timeout(7000),
-        catchError((err: HttpErrorResponse) => {
-          console.error(err);
-          if (err.status === 401) {
-            this._snackBar.open('Invalid Discord Token. Please login to Discord again.',
-              'X',
-              {duration: 5 * 1000});
-
-          } else {
-            this._snackBar.open('Failed to retrieve Servers. Please try again later.',
-              'X',
-              {duration: 5 * 1000});
-          }
-          this.teams.push({error: err.message});
-          return throwError(err);
-        }),
-        finalize(() => this.showSpinner = false)
-      )
-      .subscribe((data: any) => {
-          this.applicationDetailsService.getApplicationDetails()
-              .pipe(take(1))
-              .subscribe((appDetails) => {
-                data.forEach((record: any) => {
-                  this.teamFilters.push({
-                    value: record.name,
-                    type: FilterType.SERVER,
-                    state: record.name === appDetails.defaultGuild,
-                    id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
-                  });
-                })
-                this.formControl = new FormControl(appDetails.defaultGuild);
-                if (appDetails.defaultGuild) {
-                    this.filterForTeamsByServer(appDetails.defaultGuild);
-                }
-        })
-      });
+    this.applicationDetailsService.getApplicationDetails()
+          .pipe(take(1))
+          .subscribe((appDetails) => {
+              if (appDetails.userGuilds) {
+                  appDetails.userGuilds.forEach((record: any) => {
+                      this.teamFilters.push({
+                          value: record.name,
+                          type: FilterType.SERVER,
+                          state: record.name === appDetails.defaultGuild,
+                          id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
+                      });
+                  })
+                  this.formControl = new FormControl(appDetails.defaultGuild);
+                  if (appDetails.defaultGuild) {
+                      this.filterForTeamsByServer(appDetails.defaultGuild);
+                  }
+              }
+    })
     this.color = 'primary';
     this.mode = 'indeterminate';
   }
@@ -136,26 +112,26 @@ export class TeamsDashboardComponent implements OnInit {
     }
 
     syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {
-    this.teams = this.mapDynamicValues(data, userDetails);
-    this.applicationDetailsService.getApplicationDetails()
-      .pipe(take(1))
-      .subscribe((applicationDetails) => {
-        if (applicationDetails && applicationDetails.currentTournaments) {
-          if (data.length < 1) {
-            this.teams = [{error: 'No data'}];
-            this.eligibleTournaments = applicationDetails.currentTournaments;
-          } else {
-            let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
-            let newEligibleTournaments: ClashTournaments[] = [];
-            map.forEach((value, key) => {
-              if (!value) {
-                newEligibleTournaments.push(key);
+        this.teams = this.mapDynamicValues(data, userDetails);
+        this.applicationDetailsService.getApplicationDetails()
+          .pipe(take(1))
+          .subscribe((applicationDetails) => {
+            if (applicationDetails && applicationDetails.currentTournaments) {
+              if (data.length < 1) {
+                this.teams = [{error: 'No data'}];
+                this.eligibleTournaments = applicationDetails.currentTournaments;
+              } else {
+                let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
+                let newEligibleTournaments: ClashTournaments[] = [];
+                map.forEach((value, key) => {
+                  if (!value) {
+                    newEligibleTournaments.push(key);
+                  }
+                });
+                this.eligibleTournaments = newEligibleTournaments;
               }
-            });
-            this.eligibleTournaments = newEligibleTournaments;
-          }
-        }
-      });
+            }
+          });
   }
 
   private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
