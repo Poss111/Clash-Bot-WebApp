@@ -74,7 +74,6 @@ export class WelcomeDashboardComponent {
     this.discordService.getUserDetails()
         .pipe(take(1))
         .subscribe((data) => {
-          this.loggedIn = true;
           this.userDetailsService.setUserDetails(data);
           this.discordService.getGuilds().subscribe((guilds) => {
               this.clashBotService.getUserDetails(data.id)
@@ -86,6 +85,7 @@ export class WelcomeDashboardComponent {
                   appDetails.defaultGuild = clashBotUser.serverName;
                   appDetails.userGuilds = guilds;
                   this.applicationDetailsService.setApplicationDetails(appDetails);
+                  this.loggedIn = true;
                 })
               })
           });

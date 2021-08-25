@@ -1,31 +1,51 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
 import {UserDetailsService} from "./services/user-details.service";
 import {UserDetails} from "./interfaces/user-details";
-import {Observable} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
+import {ApplicationDetailsService} from "./services/application-details.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit{
-  user$?: Observable<UserDetails>;
+export class AppComponent implements OnInit, OnDestroy{
   appVersion: string = environment.version;
+  userDetailsLoaded: boolean = false;
+  applicationDetailsLoaded: boolean = false;
+  userDetailsSub$?: Subscription;
+  applicationDetailsSub$?: Subscription;
+  username: string = '';
 
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
+              private applicationDetailsService: ApplicationDetailsService,
               private googleAnalyticsService: GoogleAnalyticsService) {}
 
   ngOnInit(): void {
-    this.user$ = this.userDetailsService.getUserDetails();
     this.router.events.subscribe(event => {
       if(event instanceof NavigationEnd) {
         this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
       }
     })
+    this.userDetailsSub$ = this.userDetailsService.getUserDetails().subscribe((userDetails) => {
+      if (userDetails.username && userDetails.username != '') {
+        this.username = userDetails.username;
+        this.userDetailsLoaded = true;
+      }
+    })
+    this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {
+      if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
+        this.applicationDetailsLoaded = true;
+    })
+  }
+
+  ngOnDestroy() {
+    this.userDetailsSub$?.unsubscribe();
+    this.applicationDetailsSub$?.unsubscribe();
   }
 
   navigateToWelcomePage() {
