@@ -6,7 +6,7 @@
   "scripts": {
     "cypress:open": "cypress open",
     "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
-    "cy": "../ClashBot-E2E/cypress run"
+    "cy": "cypress run"
   },
   "author": "",
   "license": "ISC",
