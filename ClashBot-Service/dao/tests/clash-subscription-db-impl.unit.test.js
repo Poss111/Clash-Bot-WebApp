@@ -11,7 +11,7 @@ beforeEach(() => {
 
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
-        let expectedTableObject = { setupTable: true};
+        let expectedTableObject = {setupTable: true};
         dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
         return clashSubscriptionDbImpl.initialize().then(() => {
             expect(clashSubscriptionDbImpl.clashSubscriptionTable).toEqual(expectedTableObject);
@@ -87,7 +87,10 @@ describe('Unsubscribe', () => {
             expect(data.timeAdded).toBeTruthy();
             expect(data.subscribed).toHaveLength(0);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith({key: id, subscribed: ''}, expect.any(Function));
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith({
+                key: id,
+                subscribed: ''
+            }, expect.any(Function));
         });
     })
 })
@@ -401,5 +404,65 @@ describe('Create User Subscription', () => {
             .then(data => {
                 expect(data).toEqual(expectedResults);
             }).catch(err => expect(err).toBeFalsy());
+    })
+})
+
+describe('Retrieve Usernames by ids', () => {
+    test('If a User Id is passed an array with the username belonging to the id should be returned.', () => {
+        const expectedPlayerId = '1';
+        const data = {
+            Items: [{
+                attrs: {
+                    id: '1',
+                    playerName: 'Roidrage'
+                }
+            }]
+        }
+
+        const expectedMap = data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {});
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        }
+
+        return clashSubscriptionDbImpl.retrievePlayerNames(expectedPlayerId).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
+            expect(usernames).toEqual(expectedMap);
+        })
+    })
+
+    test('If multiple User Ids are passed an array with the usernames belonging to the id should be returned.', () => {
+        const expectedPlayerId = '1';
+        const expectedPlayerIdTwo = '2';
+
+        const data = {
+            Items: [
+                {
+                    attrs: {
+                        id: '1',
+                        playerName: 'Roidrage'
+                    }
+                },
+                {
+                    attrs: {
+                        id: '2',
+                        playerName: 'TheIncentive'
+                    }
+                }
+            ]
+        };
+
+        const expectedMap = data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {});
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrievePlayerNames([expectedPlayerId, expectedPlayerIdTwo]).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId, expectedPlayerIdTwo], expect.any(Function));
+            expect(usernames).toEqual(expectedMap);
+        })
     })
 })

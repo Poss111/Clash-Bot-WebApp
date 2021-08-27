@@ -134,6 +134,14 @@ class ClashSubscriptionDbImpl {
         })
     }
 
+    retrievePlayerNames(ids) {
+        return new Promise((resolve => {
+            this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
+                resolve(data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {}));
+            });
+        }))
+    }
+
     createUserDetails(id, playerName, server, dateFormat, preferredChampions) {
         return {
             key: id,
