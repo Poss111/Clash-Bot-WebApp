@@ -14,6 +14,7 @@ class ClashSubscriptionDbImpl {
                 timestamps: true,
                 schema: {
                     key: Joi.string(),
+                    playerName: Joi.string(),
                     serverName: Joi.string(),
                     timeAdded: Joi.string(),
                     subscribed: Joi.string(),
