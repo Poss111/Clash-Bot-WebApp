@@ -265,6 +265,19 @@ let startUpApp = async () => {
             }
         })
 
+        app.get(`${urlPrefix}/tentative`, (req, res) => {
+            console.log(req.query.serverName);
+            res.json([{
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                tentativePlayers: [{
+                    name: 'Roidrage'
+                }]
+            }]);
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
             res.json({
                 status: 'Healthy'

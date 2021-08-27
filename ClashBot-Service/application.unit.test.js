@@ -1014,6 +1014,30 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
+    describe('GET Tentative - /api/tentative', () => {
+       test('When a request with a serverName is made for a tentative list, then a list of tournaments and tentative users should be returned.', (done) => {
+           const expectedServerName = 'Goon Squad';
+           const expectedResponse = [{
+               tournamentDetails: {
+                   tournamentName: 'awesome_sauce',
+                   tournamentDay: '1'
+               },
+               tentativePlayers: [{
+                   name: 'Roidrage'
+               }]
+           }]
+           request(application)
+               .get(`/api/tentative?serverName=${expectedServerName}`)
+               .set('Content-Type', 'application/json')
+               .expect('Content-Type', /json/)
+               .expect(200, (err, res) => {
+                   if (err) return done(err);
+                   expect(res.body).toEqual(expectedResponse);
+                   done();
+               })
+       })
+    });
+
     describe('POST User - /api/user', () => {
         test('As a User, when I request to create my data, I can do it through post.', (done) => {
             let payload = {
