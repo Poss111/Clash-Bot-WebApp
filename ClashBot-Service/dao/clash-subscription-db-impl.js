@@ -33,13 +33,8 @@ class ClashSubscriptionDbImpl {
             const dateFormat = 'MMMM DD yyyy hh:mm a z';
             const timeZone = 'America/Los_Angeles';
             moment.tz.setDefault(timeZone);
-            let subscription = {
-                key: id,
-                playerName: playerName,
-                serverName: server,
-                timeAdded: new moment().format(dateFormat),
-                subscribed: 'true'
-            };
+            let subscription = this.createUserDetails(id, playerName, server, dateFormat);
+            subscription.subscribed = 'true';
             this.updateUser(subscription, reject, resolve);
         });
     }
@@ -131,13 +126,7 @@ class ClashSubscriptionDbImpl {
             const dateFormat = 'MMMM DD yyyy hh:mm a z';
             const timeZone = 'America/Los_Angeles';
             moment.tz.setDefault(timeZone);
-            let subscription = {
-                key: id,
-                playerName: playerName,
-                serverName: server,
-                timeAdded: new moment().format(dateFormat),
-                preferredChampions: preferredChampions
-            };
+            let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
             if (subscribed) {
                 subscription.subscribed = JSON.stringify(subscribed);
             }
@@ -145,6 +134,15 @@ class ClashSubscriptionDbImpl {
         })
     }
 
+    createUserDetails(id, playerName, server, dateFormat, preferredChampions) {
+        return {
+            key: id,
+            playerName: playerName,
+            serverName: server,
+            timeAdded: new moment().format(dateFormat),
+            preferredChampions: preferredChampions
+        };
+    }
 }
 
 module.exports = new ClashSubscriptionDbImpl;
