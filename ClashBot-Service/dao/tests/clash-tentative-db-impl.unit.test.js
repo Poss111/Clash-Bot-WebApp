@@ -459,3 +459,50 @@ describe('Is User on Tentative', () => {
             .catch(err => expect(err).toEqual(expectedError));
     })
 })
+
+describe('Retrieve Tentative', () => {
+    test('If a server name, tournament name, and day is passed, then the matching tournament should be returned.', () => {
+        let expectedServerName = 'Goon Squad';
+        let expectedTournamentDetails = {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+        };
+        const expectedResponse = {
+            key: `${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
+            tentativePlayers: ['1'],
+            serverName: expectedServerName,
+            tournamentDetails: {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1'
+            }
+        }
+        clashTentativeDbImpl.Tentative = {
+            get: jest.fn().mockImplementation((queryKey, callback) => {
+                callback(undefined, {attrs: expectedResponse});
+            })
+        };
+        return clashTentativeDbImpl.getTentative(expectedServerName, expectedTournamentDetails).then((tentativeList) => {
+            expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
+            expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedResponse.key, expect.any(Function));
+            expect(tentativeList).toEqual(expectedResponse);
+        });
+    })
+
+    test('If a server name, tournament name, and day is passed but does not exist, then an undefined object should be returned.', () => {
+        let expectedServerName = 'Goon Squad';
+        let expectedTournamentDetails = {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+        };
+        clashTentativeDbImpl.Tentative = {
+            get: jest.fn().mockImplementation((queryKey, callback) => {
+                callback(undefined, undefined);
+            })
+        };
+        return clashTentativeDbImpl.getTentative(expectedServerName, expectedTournamentDetails).then((tentativeList) => {
+            expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
+            expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(`${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`, expect.any(Function));
+            expect(tentativeList).toEqual(undefined);
+        });
+    })
+})

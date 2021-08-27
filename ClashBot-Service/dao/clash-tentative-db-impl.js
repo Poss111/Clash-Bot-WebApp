@@ -94,6 +94,22 @@ class ClashTentativeDbImpl {
             });
     }
 
+    getTentative(serverName, tournamentDetails) {
+        return new Promise((resolve, reject) => {
+            this.Tentative.get(this.buildKey(serverName, tournamentDetails), (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (data) {
+                        resolve(data.attrs);
+                    } else {
+                        resolve(data);
+                    }
+                }
+            })
+        })
+    }
+
     buildKey(serverName, tournamentDetails) {
         return `${serverName}#${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}`;
     }
