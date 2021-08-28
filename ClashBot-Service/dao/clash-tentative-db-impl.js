@@ -36,9 +36,9 @@ class ClashTentativeDbImpl {
             this.Tentative.get(key, (err, data) => {
                 if (err) reject(err);
                 resolve({
-                    onTentative: data !== undefined && Array.isArray(data.attrs.tentativePlayers)
+                    onTentative: data !== null && Array.isArray(data.attrs.tentativePlayers)
                         ? data.attrs.tentativePlayers.includes(userId) : false,
-                    tentativeList: data === undefined ? data : data.attrs
+                    tentativeList: data === null ? data : data.attrs
                 });
             })
         });

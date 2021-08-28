@@ -319,6 +319,34 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/tentative`, (req, res) => {
+            if (!req.body.id || !req.body.serverName
+                || !req.body.tournamentDetails
+                || !req.body.tournamentDetails.tournamentName
+                || !req.body.tournamentDetails.tournamentDay) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required request parameter.'});
+            } else {
+            clashTentativeDbImpl.handleTentative(req.body.id, req.body.serverName, req.body.tournamentDetails)
+                .then((record) => {
+                    clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
+                        .then((results) => {
+                        res.json({
+                            serverName: record.serverName,
+                            tournamentDetails: record.tournamentDetails,
+                            tentativePlayers: Object.values(results)
+                        })
+                    }).catch((err) => {
+                        console.error(err);
+                        errorHandler.errorHandler(res, 'Failed to retrieve mapped usernames.');
+                    });
+                }).catch((err) => {
+                    console.error(err);
+                    errorHandler.errorHandler(res, 'Failed to update Tentative record.');
+                });
+            }
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
             res.json({
                 status: 'Healthy'

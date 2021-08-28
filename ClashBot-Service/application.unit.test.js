@@ -997,70 +997,6 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
-    describe('GET User', () => {
-        test('When I ask to retrieve the User information based on the User Id with a GET on /api/user, and it should respond with a User Details payload.', (done) => {
-            const userId = '12321312';
-            const mockDbResponse = {
-                key: userId,
-                serverName: 'Some Server',
-                timeAdded: new Date().toISOString(),
-                subscribed: 'true',
-                preferredChampions: ['Sett']
-            };
-            const mockResponseValue = {
-                id: userId,
-                serverName: mockDbResponse.serverName,
-                preferredChampions: ['Sett'],
-                subscriptions: {'UpcomingClashTournamentDiscordDM': true}
-            }
-            clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
-            request(application)
-                .get(`/api/user?id=${userId}`)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(200, (err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).toEqual(mockResponseValue);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
-                    done();
-                })
-        })
-
-        test('When I ask to retrieve a User that is not available, it should respond with an empty payload.', (done) => {
-            const userId = '12321312';
-            const mockDbResponse = {};
-            const mockResponseValue = {subscriptions: {'UpcomingClashTournamentDiscordDM': false}}
-            clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
-            request(application)
-                .get(`/api/user?id=${userId}`)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(200, (err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).toEqual(mockResponseValue);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
-                    done();
-                })
-        })
-
-        test('Error - Failed to retrieve User - If the database fails to retrieve the User then it should respond with an generic error.', (done) => {
-            const userId = '12321312';
-            clashSubscriptionDbImpl.retrieveUserDetails.mockRejectedValue(new Error('Failed to retrieve.'));
-            request(application)
-                .get(`/api/user?id=${userId}`)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(500, (err) => {
-                    if (err) return done(err);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
-                    done();
-                })
-        })
-    })
-
     describe('GET Tentative - /api/tentative', () => {
         test('When a request with a serverName is made for a tentative list, then a list of tournaments and tentative users should be returned.', (done) => {
             const expectedServerName = 'Goon Squad';
@@ -1210,6 +1146,251 @@ describe('Clash Bot Service API Controller', () => {
         })
 
     });
+
+    describe('POST Tentative - /api/tentative', () => {
+        test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id, they should successfully be added.', (done) => {
+            const expectedResponse = {
+                tentativePlayers: ['Roidrage'],
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            };
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            const tentativeDbResponse = {
+                tentativePlayers: ['2'],
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(['Roidrage']);
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['2']);
+                    expect(res.body).toEqual(expectedResponse);
+                    done();
+                })
+        })
+
+        test('ERROR - Failed to persist tentative - There was an error updating the tentative record.', (done) => {
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            clashTentativeDbImpl.handleTentative.mockRejectedValue(new Error('Failed to persist tentative record.'));
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Failed to update Tentative record.'});
+                    done();
+                })
+        })
+
+        test('ERROR - Failed to retrieve User Names - There was an error retrieving the made user names.', (done) => {
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            const tentativeDbResponse = {
+                tentativePlayers: ['2'],
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockRejectedValue(new Error('Failed to persist tentative record.'));
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(res.body).toEqual({error: 'Failed to retrieve mapped usernames.'});
+                    done();
+                })
+        })
+
+        test('Bad request - Missing Id - The user id was not passed.', (done) => {
+            const payload = {
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                    done();
+                })
+        })
+
+        test('Bad request - Missing Server Name - The user id was not passed.', (done) => {
+            const payload = {
+                id: '2',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                    done();
+                })
+        })
+
+        test('Bad request - Missing Tournament Details - The user id was not passed.', (done) => {
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+            }
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                    done();
+                })
+        })
+
+        test('Bad request - Missing Tournament Name - The user id was not passed.', (done) => {
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: { tournamentDay: '2'}
+            }
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                    done();
+                })
+        })
+
+        test('Bad request - Missing Tournament Day - The user id was not passed.', (done) => {
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: { tournamentName: 'awesome_sauce'}
+            }
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                    done();
+                })
+        })
+    })
+
+    describe('GET User', () => {
+        test('When I ask to retrieve the User information based on the User Id with a GET on /api/user, and it should respond with a User Details payload.', (done) => {
+            const userId = '12321312';
+            const mockDbResponse = {
+                key: userId,
+                serverName: 'Some Server',
+                timeAdded: new Date().toISOString(),
+                subscribed: 'true',
+                preferredChampions: ['Sett']
+            };
+            const mockResponseValue = {
+                id: userId,
+                serverName: mockDbResponse.serverName,
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': true}
+            }
+            clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+
+        test('When I ask to retrieve a User that is not available, it should respond with an empty payload.', (done) => {
+            const userId = '12321312';
+            const mockDbResponse = {};
+            const mockResponseValue = {subscriptions: {'UpcomingClashTournamentDiscordDM': false}}
+            clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(mockResponseValue);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+
+        test('Error - Failed to retrieve User - If the database fails to retrieve the User then it should respond with an generic error.', (done) => {
+            const userId = '12321312';
+            clashSubscriptionDbImpl.retrieveUserDetails.mockRejectedValue(new Error('Failed to retrieve.'));
+            request(application)
+                .get(`/api/user?id=${userId}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err) => {
+                    if (err) return done(err);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(userId);
+                    done();
+                })
+        })
+    })
 
     describe('POST User - /api/user', () => {
         test('As a User, when I request to create my data, I can do it through post.', (done) => {
