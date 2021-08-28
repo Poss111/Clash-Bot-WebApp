@@ -360,7 +360,7 @@ describe('Is User on Tentative', () => {
         };
         clashTentativeDbImpl.Tentative = {
             get: jest.fn().mockImplementation((queryKey, callback) => {
-                callback(undefined, undefined);
+                callback(null, null);
             })
         };
         return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament).then((record) => {
