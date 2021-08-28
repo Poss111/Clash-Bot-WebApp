@@ -282,6 +282,8 @@ let startUpApp = async () => {
                             let userQueries = [];
                             result.forEach(tentativeRecord => {
                                 if (tentativeRecord) {
+                                    tournaments.splice(tournaments.findIndex(tournament => tournament.tournamentName === tentativeRecord.tournamentDetails.tournamentName
+                                        && tournament.tournamentDay === tentativeRecord.tournamentDetails.tournamentDay), 1);
                                     userQueries.push(...tentativeRecord.tentativePlayers);
 
                                     payload.push({
@@ -295,13 +297,22 @@ let startUpApp = async () => {
                                     )
                                 }
                             })
-                            clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
-                                payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record]));
+                            if (tournaments.length > 0) {
+                                tournaments.forEach(tournament => payload.push({serverName: req.query.serverName, tournamentDetails: {tournamentName: tournament.tournamentName, tournamentDay: tournament.tournamentDay}, tentativePlayers: []}));
+                            }
+                            if (userQueries.length > 0) {
+                                clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
+                                    payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record]));
+                                    res.json(payload);
+                                })
+                            } else {
                                 res.json(payload);
-                            })
+                            }
+                        }).catch(err => {
+                            console.error(err);
+                            errorHandler.errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                         });
-                })
-                    .catch((err) => {
+                }).catch((err) => {
                         console.error(err);
                         errorHandler.errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                     });
