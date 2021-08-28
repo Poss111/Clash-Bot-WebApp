@@ -6,6 +6,7 @@ import {ClashTournaments} from "../interfaces/clash-tournaments";
 import {UserDetails} from "../interfaces/user-details";
 import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
+import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
 
 @Injectable()
 export class ClashBotService {
@@ -43,6 +44,10 @@ export class ClashBotService {
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     };
     return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/team/register'), { body: payload});
+  }
+
+  getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
+    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
   }
 
   buildHostUrl(url: string): string {

@@ -36,6 +36,35 @@
     </mat-chip>
   </mat-chip-list>
 </div>
+<div *ngIf="tentativeList" class="show-tentative-button-container">
+  <button id="clash-bot-teams-card-show-tentative" mat-icon-button color="primary"
+          aria-label="Show Tentative List" (click)="showTentative = !showTentative">
+    <mat-icon>pending</mat-icon>
+  </button>
+  <div>click to toggle view of tentative list</div>
+</div>
+<mat-table *ngIf="showTentative && tentativeList" [dataSource]="tentativeList" class="mat-elevation-z8">
+  <!-- Position Column -->
+  <ng-container matColumnDef="tournamentName">
+    <mat-header-cell *matHeaderCellDef> Tournament </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{element.tournamentDetails.tournamentName}} </mat-cell>
+  </ng-container>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="tournamentDay">
+    <mat-header-cell *matHeaderCellDef> Day </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
+  </ng-container>
+
+  <!-- Weight Column -->
+  <ng-container matColumnDef="tentativePlayers">
+    <mat-header-cell *matHeaderCellDef> Tentative </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
 <div class="team-cards">
   <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team"
                  class="team-card" (registerUser)="registerForTeam($event)"

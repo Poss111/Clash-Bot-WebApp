@@ -16,6 +16,7 @@ import {ApplicationDetailsService} from "../../../services/application-details.s
 import {MatOption} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
+import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -34,6 +35,9 @@ export class TeamsDashboardComponent implements OnInit {
   private readonly MAX_TIMEOUT = 4000;
   eligibleTournaments: ClashTournaments[] = [];
   creatingNewTeam: boolean;
+  tentativeList?: ClashBotTentativeDetails[];
+  displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers'];
+  showTentative: boolean = false;
 
   constructor(private clashBotService: ClashBotService,
               private _snackBar: MatSnackBar,
@@ -57,8 +61,14 @@ export class TeamsDashboardComponent implements OnInit {
                           id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
                       });
                   })
+
                   this.formControl = new FormControl(appDetails.defaultGuild);
                   if (appDetails.defaultGuild) {
+                      this.clashBotService.getServerTentativeList(appDetails.defaultGuild)
+                          .pipe(take(1))
+                          .subscribe((data) => {
+                          this.tentativeList = data;
+                      })
                       this.filterForTeamsByServer(appDetails.defaultGuild);
                   }
               }

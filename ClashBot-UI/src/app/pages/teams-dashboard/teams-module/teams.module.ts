@@ -15,6 +15,7 @@ import {ConfirmationDialogComponent} from "../../../confirmation-dialog/confirma
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
+import {MatTableModule} from "@angular/material/table";
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/
         MatButtonModule,
         MatDialogModule,
         MatOptionModule,
-        MatSelectModule
+        MatSelectModule,
+        MatTableModule
     ]
 })
 export class TeamsModule {
