@@ -284,7 +284,7 @@ let startUpApp = async () => {
                             }
                             if (userQueries.length > 0) {
                                 clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
-                                    payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record]));
+                                    payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record] ? data[record] : record));
                                     res.json(payload);
                                 })
                             } else {

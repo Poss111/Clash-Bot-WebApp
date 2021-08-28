@@ -992,6 +992,37 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
+        test('When a request with a serverName is made for a tentative list with multiple ids and a few that do not have user mappings, then a list of tournaments and tentative users should be returned with their ids populated.', (done) => {
+            const expectedServerName = 'Goon Squad';
+            const mockTentativeList = ['Roidrage', 'TheIncentive'];
+            const mockTentativeIds = ['123456', '2'];
+            const mockReturnedClashTournaments = createMockListOfTournaments(4);
+
+            createMockTentativeDbReturn(mockReturnedClashTournaments.slice(0,1), expectedServerName, mockTentativeIds.slice(1)).forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
+            createMockTentativeDbReturn(mockReturnedClashTournaments.slice(1,3), expectedServerName, mockTentativeIds).forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
+            createMockTentativeDbReturn(mockReturnedClashTournaments.slice(3,4), expectedServerName, ['3']).forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
+
+            let expectedApiResponse = [];
+            expectedApiResponse.push(...createMockApiTentativeResponses(expectedServerName, mockReturnedClashTournaments.slice(0,1), mockTentativeList.slice(1)));
+            expectedApiResponse.push(...createMockApiTentativeResponses(expectedServerName, mockReturnedClashTournaments.slice(1,3), mockTentativeList));
+            expectedApiResponse.push(...createMockApiTentativeResponses(expectedServerName, mockReturnedClashTournaments.slice(3,4), ['3']));
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'123456': mockTentativeList[0], '2': mockTentativeList[1]});
+            clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
+            request(application)
+                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+                    expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(4);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith([...mockTentativeIds.reverse(), '3']);
+                    expect(res.body).toEqual(expectedApiResponse);
+                    done();
+                })
+        })
+
         test('When a request with a serverName is made for a tentative list and there are no tentative players, then a list of tournaments and tentative users should be returned with an empty tentative player list.', (done) => {
             const mockReturnedClashTournaments = createMockListOfTournaments(4);
             const expectedServerName = 'Goon Squad';
@@ -1012,7 +1043,7 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
-        test('When a request with a serverName is made for a tentative list and if one of the tentative lists returned undefined, then a list of tournaments and tentative users should be returned and the undefined one should be populateed with an empty tentative list.', (done) => {
+        test('When a request with a serverName is made for a tentative list and if one of the tentative lists returned undefined, then a list of tournaments and tentative users should be returned and the undefined one should be populated with an empty tentative list.', (done) => {
             const mockReturnedClashTournaments = createMockListOfTournaments(4);
             const expectedServerName = 'Goon Squad';
             const expectedTentativeList = ['Roidrage'];
