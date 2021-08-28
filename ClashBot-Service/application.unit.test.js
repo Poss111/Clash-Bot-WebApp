@@ -4,7 +4,7 @@ const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const startUpApp = require('./application');
 const request = require('supertest');
-const {deepCopy} = require("./utility/tests/test-utility.test");
+const {deepCopy} = require("./utility/tests/test-utility.utility.test");
 
 jest.mock('./dao/clash-teams-db-impl');
 jest.mock('./dao/clash-time-db-impl');
