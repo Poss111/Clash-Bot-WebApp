@@ -4,6 +4,7 @@ const cors = require('cors');
 const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
+const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const errorHandler = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -13,7 +14,8 @@ let startUpApp = async () => {
         await Promise.all([
             clashTeamsDbImpl.initialize(),
             clashTimeDbImpl.initialize(),
-            clashUserDbImpl.initialize()]);
+            clashUserDbImpl.initialize(),
+            clashTentativeDbImpl.initialize()]);
 
         app.use(express.json());
         app.use(cors())
@@ -234,7 +236,7 @@ let startUpApp = async () => {
             } else if (!req.body.preferredChampions) {
                 res.statusCode = 400;
                 res.json({error: 'Missing required Preferred Champions'});
-            }  else if (!req.body.subscriptions) {
+            } else if (!req.body.subscriptions) {
                 res.statusCode = 400;
                 res.json({error: 'Missing required Subscriptions'});
             } else {
@@ -266,16 +268,44 @@ let startUpApp = async () => {
         })
 
         app.get(`${urlPrefix}/tentative`, (req, res) => {
-            console.log(req.query.serverName);
-            res.json([{
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                },
-                tentativePlayers: [{
-                    name: 'Roidrage'
-                }]
-            }]);
+            if (!req.query.serverName) {
+                res.statusCode = 400;
+                res.json({error: 'Missing required query parameter.'});
+            } else {
+                console.log(req.query.serverName);
+                clashTimeDbImpl.findTournament().then((tournaments) => {
+                    let queries = [];
+                    tournaments.forEach(tournament => queries.push(clashTentativeDbImpl.getTentative(req.query.serverName, tournament)));
+                    Promise.all(queries)
+                        .then(result => {
+                            let payload = [];
+                            let userQueries = [];
+                            result.forEach(tentativeRecord => {
+                                if (tentativeRecord) {
+                                    userQueries.push(...tentativeRecord.tentativePlayers);
+
+                                    payload.push({
+                                            serverName: tentativeRecord.serverName,
+                                            tournamentDetails: {
+                                                tournamentName: tentativeRecord.tournamentDetails.tournamentName,
+                                                tournamentDay: tentativeRecord.tournamentDetails.tournamentDay
+                                            },
+                                            tentativePlayers: tentativeRecord.tentativePlayers
+                                        }
+                                    )
+                                }
+                            })
+                            clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
+                                payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record]));
+                                res.json(payload);
+                            })
+                        });
+                })
+                    .catch((err) => {
+                        console.error(err);
+                        errorHandler.errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
+                    });
+            }
         })
 
         app.get(`${urlPrefix}/health`, (req, res) => {

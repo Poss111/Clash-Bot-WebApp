@@ -410,16 +410,14 @@ describe('Create User Subscription', () => {
 describe('Retrieve Usernames by ids', () => {
     test('If a User Id is passed an array with the username belonging to the id should be returned.', () => {
         const expectedPlayerId = '1';
-        const data = {
-            Items: [{
+        const data = [{
                 attrs: {
-                    id: '1',
+                    key: '1',
                     playerName: 'Roidrage'
                 }
-            }]
-        }
+            }];
 
-        const expectedMap = data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {});
+        const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {});
 
         clashSubscriptionDbImpl.clashSubscriptionTable = {
             batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
@@ -436,24 +434,22 @@ describe('Retrieve Usernames by ids', () => {
         const expectedPlayerId = '1';
         const expectedPlayerIdTwo = '2';
 
-        const data = {
-            Items: [
+        const data = [
                 {
                     attrs: {
-                        id: '1',
+                        key: '1',
                         playerName: 'Roidrage'
                     }
                 },
                 {
                     attrs: {
-                        id: '2',
+                        key: '2',
                         playerName: 'TheIncentive'
                     }
                 }
-            ]
-        };
+            ];
 
-        const expectedMap = data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {});
+        const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {});
 
         clashSubscriptionDbImpl.clashSubscriptionTable = {
             batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))

@@ -137,7 +137,7 @@ class ClashSubscriptionDbImpl {
     retrievePlayerNames(ids) {
         return new Promise((resolve => {
             this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
-                resolve(data.Items.reduce((map, record) => (map[record.attrs.id] = record.attrs.playerName, map), {}));
+                resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {}));
             });
         }))
     }
