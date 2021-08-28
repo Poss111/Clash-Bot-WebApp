@@ -312,10 +312,18 @@ let startUpApp = async () => {
                 .then((record) => {
                     clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
                         .then((results) => {
+                            let tentativePlayers = [];
+                            record.tentativePlayers.forEach((userId) => {
+                                if (results[userId]) {
+                                    tentativePlayers.push(results[userId]);
+                                } else {
+                                    tentativePlayers.push(userId);
+                                }
+                            })
                         res.json({
                             serverName: record.serverName,
                             tournamentDetails: record.tournamentDetails,
-                            tentativePlayers: Object.values(results)
+                            tentativePlayers: tentativePlayers
                         })
                     }).catch((err) => {
                         console.error(err);

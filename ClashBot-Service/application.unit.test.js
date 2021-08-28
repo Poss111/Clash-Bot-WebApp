@@ -1137,7 +1137,7 @@ describe('Clash Bot Service API Controller', () => {
                 tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
             }
             clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(['Roidrage']);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'2': 'Roidrage'});
             request(application)
                 .post(`/api/tentative`)
                 .send(payload)
@@ -1149,6 +1149,40 @@ describe('Clash Bot Service API Controller', () => {
                     expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['2']);
+                    expect(res.body).toEqual(expectedResponse);
+                    done();
+                })
+        })
+
+        test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id and their id is not mapped, they should successfully be added and the ids should be returned.', (done) => {
+            const expectedResponse = {
+                tentativePlayers: ['Roidrage', '3'],
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            };
+            const payload = {
+                id: '2',
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            const tentativeDbResponse = {
+                tentativePlayers: ['2', '3'],
+                serverName: 'Goon Squad',
+                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+            }
+            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'2': 'Roidrage'});
+            request(application)
+                .post(`/api/tentative`)
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
+                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['2', '3']);
                     expect(res.body).toEqual(expectedResponse);
                     done();
                 })
