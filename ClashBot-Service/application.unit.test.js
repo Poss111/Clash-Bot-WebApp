@@ -11,50 +11,6 @@ jest.mock('./dao/clash-time-db-impl');
 jest.mock('./dao/clash-subscription-db-impl');
 jest.mock('./dao/clash-tentative-db-impl');
 
-function createMockListOfTournaments(numberOfTournaments) {
-    let tournaments = [];
-    let mockTournamentName = 'awesome_sauce';
-    numberOfTournaments === undefined ? numberOfTournaments = 1 : numberOfTournaments;
-    for (let i = 1; i <= numberOfTournaments; i++) {
-        tournaments.push(
-        {
-            startTime: new Date().toISOString(),
-            tournamentDay: `${i}`,
-            key: `${mockTournamentName}#${i}`,
-            tournamentName: mockTournamentName,
-            registrationTime: new Date().toISOString()
-        })
-    }
-    return tournaments;
-}
-
-function createMockApiTentativeResponses(serverName, tournaments, tentativeList) {
-    let mockTentativeResponses = [];
-    tournaments.forEach(tournament => {
-        mockTentativeResponses.push({
-            serverName: serverName,
-            tournamentDetails: {
-                tournamentName: tournament.tournamentName,
-                tournamentDay: tournament.tournamentDay
-            },
-            tentativePlayers: tentativeList
-        })
-    })
-    return mockTentativeResponses;
-}
-
-function createMockTentativeDbReturn(tournaments, serverName, tentativeIds) {
-    let mockTentativeDbResponses = [];
-    tournaments.forEach(tournament => {
-        mockTentativeDbResponses.push({
-            tentativePlayers: tentativeIds,
-            serverName: serverName,
-            tournamentDetails: {tournamentName: tournament.tournamentName, tournamentDay: tournament.tournamentDay}
-        });
-    })
-    return mockTentativeDbResponses;
-}
-
 describe('Clash Bot Service API Controller', () => {
     let application;
     let server;
@@ -710,21 +666,6 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
     })
-
-    function convertTeamDbToTeamPayload(expectedNewTeam) {
-        return {
-            teamName: expectedNewTeam.teamName,
-            tournamentDetails: {
-                tournamentName: expectedNewTeam.tournamentName,
-                tournamentDay: expectedNewTeam.tournamentDay
-            },
-            serverName: expectedNewTeam.serverName,
-            startTime: expectedNewTeam.startTime,
-            playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
-                return {name: data}
-            }) : {}
-        };
-    }
 
     describe('Clash Create New Team', () => {
         test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
@@ -1531,19 +1472,19 @@ describe('Clash Bot Service API Controller', () => {
                     done();
                 })
         })
-    })
 
-    test('Bad request - Missing User Id - If the request does not have the expected query parameter, return bad request.', (done) => {
-        request(application)
-            .get(`/api/user`)
-            .set('Content-Type', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(400, (err, res) => {
-                if (err) return done(err);
-                expect(res.body).toEqual({error: 'Missing required query parameter.'});
-                expect(clashSubscriptionDbImpl.retrieveUserDetails).not.toHaveBeenCalled();
-                done();
-            })
+        test('Bad request - Missing User Id - If the request does not have the expected query parameter, return bad request.', (done) => {
+            request(application)
+                .get(`/api/user`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing required query parameter.'});
+                    expect(clashSubscriptionDbImpl.retrieveUserDetails).not.toHaveBeenCalled();
+                    done();
+                })
+        })
     })
 
     describe('Health Check', () => {
@@ -1574,3 +1515,63 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 })
+
+function createMockListOfTournaments(numberOfTournaments) {
+    let tournaments = [];
+    let mockTournamentName = 'awesome_sauce';
+    numberOfTournaments === undefined ? numberOfTournaments = 1 : numberOfTournaments;
+    for (let i = 1; i <= numberOfTournaments; i++) {
+        tournaments.push(
+            {
+                startTime: new Date().toISOString(),
+                tournamentDay: `${i}`,
+                key: `${mockTournamentName}#${i}`,
+                tournamentName: mockTournamentName,
+                registrationTime: new Date().toISOString()
+            })
+    }
+    return tournaments;
+}
+
+function createMockApiTentativeResponses(serverName, tournaments, tentativeList) {
+    let mockTentativeResponses = [];
+    tournaments.forEach(tournament => {
+        mockTentativeResponses.push({
+            serverName: serverName,
+            tournamentDetails: {
+                tournamentName: tournament.tournamentName,
+                tournamentDay: tournament.tournamentDay
+            },
+            tentativePlayers: tentativeList
+        })
+    })
+    return mockTentativeResponses;
+}
+
+function createMockTentativeDbReturn(tournaments, serverName, tentativeIds) {
+    let mockTentativeDbResponses = [];
+    tournaments.forEach(tournament => {
+        mockTentativeDbResponses.push({
+            tentativePlayers: tentativeIds,
+            serverName: serverName,
+            tournamentDetails: {tournamentName: tournament.tournamentName, tournamentDay: tournament.tournamentDay}
+        });
+    })
+    return mockTentativeDbResponses;
+}
+
+function convertTeamDbToTeamPayload(expectedNewTeam) {
+    return {
+        teamName: expectedNewTeam.teamName,
+        tournamentDetails: {
+            tournamentName: expectedNewTeam.tournamentName,
+            tournamentDay: expectedNewTeam.tournamentDay
+        },
+        serverName: expectedNewTeam.serverName,
+        startTime: expectedNewTeam.startTime,
+        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+            return {name: data}
+        }) : {}
+    };
+}
+
