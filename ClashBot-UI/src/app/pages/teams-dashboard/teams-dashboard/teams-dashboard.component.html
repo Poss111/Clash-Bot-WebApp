@@ -36,29 +36,32 @@
     </mat-chip>
   </mat-chip-list>
 </div>
-<div *ngIf="tentativeList" class="show-tentative-button-container">
-  <button id="clash-bot-teams-card-show-tentative" mat-icon-button color="primary"
+<div *ngIf="tentativeDataStatus === 'LOADING'" class="show-tentative-button-container">
+  <mat-icon>hourglass_empty</mat-icon>
+  <div>Loading Tournament Details...</div>
+</div>
+<div *ngIf="tentativeDataStatus === 'FAILED'" class="show-tentative-button-container">
+  <mat-icon>error</mat-icon>
+  <div>Unable to load Tournament Details for Server.</div>
+</div>
+<div *ngIf="tentativeDataStatus === 'SUCCESSFUL'" class="show-tentative-button-container">
+  <button id="clash-bot-teams-card-show-tentative" mat-icon-button
           aria-label="Show Tentative List" (click)="showTentative = !showTentative">
     <mat-icon>pending</mat-icon>
   </button>
-  <div>click to toggle view of tentative list</div>
+  <div>click to toggle view of upcoming Clash Tournaments</div>
 </div>
-<mat-table *ngIf="showTentative && tentativeList" [dataSource]="tentativeList" class="mat-elevation-z8">
-  <!-- Position Column -->
+<mat-table *ngIf="showTentative && tentativeList && tentativeDataStatus === 'SUCCESSFUL'" [dataSource]="tentativeList" class="mat-elevation-z8">
   <ng-container matColumnDef="tournamentName">
     <mat-header-cell *matHeaderCellDef> Tournament </mat-header-cell>
     <mat-cell *matCellDef="let element"> {{element.tournamentDetails.tournamentName}} </mat-cell>
   </ng-container>
-
-  <!-- Name Column -->
   <ng-container matColumnDef="tournamentDay">
     <mat-header-cell *matHeaderCellDef> Day </mat-header-cell>
     <mat-cell *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
   </ng-container>
-
-  <!-- Weight Column -->
-  <ng-container matColumnDef="tentativePlayers">
-    <mat-header-cell *matHeaderCellDef> Tentative </mat-header-cell>
+<ng-container matColumnDef="tentativePlayers">
+    <mat-header-cell *matHeaderCellDef> Tentative Players </mat-header-cell>
     <mat-cell *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
   </ng-container>
 

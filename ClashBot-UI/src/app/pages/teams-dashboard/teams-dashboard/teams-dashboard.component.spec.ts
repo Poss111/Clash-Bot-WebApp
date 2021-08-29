@@ -24,6 +24,8 @@ import {MatOption, MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
+import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
+import {MatTableModule} from "@angular/material/table";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");
@@ -55,7 +57,8 @@ describe('TeamsDashboardComponent', () => {
         MatIconModule,
         MatDialogModule,
         MatOptionModule,
-        MatSelectModule],
+        MatSelectModule,
+        MatTableModule],
       providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar],
     })
       .compileComponents();
@@ -91,14 +94,29 @@ describe('TeamsDashboardComponent', () => {
           currentTournaments: mockClashTournaments,
           defaultGuild: 'Goon Squad',
           userGuilds: mockObservableGuilds
-        }
+        };
+        const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
+          "tentativePlayers": ["Sample User"]
+        }, {
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
+          "tentativePlayers": []
+        }, {
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
+          "tentativePlayers": []
+        }];
 
         let coldApplicationDetailsObs = cold('x|', {x: mockApplicationsDetails});
-        let coldUserDetailsObs = cold('x|', { x: mockUserDetails});
+        let coldUserDetailsObs = cold('x|', {x: mockUserDetails});
         let coldClashTeamsObs = cold('x|', {x: mockClashTeams});
+        let coldClashTentativeObs = cold('x|', {x: mockClashTentativeDetails});
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
         userDetailsMock.getUserDetails.mockReturnValue(coldUserDetailsObs);
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(coldClashTentativeObs);
         clashBotServiceMock.getClashTeams.mockReturnValue(coldClashTeamsObs);
 
         component = fixture.componentInstance;
@@ -117,6 +135,9 @@ describe('TeamsDashboardComponent', () => {
         expect(userDetailsMock.getUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledTimes(1);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(component.tentativeList).toEqual(mockClashTentativeDetails);
         if (component.formControl) {
           expect(component.formControl.value).toEqual(mockApplicationsDetails.defaultGuild);
           expect(component.teams).toEqual(mockMappedTeams);
@@ -399,37 +420,6 @@ describe('TeamsDashboardComponent', () => {
       })
     })
   })
-
-  function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {
-    let mockObservableGuilds = [{
-      "id": "136278926191362058",
-      "name": "Garret's Discord",
-      "icon": "17ce03186d96453d4f2b341649b2b7cc",
-      "owner": false,
-      "permissions": 37215809,
-      "features": [],
-      "permissions_new": "246997835329"
-    }, {
-      "id": "434172219472609281",
-      "name": "The Other Other Guys",
-      "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-      "owner": false,
-      "permissions": 104324673,
-      "features": [],
-      "permissions_new": "247064944193"
-    }, {
-      "id": "837685892885512202",
-      "name": "LoL-ClashBotSupport",
-      "icon": null,
-      "owner": true,
-      "permissions": 2147483647,
-      "features": [],
-      "permissions_new": "274877906943"
-    }];
-    const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-    // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-    return {mockObservableGuilds, guildObservable$};
-  }
 
   describe('Register for Team', () => {
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to register a user to the team.', () => {
@@ -973,7 +963,7 @@ describe('TeamsDashboardComponent', () => {
           url: 'https://clash-bot.ninja/api/teams'
         });
       testScheduler.run((helpers) => {
-        const { expectObservable } = helpers;
+        const {expectObservable} = helpers;
         expectObservable(component.handleClashTeamsError(snackBarMock, expectedError)).toBe('#', undefined, expectedError);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
@@ -1245,6 +1235,97 @@ describe('TeamsDashboardComponent', () => {
     })
   })
 
+  describe('Update Tentative List Details', () => {
+    test('If updateTentativeList is called with a serverName, it will populate the tentativeList with the tentiveList details for the server.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+        const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
+          "tentativePlayers": ["Sample User"]
+        }, {
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
+          "tentativePlayers": []
+        }, {
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
+          "tentativePlayers": []
+        }];
+
+        const mockTentativeDetailsObs = cold('x|', { x:mockClashTentativeDetails});
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        expect(component.tentativeDataStatus).toEqual('LOADING');
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(component.tentativeList).toEqual(mockClashTentativeDetails);
+        expect(component.tentativeDataStatus).toEqual('SUCCESSFUL');
+      })
+    })
+
+    test('ERROR - call fails - If the updateTentativeList call fails, it should invoke a snack bar with a generic error message.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost/api/tentative'
+          });
+
+        const mockTentativeDetailsObs = cold('#', undefined, expectedError);
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.', 'X', { duration: 5000});
+        expect(component.tentativeList).toBeFalsy();
+        expect(component.tentativeDataStatus).toEqual('FAILED');
+      })
+    })
+
+    test('ERROR - Timeout - If the updateTentativeList call timesout, it should invoke a snack bar with a generic error message.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+
+        const mockTentativeDetailsObs = cold('7000ms x|', {x: []});
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.', 'X', {duration: 5000});
+        expect(component.tentativeList).toBeFalsy();
+        expect(component.tentativeDataStatus).toEqual('FAILED');
+      })
+    })
+  })
 });
 
 function mockDiscordGuilds(): DiscordGuild[] {
@@ -1344,4 +1425,35 @@ function mapClashTeams(mockClashTeams: ClashTeam[], mockUserDetails: UserDetails
       userOnTeam: !Array.isArray(record.playersDetails) || record.playersDetails.find(value => value.name === mockUserDetails.username) !== undefined
     }
   })
+}
+
+function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {
+  let mockObservableGuilds = [{
+    "id": "136278926191362058",
+    "name": "Garret's Discord",
+    "icon": "17ce03186d96453d4f2b341649b2b7cc",
+    "owner": false,
+    "permissions": 37215809,
+    "features": [],
+    "permissions_new": "246997835329"
+  }, {
+    "id": "434172219472609281",
+    "name": "The Other Other Guys",
+    "icon": "87580ac4ffcd87347a7e1d566e9285ce",
+    "owner": false,
+    "permissions": 104324673,
+    "features": [],
+    "permissions_new": "247064944193"
+  }, {
+    "id": "837685892885512202",
+    "name": "LoL-ClashBotSupport",
+    "icon": null,
+    "owner": true,
+    "permissions": 2147483647,
+    "features": [],
+    "permissions_new": "274877906943"
+  }];
+  const guildObservable$ = cold('x|', {x: mockObservableGuilds});
+  // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+  return {mockObservableGuilds, guildObservable$};
 }
