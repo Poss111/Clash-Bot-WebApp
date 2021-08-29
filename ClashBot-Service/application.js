@@ -197,8 +197,8 @@ let startUpApp = async () => {
             } else {
                 clashUserDbImpl.retrieveUserDetails(req.query.id).then(data => {
                     let payload = {
-                        username: data.username,
                         id: data.key,
+                        username: data.playerName,
                         serverName: data.serverName,
                         preferredChampions: data.preferredChampions,
                         subscriptions: {

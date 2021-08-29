@@ -1339,6 +1339,7 @@ describe('Clash Bot Service API Controller', () => {
             const userId = '12321312';
             const mockDbResponse = {
                 key: userId,
+                playerName: 'Some Player',
                 serverName: 'Some Server',
                 timeAdded: new Date().toISOString(),
                 subscribed: 'true',
@@ -1346,6 +1347,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const mockResponseValue = {
                 id: userId,
+                username: mockDbResponse.playerName,
                 serverName: mockDbResponse.serverName,
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': true}

@@ -82,6 +82,20 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get(`#clash-bot-teams-card-${startTeamId}`).should('not.exist');
   })
 
+  it('If a user requests to be on tentative, they should be able to see their name show in the tentative column.', () => {
+    navigateToTeamsPage();
+    cy.get('#clash-bot-teams-lol-clashbotsupport').click();
+    cy.get('#clash-bot-teams-dashboard-show-tentative').click();
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-tentative-players').should('not.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').should('exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-remove').should('not.exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').click();
+    cy.get(`#clash-bot-dialog-box-yes-button`).click();
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-remove').should('exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').should('not.exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-tentative-players').should('contain.text', 'Roïdräge');
+  })
+
   let getTeamCard = (serverName, teamName) => {
     let updatedServerName = serverName.toLowerCase().replace(new RegExp(/ /g), '-');
     let updatedTeamName = teamName.toLowerCase().replace(new RegExp(/ /g), '-');
