@@ -6,6 +6,7 @@ import {ClashTeam} from "../interfaces/clash-team";
 import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
+import {ClashBotTentativeRequest} from "../interfaces/clash-bot-tentative-request";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
@@ -196,7 +197,7 @@ describe('ClashBotService', () => {
 
   })
 
-  describe('POST Clash Create New Team - \\api\\team', () => {
+  describe('POST Clash Create New Team', () => {
     test('When I request to create a new Team from localhost, I should use localhost with port 80 and be returned Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
       const mockResponse: ClashTeam =
@@ -595,49 +596,121 @@ describe('ClashBotService', () => {
   })
 
   describe('GET Clash Bot Tentative List', () => {
-    test('When I call to retrieve the Tentative list from Clash Bot from local, I should call localhost 80 and be returned a Observable<ClashBotTentativeDetails>', (done) =>{
+    test('When I call to retrieve the Tentative list from Clash Bot from local, I should call localhost 80 and be returned a Observable<ClashBotTentativeDetails[]>', (done) => {
       stubLocation({hostname: "localhost"});
       const expectedClashBotTentativeDetails: ClashBotTentativeDetails[] = [{
         serverName: 'Some Guild',
         tentativePlayers: ['Roidrage'],
         tournamentDetails: {
-          tournamentName : 'awesome_sauce',
+          tournamentName: 'awesome_sauce',
           tournamentDay: '1'
         }
       }];
 
 
       service.getServerTentativeList(expectedClashBotTentativeDetails[0].serverName)
-          .subscribe((response) => {
-            expect(response).toEqual(expectedClashBotTentativeDetails);
-            done();
-          });
+        .subscribe((response) => {
+          expect(response).toEqual(expectedClashBotTentativeDetails);
+          done();
+        });
 
       const req = httpMock.expectOne(`http://localhost:80/api/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedClashBotTentativeDetails);
     })
 
-    test('When I call to retrieve the Tentative list from Clash Bot, I should call and be returned a Observable<ClashBotTentativeDetails>', (done) =>{
+    test('When I call to retrieve the Tentative list from Clash Bot, I should call and be returned a Observable<ClashBotTentativeDetails[]>', (done) => {
       stubLocation({hostname: "clash-bot.ninja"});
       const expectedClashBotTentativeDetails: ClashBotTentativeDetails[] = [{
         serverName: 'Some Guild',
         tentativePlayers: ['Roidrage'],
         tournamentDetails: {
-          tournamentName : 'awesome_sauce',
+          tournamentName: 'awesome_sauce',
           tournamentDay: '1'
         }
       }];
 
 
       service.getServerTentativeList(expectedClashBotTentativeDetails[0].serverName)
-          .subscribe((response) => {
-            expect(response).toEqual(expectedClashBotTentativeDetails);
-            done();
-          });
+        .subscribe((response) => {
+          expect(response).toEqual(expectedClashBotTentativeDetails);
+          done();
+        });
 
       const req = httpMock.expectOne(`/api/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
+      req.flush(expectedClashBotTentativeDetails);
+    })
+  })
+
+  describe('POST Clash Bot Tentative List', () => {
+    test('When I call to update user in Tentative list from Clash Bot from local with user id, serverName, tournament details, and server, I should call localhost 80 and be returned an Observable<ClashBotTentativeDetails>', (done) => {
+      stubLocation({hostname: "localhost"});
+      const expectedUserId = '1';
+      const expectedServerName = 'Goon Squad';
+      const expectedTournamentName = 'awesome_sauce';
+      const expectedTournamentDay = '2';
+      const expectedClashBotTentativeDetails: ClashBotTentativeDetails = {
+        serverName: 'Some Guild',
+        tentativePlayers: ['Roidrage'],
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '2'
+        }
+      };
+      const expectedPayload: ClashBotTentativeRequest = {
+        id: expectedUserId,
+        serverName: expectedServerName,
+        tournamentDetails: {
+          tournamentName: expectedTournamentName,
+          tournamentDay: expectedTournamentDay
+        }
+      }
+
+      service.postTentativeList(expectedUserId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+        .subscribe((data) => {
+          expect(data).toEqual(expectedClashBotTentativeDetails);
+          done();
+        });
+
+      const req = httpMock.expectOne(`http://localhost:80/api/tentative`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(expectedPayload);
+      req.flush(expectedClashBotTentativeDetails);
+    })
+
+    test('When I call to update user in Tentative list from Clash Bot with user id, serverName, tournament details, and server, I should call and be returned an Observable<ClashBotTentativeDetails>', (done) => {
+      stubLocation({hostname: "clash-bot.ninja"});
+      const expectedUserId = '1';
+      const expectedServerName = 'Goon Squad';
+      const expectedTournamentName = 'awesome_sauce';
+      const expectedTournamentDay = '2';
+      const expectedClashBotTentativeDetails: ClashBotTentativeDetails = {
+        serverName: 'Some Guild',
+        tentativePlayers: ['Roidrage'],
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '2'
+        }
+      };
+      const expectedPayload: ClashBotTentativeRequest = {
+        id: expectedUserId,
+        serverName: expectedServerName,
+        tournamentDetails: {
+          tournamentName: expectedTournamentName,
+          tournamentDay: expectedTournamentDay
+        }
+      }
+
+      service.postTentativeList(expectedUserId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+        .subscribe((data) => {
+          expect(data).toEqual(expectedClashBotTentativeDetails);
+          done();
+        });
+
+      const req = httpMock.expectOne(`/api/tentative`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(expectedPayload);
       req.flush(expectedClashBotTentativeDetails);
     })
   })

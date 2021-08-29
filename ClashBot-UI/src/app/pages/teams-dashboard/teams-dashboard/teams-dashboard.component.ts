@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {ClashTeam} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {throwError} from "rxjs";
@@ -17,6 +17,8 @@ import {MatOption} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
+import {ConfirmationDialogComponent} from "../../../confirmation-dialog/confirmation-dialog.component";
+import {MatTable} from "@angular/material/table";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -39,6 +41,8 @@ export class TeamsDashboardComponent implements OnInit {
   displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];
   showTentative: boolean = false;
   tentativeDataStatus: string = 'NOT_LOADED';
+
+  @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
   constructor(private clashBotService: ClashBotService,
               private _snackBar: MatSnackBar,
@@ -317,5 +321,38 @@ export class TeamsDashboardComponent implements OnInit {
 
   showHelpDialog() {
     this.dialog.open(TeamsDashboardHelpDialogComponent);
+  }
+
+  tentativeRegister(element: ClashBotTentativeDetails, index: number) {
+    let actionMessage = 'added to';
+    if (element.isMember) {
+      actionMessage = 'removed from';
+    }
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});
+    dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
+      this.userDetailsService.getUserDetails()
+        .pipe(take(1))
+        .subscribe((userDetails) => {
+          if (result) {
+            this.clashBotService.postTentativeList(userDetails.id, element.serverName,
+              element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)
+              .pipe(take(1),
+                catchError(err => {
+                  console.error(err);
+                  this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
+                    'X',
+                    {duration: 5 * 1000});
+                  return throwError(err);
+                })
+              ).subscribe((response) => {
+                response.isMember = response.tentativePlayers.includes(userDetails.username);
+                if (this.tentativeList) {
+                  this.tentativeList[index] = response;
+                  if (this.table) this.table.renderRows();
+                }
+              });
+          }
+        })
+    })
   }
 }

@@ -16,7 +16,7 @@ import {ClashTeam} from "../../../interfaces/clash-team";
 import {UserDetails} from "../../../interfaces/user-details";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {MatIconModule} from "@angular/material/icon";
-import {MatDialogModule} from "@angular/material/dialog";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {ColdObservable} from "rxjs/internal/testing/ColdObservable";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
@@ -39,6 +39,7 @@ describe('TeamsDashboardComponent', () => {
   let userDetailsServiceMock: any;
   let applicationDetailsMock: any;
   let snackBarMock: any;
+  let matDialogMock: any;
   let testScheduler: TestScheduler;
 
   beforeEach(async () => {
@@ -59,13 +60,13 @@ describe('TeamsDashboardComponent', () => {
         MatOptionModule,
         MatSelectModule,
         MatTableModule],
-      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar],
-    })
-      .compileComponents();
+      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar, MatDialog],
+    }).compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
     snackBarMock = TestBed.inject(MatSnackBar);
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
+    matDialogMock = TestBed.inject(MatDialog);
   });
 
   beforeEach(() => {
@@ -1344,6 +1345,161 @@ describe('TeamsDashboardComponent', () => {
       })
     })
   })
+
+  describe('Tentative register/unregister', () => {
+    test('When tentativeRegister is called with add, it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: false
+        };
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+        let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
+        updatedTentativeDetails.tentativePlayers.push(mockUserDetails.username);
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
+
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+
+        component = fixture.componentInstance;
+
+        component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+        component.tentativeList.push({
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2'
+          },
+          isMember: false
+        });
+
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush();
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be added to the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(component.tentativeList && component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+        expect(component.tentativeList && component.tentativeList[0].isMember).toBeTruthy();
+      });
+    })
+
+    test('When tentativeRegister is called with remove, it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage', 'Sample User'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: true
+        };
+        let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
+        updatedTentativeDetails.tentativePlayers.pop();
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
+
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+
+        component = fixture.componentInstance;
+
+        component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+        component.tentativeList.push({
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2'
+          },
+          isMember: false
+        });
+
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush();
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be removed from the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(component.tentativeList && !component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+        expect(component.tentativeList && !component.tentativeList[0].isMember).toBeTruthy();
+      });
+    })
+
+    test('ERROR - Failed to make call to Clash Bot Service - If the call fails when trying to update the tentative list, then a generic message should be shown with a snack bar pop up.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage', 'Sample User'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: true
+        };
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost/api/tentative'
+          });
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('#', undefined, expectedError);
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        component = fixture.componentInstance;
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush()
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be removed from the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!', 'X', {duration: 5000});
+      });
+    })
+  });
 });
 
 function mockDiscordGuilds(): DiscordGuild[] {

@@ -7,6 +7,7 @@ import {UserDetails} from "../interfaces/user-details";
 import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
+import {ClashBotTentativeRequest} from "../interfaces/clash-bot-tentative-request";
 
 @Injectable()
 export class ClashBotService {
@@ -48,6 +49,18 @@ export class ClashBotService {
 
   getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
     return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
+  }
+
+  postTentativeList(userId: string, serverName: string, tournamentName: string, tournamentDay: string): Observable<ClashBotTentativeDetails> {
+    let payload : ClashBotTentativeRequest = {
+        id: userId,
+      serverName: serverName,
+      tournamentDetails: {
+          tournamentName: tournamentName,
+        tournamentDay: tournamentDay
+      }
+    };
+    return this.httpClient.post<ClashBotTentativeDetails>(this.buildHostUrl('/api/tentative'), payload);
   }
 
   buildHostUrl(url: string): string {
