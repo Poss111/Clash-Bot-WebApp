@@ -27,6 +27,7 @@ import {GoogleAnalyticsService} from "./google-analytics.service";
 import {TestScheduler} from "rxjs/testing";
 import {ApplicationDetails} from "./interfaces/application-details";
 import {ApplicationDetailsService} from "./services/application-details.service";
+import {MatTableModule} from "@angular/material/table";
 
 jest.mock('./services/user-details.service');
 jest.mock('./services/application-details.service');
@@ -59,7 +60,8 @@ describe('AppComponent', () => {
         HttpClientTestingModule,
         MatSnackBarModule,
         MatSelectModule,
-        MatDialogModule
+        MatDialogModule,
+        MatTableModule
       ],
       declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
       providers: [UserDetailsService,

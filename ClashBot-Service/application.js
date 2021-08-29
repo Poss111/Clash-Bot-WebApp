@@ -216,6 +216,8 @@ let startUpApp = async () => {
         app.post(`${urlPrefix}/user`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing required User Id');
+            } else if (!req.body.playerName) {
+                badRequestHandler(res, 'Missing required User Details');
             } else if (!req.body.serverName) {
                 badRequestHandler(res, 'Missing required Server Name');
             } else if (!req.body.preferredChampions) {
@@ -225,11 +227,13 @@ let startUpApp = async () => {
             } else {
                 clashUserDbImpl.createUpdateUserDetails(req.body.id,
                     req.body.serverName,
+                    req.body.playerName,
                     req.body.preferredChampions,
                     req.body.subscriptions.UpcomingClashTournamentDiscordDM)
                     .then(data => {
                         let payload = {
                             id: data.key,
+                            username: data.playerName,
                             serverName: data.serverName,
                             preferredChampions: data.preferredChampions,
                         };

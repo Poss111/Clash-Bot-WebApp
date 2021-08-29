@@ -21,6 +21,7 @@ import {TestScheduler} from "rxjs/testing";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
+import {HttpErrorResponse} from "@angular/common/http";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../../../services/clash-bot.service");
@@ -35,48 +36,6 @@ jest.mock("@angular/material/snack-bar");
   imports: [MatIconModule]
 })
 class WelcomeDashboardTestModule {
-}
-
-function createMockTournaments() {
-  return [
-    {
-      "tournamentName": "bandle_city",
-      "tournamentDay": "3",
-      "startTime": "August 21 2021 07:00 pm PDT",
-      "registrationTime": "August 21 2021 04:15 pm PDT"
-    },
-    {
-      "tournamentName": "bandle_city",
-      "tournamentDay": "4",
-      "startTime": "August 22 2021 07:00 pm PDT",
-      "registrationTime": "August 22 2021 04:15 pm PDT"
-    }
-  ];
-}
-
-function createMockUser() {
-  return {
-    "id": "299370234228506627",
-    "username": "Roïdräge",
-    "avatar": "4393f322cfd8882c2d74648ad321c1eb",
-    "discriminator": "2657",
-    "public_flags": 0,
-    "flags": 0,
-    "banner": null,
-    "banner_color": "#eb0000",
-    "accent_color": 15400960,
-    "locale": "en-US",
-    "mfa_enabled": false
-  };
-}
-
-function createMockClashBotUser(mockUser: { banner_color: string; accent_color: number; flags: number; banner: null; mfa_enabled: boolean; id: string; avatar: string; public_flags: number; locale: string; username: string; discriminator: string }) {
-  return {
-    preferredChampions: [],
-    subscriptions: {},
-    id: mockUser.id,
-    serverName: 'GoonSquad'
-  };
 }
 
 describe('WelcomeDashboardComponent', () => {
@@ -241,7 +200,8 @@ describe('WelcomeDashboardComponent', () => {
         const { cold, flush } = helpers;
 
         let mockUser = createMockUser();
-        let mockClashBotUser: ClashBotUserDetails = createMockClashBotUser(mockUser)
+        let mockClashBotUser: ClashBotUserDetails = createMockClashBotUser(mockUser);
+        mockClashBotUser.username = mockUser.username;
         let mockGuilds = mockDiscordGuilds();
 
         let coldObservable = cold('x|', {x: mockUser});
@@ -266,12 +226,148 @@ describe('WelcomeDashboardComponent', () => {
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
         expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(clashBotMock.postUserDetails).not.toHaveBeenCalled();
+      })
+    })
+
+    test('If username does not exist in Clash Bot Service when setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details and then subsequently push a new User record to the Clash Bot Service.', () => {
+      testScheduler.run(helpers => {
+        const { cold, flush } = helpers;
+
+        let mockUser = createMockUser();
+        let mockClashBotUser: any = { subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+        let mockGuilds = mockDiscordGuilds();
+        let mockReturnedClashBotUser: ClashBotUserDetails = {
+          id: mockUser.id,
+          username: mockUser.username,
+          serverName: mockGuilds[0].name,
+          preferredChampions: [],
+          subscriptions: { UpcomingClashTournamentDiscordDM: false }
+        }
+
+        let coldObservable = cold('x|', {x: mockUser});
+        let coldClashBotUserObs = cold('x|', {x: mockClashBotUser})
+        let coldApplicationDetailsObs = cold('x|', {x: {}});
+        const mockDiscordGuildsObs = cold('-x', {x: mockGuilds});
+        const mockSavedUserObs = cold('x|', {x: mockReturnedClashBotUser});
+
+        discordServiceMock.getUserDetails.mockReturnValue(coldObservable);
+        discordServiceMock.getGuilds.mockReturnValue(mockDiscordGuildsObs);
+        clashBotMock.getUserDetails.mockReturnValue(coldClashBotUserObs);
+        clashBotMock.postUserDetails.mockReturnValue(mockSavedUserObs);
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
+
+        fixture = TestBed.createComponent(WelcomeDashboardComponent);
+        component = fixture.componentInstance;
+
+        component.setUserDetails();
+
+        flush();
+
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
+        expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+      })
+    })
+
+    test('If username does not match the username in Clash Bot Service for the id when setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details and then subsequently push a new User record to the Clash Bot Service.', () => {
+      testScheduler.run(helpers => {
+        const { cold, flush } = helpers;
+
+        let mockUser = createMockUser();
+        let mockGuilds = mockDiscordGuilds();
+        let mockClashBotUser: ClashBotUserDetails = { id: mockUser.id, username: 'Different', serverName: mockGuilds[0].name, preferredChampions: [], subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+        let mockReturnedClashBotUser: ClashBotUserDetails = {
+          id: mockUser.id,
+          username: mockUser.username,
+          serverName: mockGuilds[0].name,
+          preferredChampions: [],
+          subscriptions: { UpcomingClashTournamentDiscordDM: false }
+        };
+
+        let coldObservable = cold('x|', {x: mockUser});
+        let coldClashBotUserObs = cold('x|', {x: mockClashBotUser})
+        let coldApplicationDetailsObs = cold('x|', {x: {}});
+        const mockDiscordGuildsObs = cold('-x', {x: mockGuilds});
+        const mockSavedUserObs = cold('x|', {x: mockReturnedClashBotUser});
+
+        discordServiceMock.getUserDetails.mockReturnValue(coldObservable);
+        discordServiceMock.getGuilds.mockReturnValue(mockDiscordGuildsObs);
+        clashBotMock.getUserDetails.mockReturnValue(coldClashBotUserObs);
+        clashBotMock.postUserDetails.mockReturnValue(mockSavedUserObs);
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
+
+        fixture = TestBed.createComponent(WelcomeDashboardComponent);
+        component = fixture.componentInstance;
+
+        component.setUserDetails();
+
+        flush();
+
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
+        expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+      })
+    })
+
+    test('ERROR - Failed to update user details - A generic error message should be displayed and the user should be failed to login.', () => {
+      testScheduler.run(helpers => {
+        const { cold, flush } = helpers;
+
+        let mockUser = createMockUser();
+        let mockGuilds = mockDiscordGuilds();
+        let mockClashBotUser: ClashBotUserDetails = { id: mockUser.id, username: 'Different', serverName: mockGuilds[0].name, preferredChampions: [], subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost/api/user'
+          });
+
+        let coldObservable = cold('x|', {x: mockUser});
+        let coldClashBotUserObs = cold('x|', {x: mockClashBotUser})
+        let coldApplicationDetailsObs = cold('x|', {x: {}});
+        const mockDiscordGuildsObs = cold('-x', {x: mockGuilds});
+        const mockSavedUserObs = cold('#', undefined, expectedError);
+
+        discordServiceMock.getUserDetails.mockReturnValue(coldObservable);
+        discordServiceMock.getGuilds.mockReturnValue(mockDiscordGuildsObs);
+        clashBotMock.getUserDetails.mockReturnValue(coldClashBotUserObs);
+        clashBotMock.postUserDetails.mockReturnValue(mockSavedUserObs);
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
+
+        fixture = TestBed.createComponent(WelcomeDashboardComponent);
+        component = fixture.componentInstance;
+
+        component.setUserDetails();
+
+        flush();
+
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
+        expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
+        expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(matSnackBarMock.open).toHaveBeenCalledWith('Oops, we see your discord username has changed. We failed to updated it. Please try to login again.', 'X', {duration: 5000});
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: []});
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
       })
     })
   })
 
 });
-
 
 function mockDiscordGuilds() {
   return [{
@@ -299,4 +395,47 @@ function mockDiscordGuilds() {
     "features": [],
     "permissions_new": "274877906943"
   }];
+}
+
+function createMockTournaments() {
+  return [
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "3",
+      "startTime": "August 21 2021 07:00 pm PDT",
+      "registrationTime": "August 21 2021 04:15 pm PDT"
+    },
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "4",
+      "startTime": "August 22 2021 07:00 pm PDT",
+      "registrationTime": "August 22 2021 04:15 pm PDT"
+    }
+  ];
+}
+
+function createMockUser() {
+  return {
+    "id": "299370234228506627",
+    "username": "Roïdräge",
+    "avatar": "4393f322cfd8882c2d74648ad321c1eb",
+    "discriminator": "2657",
+    "public_flags": 0,
+    "flags": 0,
+    "banner": null,
+    "banner_color": "#eb0000",
+    "accent_color": 15400960,
+    "locale": "en-US",
+    "mfa_enabled": false
+  };
+}
+
+function createMockClashBotUser(mockUser: { banner_color: string; accent_color: number; flags: number; banner: null; mfa_enabled: boolean; id: string; avatar: string; public_flags: number; locale: string; username: string; discriminator: string }) {
+  return {
+    preferredChampions: [],
+    username: 'Some User',
+    subscriptions: {},
+    id: mockUser.id,
+    serverName: 'GoonSquad'
+  };
 }

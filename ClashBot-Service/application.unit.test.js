@@ -1402,6 +1402,7 @@ describe('Clash Bot Service API Controller', () => {
         test('As a User, when I request to create my data, I can do it through post.', (done) => {
             let payload = {
                 id: '1234556778',
+                playerName: 'some player',
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': true}
@@ -1409,12 +1410,14 @@ describe('Clash Bot Service API Controller', () => {
             const mockDbResponse = {
                 key: payload.id,
                 serverName: 'Some Server',
+                playerName: payload.playerName,
                 timeAdded: new Date().toISOString(),
                 subscribed: true,
                 preferredChampions: ['Sett']
             };
             const mockResponseValue = {
                 id: payload.id,
+                username: payload.playerName,
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': true}
@@ -1428,7 +1431,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(mockResponseValue);
-                    expect(clashSubscriptionDbImpl.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
+                    expect(clashSubscriptionDbImpl.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.playerName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
                     done();
                 })
         })
@@ -1436,6 +1439,7 @@ describe('Clash Bot Service API Controller', () => {
         test('As a User, if the subscriptions is empty then UpcomingClashTournamentDiscordDM should be defaulted to false, I can do it through post.', (done) => {
             let payload = {
                 id: '1234556778',
+                playerName: 'some player',
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
                 subscriptions: {}
@@ -1443,11 +1447,13 @@ describe('Clash Bot Service API Controller', () => {
             const mockDbResponse = {
                 key: payload.id,
                 serverName: 'Some Server',
+                playerName: payload.playerName,
                 timeAdded: new Date().toISOString(),
                 preferredChampions: ['Sett']
             };
             const mockResponseValue = {
                 id: payload.id,
+                username: payload.playerName,
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': false}
@@ -1461,13 +1467,14 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(mockResponseValue);
-                    expect(clashSubscriptionDbImpl.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
+                    expect(clashSubscriptionDbImpl.createUpdateUserDetails).toHaveBeenCalledWith(payload.id, payload.serverName, payload.playerName, payload.preferredChampions, payload.subscriptions.UpcomingClashTournamentDiscordDM)
                     done();
                 })
         })
 
-        test('Bad Request - missing id - As a User, when I request to create my data, I want to recieve an error related to the Id passed if it is missing.', (done) => {
+        test('Bad Request - missing id - As a User, when I request to create my data, I want to receive an error related to the Id passed if it is missing.', (done) => {
             let payload = {
+                playerName: 'Some Player',
                 serverName: 'Some Server',
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
@@ -1484,9 +1491,29 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
+        test('Bad Request - missing player name - As a User, when I request to create my data, I want to receive an error related to the Id passed if it is missing.', (done) => {
+            let payload = {
+                id: '1',
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
+            };
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({error: 'Missing required User Details'});
+                    done();
+                })
+        })
+
         test('Bad Request - missing Server Name - As a User, when I request to create my data, I want to receive an error related to the Server Name passed if it is missing.', (done) => {
             let payload = {
                 id: '12312312',
+                playerName: 'Some Player',
                 preferredChampions: ['Sett'],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
@@ -1505,6 +1532,7 @@ describe('Clash Bot Service API Controller', () => {
         test('Bad Request - missing preferredChampions - As a User, when I request to create my data, I want to receive an error related to the preferredChampions passed if it is missing.', (done) => {
             let payload = {
                 id: '12312312',
+                playerName: 'Some Player',
                 serverName: 'Good Squad',
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
@@ -1523,6 +1551,7 @@ describe('Clash Bot Service API Controller', () => {
         test('Bad Request - missing subscriptions - As a User, when I request to create my data, I want to receive an error related to the subscriptions passed if it is missing.', (done) => {
             let payload = {
                 id: '12312312',
+                playerName: 'Some Player',
                 serverName: 'Good Squad',
                 preferredChampions: []
             };

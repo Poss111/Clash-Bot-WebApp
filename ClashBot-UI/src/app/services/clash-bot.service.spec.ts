@@ -520,6 +520,7 @@ describe('ClashBotService', () => {
       stubLocation({hostname: "localhost"});
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
+        username: 'Some Player',
         serverName: 'Some Guild',
         preferredChampions: [],
         subscriptions: {'UpcomingClashTournamentDiscordDM': true}
@@ -538,6 +539,7 @@ describe('ClashBotService', () => {
       stubLocation({hostname: "clash-bot.ninja"});
       const expectedUserDetails: ClashBotUserDetails = {
         id: '12345566',
+        username: 'Some Player',
         serverName: 'Some Guild',
         preferredChampions: [],
         subscriptions: {'UpcomingClashTournamentDiscordDM': true}
@@ -558,13 +560,14 @@ describe('ClashBotService', () => {
       stubLocation({hostname: "localhost"});
       let payload = {
         id: '1234556778',
+        playerName: 'Some Player',
         serverName: 'Some Server',
         preferredChampions: ['Sett'],
         subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
       };
       const set = new Set<string>();
       set.add('Sett');
-      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions).subscribe(data => {
+      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions, payload.playerName).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(payload);
       });
@@ -578,13 +581,14 @@ describe('ClashBotService', () => {
       stubLocation({hostname: "clash-bot.ninja"});
       let payload = {
         id: '1234556778',
+        playerName: 'Some Player',
         serverName: 'Some Server',
         preferredChampions: ['Sett'],
         subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
       };
       const set = new Set<string>();
       set.add('Sett');
-      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions).subscribe(data => {
+      service.postUserDetails(payload.id, payload.serverName, set, payload.subscriptions, payload.playerName).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(payload);
       });

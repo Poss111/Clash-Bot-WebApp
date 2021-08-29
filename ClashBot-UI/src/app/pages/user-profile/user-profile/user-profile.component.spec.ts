@@ -76,6 +76,7 @@ describe('UserProfileComponent', () => {
         };
         let mockClashBotUserDetails: ClashBotUserDetails = {
           id: '12312321312',
+          username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
           subscriptions: {
@@ -159,6 +160,7 @@ describe('UserProfileComponent', () => {
           let mockUserDetails: UserDetails = {id: '', username: '', discriminator: ''};
           let mockClashBotUserDetails: ClashBotUserDetails = {
             id: '12312321312',
+            username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
             subscriptions: {
@@ -388,6 +390,7 @@ describe('UserProfileComponent', () => {
           };
           let mockClashBotUserDetails: ClashBotUserDetails = {
             id: '12312321312',
+            username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
             subscriptions: {
@@ -464,6 +467,7 @@ describe('UserProfileComponent', () => {
           };
           let mockClashBotUserDetails: ClashBotUserDetails = {
             id: '12312321312',
+            username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
             subscriptions: {
@@ -537,6 +541,7 @@ describe('UserProfileComponent', () => {
         };
         let mockClashBotUserDetails: ClashBotUserDetails = {
           id: '12312321312',
+          username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
           subscriptions: {
@@ -801,11 +806,12 @@ describe('UserProfileComponent', () => {
         } as any);
         component.userDetails = {
           id: '123321312',
-          discriminator: '1232132131231',
-          username: 'Roidrage'
+          username: 'Roidrage',
+          discriminator: '1232132131231'
         };
         let userDetailsResponse: ClashBotUserDetails = {
           id: '12321',
+          username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
           subscriptions: {subscribedDiscordDMFC: true}
@@ -826,7 +832,8 @@ describe('UserProfileComponent', () => {
           expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
             component.userDetailsForm.value.defaultGuildFC,
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
+            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
+            component.userDetails.username);
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
@@ -888,7 +895,8 @@ describe('UserProfileComponent', () => {
           expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
             component.userDetailsForm.value.defaultGuildFC,
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
+            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
+            component.userDetails.username);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
@@ -918,11 +926,13 @@ describe('UserProfileComponent', () => {
         };
         component.initialFormControlState = {
           defaultGuildFC: 'Goon Squad',
+          username: 'Roidrage',
           preferredChampionsFC: [],
           subscribedDiscordDMFC: true
         }
         let userDetailsResponse: ClashBotUserDetails = {
           id: '12321',
+          username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
           subscriptions: {subscribedDiscordDMFC: true}
@@ -944,7 +954,8 @@ describe('UserProfileComponent', () => {
           expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
             component.userDetailsForm.value.defaultGuildFC,
             new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC});
+            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
+            component.userDetails.username);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);

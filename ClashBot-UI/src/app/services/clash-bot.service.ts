@@ -88,9 +88,10 @@ export class ClashBotService {
     return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
   }
 
-  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any): Observable<ClashBotUserDetails> {
+  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any, playerName: string): Observable<ClashBotUserDetails> {
     let payload = {
       id: id,
+      playerName: playerName,
       serverName: serverName,
       preferredChampions: Array.from(preferredChampionList),
       subscriptions: subscriptions
