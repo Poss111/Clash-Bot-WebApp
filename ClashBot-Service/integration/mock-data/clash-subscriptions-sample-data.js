@@ -12,7 +12,6 @@ module.exports = {
             timeAdded: "July 15 2021 01:05 pm PDT",
             createdAt: "2021-07-15T20:05:00.535Z",
             serverName: ":serverName",
-            subscribed: "false",
             playerName: "Sample User",
             key: "123456789"
         }
