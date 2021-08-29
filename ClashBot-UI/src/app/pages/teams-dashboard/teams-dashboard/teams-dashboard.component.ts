@@ -36,7 +36,7 @@ export class TeamsDashboardComponent implements OnInit {
   eligibleTournaments: ClashTournaments[] = [];
   creatingNewTeam: boolean;
   tentativeList?: ClashBotTentativeDetails[];
-  displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers'];
+  displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];
   showTentative: boolean = false;
   tentativeDataStatus: string = 'NOT_LOADED';
 
@@ -65,7 +65,6 @@ export class TeamsDashboardComponent implements OnInit {
 
           this.formControl = new FormControl(appDetails.defaultGuild);
           if (appDetails.defaultGuild) {
-            this.updateTentativeList(appDetails.defaultGuild);
             this.filterForTeamsByServer(appDetails.defaultGuild);
           }
         }
@@ -76,20 +75,25 @@ export class TeamsDashboardComponent implements OnInit {
 
   updateTentativeList(guildName: string) {
     this.tentativeDataStatus = 'LOADING';
-    this.clashBotService.getServerTentativeList(guildName)
-      .pipe(take(1),
-        timeout(this.MAX_TIMEOUT),
-        catchError((err: HttpErrorResponse) => {
-          console.error(err);
-          this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
-            'X',
-            {duration: 5 * 1000});
-          this.tentativeDataStatus = 'FAILED';
-          return throwError(err);
-        }))
-      .subscribe((data) => {
-        this.tentativeList = data;
-        this.tentativeDataStatus = 'SUCCESSFUL';
+    this.userDetailsService.getUserDetails().pipe(take(1))
+      .subscribe((userDetails) => {
+        this.clashBotService.getServerTentativeList(guildName)
+          .pipe(take(1),
+            timeout(this.MAX_TIMEOUT),
+            catchError((err: HttpErrorResponse) => {
+              console.error(err);
+              this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
+                'X',
+                {duration: 5 * 1000});
+              this.tentativeDataStatus = 'FAILED';
+              return throwError(err);
+            }))
+          .subscribe((data) => {
+            data.forEach(tentativeRecord => tentativeRecord.isMember
+              = tentativeRecord.tentativePlayers.includes(userDetails.username));
+            this.tentativeList = data;
+            this.tentativeDataStatus = 'SUCCESSFUL';
+          });
       });
   }
 

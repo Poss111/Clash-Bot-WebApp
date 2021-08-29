@@ -60,11 +60,19 @@
     <mat-header-cell *matHeaderCellDef> Day </mat-header-cell>
     <mat-cell *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
   </ng-container>
-<ng-container matColumnDef="tentativePlayers">
+  <ng-container matColumnDef="tentativePlayers">
     <mat-header-cell *matHeaderCellDef> Tentative Players </mat-header-cell>
     <mat-cell *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
   </ng-container>
-
+  <ng-container matColumnDef="action" stickyEnd>
+    <th mat-header-cell *matHeaderCellDef>+/-</th>
+    <td mat-cell *matCellDef="let element">
+      <button mat-mini-fab color="primary"
+              aria-label="Add or remove from Tentative">
+        <mat-icon>add</mat-icon>
+      </button>
+    </td>
+  </ng-container>
   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
   <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 </mat-table>
