@@ -67,23 +67,18 @@ let startUpApp = async () => {
                     console.log('Successfully retrieved teams.');
                     console.log(JSON.stringify(data));
                     let payload = [];
-                    data.forEach(team => {
-                        if (team && team.players) {
-                            payload.push({
-                                teamName: team.teamName,
-                                tournamentDetails: {
-                                    tournamentName: team.tournamentName,
-                                    tournamentDay: team.tournamentDay
-                                },
-                                serverName: team.serverName,
-                                startTime: team.startTime,
-                                playersDetails: Array.isArray(team.players) ? team.players.map(data => {
-                                    return {name: data}
-                                }) : {}
+                    data = data.filter(record => record.players);
+                    let userIds = new Set(data.map(team => team.players).flat());
+                    if (userIds.size > 0) {
+                        clashUserDbImpl.retrievePlayerNames(Array.from(userIds)).then((idToNameMap) => {
+                            data.forEach(team => {
+                                payload.push(convertTeamDbToTeamPayload(team, idToNameMap));
                             });
-                        }
-                    });
-                    res.json(payload);
+                            res.json(payload);
+                        })
+                    } else {
+                        res.json(payload);
+                    }
                 }
             ).catch(err => {
                 console.error(err);

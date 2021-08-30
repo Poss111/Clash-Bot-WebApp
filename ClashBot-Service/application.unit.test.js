@@ -31,8 +31,34 @@ describe('Clash Bot Service API Controller', () => {
         jest.resetAllMocks();
     })
 
-    describe('Clash Teams API', () => {
+    test('Test', () => {
+        const mockReturnedTeams = [
+            {
+                startTime: "Jan 21 2021",
+                serverName: "Goon Squad",
+                teamName: "Team Abra",
+                tournamentName: "Awesome Sauce",
+                updatedAt: "2021-07-25T01:44:24.048Z",
+                tournamentDay: '1',
+                key: "Team Abra#Goon Squad#Awesome Sauce#1"
+            },
+            {
+                startTime: "Jan 21 2021",
+                serverName: "Goon Squad",
+                players: [
+                    "5"
+                ],
+                teamName: "Team Absol",
+                tournamentName: "Awesome Sauce",
+                updatedAt: "2021-07-19T14:06:29.155Z",
+                tournamentDay: '1',
+                key: "Team Absol#Goon Squad#Awesome Sauce#1"
+            }
+        ];
+        console.log(new Set(mockReturnedTeams.filter(record => record.players).map(team => team.players).flat()))
+    })
 
+    describe('GET Teams', () => {
         test('As a User, I should be able to call /api/dne with no filter and be able to return all available teams.', (done) => {
             const mockReturnedTeams = [
                 {
@@ -48,7 +74,7 @@ describe('Clash Bot Service API Controller', () => {
                     startTime: "Jan 21 2021",
                     serverName: "Goon Squad",
                     players: [
-                        "Silv3rshard"
+                        "5"
                     ],
                     teamName: "Team Absol",
                     tournamentName: "Awesome Sauce",
@@ -58,23 +84,12 @@ describe('Clash Bot Service API Controller', () => {
                 }
             ];
             let expectedPayload = [];
-            mockReturnedTeams.forEach(team => {
-                if (team && team.players) {
-                    expectedPayload.push({
-                        teamName: team.teamName,
-                        tournamentDetails: {
-                            tournamentName: team.tournamentName,
-                            tournamentDay: team.tournamentDay
-                        },
-                        serverName: team.serverName,
-                        startTime: team.startTime,
-                        playersDetails: Array.isArray(team.players) ? team.players.map(data => {
-                            return {name: data}
-                        }) : {}
-                    });
-                }
-            });
+            let idToNameObject = {};
+            idToNameObject['5'] = 'Silv3rshard';
+            expectedPayload.push(convertTeamDbToTeamPayloadTest(mockReturnedTeams[1], idToNameObject));
+
             clashTeamsDbImpl.getTeams.mockResolvedValue(mockReturnedTeams);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
             request(application)
                 .get('/api/teams')
                 .set('Content-Type', 'application/json')
@@ -82,6 +97,69 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(expectedPayload);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['5']);
+                    done();
+                })
+        })
+
+        test('As a User, I should be able to call /api/dne with no filter and be able to return all available teams and should only call retrieve id to name map once based on all available ids.', (done) => {
+            const mockReturnedTeams = [
+                {
+                    startTime: "Jan 21 2021",
+                    serverName: "Goon Squad",
+                    players: [
+                        "6"
+                    ],
+                    teamName: "Team Abra",
+                    tournamentName: "Awesome Sauce",
+                    updatedAt: "2021-07-25T01:44:24.048Z",
+                    tournamentDay: '1',
+                    key: "Team Abra#Goon Squad#Awesome Sauce#1"
+                },
+                {
+                    startTime: "Jan 21 2021",
+                    serverName: "Goon Squad",
+                    players: [
+                        "5"
+                    ],
+                    teamName: "Team Absol",
+                    tournamentName: "Awesome Sauce",
+                    updatedAt: "2021-07-19T14:06:29.155Z",
+                    tournamentDay: '1',
+                    key: "Team Absol#Goon Squad#Awesome Sauce#1"
+                },
+                {
+                    startTime: "Jan 21 2021",
+                    serverName: "Goon Squad",
+                    players: [
+                        "2"
+                    ],
+                    teamName: "Team Blastoise",
+                    tournamentName: "Awesome Sauce",
+                    updatedAt: "2021-07-19T14:06:29.155Z",
+                    tournamentDay: '1',
+                    key: "Team Absol#Goon Squad#Awesome Sauce#1"
+                }
+            ];
+            let expectedPayload = [];
+            let idToNameObject = {};
+            idToNameObject['5'] = 'Silv3rshard';
+            idToNameObject['6'] = 'TheIncentive';
+            idToNameObject['2'] = 'Roidrage';
+            mockReturnedTeams.forEach(team => expectedPayload.push(convertTeamDbToTeamPayloadTest(team, idToNameObject)));
+
+            clashTeamsDbImpl.getTeams.mockResolvedValue(mockReturnedTeams);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
+            request(application)
+                .get('/api/teams')
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual(expectedPayload);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['6','5','2']);
                     done();
                 })
         })
