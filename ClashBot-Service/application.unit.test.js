@@ -402,7 +402,7 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('Clash Team Unregister', () => {
         test('As a User, I should be able to call /api/team/register with DELETE to unregister with a specific team.', (done) => {
-            let expectedUser = 'Player1';
+            let expectedUserId = '11234213';
             let expectedServer = 'Integration Server'
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
@@ -412,8 +412,7 @@ describe('Clash Bot Service API Controller', () => {
                 .delete('/api/team/register')
                 .send(
                     {
-                        id: '12345',
-                        username: expectedUser,
+                        id: expectedUserId,
                         teamName: expectedTeam,
                         serverName: expectedServer,
                         tournamentName: 'awesome_sauce',
@@ -424,7 +423,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUser, expectedServer, [{
+                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay
                     }]);
@@ -434,7 +433,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         test('Error - As a User, I should be able to call /api/team/register to unregister with a specific team and if it fails then I will return a 500 error.', (done) => {
-            let expectedUser = 'Player1';
+            let expectedUserId = '123456';
             let expectedServer = 'Integration Server'
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
@@ -444,8 +443,7 @@ describe('Clash Bot Service API Controller', () => {
                 .delete('/api/team/register')
                 .send(
                     {
-                        id: '12345',
-                        username: expectedUser,
+                        id: expectedUserId,
                         teamName: expectedTeam,
                         serverName: expectedServer,
                         tournamentName: 'awesome_sauce',
@@ -456,7 +454,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUser, expectedServer, [{
+                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay
                     }]);
@@ -466,7 +464,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         test('Bad Request - Not on Team - As a User if I do not belong to the team, I should be able to call /api/team/register with DELETE to unregister with a specific team and be returned 400 and a generic error message.', (done) => {
-            let expectedUser = 'Player1';
+            let expectedUserId = '123321123';
             let expectedServer = 'Integration Server'
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
@@ -476,8 +474,7 @@ describe('Clash Bot Service API Controller', () => {
                 .delete('/api/team/register')
                 .send(
                     {
-                        id: '12345',
-                        username: expectedUser,
+                        id: expectedUserId,
                         teamName: expectedTeam,
                         serverName: expectedServer,
                         tournamentName: 'awesome_sauce',
@@ -488,35 +485,11 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUser, expectedServer, [{
+                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay
                     }]);
                     expect(res.body).toEqual({error: 'User not found on requested Team.'});
-                    done();
-                })
-        })
-
-        test('Bad Request - missing user - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
-            let expectedServer = 'Integration Server'
-            let expectedTeam = 'Team Abra';
-            request(application)
-                .delete('/api/team/register')
-                .send(
-                    {
-                        id: '12345',
-                        teamName: expectedTeam,
-                        serverName: expectedServer,
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '1'
-                    }
-                )
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).toEqual({error: 'Missing User to unregister with.'});
-                    expect(clashTeamsDbImpl.registerWithSpecificTeam).not.toBeCalled();
                     done();
                 })
         })

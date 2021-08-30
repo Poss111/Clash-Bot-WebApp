@@ -146,7 +146,7 @@ let startUpApp = async () => {
         })
 
         app.delete(`${urlPrefix}/team/register`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
             } else if (!req.body.teamName) {
                 badRequestHandler(res, 'Missing Team to unregister from.');
@@ -155,7 +155,7 @@ let startUpApp = async () => {
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
                 badRequestHandler(res, 'Missing Tournament Details to unregister with.');
             } else {
-                clashTeamsDbImpl.deregisterPlayer(req.body.username, req.body.serverName, [{
+                clashTeamsDbImpl.deregisterPlayer(req.body.id, req.body.serverName, [{
                     tournamentName: req.body.tournamentName,
                     tournamentDay: req.body.tournamentDay
                 }]).then((data) => {
