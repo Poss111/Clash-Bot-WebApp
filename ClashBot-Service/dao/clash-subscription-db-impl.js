@@ -14,6 +14,7 @@ class ClashSubscriptionDbImpl {
                 timestamps: true,
                 schema: {
                     key: Joi.string(),
+                    playerName: Joi.string(),
                     serverName: Joi.string(),
                     timeAdded: Joi.string(),
                     subscribed: Joi.string(),
@@ -27,17 +28,13 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    subscribe(id, server) {
+    subscribe(id, server, playerName) {
         return new Promise((resolve, reject) => {
             const dateFormat = 'MMMM DD yyyy hh:mm a z';
             const timeZone = 'America/Los_Angeles';
             moment.tz.setDefault(timeZone);
-            let subscription = {
-                key: id,
-                serverName: server,
-                timeAdded: new moment().format(dateFormat),
-                subscribed: 'true'
-            };
+            let subscription = this.createUserDetails(id, playerName, server, dateFormat);
+            subscription.subscribed = 'true';
             this.updateUser(subscription, reject, resolve);
         });
     }
@@ -65,7 +62,7 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    updatePreferredChampions(id, champion, serverName) {
+    updatePreferredChampions(id, champion, serverName, playerName) {
         return new Promise((resolve, reject) => {
             this.retrieveUserDetails(id).then(userData => {
                 if (userData.key) {
@@ -91,6 +88,7 @@ class ClashSubscriptionDbImpl {
                     moment.tz.setDefault(timeZone);
                     let subscription = {
                         key: id,
+                        playerName: playerName,
                         timeAdded: new moment().format(dateFormat),
                         subscribed: false,
                         preferredChampions: [champion],
@@ -123,17 +121,12 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    createUpdateUserDetails(id, server, preferredChampions, subscribed) {
+    createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed) {
         return new Promise((resolve, reject) => {
             const dateFormat = 'MMMM DD yyyy hh:mm a z';
             const timeZone = 'America/Los_Angeles';
             moment.tz.setDefault(timeZone);
-            let subscription = {
-                key: id,
-                serverName: server,
-                timeAdded: new moment().format(dateFormat),
-                preferredChampions: preferredChampions
-            };
+            let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
             if (subscribed) {
                 subscription.subscribed = JSON.stringify(subscribed);
             }
@@ -141,6 +134,23 @@ class ClashSubscriptionDbImpl {
         })
     }
 
+    retrievePlayerNames(ids) {
+        return new Promise((resolve => {
+            this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
+                resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {}));
+            });
+        }))
+    }
+
+    createUserDetails(id, playerName, server, dateFormat, preferredChampions) {
+        return {
+            key: id,
+            playerName: playerName,
+            serverName: server,
+            timeAdded: new moment().format(dateFormat),
+            preferredChampions: preferredChampions
+        };
+    }
 }
 
 module.exports = new ClashSubscriptionDbImpl;

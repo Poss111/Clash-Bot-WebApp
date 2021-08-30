@@ -6,4 +6,10 @@ let errorHandler = (res, message) => {
     res.json({ error: message });
 }
 
+let badRequestHandler = (res, message) => {
+    res.statusCode = 400;
+    res.json({error: message});
+}
+
 module.exports.errorHandler = errorHandler;
+module.exports.badRequestHandler = badRequestHandler;

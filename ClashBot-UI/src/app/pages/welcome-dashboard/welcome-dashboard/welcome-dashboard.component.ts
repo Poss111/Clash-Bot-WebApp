@@ -9,6 +9,8 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {catchError, mergeMap, retryWhen, take} from "rxjs/operators";
 import {throwError, timer} from "rxjs";
+import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
+import {ApplicationDetails} from "../../../interfaces/application-details";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -42,30 +44,30 @@ export class WelcomeDashboardComponent {
               private applicationDetailsService: ApplicationDetailsService,
               private _snackBar: MatSnackBar) {
     this.clashBotService.getClashTournaments()
-        .pipe(take(1))
-        .subscribe((data) => {
-      data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
-      this.dataLoaded = true;
-      this.applicationDetailsService.getApplicationDetails()
+      .pipe(take(1))
+      .subscribe((data) => {
+        data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
+        this.dataLoaded = true;
+        this.applicationDetailsService.getApplicationDetails()
           .pipe(take(1))
           .subscribe((appDetails) => {
-        appDetails.currentTournaments = data;
-        applicationDetailsService.setApplicationDetails(appDetails);
-      })
-    });
+            appDetails.currentTournaments = data;
+            applicationDetailsService.setApplicationDetails(appDetails);
+          })
+      });
     this.loggedIn = oauthService.hasValidAccessToken();
     this.oauthService.configure(this.authCodeFlowConfig);
     if (sessionStorage.getItem('LoginAttempt')) {
       this.oauthService.tokenValidationHandler = new JwksValidationHandler();
       this.oauthService.tryLogin()
-          .then(() => this.setUserDetails())
-          .catch(err => {
-        console.error(err);
-        this.loggedIn = false;
-        this._snackBar.open('Failed to login to discord.',
-          'X',
-          {duration: 5 * 1000});
-      });
+        .then(() => this.setUserDetails())
+        .catch(err => {
+          console.error(err);
+          this.loggedIn = false;
+          this._snackBar.open('Failed to login to discord.',
+            'X',
+            {duration: 5 * 1000});
+        });
     } else {
       this.loggedIn = oauthService.hasValidAccessToken();
     }
@@ -73,46 +75,68 @@ export class WelcomeDashboardComponent {
 
   setUserDetails() {
     this.discordService.getUserDetails()
-        .pipe(retryWhen(error =>
-            error.pipe(
-                take(3),
-                mergeMap((response) => {
-                 if (response.status == 429) {
-                   this._snackBar.open('Hit a retry error!', 'X',{ duration: 10000 });
-                   return timer(response.error.retry_after);
-                 } else {
-                   return throwError(response);}
-                })
+      .pipe(retryWhen(error =>
+          error.pipe(
+            take(3),
+            mergeMap((response) => {
+              if (response.status == 429) {
+                this._snackBar.open('Hit a retry error!', 'X', {duration: 10000});
+                return timer(response.error.retry_after);
+              } else {
+                return throwError(response);
+              }
+            })
           )),
-          catchError(error => throwError(error)))
-        .subscribe((data) => {
-          this.userDetailsService.setUserDetails(data);
-          this.discordService.getGuilds()
-              .pipe(retryWhen(error =>
-              error.pipe(
-                  take(3),
-                  mergeMap((response) => {
-                    if (response.status == 429) {
-                      this._snackBar.open(`You are being rate limited. You are a dirty spammer! You will need to wait ${response.error.retry_after}ms.`, 'X',{ duration: 10000 });
-                      return timer(response.error.retry_after);
-                    } else {
-                      return throwError(response);}
-                  })
-              ))).subscribe((guilds) => {
-              this.clashBotService.getUserDetails(data.id)
-                  .pipe(take(1))
-                  .subscribe((clashBotUser) => {
-                this.applicationDetailsService.getApplicationDetails()
-                    .pipe(take(1))
-                    .subscribe((appDetails) => {
-                  appDetails.defaultGuild = clashBotUser.serverName;
-                  appDetails.userGuilds = guilds;
-                  this.applicationDetailsService.setApplicationDetails(appDetails);
-                  this.loggedIn = true;
-                })
+        catchError(error => throwError(error)))
+      .subscribe((data) => {
+        this.userDetailsService.setUserDetails(data);
+        this.discordService.getGuilds()
+          .pipe(retryWhen(error =>
+            error.pipe(
+              take(3),
+              mergeMap((response) => {
+                if (response.status == 429) {
+                  this._snackBar.open(`You are being rate limited. You are a dirty spammer! You will need to wait ${response.error.retry_after}ms.`, 'X', {duration: 10000});
+                  return timer(response.error.retry_after);
+                } else {
+                  return throwError(response);
+                }
               })
-          });
+            ))).subscribe((guilds) => {
+          this.clashBotService.getUserDetails(data.id)
+            .pipe(take(1))
+            .subscribe((clashBotUser) => {
+              this.applicationDetailsService.getApplicationDetails()
+                .pipe(take(1))
+                .subscribe((appDetails) => {
+                  if (!clashBotUser.username || data.username !== clashBotUser.username) {
+                    this.clashBotService.postUserDetails(data.id, guilds[0].name, new Set<string>(), {'UpcomingClashTournamentDiscordDM': false}, data.username)
+                      .pipe(take(1),
+                        catchError(err => {
+                        console.error(err);
+                        this.loggedIn = false;
+                        this._snackBar.open('Oops, we see your discord username has changed. We failed to updated it. Please try to login again.',
+                          'X',
+                          {duration: 5 * 1000});
+                        return throwError(err);
+                      }))
+                      .subscribe((savedUser) => {
+                        this.setLoggedInDetails(appDetails, clashBotUser, guilds);
+                      });
+                  } else {
+                    this.setLoggedInDetails(appDetails, clashBotUser, guilds);
+                  }
+                })
+            })
         });
+      });
+  }
+
+  private setLoggedInDetails(appDetails: ApplicationDetails, clashBotUser: ClashBotUserDetails, guilds: any[]) {
+    appDetails.defaultGuild = clashBotUser.serverName;
+    appDetails.userGuilds = guilds;
+    this.applicationDetailsService.setApplicationDetails(appDetails);
+    this.loggedIn = true;
   }
 
   loginToDiscord(): void {

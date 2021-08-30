@@ -84,7 +84,7 @@ export class UserProfileComponent implements OnInit {
                 let preferredChampions = Array.isArray(data.preferredChampions) ? data.preferredChampions : [];
                 this.riotDdragonService.getListOfChampions()
                   .pipe(take(1),
-                    timeout(4000),
+                    timeout(7000),
                     catchError((err) => {
                       console.error(err);
                       this.matSnackBar.open('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
@@ -157,10 +157,7 @@ export class UserProfileComponent implements OnInit {
   onSubmit() {
     if (this.userDetailsForm && this.userDetails) {
       this.userDetailsForm.markAsPending();
-      this.clashBotService.postUserDetails(this.userDetails.id,
-        this.userDetailsForm.value.defaultGuildFC,
-        new Set<string>(this.userDetailsForm.value.preferredChampionsFC),
-        {'UpcomingClashTournamentDiscordDM': this.userDetailsForm.value.subscribedDiscordDMFC})
+      this.clashBotService.postUserDetails(this.userDetails.id, this.userDetailsForm.value.defaultGuildFC, new Set<string>(this.userDetailsForm.value.preferredChampionsFC), {'UpcomingClashTournamentDiscordDM': this.userDetailsForm.value.subscribedDiscordDMFC}, this.userDetails.username)
         .pipe(timeout(4000),
           catchError((err) => {
             console.error(err);

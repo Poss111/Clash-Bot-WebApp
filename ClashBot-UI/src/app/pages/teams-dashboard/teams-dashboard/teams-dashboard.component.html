@@ -36,11 +36,63 @@
     </mat-chip>
   </mat-chip-list>
 </div>
+<div *ngIf="tentativeDataStatus === 'LOADING'" class="show-tentative-button-container">
+  <mat-icon>hourglass_empty</mat-icon>
+  <div>Loading Tournament Details...</div>
+</div>
+<div *ngIf="tentativeDataStatus === 'FAILED'" class="show-tentative-button-container">
+  <mat-icon>error</mat-icon>
+  <div>Unable to load Tournament Details for Server.</div>
+</div>
+<div *ngIf="tentativeDataStatus === 'SUCCESSFUL'" class="show-tentative-button-container">
+  <button id="clash-bot-teams-dashboard-show-tentative" mat-icon-button
+          aria-label="Show Tentative List" (click)="showTentative = !showTentative">
+    <mat-icon>pending</mat-icon>
+  </button>
+  <div>click to toggle view of upcoming Clash Tournaments</div>
+</div>
+<mat-table *ngIf="showTentative && tentativeList && tentativeDataStatus === 'SUCCESSFUL'" [dataSource]="tentativeList"
+           class="mat-elevation-z8">
+  <ng-container matColumnDef="tournamentName">
+    <mat-header-cell *matHeaderCellDef> Tournament</mat-header-cell>
+    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name" *matCellDef="let element"> {{element.tournamentDetails.tournamentName}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="tournamentDay">
+    <mat-header-cell *matHeaderCellDef> Day</mat-header-cell>
+    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day" *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="tentativePlayers">
+    <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>
+    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players" *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="action" stickyEnd>
+    <th mat-header-cell *matHeaderCellDef>+/-</th>
+    <td mat-cell *matCellDef="let element; index as i">
+      <div *ngIf="!element.isMember; else elseBlock">
+        <button id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add" mat-icon-button color="primary"
+                aria-label="Add to Tentative"
+                (click)="tentativeRegister(element, i)">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <ng-template #elseBlock>
+        <button id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove" mat-icon-button color="warn"
+                aria-label="Remove from Tentative"
+                (click)="tentativeRegister(element, i)">
+          <mat-icon>remove</mat-icon>
+        </button>
+      </ng-template>
+    </td>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
 <div class="team-cards">
   <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team"
                  class="team-card" (registerUser)="registerForTeam($event)"
                  (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-  <mat-card id="clash-bot-teams-card-create-new-team-card" *ngIf="eligibleTournaments.length > 0" class="clash-bot-card">
+  <mat-card id="clash-bot-teams-card-create-new-team-card" *ngIf="eligibleTournaments.length > 0"
+            class="clash-bot-card">
     <h2 *ngIf="!creatingNewTeam">Create a new Team</h2>
     <div class="clash-bot-teams-card-create-new-container">
       <button id="clash-bot-teams-card-create-new-button" *ngIf="!creatingNewTeam" mat-mini-fab color="primary"

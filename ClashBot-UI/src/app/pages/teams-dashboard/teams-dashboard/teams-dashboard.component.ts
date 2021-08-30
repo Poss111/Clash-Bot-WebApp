@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {ClashTeam} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {throwError} from "rxjs";
@@ -16,6 +16,9 @@ import {ApplicationDetailsService} from "../../../services/application-details.s
 import {MatOption} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
+import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
+import {ConfirmationDialogComponent} from "../../../confirmation-dialog/confirmation-dialog.component";
+import {MatTable} from "@angular/material/table";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -34,6 +37,12 @@ export class TeamsDashboardComponent implements OnInit {
   private readonly MAX_TIMEOUT = 4000;
   eligibleTournaments: ClashTournaments[] = [];
   creatingNewTeam: boolean;
+  tentativeList?: ClashBotTentativeDetails[];
+  displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];
+  showTentative: boolean = false;
+  tentativeDataStatus: string = 'NOT_LOADED';
+
+  @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
   constructor(private clashBotService: ClashBotService,
               private _snackBar: MatSnackBar,
@@ -46,25 +55,50 @@ export class TeamsDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.applicationDetailsService.getApplicationDetails()
-          .pipe(take(1))
-          .subscribe((appDetails) => {
-              if (appDetails.userGuilds) {
-                  appDetails.userGuilds.forEach((record: any) => {
-                      this.teamFilters.push({
-                          value: record.name,
-                          type: FilterType.SERVER,
-                          state: record.name === appDetails.defaultGuild,
-                          id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
-                      });
-                  })
-                  this.formControl = new FormControl(appDetails.defaultGuild);
-                  if (appDetails.defaultGuild) {
-                      this.filterForTeamsByServer(appDetails.defaultGuild);
-                  }
-              }
-    })
+      .pipe(take(1))
+      .subscribe((appDetails) => {
+        if (appDetails.userGuilds) {
+          appDetails.userGuilds.forEach((record: any) => {
+            this.teamFilters.push({
+              value: record.name,
+              type: FilterType.SERVER,
+              state: record.name === appDetails.defaultGuild,
+              id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
+            });
+          })
+
+          this.formControl = new FormControl(appDetails.defaultGuild);
+          if (appDetails.defaultGuild) {
+            this.filterForTeamsByServer(appDetails.defaultGuild);
+          }
+        }
+      })
     this.color = 'primary';
     this.mode = 'indeterminate';
+  }
+
+  updateTentativeList(guildName: string) {
+    this.tentativeDataStatus = 'LOADING';
+    this.userDetailsService.getUserDetails().pipe(take(1))
+      .subscribe((userDetails) => {
+        this.clashBotService.getServerTentativeList(guildName)
+          .pipe(take(1),
+            timeout(this.MAX_TIMEOUT),
+            catchError((err: HttpErrorResponse) => {
+              console.error(err);
+              this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
+                'X',
+                {duration: 5 * 1000});
+              this.tentativeDataStatus = 'FAILED';
+              return throwError(err);
+            }))
+          .subscribe((data) => {
+            data.forEach(tentativeRecord => tentativeRecord.isMember
+              = tentativeRecord.tentativePlayers.includes(userDetails.username));
+            this.tentativeList = data;
+            this.tentativeDataStatus = 'SUCCESSFUL';
+          });
+      });
   }
 
   filterTeam(chip: MatChip) {
@@ -73,73 +107,74 @@ export class TeamsDashboardComponent implements OnInit {
     this.teams = [];
     let valueToSearchFor = '';
     if (this.formControl) {
-        valueToSearchFor = this.formControl.value.trimLeft();
+      valueToSearchFor = this.formControl.value.trimLeft();
     }
     this.filterForTeamsByServer(valueToSearchFor);
   }
 
-    private filterForTeamsByServer(valueToSearchFor: string) {
-        this.userDetailsService.getUserDetails()
-            .pipe(take(1))
-            .subscribe((userDetails) => {
-                if (!userDetails.username || userDetails.username === '') {
-                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                        'X',
-                        {duration: 5 * 1000});
-                    this.teams = [{error: 'No data'}];
-                    this.showSpinner = false;
-                } else {
-                    this.clashBotService
-                        .getClashTeams(valueToSearchFor)
-                        .pipe(
-                            take(1),
-                            timeout(7000),
-                            catchError((err: HttpErrorResponse) => {
-                                console.error(err);
-                                this._snackBar.open('Failed to retrieve Teams. Please try again later.',
-                                    'X',
-                                    {duration: 5 * 1000});
-                                this.teams.push({error: err.message});
-                                return throwError(err);
-                            }),
-                            finalize(() => this.showSpinner = false)
-                        )
-                        .subscribe((data: ClashTeam[]) => {
-                            this.syncTeamInformation(data, userDetails);
-                        })
-                }
+  private filterForTeamsByServer(valueToSearchFor: string) {
+    this.updateTentativeList(valueToSearchFor);
+    this.userDetailsService.getUserDetails()
+      .pipe(take(1))
+      .subscribe((userDetails) => {
+        if (!userDetails.username || userDetails.username === '') {
+          this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+            'X',
+            {duration: 5 * 1000});
+          this.teams = [{error: 'No data'}];
+          this.showSpinner = false;
+        } else {
+          this.clashBotService
+            .getClashTeams(valueToSearchFor)
+            .pipe(
+              take(1),
+              timeout(7000),
+              catchError((err: HttpErrorResponse) => {
+                console.error(err);
+                this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+                  'X',
+                  {duration: 5 * 1000});
+                this.teams.push({error: err.message});
+                return throwError(err);
+              }),
+              finalize(() => this.showSpinner = false)
+            )
+            .subscribe((data: ClashTeam[]) => {
+              this.syncTeamInformation(data, userDetails);
             })
-    }
+        }
+      })
+  }
 
-    syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {
-        this.teams = this.mapDynamicValues(data, userDetails);
-        this.applicationDetailsService.getApplicationDetails()
-          .pipe(take(1))
-          .subscribe((applicationDetails) => {
-            if (applicationDetails && applicationDetails.currentTournaments) {
-              if (data.length < 1) {
-                this.teams = [{error: 'No data'}];
-                this.eligibleTournaments = applicationDetails.currentTournaments;
-              } else {
-                let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
-                let newEligibleTournaments: ClashTournaments[] = [];
-                map.forEach((value, key) => {
-                  if (!value) {
-                    newEligibleTournaments.push(key);
-                  }
-                });
-                this.eligibleTournaments = newEligibleTournaments;
+  syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {
+    this.teams = this.mapDynamicValues(data, userDetails);
+    this.applicationDetailsService.getApplicationDetails()
+      .pipe(take(1))
+      .subscribe((applicationDetails) => {
+        if (applicationDetails && applicationDetails.currentTournaments) {
+          if (data.length < 1) {
+            this.teams = [{error: 'No data'}];
+            this.eligibleTournaments = applicationDetails.currentTournaments;
+          } else {
+            let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
+            let newEligibleTournaments: ClashTournaments[] = [];
+            map.forEach((value, key) => {
+              if (!value) {
+                newEligibleTournaments.push(key);
               }
-            }
-          });
+            });
+            this.eligibleTournaments = newEligibleTournaments;
+          }
+        }
+      });
   }
 
   private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
-      return data.map(record => {
-          record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
-          record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
-          return record;
-      });
+    return data.map(record => {
+      record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+      record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
+      return record;
+    });
   }
 
   registerForTeam($event: ClashTeam) {
@@ -252,11 +287,11 @@ export class TeamsDashboardComponent implements OnInit {
     let clashTournaments = this.eligibleTournaments.find(tournament => tournament.tournamentName === tournamentName && tournament.tournamentDay === tournamentDay);
     let serverName = '';
     if (this.formControl) {
-       serverName = this.formControl.value.trimLeft().trimRight();
+      serverName = this.formControl.value.trimLeft().trimRight();
     }
     element.deselect();
     this.userDetailsService.getUserDetails()
-        .pipe(take(1))
+      .pipe(take(1))
       .subscribe((userDetails) => {
         this.clashBotService.createNewTeam(userDetails, {
           serverName: serverName,
@@ -266,7 +301,7 @@ export class TeamsDashboardComponent implements OnInit {
           },
           startTime: clashTournaments?.startTime
         }).pipe(
-            take(1),
+          take(1),
           finalize(() => {
             if (serverName) {
               this.showSpinner = true;
@@ -286,5 +321,38 @@ export class TeamsDashboardComponent implements OnInit {
 
   showHelpDialog() {
     this.dialog.open(TeamsDashboardHelpDialogComponent);
+  }
+
+  tentativeRegister(element: ClashBotTentativeDetails, index: number) {
+    let actionMessage = 'added to';
+    if (element.isMember) {
+      actionMessage = 'removed from';
+    }
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});
+    dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
+      this.userDetailsService.getUserDetails()
+        .pipe(take(1))
+        .subscribe((userDetails) => {
+          if (result) {
+            this.clashBotService.postTentativeList(userDetails.id, element.serverName,
+              element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)
+              .pipe(take(1),
+                catchError(err => {
+                  console.error(err);
+                  this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
+                    'X',
+                    {duration: 5 * 1000});
+                  return throwError(err);
+                })
+              ).subscribe((response) => {
+                response.isMember = response.tentativePlayers.includes(userDetails.username);
+                if (this.tentativeList) {
+                  this.tentativeList[index] = response;
+                  if (this.table) this.table.renderRows();
+                }
+              });
+          }
+        })
+    })
   }
 }

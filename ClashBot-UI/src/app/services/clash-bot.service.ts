@@ -6,6 +6,8 @@ import {ClashTournaments} from "../interfaces/clash-tournaments";
 import {UserDetails} from "../interfaces/user-details";
 import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response";
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
+import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
+import {ClashBotTentativeRequest} from "../interfaces/clash-bot-tentative-request";
 
 @Injectable()
 export class ClashBotService {
@@ -45,6 +47,22 @@ export class ClashBotService {
     return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/team/register'), { body: payload});
   }
 
+  getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
+    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
+  }
+
+  postTentativeList(userId: string, serverName: string, tournamentName: string, tournamentDay: string): Observable<ClashBotTentativeDetails> {
+    let payload : ClashBotTentativeRequest = {
+        id: userId,
+      serverName: serverName,
+      tournamentDetails: {
+          tournamentName: tournamentName,
+        tournamentDay: tournamentDay
+      }
+    };
+    return this.httpClient.post<ClashBotTentativeDetails>(this.buildHostUrl('/api/tentative'), payload);
+  }
+
   buildHostUrl(url: string): string {
     if (window.location.hostname === 'localhost') {
       return `${window.location.protocol}//${window.location.hostname}:80${url}`;
@@ -70,9 +88,10 @@ export class ClashBotService {
     return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
   }
 
-  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any): Observable<ClashBotUserDetails> {
+  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any, playerName: string): Observable<ClashBotUserDetails> {
     let payload = {
       id: id,
+      playerName: playerName,
       serverName: serverName,
       preferredChampions: Array.from(preferredChampionList),
       subscriptions: subscriptions

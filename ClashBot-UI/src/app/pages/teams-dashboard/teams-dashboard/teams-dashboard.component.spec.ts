@@ -16,7 +16,7 @@ import {ClashTeam} from "../../../interfaces/clash-team";
 import {UserDetails} from "../../../interfaces/user-details";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {MatIconModule} from "@angular/material/icon";
-import {MatDialogModule} from "@angular/material/dialog";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {ColdObservable} from "rxjs/internal/testing/ColdObservable";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
@@ -24,6 +24,8 @@ import {MatOption, MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
+import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
+import {MatTableModule} from "@angular/material/table";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");
@@ -34,9 +36,10 @@ describe('TeamsDashboardComponent', () => {
   let component: TeamsDashboardComponent;
   let fixture: ComponentFixture<TeamsDashboardComponent>;
   let clashBotServiceMock: any;
-  let userDetailsMock: any;
+  let userDetailsServiceMock: any;
   let applicationDetailsMock: any;
   let snackBarMock: any;
+  let matDialogMock: any;
   let testScheduler: TestScheduler;
 
   beforeEach(async () => {
@@ -55,14 +58,15 @@ describe('TeamsDashboardComponent', () => {
         MatIconModule,
         MatDialogModule,
         MatOptionModule,
-        MatSelectModule],
-      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar],
-    })
-      .compileComponents();
+        MatSelectModule,
+        MatTableModule],
+      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar, MatDialog],
+    }).compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
     snackBarMock = TestBed.inject(MatSnackBar);
-    userDetailsMock = TestBed.inject(UserDetailsService);
+    userDetailsServiceMock = TestBed.inject(UserDetailsService);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
+    matDialogMock = TestBed.inject(MatDialog);
   });
 
   beforeEach(() => {
@@ -91,20 +95,39 @@ describe('TeamsDashboardComponent', () => {
           currentTournaments: mockClashTournaments,
           defaultGuild: 'Goon Squad',
           userGuilds: mockObservableGuilds
-        }
+        };
+        const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
+          "tentativePlayers": ["Sample User"]
+        }, {
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
+          "tentativePlayers": []
+        }, {
+          "serverName": "LoL-ClashBotSupport",
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
+          "tentativePlayers": []
+        }];
 
         let coldApplicationDetailsObs = cold('x|', {x: mockApplicationsDetails});
-        let coldUserDetailsObs = cold('x|', { x: mockUserDetails});
+        let coldUserDetailsObs = cold('x|', {x: mockUserDetails});
         let coldClashTeamsObs = cold('x|', {x: mockClashTeams});
+        let coldClashTentativeObs = cold('x|', {x: mockClashTentativeDetails});
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
-        userDetailsMock.getUserDetails.mockReturnValue(coldUserDetailsObs);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(coldUserDetailsObs);
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(coldClashTentativeObs);
         clashBotServiceMock.getClashTeams.mockReturnValue(coldClashTeamsObs);
 
         component = fixture.componentInstance;
 
         expect(component.showSpinner).toBeFalsy();
         expect(component.formControl).toBeFalsy();
+
+        mockClashTentativeDetails[0].isMember = true;
+        mockClashTentativeDetails[1].isMember = false;
+        mockClashTentativeDetails[2].isMember = false;
 
         fixture.detectChanges();
 
@@ -114,9 +137,12 @@ describe('TeamsDashboardComponent', () => {
         expect(component.color).toEqual('primary');
         expect(component.mode).toEqual('indeterminate');
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(userDetailsMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(2);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledTimes(1);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(component.tentativeList).toEqual(mockClashTentativeDetails);
         if (component.formControl) {
           expect(component.formControl.value).toEqual(mockApplicationsDetails.defaultGuild);
           expect(component.teams).toEqual(mockMappedTeams);
@@ -159,7 +185,7 @@ describe('TeamsDashboardComponent', () => {
         expect(component.color).toEqual('primary');
         expect(component.mode).toEqual('indeterminate');
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-        expect(userDetailsMock.getUserDetails).not.toHaveBeenCalled();
+        expect(userDetailsServiceMock.getUserDetails).not.toHaveBeenCalled();
         expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
         if (component.formControl) {
           expect(component.formControl.value).toBeFalsy();
@@ -189,7 +215,7 @@ describe('TeamsDashboardComponent', () => {
         const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
         const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
 
@@ -232,7 +258,7 @@ describe('TeamsDashboardComponent', () => {
         const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         const clashTeamsObservable$ = cold('-#', undefined, error);
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
         const mockMatChip: MatChip = ({
@@ -297,7 +323,7 @@ describe('TeamsDashboardComponent', () => {
         const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         const clashTeamsObservable$ = cold('7000ms x|', {x: mockClashTeams});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
         const mockMatChip: MatChip = ({
@@ -369,7 +395,7 @@ describe('TeamsDashboardComponent', () => {
         const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
         const mockMatChip: MatChip = ({
@@ -399,37 +425,6 @@ describe('TeamsDashboardComponent', () => {
       })
     })
   })
-
-  function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {
-    let mockObservableGuilds = [{
-      "id": "136278926191362058",
-      "name": "Garret's Discord",
-      "icon": "17ce03186d96453d4f2b341649b2b7cc",
-      "owner": false,
-      "permissions": 37215809,
-      "features": [],
-      "permissions_new": "246997835329"
-    }, {
-      "id": "434172219472609281",
-      "name": "The Other Other Guys",
-      "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-      "owner": false,
-      "permissions": 104324673,
-      "features": [],
-      "permissions_new": "247064944193"
-    }, {
-      "id": "837685892885512202",
-      "name": "LoL-ClashBotSupport",
-      "icon": null,
-      "owner": true,
-      "permissions": 2147483647,
-      "features": [],
-      "permissions_new": "274877906943"
-    }];
-    const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-    // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-    return {mockObservableGuilds, guildObservable$};
-  }
 
   describe('Register for Team', () => {
     test('When I call register for Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to register a user to the team.', () => {
@@ -474,7 +469,7 @@ describe('TeamsDashboardComponent', () => {
         let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse});
         let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -501,7 +496,7 @@ describe('TeamsDashboardComponent', () => {
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse})
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
         component.registerForTeam(mockRetrieveUserResponse);
@@ -536,7 +531,7 @@ describe('TeamsDashboardComponent', () => {
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('-#', undefined, expectedError);
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
         component.registerForTeam(mockRetrieveUserResponse);
@@ -566,7 +561,7 @@ describe('TeamsDashboardComponent', () => {
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
         let registerUserForTeamColdObservable = cold('7000ms -x|', {x: mockUserDetails});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
         component.registerForTeam(mockRetrieveUserResponse);
@@ -627,7 +622,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
         let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -688,7 +683,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
         let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -697,7 +692,7 @@ describe('TeamsDashboardComponent', () => {
         flush();
 
         expect(component.teams).toEqual([{error: 'No data'}]);
-        expect(userDetailsMock.getUserDetails).toHaveBeenCalled();
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalled();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
       })
@@ -756,7 +751,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('-#', undefined, expectedError);
         let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -815,7 +810,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('7000ms x|', {x: mockUnregisterFromTeamResponse});
         let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -884,7 +879,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
         let clashTeamsObservable$ = cold('#', undefined, expectedError);
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -945,7 +940,7 @@ describe('TeamsDashboardComponent', () => {
         let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
         let clashTeamsObservable$ = cold('7000ms x|', {x: expectedMockClashTeamResponse});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -973,7 +968,7 @@ describe('TeamsDashboardComponent', () => {
           url: 'https://clash-bot.ninja/api/teams'
         });
       testScheduler.run((helpers) => {
-        const { expectObservable } = helpers;
+        const {expectObservable} = helpers;
         expectObservable(component.handleClashTeamsError(snackBarMock, expectedError)).toBe('#', undefined, expectedError);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
@@ -1021,7 +1016,7 @@ describe('TeamsDashboardComponent', () => {
         let getTeamsColdObservable = cold('-x|', {x: mockReturnedUpdatedTeamsList});
         let createTeamColdObservable = cold('-x|', {x: mockCreateNewTeamReturn});
 
-        userDetailsMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsColdObservable);
         clashBotServiceMock.getClashTeams.mockReturnValue(getTeamsColdObservable);
         clashBotServiceMock.createNewTeam.mockReturnValue(getTeamsColdObservable);
 
@@ -1047,7 +1042,7 @@ describe('TeamsDashboardComponent', () => {
         } else {
           expect(component.formControl).toBeTruthy();
         }
-        expect(userDetailsMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledTimes(1);
       })
     })
@@ -1245,6 +1240,266 @@ describe('TeamsDashboardComponent', () => {
     })
   })
 
+  describe('Update Tentative List Details', () => {
+    test('If updateTentativeList is called with a serverName, it will populate the tentativeList with the tentiveList details for the server.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+        const mockUserDetails: UserDetails = { id: '1', username: 'Sample User', discriminator: '12312'};
+        const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
+          "tentativePlayers": ["Sample User"]
+        }, {
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
+          "tentativePlayers": []
+        }, {
+          "serverName": expectedGuildName,
+          "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
+          "tentativePlayers": []
+        }];
+
+        const mockTentativeDetailsObs = cold('x|', { x: JSON.parse(JSON.stringify(mockClashTentativeDetails))});
+        const mockUserDetailsObs = cold('x|', { x: mockUserDetails});
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        mockClashTentativeDetails[0].isMember = true;
+        mockClashTentativeDetails[1].isMember = false;
+        mockClashTentativeDetails[2].isMember = false;
+
+        expect(component.tentativeDataStatus).toEqual('LOADING');
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(component.tentativeList).toEqual(mockClashTentativeDetails);
+        expect(component.tentativeDataStatus).toEqual('SUCCESSFUL');
+      })
+    })
+
+    test('ERROR - call fails - If the updateTentativeList call fails, it should invoke a snack bar with a generic error message.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost/api/tentative'
+          });
+        const mockUserDetails: UserDetails = { id: '1', username: 'Sample User', discriminator: '12312'};
+
+        const mockTentativeDetailsObs = cold('#', undefined, expectedError);
+        const mockUserDetailsObs = cold('x|', { x: mockUserDetails});
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.', 'X', { duration: 5000});
+        expect(component.tentativeList).toBeFalsy();
+        expect(component.tentativeDataStatus).toEqual('FAILED');
+      })
+    })
+
+    test('ERROR - Timeout - If the updateTentativeList call timesout, it should invoke a snack bar with a generic error message.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const expectedGuildName = 'LoL-ClashBotSupport';
+        const mockUserDetails: UserDetails = { id: '1', username: 'Sample User', discriminator: '12312'};
+
+        const mockTentativeDetailsObs = cold('7000ms x|', {x: []});
+        const mockUserDetailsObs = cold('x|', { x: mockUserDetails});
+
+        clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+
+        component = fixture.componentInstance;
+        component.updateTentativeList(expectedGuildName);
+
+        flush();
+
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.', 'X', {duration: 5000});
+        expect(component.tentativeList).toBeFalsy();
+        expect(component.tentativeDataStatus).toEqual('FAILED');
+      })
+    })
+  })
+
+  describe('Tentative register/unregister', () => {
+    test('When tentativeRegister is called with add, it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: false
+        };
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+        let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
+        updatedTentativeDetails.tentativePlayers.push(mockUserDetails.username);
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
+
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+
+        component = fixture.componentInstance;
+
+        component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+        component.tentativeList.push({
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2'
+          },
+          isMember: false
+        });
+
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush();
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be added to the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(component.tentativeList && component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+        expect(component.tentativeList && component.tentativeList[0].isMember).toBeTruthy();
+      });
+    })
+
+    test('When tentativeRegister is called with remove, it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage', 'Sample User'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: true
+        };
+        let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
+        updatedTentativeDetails.tentativePlayers.pop();
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
+
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+
+        component = fixture.componentInstance;
+
+        component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+        component.tentativeList.push({
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2'
+          },
+          isMember: false
+        });
+
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush();
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be removed from the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(component.tentativeList && !component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+        expect(component.tentativeList && !component.tentativeList[0].isMember).toBeTruthy();
+      });
+    })
+
+    test('ERROR - Failed to make call to Clash Bot Service - If the call fails when trying to update the tentative list, then a generic message should be shown with a snack bar pop up.', () => {
+      testScheduler.run(helpers => {
+        const {cold, flush} = helpers;
+        const mockTentativeDetails: ClashBotTentativeDetails = {
+          serverName: 'Goon Squad',
+          tentativePlayers: ['Roidrage', 'Sample User'],
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1'
+          },
+          isMember: true
+        };
+
+        const expectedError =
+          new HttpErrorResponse({
+            error: 'Failed to make call.',
+            headers: undefined,
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'https://localhost/api/tentative'
+          });
+        const mockUserDetails: UserDetails = {id: '1', username: 'Sample User', discriminator: '12312'};
+
+        const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
+        const mockDialogObs = cold('x|', {x: true});
+        const mockedClashBotServiceObs = cold('#', undefined, expectedError);
+
+        jest.spyOn(matDialogMock, 'open');
+
+        userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);
+        clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+        matDialogMock.open.mockReturnValue({afterClosed: () => mockDialogObs});
+        component = fixture.componentInstance;
+        component.tentativeRegister(mockTentativeDetails, 0);
+
+        flush()
+
+        expect(userDetailsServiceMock.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+        expect(matDialogMock.open).toHaveBeenCalledWith(expect.any(Function), {data: {message: 'Are you sure you want to be removed from the Tentative list for this tournament?'}});
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+        expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(mockUserDetails.id, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+        expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+        expect(snackBarMock.open).toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!', 'X', {duration: 5000});
+      });
+    })
+  });
 });
 
 function mockDiscordGuilds(): DiscordGuild[] {
@@ -1344,4 +1599,35 @@ function mapClashTeams(mockClashTeams: ClashTeam[], mockUserDetails: UserDetails
       userOnTeam: !Array.isArray(record.playersDetails) || record.playersDetails.find(value => value.name === mockUserDetails.username) !== undefined
     }
   })
+}
+
+function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {
+  let mockObservableGuilds = [{
+    "id": "136278926191362058",
+    "name": "Garret's Discord",
+    "icon": "17ce03186d96453d4f2b341649b2b7cc",
+    "owner": false,
+    "permissions": 37215809,
+    "features": [],
+    "permissions_new": "246997835329"
+  }, {
+    "id": "434172219472609281",
+    "name": "The Other Other Guys",
+    "icon": "87580ac4ffcd87347a7e1d566e9285ce",
+    "owner": false,
+    "permissions": 104324673,
+    "features": [],
+    "permissions_new": "247064944193"
+  }, {
+    "id": "837685892885512202",
+    "name": "LoL-ClashBotSupport",
+    "icon": null,
+    "owner": true,
+    "permissions": 2147483647,
+    "features": [],
+    "permissions_new": "274877906943"
+  }];
+  const guildObservable$ = cold('x|', {x: mockObservableGuilds});
+  // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
+  return {mockObservableGuilds, guildObservable$};
 }

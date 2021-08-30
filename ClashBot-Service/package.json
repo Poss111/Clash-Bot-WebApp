@@ -9,7 +9,7 @@
     "preintegration-windows": "node integration/integration-setup.js",
     "integration-windows": "set INTEGRATION_TEST=true && node index.js",
     "preintegration": "node integration/integration-setup.js",
-    "test": "jest --silent"
+    "test": "jest unit --silent"
   },
   "author": "Daniel Poss",
   "license": "ISC",
