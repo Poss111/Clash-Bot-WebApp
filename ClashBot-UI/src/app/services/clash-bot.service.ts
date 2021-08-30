@@ -26,7 +26,6 @@ export class ClashBotService {
   registerUserForTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
     let payload = {
       id: userDetail.id,
-      username: userDetail.username,
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -38,7 +37,6 @@ export class ClashBotService {
   unregisterUserFromTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashBotGenericResponse> {
     let payload = {
       id: userDetail.id,
-      username: userDetail.username,
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -73,7 +71,6 @@ export class ClashBotService {
   createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
     let payload = {
       id: userDetail.id,
-      username: userDetail.username,
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
