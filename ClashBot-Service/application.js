@@ -26,21 +26,6 @@ let startUpApp = async () => {
             console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
         })
 
-        let convertTeamDbToTeamPayload = (expectedNewTeam) => {
-            return {
-                teamName: expectedNewTeam.teamName,
-                tournamentDetails: {
-                    tournamentName: expectedNewTeam.tournamentName,
-                    tournamentDay: expectedNewTeam.tournamentDay
-                },
-                serverName: expectedNewTeam.serverName,
-                startTime: expectedNewTeam.startTime,
-                playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
-                    return {name: data}
-                }) : {}
-            };
-        }
-
         app.post(`${urlPrefix}/team`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
@@ -60,7 +45,10 @@ let startUpApp = async () => {
                         res.statusCode = 400;
                         res.json({error: 'Player is not eligible to create a new Team.'});
                     } else {
-                        res.json(convertTeamDbToTeamPayload(newTeam));
+                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(newTeam.players)))
+                            .then(idToPlayerMap => {
+                                res.json(convertTeamDbToTeamPayload(newTeam, idToPlayerMap));
+                        });
                     }
                 }).catch(err => {
                     console.error(err);
@@ -123,21 +111,12 @@ let startUpApp = async () => {
                     if (!data) {
                         res.statusCode = 400;
                         payload = {error: 'Unable to find the Team requested to be persisted.'};
+                        res.json(payload);
                     } else {
-                        payload = {
-                            teamName: data.teamName,
-                            tournamentDetails: {
-                                tournamentName: data.tournamentName,
-                                tournamentDay: data.tournamentDay
-                            },
-                            serverName: data.serverName,
-                            startTime: data.startTime,
-                            playersDetails: Array.isArray(data.players) ? data.players.map(player => {
-                                return {name: player}
-                            }) : {}
-                        };
+                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(data.players))).then((idsToNameMap) => {
+                            res.json(convertTeamDbToTeamPayload(data, idsToNameMap));
+                        })
                     }
-                    res.json(payload);
                 }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to persist User to Team.')
@@ -358,4 +337,20 @@ let startUpApp = async () => {
     }
 }
 
-module.exports = startUpApp;
+let convertTeamDbToTeamPayload = (expectedNewTeam, idsToNameList) => {
+    return {
+        teamName: expectedNewTeam.teamName,
+        tournamentDetails: {
+            tournamentName: expectedNewTeam.tournamentName,
+            tournamentDay: expectedNewTeam.tournamentDay
+        },
+        serverName: expectedNewTeam.serverName,
+        startTime: expectedNewTeam.startTime,
+        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+            return {name: !idsToNameList[data] ? data : idsToNameList[data]}
+        }) : {}
+    };
+}
+
+module.exports.startUpApp = startUpApp;
+module.exports.convertTeamDbToTeamPayload = convertTeamDbToTeamPayload;

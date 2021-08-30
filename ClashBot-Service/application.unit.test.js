@@ -2,7 +2,7 @@ const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
-const startUpApp = require('./application');
+const { startUpApp, convertTeamDbToTeamPayload } = require('./application');
 const request = require('supertest');
 const {deepCopy} = require("./utility/tests/test-utility.utility.test");
 
@@ -170,6 +170,7 @@ describe('Clash Bot Service API Controller', () => {
     describe('Clash Team Registration', () => {
         test('As a User, I should be able to call /api/team/register to register with a specific team.', (done) => {
             let expectedUserId = '123456';
+            let expectedUsername = 'Roidrage';
             let expectedServer = 'Integration Server'
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
@@ -183,7 +184,7 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     playersDetails: [
-                        {name: expectedUserId},
+                        {name: expectedUsername},
                         {name: '1234321'}
                     ]
                 };
@@ -194,7 +195,11 @@ describe('Clash Bot Service API Controller', () => {
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay
             };
+            let idToNameObject = {};
+
+            idToNameObject[expectedUserId] = expectedUsername;
             clashTeamsDbImpl.registerWithSpecificTeam.mockResolvedValue(sampleRegisterReturn);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
             request(application)
                 .post('/api/team/register')
                 .send(
@@ -215,6 +220,8 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay
                     }], 'Abra');
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith([expectedUserId, '1234321']);
                     done();
                 })
         })
@@ -617,6 +624,7 @@ describe('Clash Bot Service API Controller', () => {
         test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
             let expectedServer = 'Test Server';
             let expectedUserId = '123';
+            let expectedUsername = 'Roidrage';
             let expectedTeam = 'Team Awesomenaught';
             let expectedTournamentName = 'awesome_sauce';
             let expectedTournamentDay = '1';
@@ -636,8 +644,13 @@ describe('Clash Bot Service API Controller', () => {
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay,
                 startTime: 'Aug 12th 2021 7:00 pm PDT'
-            }
+            };
+            let idToNameObject = {};
+
+            idToNameObject[expectedUserId] = expectedUsername;
+
             clashTeamsDbImpl.registerPlayer.mockResolvedValue(expectedNewTeam);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
             request(application)
                 .post('/api/team')
                 .send(expectedPayload)
@@ -645,14 +658,38 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual(convertTeamDbToTeamPayload(expectedNewTeam));
+                    expect(res.body).toEqual(convertTeamDbToTeamPayloadTest(expectedNewTeam, idToNameObject));
                     expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.id, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay,
                         startTime: expectedPayload.startTime
                     }])
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith([expectedUserId]);
                     done();
                 })
+        })
+
+        test('Convert Team Db to Team Payload, if a map with not matching ids are passed, it should default to the id.', () => {
+            let expectedServer = 'Test Server';
+            let expectedUserId = '123';
+            let expectedUsername = 'Roidrage';
+            let expectedTeam = 'Team Awesomenaught';
+            let expectedTournamentName = 'awesome_sauce';
+            let expectedTournamentDay = '1';
+            let expectedNewTeam = {
+                teamName: expectedTeam,
+                serverName: expectedServer,
+                players: [expectedUserId],
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay,
+                startTime: 'Aug 12th 2021 7:00 pm PDT'
+            };
+            let idToNameObject = {};
+
+            idToNameObject[expectedUserId] = expectedUsername;
+            let convertTeamDbToTeamPayload1 = convertTeamDbToTeamPayload(expectedNewTeam, idToNameObject);
+            expect(convertTeamDbToTeamPayload1.playersDetails).toEqual([{name: expectedUsername}]);
         })
 
         test('Error - No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
@@ -1576,7 +1613,7 @@ function createMockTentativeDbReturn(tournaments, serverName, tentativeIds) {
     return mockTentativeDbResponses;
 }
 
-function convertTeamDbToTeamPayload(expectedNewTeam) {
+function convertTeamDbToTeamPayloadTest(expectedNewTeam, idsToNameList) {
     return {
         teamName: expectedNewTeam.teamName,
         tournamentDetails: {
@@ -1585,8 +1622,8 @@ function convertTeamDbToTeamPayload(expectedNewTeam) {
         },
         serverName: expectedNewTeam.serverName,
         startTime: expectedNewTeam.startTime,
-        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
-            return {name: data}
+        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(id => {
+            return {name: idsToNameList[id]}
         }) : {}
     };
 }
