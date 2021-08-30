@@ -55,7 +55,6 @@ beforeEach(() => {
     jest.resetAllMocks();
 });
 
-
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
         let expectedTableObject = {setupTable: true};
@@ -455,7 +454,6 @@ describe('Register Specific Team', () => {
             tournamentDay: tournaments[0].tournamentDay
         };
         buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
-        expect(clashTeamsDbImpl.tentative).toHaveLength(0);
         return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName, () => {
             console.log('Do Something.');
         }).then(data => {
@@ -465,7 +463,6 @@ describe('Register Specific Team', () => {
             expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentName);
             expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentDay);
             expect(data.players).toEqual(updatedExpectedPlayers);
-            expect(clashTeamsDbImpl.tentative).toHaveLength(0);
             expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
                 [
                     {key: dynamoDbRetrieveList.Items[1].attrs.key},
@@ -487,94 +484,6 @@ describe('Register Specific Team', () => {
                         UpdateExpression: 'ADD players :playerName'
                     }, expect.any(Function)
                 ],
-            ]);
-        })
-    })
-
-    test('A user should be able to request to join a specific Team based on the Tournament and Team name and be removed from Tentative queue if they exist in it.', () => {
-        let playerName = 'TestPlayer1';
-        let serverName = 'Test Server';
-        let tournaments = [{
-            tournamentName: 'msi2021',
-            tournamentDay: '3'
-        }];
-        let teamName = 'Abra';
-        const dynamoDbRetrieveList = {
-            Items: [{
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team Existing`,
-                    serverName: serverName,
-                    players: ['Player3', playerName],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }, {
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team ${teamName}`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team ${teamName}`,
-                    serverName: serverName,
-                    players: ['Player3'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }, {
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team ${teamName}`,
-                    serverName: serverName,
-                    players: ['Player1', 'Player2'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }
-            ]
-        };
-        clashTeamsDbImpl.tentative = [{
-            playerName: playerName,
-            serverName: serverName,
-            tournamentName: tournaments[0].tournamentName
-        }];
-        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[0].attrs.players)).concat(playerName);
-        let mockTeam = {
-            key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-            teamName: `Team ${teamName}`,
-            serverName: serverName,
-            players: updatedExpectedPlayers,
-            tournamentName: tournaments[0].tournamentName,
-            tournamentDay: tournaments[0].tournamentDay
-        };
-        buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
-        expect(clashTeamsDbImpl.tentative).toHaveLength(1);
-        return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
-            expect(data).toBeTruthy();
-            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[1].attrs.teamName);
-            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[1].attrs.serverName);
-            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentName);
-            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentDay);
-            expect(data.players).toEqual(updatedExpectedPlayers);
-            expect(clashTeamsDbImpl.tentative).toHaveLength(0);
-            expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
-                [
-                    {key: dynamoDbRetrieveList.Items[0].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName],
-                            ':nameOfTeam': dynamoDbRetrieveList.Items[0].attrs.teamName
-                        },
-                        ConditionExpression: 'teamName = :nameOfTeam',
-                        UpdateExpression: 'DELETE players :playerName'
-                    }, expect.any(Function)
-                ],
-                [
-                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName]
-                        },
-                        UpdateExpression: 'ADD players :playerName'
-                    }, expect.any(Function)
-                ]
             ]);
         })
     })
@@ -1080,151 +989,6 @@ describe('Unregister Player', () => {
 
         return expect(clashTeamsDbImpl.deregisterPlayer('Player1', 'Sample Server', leagueTimes)).rejects.toMatch('Failed to update.')
     })
-})
-
-describe('Tentative Queue', () => {
-    test('When a user is not available in the tentative queue, they should be placed into the queue with their server and tournament passed.', () => {
-        const value = {
-            Items: [{
-                attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Sample Team',
-                    serverName: 'Sample Server',
-                    players: ['Player2', 'Player3'],
-                    tournamentName: 'msi2021',
-                    tournamentDay: '1'
-                }
-            }
-            ]
-        };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-        clashTeamsDbImpl.Team = jest.fn();
-        clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream
-        }
-        clashTeamsDbImpl.tentative = [];
-        return clashTeamsDbImpl.handleTentative('Player 1', 'Sample Server', 'msi2021').then((returnedValue) => {
-            expect(returnedValue).toBeFalsy();
-            expect(clashTeamsDbImpl.tentative.length).toBe(1);
-            expect(clashTeamsDbImpl.tentative[0]).toEqual({
-                playerName: 'Player 1',
-                serverName: 'Sample Server',
-                tournamentName: 'msi2021'
-            });
-        });
-    })
-
-    test('When a user is available in the tentative queue based on the server name and tournament, they should be removed from the queue.', () => {
-        const value = {
-            Items: [{
-                attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Sample Team',
-                    serverName: 'Sample Server',
-                    players: ['Player2', 'Player3'],
-                    tournamentName: 'msi2021',
-                    tournamentDay: '1'
-                }
-            }
-            ]
-        };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-        clashTeamsDbImpl.Team = jest.fn();
-        clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream
-        }
-        clashTeamsDbImpl.tentative = [{
-            playerName: 'Player 1',
-            serverName: 'Sample Server',
-            tournamentName: 'msi2021'
-        }];
-        return clashTeamsDbImpl.handleTentative('Player 1', 'Sample Server', 'msi2021').then((returnedValue) => {
-            expect(returnedValue).toBeTruthy();
-            expect(clashTeamsDbImpl.tentative.length).toEqual(0);
-        });
-    })
-
-    test('When a user is available in the tentative queue and an error occurs while unregistering them then the error should be propagated.', () => {
-        const value = {
-            Items: [{
-                attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Sample Team',
-                    serverName: 'Sample Server',
-                    players: ['Player1', 'Player3'],
-                    tournamentName: 'msi2021',
-                    tournamentDay: '1'
-                }
-            }
-            ]
-        };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-        dynamodb.documentClient = (() => {
-            return {
-                documentClient: () => jest.fn().mockReturnThis(),
-                createSet: () => jest.fn().mockReturnThis()
-            }
-        });
-        clashTeamsDbImpl.Team = jest.fn();
-        clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn().mockImplementation((key, params, callback) => {
-                callback('Failed to update.');
-            })
-        }
-        clashTeamsDbImpl.tentative = [];
-        return expect(clashTeamsDbImpl.handleTentative('Player1', 'Sample Server', 'msi2021')).rejects.toMatch('Failed to update.');
-    })
-
-    test('When a user is requesting to be removed from the tentative queue and they belong, they should be removed.', () => {
-        clashTeamsDbImpl.tentative = [{
-            playerName: 'Player 1',
-            serverName: 'Sample Server',
-            tournamentName: 'msi2021'
-        }];
-        clashTeamsDbImpl.removeFromTentative('Player 1', 'Sample Server', 'msi2021');
-        expect(clashTeamsDbImpl.tentative.length).toEqual(0);
-    })
-
-    test('When a user is requesting to be removed from the tentative queue and they do not belong, they should not be removed.', () => {
-        clashTeamsDbImpl.tentative = [{
-            playerName: 'Player 1',
-            serverName: 'Sample Server',
-            tournamentName: 'msi2021'
-        }];
-        clashTeamsDbImpl.removeFromTentative('Player 2', 'Sample Server', 'msi2021');
-        expect(clashTeamsDbImpl.tentative.length).toEqual(1);
-        clashTeamsDbImpl.tentative.forEach((record) => {
-            expect(record.playerName).toEqual('Player 1');
-        })
-    });
-
-    test('When a user retrieves from the tentative queue, they filter based on the server name.', () => {
-        clashTeamsDbImpl.tentative = [{
-            playerName: 'Player 1',
-            serverName: 'Sample Server',
-            tournamentName: 'msi2021'
-        }, {
-            playerName: 'Player 2',
-            serverName: 'Sample Server2',
-            tournamentName: 'msi2021'
-        }];
-        let serverName = 'Sample Server';
-        const tentativeForServer = clashTeamsDbImpl.getTentative(serverName);
-        expect(tentativeForServer).toEqual([clashTeamsDbImpl.tentative[0]]);
-    });
 })
 
 describe('Create New Team', () => {
@@ -1811,11 +1575,6 @@ describe('Build register Player logic map', () => {
 
 test('Should return a hashkey of the team name and the server name passed.', () => {
     expect(clashTeamsDbImpl.getKey('Sample Team', 'Sample Server', 'msi2021', 'day1')).toEqual('Sample Team#Sample Server#msi2021#day1');
-})
-
-test('Should return a copy of the tentative users.', () => {
-    clashTeamsDbImpl.tentative = ['Player1', 'Player2'];
-    expect(clashTeamsDbImpl.getTentative()).toEqual(clashTeamsDbImpl.tentative);
 })
 
 function buildSampleTeam(players, serverName, teamName, tournamentName, tournamentDay) {

@@ -5,11 +5,9 @@ const names = require('../random-names');
 
 class ClashTeamsDbImpl {
     Team;
-    tentative = [];
     tableName = 'ClashTeam';
 
-    constructor() {
-    }
+    constructor() {}
 
     initialize() {
         return new Promise((resolve, reject) => {
@@ -93,7 +91,6 @@ class ClashTeamsDbImpl {
                         return tournament.tournamentName === tourneyKeySplit[0]
                             && tournament.tournamentDay === tourneyKeySplit[1];
                     });
-                    this.removeIfExistingInTentative(id, serverName, tournamentToUse);
 
                     let updateCallback = (err, record) => {
                         if (err) reject(err);
@@ -137,10 +134,6 @@ class ClashTeamsDbImpl {
                 if (!foundTeam) {
                     resolve(foundTeam);
                 }
-                this.removeIfExistingInTentative(id, serverName, {
-                    tournamentName: foundTeam.tournamentName,
-                    tournamentDay: foundTeam.tournamentDay
-                })
                 if (currentTeam) {
                     this.unregisterPlayerWithSpecificTeam(id, [currentTeam], serverName, reject);
                 }
@@ -178,16 +171,6 @@ class ClashTeamsDbImpl {
                 foundTeam.tournamentName,
                 foundTeam.tournamentDay)
         }, params, (err, record) => callback(err, record));
-    }
-
-    removeIfExistingInTentative(id, serverName, tournamentToUse) {
-        if (this.tentative.some(record => record.playerName === id
-            && record.serverName === serverName
-            && record.tournamentName === tournamentToUse.tournamentName)) {
-            this.handleTentative(id, serverName, tournamentToUse.tournamentName).then((data) => {
-                if (data) console.log('Pulled off tentative');
-            });
-        }
     }
 
     buildTeamLogic(tournaments, tournamentToTeamMap) {
@@ -308,60 +291,8 @@ class ClashTeamsDbImpl {
         this.Team.update(createTeam, (err, data) => callback(err, data));
     }
 
-    handleTentative(id, serverName, tournamentName) {
-        return new Promise((resolve, reject) => {
-            const index = this.tentative.findIndex((record) => record.playerName === id
-                && record.serverName === serverName
-                && record.tournamentName === tournamentName);
-            if (index >= 0) {
-                this.tentative.splice(index, 1);
-                resolve(true);
-            } else {
-                const tournamentsToDeregister = [{
-                    tournamentName: tournamentName,
-                    tournamentDay: '1'
-                },
-                    {
-                        tournamentName: tournamentName,
-                        tournamentDay: '2'
-                    },
-                    {
-                        tournamentName: tournamentName,
-                        tournamentDay: '3'
-                    },
-                    {
-                        tournamentName: tournamentName,
-                        tournamentDay: '4'
-                    }];
-                this.deregisterPlayer(id, serverName, tournamentsToDeregister)
-                    .then(() => {
-                        this.tentative.push({
-                            playerName: id,
-                            serverName: serverName,
-                            tournamentName: tournamentName
-                        });
-                        resolve(false);
-                    })
-                    .catch(err => reject(err));
-            }
-        });
-    }
-
-    removeFromTentative(id, serverName, tournamentName) {
-        const index = this.tentative.findIndex((record) => record.playerName === id
-            && record.serverName === serverName
-            && record.tournamentName === tournamentName);
-        if (index >= 0) {
-            this.tentative.splice(index, 1);
-        }
-    }
-
     getKey(teamName, serverName, tournamentName, tournamentDay) {
         return `${teamName}#${serverName}#${tournamentName}#${tournamentDay}`;
-    }
-
-    getTentative(serverName) {
-        return JSON.parse(JSON.stringify(this.tentative)).filter(data => data.serverName === serverName);
     }
 
     findFirstAvailableTeam(id, tournaments, teams) {

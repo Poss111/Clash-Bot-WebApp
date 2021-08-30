@@ -73,9 +73,7 @@ describe('Clash Bot Service API Controller', () => {
                 {
                     startTime: "Jan 21 2021",
                     serverName: "Goon Squad",
-                    players: [
-                        "5"
-                    ],
+                    players: ["5"],
                     teamName: "Team Absol",
                     tournamentName: "Awesome Sauce",
                     updatedAt: "2021-07-19T14:06:29.155Z",
@@ -108,9 +106,7 @@ describe('Clash Bot Service API Controller', () => {
                 {
                     startTime: "Jan 21 2021",
                     serverName: "Goon Squad",
-                    players: [
-                        "6"
-                    ],
+                    players: ["6"],
                     teamName: "Team Abra",
                     tournamentName: "Awesome Sauce",
                     updatedAt: "2021-07-25T01:44:24.048Z",
@@ -120,9 +116,7 @@ describe('Clash Bot Service API Controller', () => {
                 {
                     startTime: "Jan 21 2021",
                     serverName: "Goon Squad",
-                    players: [
-                        "5"
-                    ],
+                    players: ["5"],
                     teamName: "Team Absol",
                     tournamentName: "Awesome Sauce",
                     updatedAt: "2021-07-19T14:06:29.155Z",
@@ -132,9 +126,7 @@ describe('Clash Bot Service API Controller', () => {
                 {
                     startTime: "Jan 21 2021",
                     serverName: "Goon Squad",
-                    players: [
-                        "2"
-                    ],
+                    players: ["2"],
                     teamName: "Team Blastoise",
                     tournamentName: "Awesome Sauce",
                     updatedAt: "2021-07-19T14:06:29.155Z",
