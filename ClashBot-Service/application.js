@@ -104,7 +104,7 @@ let startUpApp = async () => {
         })
 
         app.post(`${urlPrefix}/team/register`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
             } else if (!req.body.teamName) {
                 badRequestHandler(res, 'Missing Team to persist with.');
@@ -115,7 +115,7 @@ let startUpApp = async () => {
             } else {
                 console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
                 let teamName = req.body.teamName.split(' ')[1];
-                clashTeamsDbImpl.registerWithSpecificTeam(req.body.username, req.body.serverName, [{
+                clashTeamsDbImpl.registerWithSpecificTeam(req.body.id, req.body.serverName, [{
                     tournamentName: req.body.tournamentName,
                     tournamentDay: req.body.tournamentDay
                 }], teamName).then(data => {
