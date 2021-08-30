@@ -616,13 +616,13 @@ describe('Clash Bot Service API Controller', () => {
     describe('Clash Create New Team', () => {
         test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
             let expectedServer = 'Test Server';
+            let expectedUserId = '123';
             let expectedTeam = 'Team Awesomenaught';
             let expectedTournamentName = 'awesome_sauce';
             let expectedTournamentDay = '1';
             const expectedPayload =
                 {
-                    id: '12312',
-                    username: 'Test User',
+                    id: expectedUserId,
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
@@ -632,7 +632,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedNewTeam = {
                 teamName: 'New Team',
                 serverName: expectedServer,
-                players: [expectedPayload.username],
+                players: [expectedPayload.id],
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay,
                 startTime: 'Aug 12th 2021 7:00 pm PDT'
@@ -646,7 +646,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(convertTeamDbToTeamPayload(expectedNewTeam));
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.id, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay,
                         startTime: expectedPayload.startTime
@@ -657,13 +657,13 @@ describe('Clash Bot Service API Controller', () => {
 
         test('Error - No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
             let expectedServer = 'Test Server';
+            let expectedUserId = '123';
             let expectedTeam = 'Team Awesomenaught';
             let expectedTournamentName = 'awesome_sauce';
             let expectedTournamentDay = '1';
             const expectedPayload =
                 {
-                    id: '12312',
-                    username: 'Test User',
+                    id: expectedUserId,
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
@@ -673,7 +673,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedNewTeam = [{
                 teamName: 'New Team',
                 serverName: expectedServer,
-                players: [expectedPayload.username],
+                players: [expectedPayload.id],
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay,
                 startTime: 'Aug 12th 2021 7:00 pm PDT',
@@ -688,7 +688,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(400, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual({error: 'Player is not eligible to create a new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.id, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay,
                         startTime: expectedPayload.startTime
@@ -699,13 +699,13 @@ describe('Clash Bot Service API Controller', () => {
 
         test('Error - Failed to create Team - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails.', (done) => {
             let expectedServer = 'Test Server';
+            let expectedUserId = '123';
             let expectedTeam = 'Team Awesomenaught';
             let expectedTournamentName = 'awesome_sauce';
             let expectedTournamentDay = '1';
             const expectedPayload =
                 {
-                    id: '12312',
-                    username: 'Test User',
+                    id: expectedUserId,
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,
@@ -722,7 +722,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(500, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual({error: 'Failed to create new Team.'});
-                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.username, expectedServer, [{
+                    expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPayload.id, expectedServer, [{
                         tournamentName: expectedTournamentName,
                         tournamentDay: expectedTournamentDay,
                         startTime: expectedPayload.startTime
@@ -766,32 +766,6 @@ describe('Clash Bot Service API Controller', () => {
             const expectedPayload =
                 {
                     username: 'Test User',
-                    serverName: expectedServer,
-                    teamName: expectedTeam,
-                    tournamentName: expectedTournamentName,
-                    tournamentDay: expectedTournamentDay
-                };
-            request(application)
-                .post('/api/team')
-                .send(expectedPayload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).toEqual({error: 'Missing User to persist.'});
-                    expect(clashTeamsDbImpl.registerPlayer).not.toHaveBeenCalled();
-                    done();
-                })
-        })
-
-        test('Bad Request - missing Username - Create New Team I should be returned a 400 Bad Request if the Username is missing.', (done) => {
-            let expectedServer = 'Test Server';
-            let expectedTeam = 'Team Awesomenaught';
-            let expectedTournamentName = 'awesome_sauce';
-            let expectedTournamentDay = '1';
-            const expectedPayload =
-                {
-                    id: '24323123',
                     serverName: expectedServer,
                     teamName: expectedTeam,
                     tournamentName: expectedTournamentName,

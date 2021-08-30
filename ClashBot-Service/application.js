@@ -42,7 +42,7 @@ let startUpApp = async () => {
         }
 
         app.post(`${urlPrefix}/team`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
             } else if (!req.body.serverName) {
                 badRequestHandler(res, 'Missing Server to persist with.');
@@ -51,7 +51,7 @@ let startUpApp = async () => {
             } else if (!req.body.startTime) {
                 badRequestHandler(res, 'Missing Tournament start time to persist.');
             } else {
-                clashTeamsDbImpl.registerPlayer(req.body.username, req.body.serverName, [{
+                clashTeamsDbImpl.registerPlayer(req.body.id, req.body.serverName, [{
                     tournamentName: req.body.tournamentName,
                     tournamentDay: req.body.tournamentDay,
                     startTime: req.body.startTime
