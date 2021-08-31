@@ -14,20 +14,24 @@ class ClashTeamsServiceImpl {
                             tournamentDay: tournamentDay,
                             startTime: startTime
                         }]).then((response) => {
-                            clashSubscriptionDbImpl.retrievePlayerNames([response.players[0]]).then(idsToPlayerNameMap => {
-                                resolve({
-                                    teamName: response.teamName,
-                                    serverName: response.serverName,
-                                    playersDetails: Array.isArray(response.players) ? response.players.map(data => {
-                                        return {name: !idsToPlayerNameMap[data] ? data : idsToPlayerNameMap[data]}
-                                    }) : {},
-                                    tournamentDetails: {
-                                        tournamentName: response.tournamentName,
-                                        tournamentDay: response.tournamentDay
-                                    },
-                                    startTime: response.startTime,
+                            if (response.exist) {
+                                resolve({error: 'Player is not eligible to create a new Team.'});
+                            } else {
+                                clashSubscriptionDbImpl.retrievePlayerNames([response.players[0]]).then(idsToPlayerNameMap => {
+                                    resolve({
+                                        teamName: response.teamName,
+                                        serverName: response.serverName,
+                                        playersDetails: Array.isArray(response.players) ? response.players.map(data => {
+                                            return {name: !idsToPlayerNameMap[data] ? data : idsToPlayerNameMap[data]}
+                                        }) : {},
+                                        tournamentDetails: {
+                                            tournamentName: response.tournamentName,
+                                            tournamentDay: response.tournamentDay
+                                        },
+                                        startTime: response.startTime,
+                                    });
                                 });
-                            });
+                            }
                         });
                     };
                     if (isTentativeResults.onTentative) {

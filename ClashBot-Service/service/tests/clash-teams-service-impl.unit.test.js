@@ -17,23 +17,53 @@ describe('Clash Teams Service Impl', () => {
 
     describe('Create New Team', () => {
 
-        const verifyCreateNewTeamResults = (expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, removeFromTentative) => {
+        function verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
             expect(clashTentativeDbImpl.isTentative).toHaveBeenCalledTimes(1);
             expect(clashTentativeDbImpl.isTentative).toHaveBeenCalledWith(expectedPlayerId, expectedServerName, {
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay
             })
+        }
 
+        function verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime) {
             expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.registerPlayer).toHaveBeenCalledWith(expectedPlayerId, expectedServerName, [{
                 tournamentName: expectedTournamentName,
                 tournamentDay: expectedTournamentDay,
                 startTime: expectedStartTime
             }]);
+        }
+
+        function verifyRetrievePlayerNamesIsInvoked(expectedPlayerId) {
             expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1)
             expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith([expectedPlayerId]);
+        }
+
+        function verifyRemoveFromTentativeIsInvoked(expectedPlayerId, expectedTentativeListObject) {
+            expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledTimes(1);
+            expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledWith(expectedPlayerId, expectedTentativeListObject);
+        }
+
+        const verifyCreateNewTeamResults = (expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, expectedTentativeListObject, removeFromTentative) => {
+            verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime);
+            verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
             expect(data).toEqual(expectedResult);
-            removeFromTentative ? expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledTimes(1) : expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
+            removeFromTentative ? verifyRemoveFromTentativeIsInvoked(expectedPlayerId, expectedTentativeListObject) : expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
+        }
+
+        function setupIsTentativeReturn(isTentative, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
+            const mockIsTentativeObject = {
+                onTentative: isTentative,
+                tentativeList: {
+                    key: 'Some#key',
+                    tentativePlayers: [expectedPlayerId],
+                    serverName: expectedServerName,
+                    tournamentDetails: {tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay}
+                }
+            };
+            clashTentativeDbImpl.isTentative.mockResolvedValue(mockIsTentativeObject);
+            return mockIsTentativeObject;
         }
 
         const setupCreateNewTeamData = (isTentative) => {
@@ -58,11 +88,9 @@ describe('Clash Teams Service Impl', () => {
                 },
                 startTime: mockDbResponse.startTime,
             };
-
-            const mockIsTentativeObject = { onTentative: isTentative, tentativeList: { key: 'Some#key', tentativePlayers: [expectedPlayerId], serverName: expectedServerName, tournamentDetails: { tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay }}};
+            const mockIsTentativeObject = setupIsTentativeReturn(isTentative, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
 
             clashTeamsDbImpl.registerPlayer.mockResolvedValue(mockDbResponse);
-            clashTentativeDbImpl.isTentative.mockResolvedValue(mockIsTentativeObject);
             clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
             return {
                 expectedServerName,
@@ -84,13 +112,33 @@ describe('Clash Teams Service Impl', () => {
             clashTentativeDbImpl.removeFromTentative.mockResolvedValue(mockTentativeObjectReturned);
 
             return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
-                .then(data => verifyCreateNewTeamResults(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, true));
+                .then(data => verifyCreateNewTeamResults(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, mockIsTentativeObject.tentativeList, true));
         })
 
         test('When I call to create a new Team and I do not belong to and existing tentative list, I should not be removed from any tentative list that belongs to the server and tournament details given.', () => {
             let {expectedServerName, expectedTournamentName, expectedTournamentDay, expectedPlayerId, expectedStartTime, expectedResult} = setupCreateNewTeamData(false);
             return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
-                .then(data => verifyCreateNewTeamResults(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, false));
+                .then(data => verifyCreateNewTeamResults(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, undefined,false));
+        })
+
+        test('No tournaments available - When I call to create a new Team, if I do not have any tournaments available to me then I should respond with a payload containing an error message.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedStartTime = new Date().toISOString();
+
+            clashTeamsDbImpl.registerPlayer.mockResolvedValue({ exist: true });
+
+            setupIsTentativeReturn(false, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+
+            return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
+                .then(data => {
+                    verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                    verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).not.toHaveBeenCalled();
+                    expect(data).toEqual({error: 'Player is not eligible to create a new Team.'});
+                });
         })
     })
 
