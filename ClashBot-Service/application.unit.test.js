@@ -260,18 +260,7 @@ describe('Clash Bot Service API Controller', () => {
                         {name: '1234321'}
                     ]
                 };
-            const sampleRegisterReturn = {
-                teamName: expectedTeam,
-                serverName: expectedServer,
-                players: [expectedUserId, '1234321'],
-                tournamentName: expectedTournamentName,
-                tournamentDay: expectedTournamentDay
-            };
-            let idToNameObject = {};
-
-            idToNameObject[expectedUserId] = expectedUsername;
-            clashTeamsDbImpl.registerWithSpecificTeam.mockResolvedValue(sampleRegisterReturn);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
+            clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
             request(application)
                 .post('/api/team/register')
                 .send(
@@ -287,13 +276,8 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
+                    expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual(mockReturnedTeam);
-                    expect(clashTeamsDbImpl.registerWithSpecificTeam).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }], 'Abra');
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith([expectedUserId, '1234321']);
                     done();
                 })
         })
@@ -304,7 +288,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsDbImpl.registerWithSpecificTeam.mockRejectedValue(new Error('Failed to persist User.'));
+            clashTeamsServiceImpl.registerWithTeam.mockRejectedValue(new Error('Failed to persist User.'));
             request(application)
                 .post('/api/team/register')
                 .send(
@@ -320,11 +304,8 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
+                    expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual({error: 'Failed to persist User to Team.'});
-                    expect(clashTeamsDbImpl.registerWithSpecificTeam).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }], 'Abra');
                     done();
                 })
         })
@@ -335,7 +316,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsDbImpl.registerWithSpecificTeam.mockResolvedValue(undefined);
+            clashTeamsServiceImpl.registerWithTeam.mockResolvedValue({ error: 'Unable to find the Team requested to be persisted.' });
             request(application)
                 .post('/api/team/register')
                 .send(
@@ -351,11 +332,8 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
                     if (err) return done(err);
+                    expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual({error: 'Unable to find the Team requested to be persisted.'});
-                    expect(clashTeamsDbImpl.registerWithSpecificTeam).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }], 'Abra');
                     done();
                 })
         })

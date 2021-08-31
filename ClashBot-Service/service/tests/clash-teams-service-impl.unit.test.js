@@ -15,7 +15,7 @@ beforeEach(() => {
 
 describe('Clash Teams Service Impl', () => {
 
-    function verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
+    function verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
         expect(clashTentativeDbImpl.isTentative).toHaveBeenCalledTimes(1);
         expect(clashTentativeDbImpl.isTentative).toHaveBeenCalledWith(expectedPlayerId, expectedServerName, {
             tournamentName: expectedTournamentName,
@@ -81,7 +81,7 @@ describe('Clash Teams Service Impl', () => {
     describe('Create New Team', () => {
 
         const verifyCreateNewTeamResults = (expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime, data, expectedResult, expectedTentativeListObject, removeFromTentative) => {
-            verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
             verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime);
             verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
             expect(data).toEqual(expectedResult);
@@ -144,7 +144,7 @@ describe('Clash Teams Service Impl', () => {
 
             return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
                 .then(data => {
-                    verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                    verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
                     verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).not.toHaveBeenCalled();
                     expect(data).toEqual({error: 'Player is not eligible to create a new Team.'});
@@ -182,7 +182,7 @@ describe('Clash Teams Service Impl', () => {
                 .then(resultingPayload => {
                     verifyRegisterWithSpecificTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedTeamName);
                     verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
-                    verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                    verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
                     verifyRemoveFromTentativeIsInvoked(expectedPlayerId, mockIsTentativeReturn.tentativeList);
                     expect(resultingPayload).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, idToNamesMap));
                 });
@@ -206,9 +206,30 @@ describe('Clash Teams Service Impl', () => {
                 .then(resultingPayload => {
                     verifyRegisterWithSpecificTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedTeamName);
                     verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
-                    verifyTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                    verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
                     expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
                     expect(resultingPayload).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, idToNamesMap));
+                });
+        })
+
+        test('When I call to register with a Team and I am not able to join it, I should return an error payload stating so.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedTeamName = 'Abra';
+
+            clashTeamsDbImpl.registerWithSpecificTeam.mockResolvedValue(undefined);
+
+            setupIsTentativeReturn(false, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+
+            return clashTeamsServiceImpl.registerWithTeam(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                .then(resultingPayload => {
+                    verifyRegisterWithSpecificTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedTeamName);
+                    verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                    expect(clashSubscriptionDbImpl.retrievePlayerNames).not.toHaveBeenCalled();
+                    expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
+                    expect(resultingPayload).toEqual({ error: 'Unable to find the Team requested to be persisted.' });
                 });
         })
 

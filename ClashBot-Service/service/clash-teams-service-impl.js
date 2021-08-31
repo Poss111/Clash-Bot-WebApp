@@ -58,8 +58,12 @@ class ClashTeamsServiceImpl {
                     tournamentDay: tournamentDay
                 }], teamName)
                     .then((dbResponse) => {
-                        this.mapTeamDbResponseToApiResponse(dbResponse, resolve);
-                    })
+                        if (!dbResponse) {
+                            resolve({ error: 'Unable to find the Team requested to be persisted.' });
+                        } else {
+                            this.mapTeamDbResponseToApiResponse(dbResponse, resolve);
+                        }
+                    });
             }
             clashTentativeDbImpl.isTentative(id, serverName, {
                 tournamentName: tournamentName,

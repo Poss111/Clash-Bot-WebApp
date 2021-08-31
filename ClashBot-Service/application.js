@@ -92,21 +92,11 @@ let startUpApp = async () => {
             } else {
                 console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
                 let teamName = req.body.teamName.split(' ')[1];
-                clashTeamsDbImpl.registerWithSpecificTeam(req.body.id, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay
-                }], teamName).then(data => {
-                    let payload;
-                    if (!data) {
-                        res.statusCode = 400;
-                        payload = {error: 'Unable to find the Team requested to be persisted.'};
-                        res.json(payload);
-                    } else {
-                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(data.players))).then((idsToNameMap) => {
-                            res.json(convertTeamDbToTeamPayload(data, idsToNameMap));
-                        })
-                    }
-                }).catch(err => {
+                clashTeamsServiceImpl.registerWithTeam(req.body.id, teamName, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then(data => {
+                        if (data.error) res.statusCode = 400
+                        res.json(data);
+                    }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to persist User to Team.')
                 });
@@ -252,7 +242,8 @@ let startUpApp = async () => {
                                 }
                             })
                             if (tournaments.length > 0) {
-                                tournaments.forEach(tournament => payload.push({serverName: req.query.serverName,
+                                tournaments.forEach(tournament => payload.push({
+                                    serverName: req.query.serverName,
                                     tournamentDetails: {
                                         tournamentName: tournament.tournamentName,
                                         tournamentDay: tournament.tournamentDay
