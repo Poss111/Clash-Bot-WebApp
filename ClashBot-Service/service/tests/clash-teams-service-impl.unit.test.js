@@ -159,6 +159,47 @@ describe('Clash Teams Service Impl', () => {
                     expect(data).toEqual({error: 'Player is not eligible to create a new Team.'});
                 });
         })
+
+        test('Error - isTentative - If isTentative fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedStartTime = new Date().toISOString();
+            const error = new Error("Failed to retrieve tentative record.");
+            clashTentativeDbImpl.isTentative.mockRejectedValue(error);
+            return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
+        test('Error - registerPlayer - If registerPlayer fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedStartTime = new Date().toISOString();
+            setupIsTentativeReturn(false, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            const error = new Error("Failed to retrieve tentative record.");
+            clashTeamsDbImpl.registerPlayer.mockRejectedValue(error);
+            return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
+        test('Error - removeFromTentative - If removeFromTentative fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedStartTime = new Date().toISOString();
+            setupIsTentativeReturn(true, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            const error = new Error("Failed to retrieve tentative record.");
+            clashTentativeDbImpl.removeFromTentative.mockRejectedValue(error);
+            return clashTeamsServiceImpl.createNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
     })
 
     describe('Register with Team', () => {
@@ -242,6 +283,47 @@ describe('Clash Teams Service Impl', () => {
                 });
         })
 
+        test('Error - isTentative - If isTentative fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedTeamName = 'Abra';
+            const error = new Error('Failed to retrieve Tentative.');
+            clashTentativeDbImpl.isTentative.mockRejectedValue(error);
+            return clashTeamsServiceImpl.registerWithTeam(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
+        test('Error - registerWithSpecificTeam - If registerWithSpecificTeam fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedTeamName = 'Abra';
+            const error = new Error('Failed to retrieve Tentative.');
+            setupIsTentativeReturn(false, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            clashTeamsDbImpl.registerWithSpecificTeam.mockRejectedValue(error);
+            return clashTeamsServiceImpl.registerWithTeam(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
+        test('Error - removeFromTentative - If removeFromTentative fails with an error, it should be rejected successfully.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+            const expectedTeamName = 'Abra';
+            const error = new Error('Failed to retrieve Tentative.');
+            setupIsTentativeReturn(true, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+            clashTentativeDbImpl.removeFromTentative.mockRejectedValue(error);
+            return clashTeamsServiceImpl.registerWithTeam(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
     })
 
     describe('Unregister from Team', () => {
@@ -271,7 +353,7 @@ describe('Clash Teams Service Impl', () => {
             return clashTeamsServiceImpl.unregisterFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
                 .then(result => {
                     verifyUnregisterWithTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
-                    verifyRetrievePlayerNamesIsInvoked( mockUnregisterTeamsDbResponse.players);
+                    verifyRetrievePlayerNamesIsInvoked(mockUnregisterTeamsDbResponse.players);
                     expect(result).toEqual(mapToApiResponse(mockUnregisterTeamsDbResponse, expectedServerName, idToPlayerNameMap));
                     expect(result).toBeTruthy();
                 });
@@ -289,16 +371,24 @@ describe('Clash Teams Service Impl', () => {
                 .then(result => {
                     verifyUnregisterWithTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).not.toHaveBeenCalled();
-                    expect(result).toEqual({ error: 'User not found on requested Team.' });
+                    expect(result).toEqual({error: 'User not found on requested Team.'});
                 });
         })
-    })
 
-    describe('Retrieve Team for Server and Tournament', () => {
-        test('When I call to retrieve all Teams for a Server and Tournaments, I should be returned an array of Teams.', () => {
-            expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments()).toBeTruthy();
+        test('Error - deregisterPlayer - If deregisterPlayer fails with an error, it should be rejected properly.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '2';
+            const expectedPlayerId = '123131';
+
+            const error = new Error('Failed to unregister player.');
+
+            clashTeamsDbImpl.deregisterPlayer.mockRejectedValue(error);
+
+            clashTeamsServiceImpl.unregisterFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
         })
-
     })
 
     describe('Retrieve Teams for given Server Name and Tournaments', () => {
@@ -310,10 +400,10 @@ describe('Clash Teams Service Impl', () => {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '1'
             },
-            {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
-            }];
+                {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '2'
+                }];
             let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
             let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
             let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
@@ -363,6 +453,46 @@ describe('Clash Teams Service Impl', () => {
                 expect(results).toEqual(expectedResponse);
             })
         })
+
+        test('Error - getTeams - If getTeams fails with an error, it should be rejected properly.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedTournaments = [{
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1'
+            },
+                {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '2'
+                }];
+            const error = new Error('Failed to retrieve clash teams.');
+            clashTeamsDbImpl.getTeams.mockRejectedValue(error);
+            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
+        test('Error - retrievePlayerNames - If retrievePlayerNames fails with an error, it should be rejected properly.', () => {
+            const expectedServerName = 'Goon Squad';
+            const expectedPlayerId = '123131';
+            const expectedTournaments = [{
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1'
+            },
+                {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '2'
+                }];
+            const error = new Error('Failed to retrieve clash teams.');
+            let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
+            let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
+            let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+            clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
+            clashSubscriptionDbImpl.retrievePlayerNames.mockRejectedValue(error);
+            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
+                .then(() => expect(true).toBeFalsy())
+                .catch(err => expect(err).toEqual(error));
+        })
+
     })
 
     describe('Map Team Db Response to API Response', () => {

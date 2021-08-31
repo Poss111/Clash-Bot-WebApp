@@ -4,7 +4,7 @@ const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
 
 class ClashTeamsServiceImpl {
     createNewTeam(id, serverName, tournamentName, tournamentDay, startTime) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             clashTentativeDbImpl.isTentative(id, serverName,
                 {tournamentName: tournamentName, tournamentDay: tournamentDay})
                 .then(isTentativeResults => {
@@ -19,17 +19,18 @@ class ClashTeamsServiceImpl {
                             } else {
                                 resolve(this.mapTeamDbResponseToApiResponse(response));
                             }
-                        });
+                        }).catch(reject);
                     };
                     if (isTentativeResults.onTentative) {
                         console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
-                            .then(registerPlayer);
+                            .then(registerPlayer)
+                            .catch(reject);
                     } else {
                         console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerPlayer();
                     }
-                });
+                }).catch(reject);
         });
     }
 
@@ -54,7 +55,7 @@ class ClashTeamsServiceImpl {
     }
 
     registerWithTeam(id, teamName, serverName, tournamentName, tournamentDay) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             let registerWithSpecificTeam = () => {
                 clashTeamsDbImpl.registerWithSpecificTeam(id, serverName, [{
                     tournamentName: tournamentName,
@@ -66,7 +67,7 @@ class ClashTeamsServiceImpl {
                         } else {
                             resolve(this.mapTeamDbResponseToApiResponse(dbResponse));
                         }
-                    });
+                    }).catch(reject);
             }
             clashTentativeDbImpl.isTentative(id, serverName, {
                 tournamentName: tournamentName,
@@ -76,30 +77,32 @@ class ClashTeamsServiceImpl {
                     if (tentativeResults.onTentative) {
                         console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
-                            .then(registerWithSpecificTeam);
+                            .then(registerWithSpecificTeam)
+                            .catch(reject);
                     } else {
                         console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerWithSpecificTeam();
                     }
                 })
+                .catch(reject);
         });
     }
 
     unregisterFromTeam(id, serverName, tournamentName, tournamentDay) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             clashTeamsDbImpl.deregisterPlayer(id, serverName, [{
                 tournamentName: tournamentName,
                 tournamentDay: tournamentDay
-            }])                .then(dbResponse => {
-                    if (!dbResponse) resolve({ error: 'User not found on requested Team.' });
+            }])
+                .then(dbResponse => {
+                    if (!dbResponse) resolve({error: 'User not found on requested Team.'});
                     else resolve(this.mapTeamDbResponseToApiResponse(dbResponse));
-                })
-            ;
+                }).catch(reject);
         });
     }
 
     retrieveTeamsByServerAndTournaments(serverName, activeTournaments) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             clashTeamsDbImpl.getTeams(serverName).then(dbResponse => {
                 let payload = [];
                 dbResponse = dbResponse.filter(team =>
@@ -112,8 +115,8 @@ class ClashTeamsServiceImpl {
                             payload.push(this.mapDbToApiResponse(response, idToPlayerNameMap));
                         });
                         resolve(payload);
-                    });
-            })
+                    }).catch(reject);
+            }).catch(reject);
         });
     }
 
