@@ -21,7 +21,7 @@ class ClashTentativeServiceImpl {
 
 
     handleTentativeRequest(id, serverName, tournamentName, tournamentDay) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             clashTentativeDbImpl.isTentative(id, serverName, {
                 tournamentName: tournamentName,
                 tournamentDay: tournamentDay
@@ -36,15 +36,16 @@ class ClashTentativeServiceImpl {
                                 }, isTentativeResults.tentativeList)
                                     .then((addTentativeDbResponse) => {
                                         resolve(this.mapToApiResponse(addTentativeDbResponse))
-                                    });
-                            });
+                                    }).catch(reject);
+                            }).catch(reject);
                     } else {
                         clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
                             .then((removeTentativeDbResponse) => {
                                 resolve(this.mapToApiResponse(removeTentativeDbResponse))
-                            });
+                            }).catch(reject);
                     }
                 })
+                .catch(reject);
         });
     }
 

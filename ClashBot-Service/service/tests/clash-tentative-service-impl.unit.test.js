@@ -87,6 +87,61 @@ describe('Clash Tentative Service', () => {
                 expect(tentativeResponse).toEqual(expectedApiResponse);
             });
     })
+
+    test('Error - isTentative fails - if the promise to isTentative fails, then it should be rejected successfully.', () => {
+        const expectedPlayerIdTwo = '12321311';
+        const expectedServerName = 'Goon Squad';
+        const expectedTournamentName = 'awesome_sauce';
+        const expectedTournamentDay = '1';
+        let error = new Error('Failed to retrieve');
+        clashTentativeDbImpl.isTentative.mockRejectedValue(error);
+        return clashTentativeServiceImpl.handleTentativeRequest(expectedPlayerIdTwo, expectedServerName, expectedTournamentName, expectedTournamentDay)
+            .then(() => expect(true).toBeFalsy())
+            .catch(err => expect(err).toEqual(error));
+    })
+
+    test('Error - unregisterFromTeam fails - if the promise to unregisterFromTeam fails, then it should be rejected successfully.', () => {
+        const expectedPlayerId = '12321311';
+        const expectedServerName = 'Goon Squad';
+        const expectedTournamentName = 'awesome_sauce';
+        const expectedTournamentDay = '1';
+        const tentativeObject = {key: '1234566', tentativePlayers: [], serverName: expectedServerName, tournamentDetails: { tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay }};
+        let error = new Error('Failed to unregister');
+        clashTentativeDbImpl.isTentative.mockResolvedValue({onTentative: false, tentativeList: tentativeObject});
+        clashTeamsServiceImpl.unregisterFromTeam.mockRejectedValue(error);
+        return clashTentativeServiceImpl.handleTentativeRequest(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+            .then(() => expect(true).toBeFalsy())
+            .catch(err => expect(err).toEqual(error));
+    })
+
+    test('Error - addToTentative fails - if the promise to addToTentative fails, then it should be rejected successfully.', () => {
+        const expectedPlayerId = '12321311';
+        const expectedServerName = 'Goon Squad';
+        const expectedTournamentName = 'awesome_sauce';
+        const expectedTournamentDay = '1';
+        const tentativeObject = {key: '1234566', tentativePlayers: [], serverName: expectedServerName, tournamentDetails: { tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay }};
+        let error = new Error('Failed to addToTentative');
+        clashTentativeDbImpl.isTentative.mockResolvedValue({onTentative: false, tentativeList: tentativeObject});
+        clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({});
+        clashTentativeDbImpl.addToTentative.mockRejectedValue(error);
+        return clashTentativeServiceImpl.handleTentativeRequest(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+            .then(() => expect(true).toBeFalsy())
+            .catch(err => expect(err).toEqual(error));
+    })
+
+    test('Error - removeFromTentative fails - if the promise to removeFromTentative fails, then it should be rejected successfully.', () => {
+        const expectedPlayerId = '12321311';
+        const expectedServerName = 'Goon Squad';
+        const expectedTournamentName = 'awesome_sauce';
+        const expectedTournamentDay = '1';
+        const tentativeObject = {key: '1234566', tentativePlayers: [], serverName: expectedServerName, tournamentDetails: { tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay }};
+        let error = new Error('Failed to removeFromTentative');
+        clashTentativeDbImpl.isTentative.mockResolvedValue({onTentative: true, tentativeList: tentativeObject});
+        clashTentativeDbImpl.removeFromTentative.mockRejectedValue(error);
+        return clashTentativeServiceImpl.handleTentativeRequest(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+            .then(() => expect(true).toBeFalsy())
+            .catch(err => expect(err).toEqual(error));
+    })
 })
 
 function setupRetrievePlayerNames(expectedPlayerId, expectedUsername) {
