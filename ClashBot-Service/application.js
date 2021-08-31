@@ -5,7 +5,9 @@ const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
-const { errorHandler, badRequestHandler } = require('./utility/error-handler');
+const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
+const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
+const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
 
@@ -26,23 +28,8 @@ let startUpApp = async () => {
             console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
         })
 
-        let convertTeamDbToTeamPayload = (expectedNewTeam) => {
-            return {
-                teamName: expectedNewTeam.teamName,
-                tournamentDetails: {
-                    tournamentName: expectedNewTeam.tournamentName,
-                    tournamentDay: expectedNewTeam.tournamentDay
-                },
-                serverName: expectedNewTeam.serverName,
-                startTime: expectedNewTeam.startTime,
-                playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
-                    return {name: data}
-                }) : {}
-            };
-        }
-
         app.post(`${urlPrefix}/team`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
             } else if (!req.body.serverName) {
                 badRequestHandler(res, 'Missing Server to persist with.');
@@ -51,21 +38,17 @@ let startUpApp = async () => {
             } else if (!req.body.startTime) {
                 badRequestHandler(res, 'Missing Tournament start time to persist.');
             } else {
-                clashTeamsDbImpl.registerPlayer(req.body.username, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay,
-                    startTime: req.body.startTime
-                }]).then((newTeam) => {
-                    if (Array.isArray(newTeam) && newTeam[0].exist) {
-                        res.statusCode = 400;
-                        res.json({error: 'Player is not eligible to create a new Team.'});
-                    } else {
-                        res.json(convertTeamDbToTeamPayload(newTeam));
-                    }
-                }).catch(err => {
-                    console.error(err);
-                    errorHandler(res, 'Failed to create new Team.');
-                });
+                clashTeamsServiceImpl.createNewTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
+                    .then((responsePayload) => {
+                        if (responsePayload.error) {
+                            res.statusCode = 400;
+                        }
+                        res.json(responsePayload);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to create new Team.');
+                    });
             }
         })
 
@@ -75,36 +58,21 @@ let startUpApp = async () => {
             } else {
                 console.log('Querying for all teams...');
             }
-            clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
-                    console.log('Successfully retrieved teams.');
-                    console.log(JSON.stringify(data));
-                    let payload = [];
-                    data.forEach(team => {
-                        if (team && team.players) {
-                            payload.push({
-                                teamName: team.teamName,
-                                tournamentDetails: {
-                                    tournamentName: team.tournamentName,
-                                    tournamentDay: team.tournamentDay
-                                },
-                                serverName: team.serverName,
-                                startTime: team.startTime,
-                                playersDetails: Array.isArray(team.players) ? team.players.map(data => {
-                                    return {name: data}
-                                }) : {}
-                            });
-                        }
+            clashTimeDbImpl.findTournament().then(activeTournaments => {
+                clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.params.serverName, activeTournaments)
+                    .then(payload => res.json(payload))
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to retrieve Teams.');
                     });
-                    res.json(payload);
-                }
-            ).catch(err => {
+            }).catch(err => {
                 console.error(err);
-                errorHandler(res, 'Failed to retrieve Teams.');
+                errorHandler(res, 'Failed to retrieve active Tournaments.');
             });
         })
 
         app.post(`${urlPrefix}/team/register`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
             } else if (!req.body.teamName) {
                 badRequestHandler(res, 'Missing Team to persist with.');
@@ -115,30 +83,11 @@ let startUpApp = async () => {
             } else {
                 console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
                 let teamName = req.body.teamName.split(' ')[1];
-                clashTeamsDbImpl.registerWithSpecificTeam(req.body.username, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay
-                }], teamName).then(data => {
-                    let payload;
-                    if (!data) {
-                        res.statusCode = 400;
-                        payload = {error: 'Unable to find the Team requested to be persisted.'};
-                    } else {
-                        payload = {
-                            teamName: data.teamName,
-                            tournamentDetails: {
-                                tournamentName: data.tournamentName,
-                                tournamentDay: data.tournamentDay
-                            },
-                            serverName: data.serverName,
-                            startTime: data.startTime,
-                            playersDetails: Array.isArray(data.players) ? data.players.map(player => {
-                                return {name: player}
-                            }) : {}
-                        };
-                    }
-                    res.json(payload);
-                }).catch(err => {
+                clashTeamsServiceImpl.registerWithTeam(req.body.id, teamName, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then(data => {
+                        if (data.error) res.statusCode = 400
+                        res.json(data);
+                    }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to persist User to Team.')
                 });
@@ -146,7 +95,7 @@ let startUpApp = async () => {
         })
 
         app.delete(`${urlPrefix}/team/register`, (req, res) => {
-            if (!req.body.username || !req.body.id) {
+            if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
             } else if (!req.body.teamName) {
                 badRequestHandler(res, 'Missing Team to unregister from.');
@@ -155,17 +104,15 @@ let startUpApp = async () => {
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
                 badRequestHandler(res, 'Missing Tournament Details to unregister with.');
             } else {
-                clashTeamsDbImpl.deregisterPlayer(req.body.username, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay
-                }]).then((data) => {
-                    let payload = {message: 'Successfully removed from Team.'};
-                    if (!data) {
-                        res.statusCode = 400;
-                        payload = {error: 'User not found on requested Team.'};
-                    }
-                    res.json(payload);
-                }).catch(err => {
+                clashTeamsServiceImpl.unregisterFromTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then((data) => {
+                        let payload = {message: 'Successfully removed from Team.'};
+                        if (data.error) {
+                            res.statusCode = 400;
+                            payload = {error: 'User not found on requested Team.'};
+                        }
+                        res.json(payload);
+                    }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to unregister User from Team due.')
                 });
@@ -284,7 +231,14 @@ let startUpApp = async () => {
                                 }
                             })
                             if (tournaments.length > 0) {
-                                tournaments.forEach(tournament => payload.push({serverName: req.query.serverName, tournamentDetails: {tournamentName: tournament.tournamentName, tournamentDay: tournament.tournamentDay}, tentativePlayers: []}));
+                                tournaments.forEach(tournament => payload.push({
+                                    serverName: req.query.serverName,
+                                    tournamentDetails: {
+                                        tournamentName: tournament.tournamentName,
+                                        tournamentDay: tournament.tournamentDay
+                                    },
+                                    tentativePlayers: []
+                                }));
                             }
                             if (userQueries.length > 0) {
                                 clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
@@ -295,13 +249,13 @@ let startUpApp = async () => {
                                 res.json(payload);
                             }
                         }).catch(err => {
-                            console.error(err);
-                            errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
-                        });
-                }).catch((err) => {
                         console.error(err);
                         errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                     });
+                }).catch((err) => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
+                });
             }
         })
 
@@ -312,28 +266,9 @@ let startUpApp = async () => {
                 || !req.body.tournamentDetails.tournamentDay) {
                 badRequestHandler(res, 'Missing required request parameter.');
             } else {
-            clashTentativeDbImpl.handleTentative(req.body.id, req.body.serverName, req.body.tournamentDetails)
-                .then((record) => {
-                    clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
-                        .then((results) => {
-                            let tentativePlayers = [];
-                            record.tentativePlayers.forEach((userId) => {
-                                if (results[userId]) {
-                                    tentativePlayers.push(results[userId]);
-                                } else {
-                                    tentativePlayers.push(userId);
-                                }
-                            })
-                        res.json({
-                            serverName: record.serverName,
-                            tournamentDetails: record.tournamentDetails,
-                            tentativePlayers: tentativePlayers
-                        })
-                    }).catch((err) => {
-                        console.error(err);
-                        errorHandler(res, 'Failed to retrieve mapped usernames.');
-                    });
-                }).catch((err) => {
+                clashTentativeServiceImpl.handleTentativeRequest(req.body.id, req.body.serverName, req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
+                    .then(response => res.json(response))
+                    .catch((err) => {
                     console.error(err);
                     errorHandler(res, 'Failed to update Tentative record.');
                 });
@@ -358,4 +293,20 @@ let startUpApp = async () => {
     }
 }
 
-module.exports = startUpApp;
+let convertTeamDbToTeamPayload = (expectedNewTeam, idsToNameList) => {
+    return {
+        teamName: expectedNewTeam.teamName,
+        tournamentDetails: {
+            tournamentName: expectedNewTeam.tournamentName,
+            tournamentDay: expectedNewTeam.tournamentDay
+        },
+        serverName: expectedNewTeam.serverName,
+        startTime: expectedNewTeam.startTime,
+        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+            return {name: !idsToNameList[data] ? data : idsToNameList[data]}
+        }) : {}
+    };
+}
+
+module.exports.startUpApp = startUpApp;
+module.exports.convertTeamDbToTeamPayload = convertTeamDbToTeamPayload;

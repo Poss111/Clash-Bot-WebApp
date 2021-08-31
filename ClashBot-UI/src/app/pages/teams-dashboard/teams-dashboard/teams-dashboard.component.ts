@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ClashTeam} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {throwError} from "rxjs";
@@ -349,6 +349,9 @@ export class TeamsDashboardComponent implements OnInit {
                 if (this.tentativeList) {
                   this.tentativeList[index] = response;
                   if (this.table) this.table.renderRows();
+                }
+                if (this.formControl) {
+                  this.filterForTeamsByServer(this.formControl.value);
                 }
               });
           }

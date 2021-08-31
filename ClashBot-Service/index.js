@@ -1,4 +1,4 @@
-const startUpApp = require('./application');
+const { startUpApp } = require('./application');
 const port = 80;
 
 startUpApp().then(app => {

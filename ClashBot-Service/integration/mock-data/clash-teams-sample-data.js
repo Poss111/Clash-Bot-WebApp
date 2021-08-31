@@ -13,7 +13,7 @@ module.exports = {
             startTime: ":currentDateOne",
             serverName: ":serverName",
             players: [
-                "Silv3rshard"
+                "5"
             ],
             teamName: "Team Absol",
             tournamentName: ":tournamentName",
@@ -25,8 +25,8 @@ module.exports = {
             startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
-                "cosmic",
-                "Roïdräge"
+                "7",
+                "299370234228506627"
             ],
             teamName: "Team Ho-oh",
             tournamentName: ":tournamentName",
@@ -38,11 +38,11 @@ module.exports = {
             startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
-                "Garmetzon",
-                "Mr Sir",
-                "Roidrage",
-                "Silv3rshard",
-                "TheIncentive"
+                "3",
+                "2",
+                "4",
+                "5",
+                "6"
             ],
             teamName: "Team Pikachu",
             tournamentName: ":tournamentName",
@@ -54,7 +54,7 @@ module.exports = {
             startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
-                "Roïdräge"
+                "299370234228506627"
             ],
             teamName: "Team Blastoise",
             tournamentName: ":tournamentName",
@@ -66,13 +66,25 @@ module.exports = {
             startTime: ":datePlusOneDay",
             serverName: ":serverName",
             players: [
-                "TheIncentive"
+                "6"
             ],
             teamName: "Team Blaziken",
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayThree",
             key: "Team Blaziken#:serverName#:tournamentName#:tournamentDayThree"
+        },
+        {
+            startTime: ":datePlusThreeDays",
+            serverName: ":serverName",
+            players: [
+                "6"
+            ],
+            teamName: "Team Charizard",
+            tournamentName: ":tournamentName",
+            updatedAt: "2021-07-24T23:40:54.973Z",
+            tournamentDay: ":tournamentDayFour",
+            key: "Team Charizard#:serverName#:tournamentName#:tournamentDayFour"
         }
     ]
 }

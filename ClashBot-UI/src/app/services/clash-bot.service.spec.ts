@@ -234,7 +234,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -286,7 +285,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -340,7 +338,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -392,7 +389,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -446,7 +442,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -498,7 +493,6 @@ describe('ClashBotService', () => {
       };
       const expectedPayload = {
         id: userDetail.id,
-        username: userDetail.username,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
