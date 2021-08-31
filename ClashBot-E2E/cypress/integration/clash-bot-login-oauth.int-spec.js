@@ -47,7 +47,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   it('User should be able to register for an existing Team', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    let id = getTeamCard('LoL ClashBotSupport', 'Team Absol');
+    let id = getTeamCard('LoL ClashBotSupport', 'Team Charizard');
     cy.get(`#clash-bot-team-card-${id}-players>div`).should('have.length', 1);
     cy.get(`#clash-bot-team-card-${id}-players>div`).should('not.contain.text', 'Roïdräge');
     cy.get(`#clash-bot-team-card-${id}-register-button`).click();

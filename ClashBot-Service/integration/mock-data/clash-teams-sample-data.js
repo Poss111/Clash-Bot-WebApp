@@ -73,6 +73,18 @@ module.exports = {
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayThree",
             key: "Team Blaziken#:serverName#:tournamentName#:tournamentDayThree"
+        },
+        {
+            startTime: ":datePlusThreeDays",
+            serverName: ":serverName",
+            players: [
+                "6"
+            ],
+            teamName: "Team Charizard",
+            tournamentName: ":tournamentName",
+            updatedAt: "2021-07-24T23:40:54.973Z",
+            tournamentDay: ":tournamentDayFour",
+            key: "Team Charizard#:serverName#:tournamentName#:tournamentDayFour"
         }
     ]
 }
