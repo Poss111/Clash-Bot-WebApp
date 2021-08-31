@@ -68,7 +68,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get(`#clash-bot-team-card-${id}-players>div`).should('not.contain.text', 'Roïdräge');
   })
 
-  it('If a User belongs to another Team for the same tournament, they should be able to unregistered from then existing Team and registered to the expected Team', () => {
+  it('If a User belongs to another Team for the same tournament, they should be able to unregister from then existing Team and registered to the expected Team', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
     let startTeamId = getTeamCard('LoL ClashBotSupport', 'Team Blastoise');
@@ -86,14 +86,23 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
     cy.get('#clash-bot-teams-dashboard-show-tentative').click();
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-tentative-players').should('not.text', 'Roïdräge');
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').should('exist');
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-remove').should('not.exist');
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').click();
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players').should('not.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('not.exist');
+    let startingCardStateId = getTeamCard('LoL ClashBotSupport', 'Team Blaziken');
+    cy.get(`#clash-bot-team-card-${startingCardStateId}-players>div`).should('have.length', 2);
+    cy.get(`#clash-bot-team-card-${startingCardStateId}-players>div`).should('contain.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').click();
     cy.get(`#clash-bot-dialog-box-yes-button`).click();
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-remove').should('exist');
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-add').should('not.exist');
-    cy.get('#clash-bot-teams-dashboard-awesome_sauce-2-tentative-players').should('contain.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('exist');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('not.exist');
+    let endingCardStateId = getTeamCard('LoL ClashBotSupport', 'Team Blaziken');
+    cy.get(`#clash-bot-team-card-${endingCardStateId}-players>div`).should('have.length', 1);
+    cy.get(`#clash-bot-team-card-${endingCardStateId}-players>div`).should('not.contain.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players').should('contain.text', 'Roïdräge');
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').click();
+    cy.get(`#clash-bot-dialog-box-yes-button`).click();
+    cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players').should('not.contain.text', 'Roïdräge');
   })
 
   let getTeamCard = (serverName, teamName) => {
