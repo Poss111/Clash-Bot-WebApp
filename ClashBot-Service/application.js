@@ -5,7 +5,8 @@ const clashTeamsDbImpl = require('./dao/clash-teams-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
-const { errorHandler, badRequestHandler } = require('./utility/error-handler');
+const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
+const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
 
@@ -36,24 +37,17 @@ let startUpApp = async () => {
             } else if (!req.body.startTime) {
                 badRequestHandler(res, 'Missing Tournament start time to persist.');
             } else {
-                clashTeamsDbImpl.registerPlayer(req.body.id, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay,
-                    startTime: req.body.startTime
-                }]).then((newTeam) => {
-                    if (Array.isArray(newTeam) && newTeam[0].exist) {
-                        res.statusCode = 400;
-                        res.json({error: 'Player is not eligible to create a new Team.'});
-                    } else {
-                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(newTeam.players)))
-                            .then(idToPlayerMap => {
-                                res.json(convertTeamDbToTeamPayload(newTeam, idToPlayerMap));
-                        });
-                    }
-                }).catch(err => {
-                    console.error(err);
-                    errorHandler(res, 'Failed to create new Team.');
-                });
+                clashTeamsServiceImpl.createNewTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
+                    .then((responsePayload) => {
+                        if (responsePayload.error) {
+                            res.statusCode = 400;
+                        }
+                        res.json(responsePayload);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to create new Team.');
+                    });
             }
         })
 
@@ -258,7 +252,13 @@ let startUpApp = async () => {
                                 }
                             })
                             if (tournaments.length > 0) {
-                                tournaments.forEach(tournament => payload.push({serverName: req.query.serverName, tournamentDetails: {tournamentName: tournament.tournamentName, tournamentDay: tournament.tournamentDay}, tentativePlayers: []}));
+                                tournaments.forEach(tournament => payload.push({serverName: req.query.serverName,
+                                    tournamentDetails: {
+                                        tournamentName: tournament.tournamentName,
+                                        tournamentDay: tournament.tournamentDay
+                                    },
+                                    tentativePlayers: []
+                                }));
                             }
                             if (userQueries.length > 0) {
                                 clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
@@ -269,13 +269,13 @@ let startUpApp = async () => {
                                 res.json(payload);
                             }
                         }).catch(err => {
-                            console.error(err);
-                            errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
-                        });
-                }).catch((err) => {
                         console.error(err);
                         errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                     });
+                }).catch((err) => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
+                });
             }
         })
 
@@ -286,28 +286,28 @@ let startUpApp = async () => {
                 || !req.body.tournamentDetails.tournamentDay) {
                 badRequestHandler(res, 'Missing required request parameter.');
             } else {
-            clashTentativeDbImpl.handleTentative(req.body.id, req.body.serverName, req.body.tournamentDetails)
-                .then((record) => {
-                    clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
-                        .then((results) => {
-                            let tentativePlayers = [];
-                            record.tentativePlayers.forEach((userId) => {
-                                if (results[userId]) {
-                                    tentativePlayers.push(results[userId]);
-                                } else {
-                                    tentativePlayers.push(userId);
-                                }
-                            })
-                        res.json({
-                            serverName: record.serverName,
-                            tournamentDetails: record.tournamentDetails,
-                            tentativePlayers: tentativePlayers
-                        })
+                clashTentativeDbImpl.handleTentative(req.body.id, req.body.serverName, req.body.tournamentDetails)
+                    .then((record) => {
+                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
+                            .then((results) => {
+                                let tentativePlayers = [];
+                                record.tentativePlayers.forEach((userId) => {
+                                    if (results[userId]) {
+                                        tentativePlayers.push(results[userId]);
+                                    } else {
+                                        tentativePlayers.push(userId);
+                                    }
+                                })
+                                res.json({
+                                    serverName: record.serverName,
+                                    tournamentDetails: record.tournamentDetails,
+                                    tentativePlayers: tentativePlayers
+                                })
+                            }).catch((err) => {
+                            console.error(err);
+                            errorHandler(res, 'Failed to retrieve mapped usernames.');
+                        });
                     }).catch((err) => {
-                        console.error(err);
-                        errorHandler(res, 'Failed to retrieve mapped usernames.');
-                    });
-                }).catch((err) => {
                     console.error(err);
                     errorHandler(res, 'Failed to update Tentative record.');
                 });
