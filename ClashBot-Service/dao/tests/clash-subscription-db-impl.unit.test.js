@@ -461,4 +461,26 @@ describe('Retrieve Usernames by ids', () => {
             expect(usernames).toEqual(expectedMap);
         })
     })
+
+    test('If no ids are passed, then it should return with an empty object.', () => {
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrievePlayerNames([]).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+            expect(usernames).toEqual({});
+        })
+    })
+
+    test('If undefined is passed, then it should return with an empty object.', () => {
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrievePlayerNames().then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+            expect(usernames).toEqual({});
+        })
+    })
 })

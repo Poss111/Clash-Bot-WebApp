@@ -113,12 +113,10 @@ let startUpApp = async () => {
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
                 badRequestHandler(res, 'Missing Tournament Details to unregister with.');
             } else {
-                clashTeamsDbImpl.deregisterPlayer(req.body.id, req.body.serverName, [{
-                    tournamentName: req.body.tournamentName,
-                    tournamentDay: req.body.tournamentDay
-                }]).then((data) => {
+                clashTeamsServiceImpl.unregisterFromTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then((data) => {
                     let payload = {message: 'Successfully removed from Team.'};
-                    if (!data) {
+                    if (data.error) {
                         res.statusCode = 400;
                         payload = {error: 'User not found on requested Team.'};
                     }

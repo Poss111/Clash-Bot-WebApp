@@ -34,7 +34,7 @@ class ClashTeamsServiceImpl {
     }
 
     mapTeamDbResponseToApiResponse(response, resolve) {
-        clashSubscriptionDbImpl.retrievePlayerNames([response.players[0]]).then(idsToPlayerNameMap => {
+        clashSubscriptionDbImpl.retrievePlayerNames(response.players).then(idsToPlayerNameMap => {
             resolve({
                 teamName: response.teamName,
                 serverName: response.serverName,
@@ -59,7 +59,7 @@ class ClashTeamsServiceImpl {
                 }], teamName)
                     .then((dbResponse) => {
                         if (!dbResponse) {
-                            resolve({ error: 'Unable to find the Team requested to be persisted.' });
+                            resolve({error: 'Unable to find the Team requested to be persisted.'});
                         } else {
                             this.mapTeamDbResponseToApiResponse(dbResponse, resolve);
                         }
@@ -71,9 +71,9 @@ class ClashTeamsServiceImpl {
             })
                 .then(tentativeResults => {
                     if (tentativeResults.onTentative) {
-                    console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
-                    clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
-                        .then(registerWithSpecificTeam);
+                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
+                            .then(registerWithSpecificTeam);
                     } else {
                         console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerWithSpecificTeam();
@@ -82,8 +82,17 @@ class ClashTeamsServiceImpl {
         });
     }
 
-    unregisterFromTeam() {
-        return new Promise(() => {
+    unregisterFromTeam(id, serverName, tournamentName, tournamentDay) {
+        return new Promise((resolve) => {
+            clashTeamsDbImpl.deregisterPlayer(id, serverName, [{
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+            }])
+                .then(dbResponse => {
+                    if (!dbResponse) resolve({ error: 'User not found on requested Team.' });
+                    else this.mapTeamDbResponseToApiResponse(dbResponse, resolve);
+                })
+            ;
         });
     }
 

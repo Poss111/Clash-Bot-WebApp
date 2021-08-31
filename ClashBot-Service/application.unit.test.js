@@ -463,8 +463,17 @@ describe('Clash Bot Service API Controller', () => {
             let expectedServer = 'Integration Server'
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
+            let expectedUsername = 'Roidrage';
             let expectedTournamentDay = "1";
-            clashTeamsDbImpl.deregisterPlayer.mockResolvedValue(true);
+            clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({
+                    tournamentDetails: {
+                        tournamentDay: expectedTournamentDay,
+                        tournamentName: expectedTournamentName,
+                    },
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    playersDetails: [{name: expectedUsername}]
+                });
             request(application)
                 .delete('/api/team/register')
                 .send(
@@ -480,10 +489,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }]);
+                    expect(clashTeamsServiceImpl.unregisterFromTeam).toBeCalledWith(expectedUserId, expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual({message: 'Successfully removed from Team.'});
                     done();
                 })
@@ -495,7 +501,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsDbImpl.deregisterPlayer.mockRejectedValue(new Error('Failed to unregister User.'));
+            clashTeamsServiceImpl.unregisterFromTeam.mockRejectedValue(new Error('Failed to unregister User.'));
             request(application)
                 .delete('/api/team/register')
                 .send(
@@ -511,10 +517,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }]);
+                    expect(clashTeamsServiceImpl.unregisterFromTeam).toBeCalledWith(expectedUserId, expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual({error: 'Failed to unregister User from Team due.'});
                     done();
                 })
@@ -526,7 +529,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsDbImpl.deregisterPlayer.mockResolvedValue(false);
+            clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({ error: 'User not found on requested Team.' });
             request(application)
                 .delete('/api/team/register')
                 .send(
@@ -542,11 +545,8 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTeamsDbImpl.deregisterPlayer).toBeCalledWith(expectedUserId, expectedServer, [{
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    }]);
-                    expect(res.body).toEqual({error: 'User not found on requested Team.'});
+                    expect(clashTeamsServiceImpl.unregisterFromTeam).toBeCalledWith(expectedUserId, expectedServer, expectedTournamentName, expectedTournamentDay);
+                    expect(res.body).toEqual({ error: 'User not found on requested Team.' });
                     done();
                 })
         })
