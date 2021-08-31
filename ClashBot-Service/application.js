@@ -6,6 +6,7 @@ const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
+const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -265,28 +266,9 @@ let startUpApp = async () => {
                 || !req.body.tournamentDetails.tournamentDay) {
                 badRequestHandler(res, 'Missing required request parameter.');
             } else {
-                clashTentativeDbImpl.handleTentative(req.body.id, req.body.serverName, req.body.tournamentDetails)
-                    .then((record) => {
-                        clashUserDbImpl.retrievePlayerNames(Array.from(new Set(record.tentativePlayers)))
-                            .then((results) => {
-                                let tentativePlayers = [];
-                                record.tentativePlayers.forEach((userId) => {
-                                    if (results[userId]) {
-                                        tentativePlayers.push(results[userId]);
-                                    } else {
-                                        tentativePlayers.push(userId);
-                                    }
-                                })
-                                res.json({
-                                    serverName: record.serverName,
-                                    tournamentDetails: record.tournamentDetails,
-                                    tentativePlayers: tentativePlayers
-                                })
-                            }).catch((err) => {
-                            console.error(err);
-                            errorHandler(res, 'Failed to retrieve mapped usernames.');
-                        });
-                    }).catch((err) => {
+                clashTentativeServiceImpl.handleTentativeRequest(req.body.id, req.body.serverName, req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
+                    .then(response => res.json(response))
+                    .catch((err) => {
                     console.error(err);
                     errorHandler(res, 'Failed to update Tentative record.');
                 });

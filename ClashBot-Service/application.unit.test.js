@@ -3,6 +3,7 @@ const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
+const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const {startUpApp, convertTeamDbToTeamPayload} = require('./application');
 const request = require('supertest');
 const {deepCopy} = require("./utility/tests/test-utility.utility.test");
@@ -12,6 +13,7 @@ jest.mock('./dao/clash-time-db-impl');
 jest.mock('./dao/clash-subscription-db-impl');
 jest.mock('./dao/clash-tentative-db-impl');
 jest.mock('./service/clash-teams-service-impl');
+jest.mock('./service/clash-tentative-service-impl');
 
 describe('Clash Bot Service API Controller', () => {
     let application;
@@ -1155,48 +1157,8 @@ describe('Clash Bot Service API Controller', () => {
                 id: '2',
                 serverName: 'Goon Squad',
                 tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            const tentativeDbResponse = {
-                tentativePlayers: ['2'],
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'2': 'Roidrage'});
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(200, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['2']);
-                    expect(res.body).toEqual(expectedResponse);
-                    done();
-                })
-        })
-
-        test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id and their id is not mapped, they should successfully be added and the ids should be returned.', (done) => {
-            const expectedResponse = {
-                tentativePlayers: ['Roidrage', '3'],
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
             };
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            const tentativeDbResponse = {
-                tentativePlayers: ['2', '3'],
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'2': 'Roidrage'});
+            clashTentativeServiceImpl.handleTentativeRequest.mockResolvedValue(expectedResponse);
             request(application)
                 .post(`/api/tentative`)
                 .send(payload)
@@ -1204,10 +1166,8 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['2', '3']);
+                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
+                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
                     expect(res.body).toEqual(expectedResponse);
                     done();
                 })
@@ -1219,7 +1179,7 @@ describe('Clash Bot Service API Controller', () => {
                 serverName: 'Goon Squad',
                 tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
             }
-            clashTentativeDbImpl.handleTentative.mockRejectedValue(new Error('Failed to persist tentative record.'));
+            clashTentativeServiceImpl.handleTentativeRequest.mockRejectedValue(new Error('Failed to persist tentative record.'));
             request(application)
                 .post(`/api/tentative`)
                 .send(payload)
@@ -1227,36 +1187,9 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
+                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
                     expect(res.body).toEqual({error: 'Failed to update Tentative record.'});
-                    done();
-                })
-        })
-
-        test('ERROR - Failed to retrieve User Names - There was an error retrieving the made user names.', (done) => {
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            const tentativeDbResponse = {
-                tentativePlayers: ['2'],
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            clashTentativeDbImpl.handleTentative.mockResolvedValue(tentativeDbResponse);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockRejectedValue(new Error('Failed to persist tentative record.'));
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(500, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(res.body).toEqual({error: 'Failed to retrieve mapped usernames.'});
                     done();
                 })
         })

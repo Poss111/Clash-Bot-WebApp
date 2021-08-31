@@ -90,8 +90,7 @@ class ClashTeamsServiceImpl {
             clashTeamsDbImpl.deregisterPlayer(id, serverName, [{
                 tournamentName: tournamentName,
                 tournamentDay: tournamentDay
-            }])
-                .then(dbResponse => {
+            }])                .then(dbResponse => {
                     if (!dbResponse) resolve({ error: 'User not found on requested Team.' });
                     else resolve(this.mapTeamDbResponseToApiResponse(dbResponse));
                 })
