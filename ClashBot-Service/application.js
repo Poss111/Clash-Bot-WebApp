@@ -57,26 +57,16 @@ let startUpApp = async () => {
             } else {
                 console.log('Querying for all teams...');
             }
-            clashTeamsDbImpl.getTeams(req.params.serverName).then((data) => {
-                    console.log('Successfully retrieved teams.');
-                    console.log(JSON.stringify(data));
-                    let payload = [];
-                    data = data.filter(record => record.players);
-                    let userIds = new Set(data.map(team => team.players).flat());
-                    if (userIds.size > 0) {
-                        clashUserDbImpl.retrievePlayerNames(Array.from(userIds)).then((idToNameMap) => {
-                            data.forEach(team => {
-                                payload.push(convertTeamDbToTeamPayload(team, idToNameMap));
-                            });
-                            res.json(payload);
-                        })
-                    } else {
-                        res.json(payload);
-                    }
-                }
-            ).catch(err => {
+            clashTimeDbImpl.findTournament().then(activeTournaments => {
+                clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.params.serverName, activeTournaments)
+                    .then(payload => res.json(payload))
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to retrieve Teams.');
+                    });
+            }).catch(err => {
                 console.error(err);
-                errorHandler(res, 'Failed to retrieve Teams.');
+                errorHandler(res, 'Failed to retrieve active Tournaments.');
             });
         })
 
@@ -115,13 +105,13 @@ let startUpApp = async () => {
             } else {
                 clashTeamsServiceImpl.unregisterFromTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then((data) => {
-                    let payload = {message: 'Successfully removed from Team.'};
-                    if (data.error) {
-                        res.statusCode = 400;
-                        payload = {error: 'User not found on requested Team.'};
-                    }
-                    res.json(payload);
-                }).catch(err => {
+                        let payload = {message: 'Successfully removed from Team.'};
+                        if (data.error) {
+                            res.statusCode = 400;
+                            payload = {error: 'User not found on requested Team.'};
+                        }
+                        res.json(payload);
+                    }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to unregister User from Team due.')
                 });

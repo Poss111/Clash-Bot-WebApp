@@ -33,146 +33,229 @@ describe('Clash Bot Service API Controller', () => {
         jest.resetAllMocks();
     })
 
-    test('Test', () => {
-        const mockReturnedTeams = [
-            {
-                startTime: "Jan 21 2021",
-                serverName: "Goon Squad",
-                teamName: "Team Abra",
-                tournamentName: "Awesome Sauce",
-                updatedAt: "2021-07-25T01:44:24.048Z",
-                tournamentDay: '1',
-                key: "Team Abra#Goon Squad#Awesome Sauce#1"
-            },
-            {
-                startTime: "Jan 21 2021",
-                serverName: "Goon Squad",
-                players: [
-                    "5"
-                ],
-                teamName: "Team Absol",
-                tournamentName: "Awesome Sauce",
-                updatedAt: "2021-07-19T14:06:29.155Z",
-                tournamentDay: '1',
-                key: "Team Absol#Goon Squad#Awesome Sauce#1"
-            }
-        ];
-        console.log(new Set(mockReturnedTeams.filter(record => record.players).map(team => team.players).flat()))
-    })
-
     describe('GET Teams', () => {
-        test('As a User, I should be able to call /api/dne with no filter and be able to return all available teams.', (done) => {
-            const mockReturnedTeams = [
+        test('As a User, I should be able to call /api/teams with no filter and be able to return all available teams.', (done) => {
+            const mockReturnedClashTournaments = [
                 {
-                    startTime: "Jan 21 2021",
-                    serverName: "Goon Squad",
-                    teamName: "Team Abra",
-                    tournamentName: "Awesome Sauce",
-                    updatedAt: "2021-07-25T01:44:24.048Z",
-                    tournamentDay: '1',
-                    key: "Team Abra#Goon Squad#Awesome Sauce#1"
+                    startTime: ":currentDate",
+                    tournamentDay: ":tournamentDayOne",
+                    key: ":tournamentName#:tournamentDayOne",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":currentDate"
                 },
                 {
-                    startTime: "Jan 21 2021",
-                    serverName: "Goon Squad",
-                    players: ["5"],
-                    teamName: "Team Absol",
-                    tournamentName: "Awesome Sauce",
-                    updatedAt: "2021-07-19T14:06:29.155Z",
-                    tournamentDay: '1',
-                    key: "Team Absol#Goon Squad#Awesome Sauce#1"
+                    startTime: ":datePlusOneDay",
+                    tournamentDay: ":tournamentDayTwo",
+                    key: ":tournamentName#:tournamentDayTwo",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusOneDay"
+                },
+                {
+                    startTime: ":datePlusTwoDays",
+                    tournamentDay: ":tournamentDayThree",
+                    key: ":tournamentName#:tournamentDayThree",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusTwoDays"
+                },
+                {
+                    startTime: ":datePlusThreeDays",
+                    tournamentDay: ":tournamentDayFour",
+                    key: ":tournamentName#:tournamentDayFour",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusThreeDays"
                 }
             ];
-            let expectedPayload = [];
-            let idToNameObject = {};
-            idToNameObject['5'] = 'Silv3rshard';
-            expectedPayload.push(convertTeamDbToTeamPayloadTest(mockReturnedTeams[1], idToNameObject));
+            const expectedUsername = 'SilverShard';
+            const expectedServername = 'Goon Squad';
+            const mockReturnedTeams = [
+                {
+                    teamName: "Team Abra",
+                    serverName: expectedServername,
+                    playersDetails: [
+                        {name: expectedUsername},
+                        {name: '1234321'}
+                    ],
+                    tournamentDetails: {
+                        tournamentName: "Awesome Sauce",
+                        tournamentDay: '1',
+                    },
+                    startTime: "Jan 21 2021",
+                },
+                {
+                    teamName: "Team Absol",
+                    serverName: expectedServername,
+                    playersDetails: [
+                        {name: expectedUsername}
+                    ],
+                    tournamentDetails: {
+                        tournamentName: "Awesome Sauce",
+                        tournamentDay: '1',
+                    },
+                    startTime: "Jan 21 2021",
+                }
+            ];
 
-            clashTeamsDbImpl.getTeams.mockResolvedValue(mockReturnedTeams);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
+            clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
+            clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments.mockResolvedValue(mockReturnedTeams);
             request(application)
                 .get('/api/teams')
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual(expectedPayload);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['5']);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith();
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledWith(undefined, mockReturnedClashTournaments);
+                    expect(res.body).toEqual(mockReturnedTeams);
                     done();
                 })
         })
-
-        test('As a User, I should be able to call /api/dne with no filter and be able to return all available teams and should only call retrieve id to name map once based on all available ids.', (done) => {
-            const mockReturnedTeams = [
+        test('As a User, I should be able to call /api/teams with a server name filter and be able to return all available teams for the server.', (done) => {
+            const mockReturnedClashTournaments = [
                 {
-                    startTime: "Jan 21 2021",
-                    serverName: "Goon Squad",
-                    players: ["6"],
-                    teamName: "Team Abra",
-                    tournamentName: "Awesome Sauce",
-                    updatedAt: "2021-07-25T01:44:24.048Z",
-                    tournamentDay: '1',
-                    key: "Team Abra#Goon Squad#Awesome Sauce#1"
+                    startTime: ":currentDate",
+                    tournamentDay: ":tournamentDayOne",
+                    key: ":tournamentName#:tournamentDayOne",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":currentDate"
                 },
                 {
-                    startTime: "Jan 21 2021",
-                    serverName: "Goon Squad",
-                    players: ["5"],
-                    teamName: "Team Absol",
-                    tournamentName: "Awesome Sauce",
-                    updatedAt: "2021-07-19T14:06:29.155Z",
-                    tournamentDay: '1',
-                    key: "Team Absol#Goon Squad#Awesome Sauce#1"
+                    startTime: ":datePlusOneDay",
+                    tournamentDay: ":tournamentDayTwo",
+                    key: ":tournamentName#:tournamentDayTwo",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusOneDay"
                 },
                 {
-                    startTime: "Jan 21 2021",
-                    serverName: "Goon Squad",
-                    players: ["2"],
-                    teamName: "Team Blastoise",
-                    tournamentName: "Awesome Sauce",
-                    updatedAt: "2021-07-19T14:06:29.155Z",
-                    tournamentDay: '1',
-                    key: "Team Absol#Goon Squad#Awesome Sauce#1"
+                    startTime: ":datePlusTwoDays",
+                    tournamentDay: ":tournamentDayThree",
+                    key: ":tournamentName#:tournamentDayThree",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusTwoDays"
+                },
+                {
+                    startTime: ":datePlusThreeDays",
+                    tournamentDay: ":tournamentDayFour",
+                    key: ":tournamentName#:tournamentDayFour",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusThreeDays"
                 }
             ];
-            let expectedPayload = [];
-            let idToNameObject = {};
-            idToNameObject['5'] = 'Silv3rshard';
-            idToNameObject['6'] = 'TheIncentive';
-            idToNameObject['2'] = 'Roidrage';
-            mockReturnedTeams.forEach(team => expectedPayload.push(convertTeamDbToTeamPayloadTest(team, idToNameObject)));
+            const expectedUsername = 'SilverShard';
+            const expectedServername = 'Goon Squad';
+            const mockReturnedTeams = [
+                {
+                    teamName: "Team Abra",
+                    serverName: expectedServername,
+                    playersDetails: [
+                        {name: expectedUsername},
+                        {name: '1234321'}
+                    ],
+                    tournamentDetails: {
+                        tournamentName: "Awesome Sauce",
+                        tournamentDay: '1',
+                    },
+                    startTime: "Jan 21 2021",
+                },
+                {
+                    teamName: "Team Absol",
+                    serverName: expectedServername,
+                    playersDetails: [
+                        {name: expectedUsername}
+                    ],
+                    tournamentDetails: {
+                        tournamentName: "Awesome Sauce",
+                        tournamentDay: '1',
+                    },
+                    startTime: "Jan 21 2021",
+                }
+            ];
 
-            clashTeamsDbImpl.getTeams.mockResolvedValue(mockReturnedTeams);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue(idToNameObject);
+            clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
+            clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments.mockResolvedValue(mockReturnedTeams);
             request(application)
-                .get('/api/teams')
+                .get(`/api/teams/${expectedServername}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual(expectedPayload);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['6', '5', '2']);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith();
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledWith(expectedServername, mockReturnedClashTournaments);
+                    expect(res.body).toEqual(mockReturnedTeams);
                     done();
                 })
         })
 
-        test('As a User, I should be able to call /api/dne with no filter and if an error occurs, then I should see a generic response.', (done) => {
-            clashTeamsDbImpl.getTeams.mockRejectedValue(new Error('Querying failed.'));
+        test('As a User, I should be able to call /api/teams with no filter and if an error occurs retrieving the active tournaments, then I should see a generic response.', (done) => {
+            clashTimeDbImpl.findTournament.mockRejectedValue(new Error('Querying failed.'));
             request(application)
                 .get('/api/teams')
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
                     if (err) return done(err);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith();
+                    expect(res.body).toEqual({error: 'Failed to retrieve active Tournaments.'});
+                    done();
+                })
+        })
+
+        test('As a User, I should be able to call /api/teams with no filter and if an error occurs retrieving the active teams, then I should see a generic response.', (done) => {
+            const mockReturnedClashTournaments = [
+                {
+                    startTime: ":currentDate",
+                    tournamentDay: ":tournamentDayOne",
+                    key: ":tournamentName#:tournamentDayOne",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":currentDate"
+                },
+                {
+                    startTime: ":datePlusOneDay",
+                    tournamentDay: ":tournamentDayTwo",
+                    key: ":tournamentName#:tournamentDayTwo",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusOneDay"
+                },
+                {
+                    startTime: ":datePlusTwoDays",
+                    tournamentDay: ":tournamentDayThree",
+                    key: ":tournamentName#:tournamentDayThree",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusTwoDays"
+                },
+                {
+                    startTime: ":datePlusThreeDays",
+                    tournamentDay: ":tournamentDayFour",
+                    key: ":tournamentName#:tournamentDayFour",
+                    tournamentName: ":tournamentName",
+                    registrationTime: ":datePlusThreeDays"
+                }
+            ];
+            const expectedServername = 'Goon Squad';
+
+            clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
+            clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments.mockRejectedValue(new Error('Failed to query for Teams'));
+            request(application)
+                .get(`/api/teams/${expectedServername}`)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+                    expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith();
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments).toHaveBeenCalledWith(expectedServername, mockReturnedClashTournaments);
                     expect(res.body).toEqual({error: 'Failed to retrieve Teams.'});
                     done();
                 })
         })
     })
 
-    describe('Clash Tournaments', () => {
+    describe('GET Clash Tournaments', () => {
         test('As a User, I should be able to call /api/tournaments and retrieve a list of available Tournaments', (done) => {
             const mockReturnedClashTournaments = [
                 {
@@ -239,7 +322,7 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
-    describe('Clash Team Registration', () => {
+    describe('POST Clash Team Registration', () => {
         test('As a User, I should be able to call /api/team/register to register with a specific team.', (done) => {
             let expectedUserId = '123456';
             let expectedUsername = 'Roidrage';
@@ -457,7 +540,7 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
-    describe('Clash Team Unregister', () => {
+    describe('DELETE Clash Team Unregister', () => {
         test('As a User, I should be able to call /api/team/register with DELETE to unregister with a specific team.', (done) => {
             let expectedUserId = '11234213';
             let expectedServer = 'Integration Server'
@@ -670,7 +753,7 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
-    describe('Clash Create New Team', () => {
+    describe('POST Clash Create New Team', () => {
         test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
             const payload = {id: '123', serverName: 'Test Server', teamName: 'Team Awesomenaught', tournamentName: 'awesome_sauce', tournamentDay: '1', startTime: 'Aug 12th 2021 7:00 pm PDT'};
             let expectedNewTeam = {teamName: 'New Team', serverName: payload.serverName, players: ['Roidrage'], tournamentName: payload.tournamentName, tournamentDay: payload.tournamentDay, startTime: payload.startTime};
@@ -1596,20 +1679,5 @@ function createMockTentativeDbReturn(tournaments, serverName, tentativeIds) {
         });
     })
     return mockTentativeDbResponses;
-}
-
-function convertTeamDbToTeamPayloadTest(expectedNewTeam, idsToNameList) {
-    return {
-        teamName: expectedNewTeam.teamName,
-        tournamentDetails: {
-            tournamentName: expectedNewTeam.tournamentName,
-            tournamentDay: expectedNewTeam.tournamentDay
-        },
-        serverName: expectedNewTeam.serverName,
-        startTime: expectedNewTeam.startTime,
-        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(id => {
-            return {name: idsToNameList[id]}
-        }) : {}
-    };
 }
 
