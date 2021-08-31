@@ -17,20 +17,7 @@ class ClashTeamsServiceImpl {
                             if (response.exist) {
                                 resolve({error: 'Player is not eligible to create a new Team.'});
                             } else {
-                                clashSubscriptionDbImpl.retrievePlayerNames([response.players[0]]).then(idsToPlayerNameMap => {
-                                    resolve({
-                                        teamName: response.teamName,
-                                        serverName: response.serverName,
-                                        playersDetails: Array.isArray(response.players) ? response.players.map(data => {
-                                            return {name: !idsToPlayerNameMap[data] ? data : idsToPlayerNameMap[data]}
-                                        }) : {},
-                                        tournamentDetails: {
-                                            tournamentName: response.tournamentName,
-                                            tournamentDay: response.tournamentDay
-                                        },
-                                        startTime: response.startTime,
-                                    });
-                                });
+                                this.mapTeamDbResponseToApiResponse(response, resolve);
                             }
                         });
                     };
@@ -46,8 +33,48 @@ class ClashTeamsServiceImpl {
         });
     }
 
-    registerWithTeam() {
-        return new Promise(() => {
+    mapTeamDbResponseToApiResponse(response, resolve) {
+        clashSubscriptionDbImpl.retrievePlayerNames([response.players[0]]).then(idsToPlayerNameMap => {
+            resolve({
+                teamName: response.teamName,
+                serverName: response.serverName,
+                playersDetails: Array.isArray(response.players) ? response.players.map(data => {
+                    return {name: !idsToPlayerNameMap[data] ? data : idsToPlayerNameMap[data]}
+                }) : {},
+                tournamentDetails: {
+                    tournamentName: response.tournamentName,
+                    tournamentDay: response.tournamentDay
+                },
+                startTime: response.startTime,
+            });
+        });
+    }
+
+    registerWithTeam(id, teamName, serverName, tournamentName, tournamentDay) {
+        return new Promise((resolve) => {
+            let registerWithSpecificTeam = () => {
+                clashTeamsDbImpl.registerWithSpecificTeam(id, serverName, [{
+                    tournamentName: tournamentName,
+                    tournamentDay: tournamentDay
+                }], teamName)
+                    .then((dbResponse) => {
+                        this.mapTeamDbResponseToApiResponse(dbResponse, resolve);
+                    })
+            }
+            clashTentativeDbImpl.isTentative(id, serverName, {
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+            })
+                .then(tentativeResults => {
+                    if (tentativeResults.onTentative) {
+                    console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                    clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
+                        .then(registerWithSpecificTeam);
+                    } else {
+                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        registerWithSpecificTeam();
+                    }
+                })
         });
     }
 
