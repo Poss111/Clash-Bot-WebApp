@@ -415,7 +415,7 @@ describe('Clash Bot Service API Controller', () => {
                 )
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
+                .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
                     expect(res.body).toEqual({error: 'Unable to find the Team requested to be persisted.'});
