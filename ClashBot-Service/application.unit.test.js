@@ -367,6 +367,48 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
+        test('As a User, I should be able to call /api/team/register to register with a specific team without passing the Team portion of the teamname.', (done) => {
+            let expectedUserId = '123456';
+            let expectedUsername = 'Roidrage';
+            let expectedServer = 'Integration Server'
+            let expectedTeam = 'Abra';
+            let expectedTournamentName = "awesome_sauce";
+            let expectedTournamentDay = "1";
+            const mockReturnedTeam =
+                {
+                    tournamentDetails: {
+                        tournamentDay: expectedTournamentDay,
+                        tournamentName: expectedTournamentName,
+                    },
+                    serverName: expectedServer,
+                    teamName: expectedTeam,
+                    playersDetails: [
+                        {name: expectedUsername},
+                        {name: '1234321'}
+                    ]
+                };
+            clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
+            request(application)
+                .post('/api/team/register')
+                .send(
+                    {
+                        id: expectedUserId,
+                        teamName: expectedTeam,
+                        serverName: expectedServer,
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                )
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
+                    expect(res.body).toEqual(mockReturnedTeam);
+                    done();
+                })
+        })
+
         test('Error - As a User, I should be able to call /api/team/register to register with a specific team and if it fails then I will return a 500 error.', (done) => {
             let expectedUserId = '12345';
             let expectedServer = 'Integration Server'

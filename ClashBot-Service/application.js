@@ -79,7 +79,10 @@ let startUpApp = async () => {
                 badRequestHandler(res, 'Missing Tournament Details to persist with.');
             } else {
                 console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
-                let teamName = req.body.teamName.split(' ')[1];
+                let teamName = req.body.teamName;
+                if (/\s/g.test(req.body.teamName)) {
+                    teamName = req.body.teamName.split(' ')[1];
+                }
                 clashTeamsServiceImpl.registerWithTeam(req.body.id, teamName, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
                         if (data.error) res.statusCode = 400
