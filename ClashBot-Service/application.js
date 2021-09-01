@@ -82,6 +82,7 @@ let startUpApp = async () => {
                 let teamName = req.body.teamName.split(' ')[1];
                 clashTeamsServiceImpl.registerWithTeam(req.body.id, teamName, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
+                        if (data.error) res.statusCode = 400
                         res.json(data);
                     }).catch(err => {
                     console.error(err);
