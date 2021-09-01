@@ -200,7 +200,7 @@ let startUpApp = async () => {
             }
         })
 
-        app.put(`${urlPrefix}/user`, (req, res) => {
+        app.post(`${urlPrefix}/user/verify`, (req, res) => {
             if (!req.body.id || !req.body.username || !req.body.serverName) {
                 badRequestHandler(res, 'Missing expected User Information');
             } else {

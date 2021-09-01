@@ -1607,7 +1607,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashUserServiceImpl.checkIfIdExists.mockResolvedValue({ id: payload.id, username: payload.username, serverName: payload.serverName, preferredChampions: []});
             request(application)
-                .put('/api/user')
+                .post('/api/user/verify')
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -1628,7 +1628,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashUserServiceImpl.checkIfIdExists.mockRejectedValue(new Error('Failed to find user.'));
             request(application)
-                .put('/api/user')
+                .post('/api/user/verify')
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -1648,7 +1648,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = { error : 'Missing expected User Information' };
             request(application)
-                .put('/api/user')
+                .post('/api/user/verify')
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -1667,7 +1667,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = { error : 'Missing expected User Information' };
             request(application)
-                .put('/api/user')
+                .post('/api/user/verify')
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -1686,7 +1686,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = { error : 'Missing expected User Information' };
             request(application)
-                .put('/api/user')
+                .post('/api/user/verify')
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
