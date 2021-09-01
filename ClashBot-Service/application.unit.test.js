@@ -4,6 +4,8 @@ const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
+const clashUserServiceImpl = require('./service/clash-user-service-impl');
+
 const {startUpApp, convertTeamDbToTeamPayload} = require('./application');
 const request = require('supertest');
 const {deepCopy} = require("./utility/tests/test-utility.utility.test");
@@ -14,6 +16,7 @@ jest.mock('./dao/clash-subscription-db-impl');
 jest.mock('./dao/clash-tentative-db-impl');
 jest.mock('./service/clash-teams-service-impl');
 jest.mock('./service/clash-tentative-service-impl');
+jest.mock('./service/clash-user-service-impl');
 
 describe('Clash Bot Service API Controller', () => {
     let application;
@@ -443,7 +446,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsServiceImpl.registerWithTeam.mockResolvedValue({ error: 'Unable to find the Team requested to be persisted.' });
+            clashTeamsServiceImpl.registerWithTeam.mockResolvedValue({error: 'Unable to find the Team requested to be persisted.'});
             request(application)
                 .post('/api/team/register')
                 .send(
@@ -593,14 +596,14 @@ describe('Clash Bot Service API Controller', () => {
             let expectedUsername = 'Roidrage';
             let expectedTournamentDay = "1";
             clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({
-                    tournamentDetails: {
-                        tournamentDay: expectedTournamentDay,
-                        tournamentName: expectedTournamentName,
-                    },
-                    serverName: expectedServer,
-                    teamName: expectedTeam,
-                    playersDetails: [{name: expectedUsername}]
-                });
+                tournamentDetails: {
+                    tournamentDay: expectedTournamentDay,
+                    tournamentName: expectedTournamentName,
+                },
+                serverName: expectedServer,
+                teamName: expectedTeam,
+                playersDetails: [{name: expectedUsername}]
+            });
             request(application)
                 .delete('/api/team/register')
                 .send(
@@ -656,7 +659,7 @@ describe('Clash Bot Service API Controller', () => {
             let expectedTeam = 'Team Abra';
             let expectedTournamentName = "awesome_sauce";
             let expectedTournamentDay = "1";
-            clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({ error: 'User not found on requested Team.' });
+            clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({error: 'User not found on requested Team.'});
             request(application)
                 .delete('/api/team/register')
                 .send(
@@ -673,7 +676,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect(400, (err, res) => {
                     if (err) return done(err);
                     expect(clashTeamsServiceImpl.unregisterFromTeam).toBeCalledWith(expectedUserId, expectedServer, expectedTournamentName, expectedTournamentDay);
-                    expect(res.body).toEqual({ error: 'User not found on requested Team.' });
+                    expect(res.body).toEqual({error: 'User not found on requested Team.'});
                     done();
                 })
         })
@@ -776,8 +779,22 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('POST Clash Create New Team', () => {
         test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
-            const payload = {id: '123', serverName: 'Test Server', teamName: 'Team Awesomenaught', tournamentName: 'awesome_sauce', tournamentDay: '1', startTime: 'Aug 12th 2021 7:00 pm PDT'};
-            let expectedNewTeam = {teamName: 'New Team', serverName: payload.serverName, players: ['Roidrage'], tournamentName: payload.tournamentName, tournamentDay: payload.tournamentDay, startTime: payload.startTime};
+            const payload = {
+                id: '123',
+                serverName: 'Test Server',
+                teamName: 'Team Awesomenaught',
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1',
+                startTime: 'Aug 12th 2021 7:00 pm PDT'
+            };
+            let expectedNewTeam = {
+                teamName: 'New Team',
+                serverName: payload.serverName,
+                players: ['Roidrage'],
+                tournamentName: payload.tournamentName,
+                tournamentDay: payload.tournamentDay,
+                startTime: payload.startTime
+            };
             clashTeamsServiceImpl.createNewTeam.mockResolvedValue(expectedNewTeam);
             request(application)
                 .post('/api/team')
@@ -816,8 +833,15 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         test('No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
-            const payload = {id: '123', serverName: 'Test Server', teamName: 'Team Awesomenaught', tournamentName: 'awesome_sauce', tournamentDay: '1', startTime: 'Aug 12th 2021 7:00 pm PDT'};
-            let expectedNewTeam = { error : 'Player is not eligible to create a new Team.'};
+            const payload = {
+                id: '123',
+                serverName: 'Test Server',
+                teamName: 'Team Awesomenaught',
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1',
+                startTime: 'Aug 12th 2021 7:00 pm PDT'
+            };
+            let expectedNewTeam = {error: 'Player is not eligible to create a new Team.'};
             clashTeamsServiceImpl.createNewTeam.mockResolvedValue(expectedNewTeam);
             request(application)
                 .post('/api/team')
@@ -834,7 +858,14 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         test('Error - Failed to create Team - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails.', (done) => {
-            const payload = {id: '123', serverName: 'Test Server', teamName: 'Team Awesomenaught', tournamentName: 'awesome_sauce', tournamentDay: '1', startTime: 'Aug 12th 2021 7:00 pm PDT'};
+            const payload = {
+                id: '123',
+                serverName: 'Test Server',
+                teamName: 'Team Awesomenaught',
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1',
+                startTime: 'Aug 12th 2021 7:00 pm PDT'
+            };
             let error = new Error('Failed to create new team.');
             clashTeamsServiceImpl.createNewTeam.mockRejectedValue(error);
             request(application)
@@ -1555,6 +1586,114 @@ describe('Clash Bot Service API Controller', () => {
                     if (err) return done(err);
                     expect(res.body).toEqual({error: 'Missing required query parameter.'});
                     expect(clashSubscriptionDbImpl.retrieveUserDetails).not.toHaveBeenCalled();
+                    done();
+                })
+        })
+    })
+
+    describe('PUT User - /api/user', () => {
+        test('When I call this endpoint with an id, username, and server. I should be able to have a response with the a user object.', (done) => {
+            const payload = {
+                id: '1234556778',
+                username: 'some player',
+                serverName: 'Some Server'
+            };
+            const expectedResponse = {
+                id: payload.id,
+                username: payload.username,
+                serverName: payload.serverName,
+                preferredChampions: [],
+                subscriptions: {'UpcomingClashTournamentDiscordDM': false}
+            };
+            clashUserServiceImpl.checkIfIdExists.mockResolvedValue({ id: payload.id, username: payload.username, serverName: payload.serverName, preferredChampions: []});
+            request(application)
+                .put('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(1);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledWith(payload.id, payload.username, payload.serverName);
+                    expect(res.body).toEqual(expectedResponse);
+                    done();
+                })
+        })
+
+        test('Error - Failed to verify user', (done) => {
+            const payload = {
+                id: '1',
+                username: 'some player',
+                serverName: 'Some Server'
+            };
+            clashUserServiceImpl.checkIfIdExists.mockRejectedValue(new Error('Failed to find user.'));
+            request(application)
+                .put('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(1);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledWith(payload.id, payload.username, payload.serverName);
+                    expect(res.body).toEqual({ error: 'Failed to verify User.'});
+                    done();
+                })
+        })
+
+        test('Bad Request - Missing User Id', (done) => {
+            const payload = {
+                username: 'some player',
+                serverName: 'Some Server'
+            };
+            const expectedResponse = { error : 'Missing expected User Information' };
+            request(application)
+                .put('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual(expectedResponse);
+                    done();
+                })
+        })
+
+        test('Bad Request - Missing Username', (done) => {
+            const payload = {
+                id: '1',
+                serverName: 'Some Server'
+            };
+            const expectedResponse = { error : 'Missing expected User Information' };
+            request(application)
+                .put('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual(expectedResponse);
+                    done();
+                })
+        })
+
+        test('Bad Request - Missing Server Name', (done) => {
+            const payload = {
+                id: '1',
+                username: 'some player'
+            };
+            const expectedResponse = { error : 'Missing expected User Information' };
+            request(application)
+                .put('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(0);
+                    expect(res.body).toEqual(expectedResponse);
                     done();
                 })
         })

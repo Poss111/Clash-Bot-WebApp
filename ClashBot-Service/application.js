@@ -7,6 +7,7 @@ const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
+const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -199,6 +200,35 @@ let startUpApp = async () => {
             }
         })
 
+        app.put(`${urlPrefix}/user`, (req, res) => {
+            if (!req.body.id || !req.body.username || !req.body.serverName) {
+                badRequestHandler(res, 'Missing expected User Information');
+            } else {
+                clashUserServiceImpl.checkIfIdExists(req.body.id, req.body.username, req.body.serverName)
+                    .then((userDetails) => {
+                        let response = {
+                            id: userDetails.id,
+                            username: userDetails.username,
+                            serverName: userDetails.serverName,
+                            preferredChampions: userDetails.preferredChampions
+                        };
+                        if (!userDetails.subscribed) {
+                            response.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: false
+                            }
+                        } else {
+                            response.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: true
+                            }
+                        }
+                        res.json(response);
+                    }).catch(err => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to verify User.');
+                })
+            }
+        })
+
         app.get(`${urlPrefix}/tentative`, (req, res) => {
             if (!req.query.serverName) {
                 badRequestHandler(res, 'Missing required query parameter.');
@@ -267,9 +297,9 @@ let startUpApp = async () => {
                 clashTentativeServiceImpl.handleTentativeRequest(req.body.id, req.body.serverName, req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
                     .then(response => res.json(response))
                     .catch((err) => {
-                    console.error(err);
-                    errorHandler(res, 'Failed to update Tentative record.');
-                });
+                        console.error(err);
+                        errorHandler(res, 'Failed to update Tentative record.');
+                    });
             }
         })
 
