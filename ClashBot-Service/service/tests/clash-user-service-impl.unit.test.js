@@ -74,4 +74,34 @@ describe('Clash User Service Impl', () => {
             })
         })
     })
+
+    describe('Update a User record.', () => {
+        test('When I pass the user id and a username, it should map it to playerName and pass it along to update the record.', () => {
+            const expectedId = '1';
+            const expectedUpdatedUsername = 'Roid';
+            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ id: expectedId, playerName: expectedUpdatedUsername });
+            return clashUserServiceImpl.updateUserDetails(expectedId, expectedUpdatedUsername).then((results) => {
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ id: expectedId, playerName: expectedUpdatedUsername });
+                expect(results).toEqual({ id: expectedId, playerName: expectedUpdatedUsername });
+            })
+        })
+
+        test('When I pass the user id and a preferred, it should map it to playerName and pass it along to update the record.', () => {
+            const expectedId = '1';
+            const expectedUpdatedUsername = 'Roid';
+            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ id: expectedId, playerName: expectedUpdatedUsername });
+            return clashUserServiceImpl.updateUserDetails(expectedId, expectedUpdatedUsername).then((results) => {
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ id: expectedId, playerName: expectedUpdatedUsername });
+                expect(results).toEqual({ id: expectedId, playerName: expectedUpdatedUsername });
+            })
+        })
+
+        test('Error - If id is not passed then reject', () => {
+            return clashUserServiceImpl.updateUserDetails().then(() => {
+                expect(true).toBeFalsy();
+            }).catch(err => expect(err).toEqual('Failed to pass id.'))
+        })
+    })
 })

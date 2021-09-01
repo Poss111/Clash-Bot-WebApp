@@ -18,6 +18,22 @@ class ClashUserServiceImpl {
         })
     }
 
+    updateUserDetails(id, username) {
+        return new Promise(resolve => {
+            if (!id) {
+                reject('Failed to pass id.')
+            } else {
+                let userUpdate = {
+                    id: id,
+                    playerName: username
+                }
+                clashSubscriptionDbImpl.updateUser(userUpdate).then(updatedUserDetails => {
+                    resolve(updatedUserDetails);
+                });
+            }
+        })
+    }
+
 }
 
 module.exports = new ClashUserServiceImpl;
