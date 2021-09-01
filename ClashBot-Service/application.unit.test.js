@@ -796,7 +796,7 @@ describe('Clash Bot Service API Controller', () => {
             expect(convertTeamDbToTeamPayload1.playersDetails).toEqual([{name: expectedUsername}]);
         })
 
-        test('Error - No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
+        test('No available Teams - As a User, I should be able to receive a generic error message if create a new Team through /api/team POST fails to be passed any valid Tournaments.', (done) => {
             const payload = {id: '123', serverName: 'Test Server', teamName: 'Team Awesomenaught', tournamentName: 'awesome_sauce', tournamentDay: '1', startTime: 'Aug 12th 2021 7:00 pm PDT'};
             let expectedNewTeam = { error : 'Player is not eligible to create a new Team.'};
             clashTeamsServiceImpl.createNewTeam.mockResolvedValue(expectedNewTeam);
@@ -805,7 +805,7 @@ describe('Clash Bot Service API Controller', () => {
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
+                .expect(200, (err, res) => {
                     if (err) return done(err);
                     expect(res.body).toEqual(expectedNewTeam);
                     expect(clashTeamsServiceImpl.createNewTeam).toHaveBeenCalledTimes(1);

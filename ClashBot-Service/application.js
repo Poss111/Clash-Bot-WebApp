@@ -40,9 +40,6 @@ let startUpApp = async () => {
             } else {
                 clashTeamsServiceImpl.createNewTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
-                        if (responsePayload.error) {
-                            res.statusCode = 400;
-                        }
                         res.json(responsePayload);
                     })
                     .catch(err => {
