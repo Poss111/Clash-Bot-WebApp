@@ -97,8 +97,6 @@ let startUpApp = async () => {
         app.delete(`${urlPrefix}/team/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
-            } else if (!req.body.teamName) {
-                badRequestHandler(res, 'Missing Team to unregister from.');
             } else if (!req.body.serverName) {
                 badRequestHandler(res, 'Missing Server to unregister Team with.');
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {

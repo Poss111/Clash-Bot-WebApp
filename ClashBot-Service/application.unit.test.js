@@ -702,29 +702,6 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
-        test('Bad Request - missing team name - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
-            let expectedServer = 'Integration Server';
-            request(application)
-                .delete('/api/team/register')
-                .send(
-                    {
-                        id: '12312',
-                        username: 'Test User',
-                        serverName: expectedServer,
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '1'
-                    }
-                )
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).toEqual({error: 'Missing Team to unregister from.'});
-                    expect(clashTeamsDbImpl.registerWithSpecificTeam).not.toBeCalled();
-                    done();
-                })
-        })
-
         test('Bad Request - missing server name - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
             let expectedTeam = 'Team Abra';
             request(application)
