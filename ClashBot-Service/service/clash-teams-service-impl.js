@@ -14,7 +14,7 @@ class ClashTeamsServiceImpl {
                             tournamentDay: tournamentDay,
                             startTime: startTime
                         }]).then((response) => {
-                            if (response.exist) {
+                            if (Array.isArray(response) && response[0].exist) {
                                 resolve({error: 'Player is not eligible to create a new Team.'});
                             } else {
                                 resolve(this.mapTeamDbResponseToApiResponse(response));

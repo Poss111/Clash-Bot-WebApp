@@ -147,7 +147,7 @@ describe('Clash Teams Service Impl', () => {
             const expectedPlayerId = '123131';
             const expectedStartTime = new Date().toISOString();
 
-            clashTeamsDbImpl.registerPlayer.mockResolvedValue({exist: true});
+            clashTeamsDbImpl.registerPlayer.mockResolvedValue([{exist: true}]);
 
             setupIsTentativeReturn(false, expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
 
