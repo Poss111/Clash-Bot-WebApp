@@ -35,17 +35,29 @@ class ClashSubscriptionDbImpl {
             moment.tz.setDefault(timeZone);
             let subscription = this.createUserDetails(id, playerName, server, dateFormat);
             subscription.subscribed = 'true';
-            this.updateUser(subscription, reject, resolve);
+            this.createUser(subscription, reject, resolve);
         });
     }
 
-    updateUser(subscription, reject, resolve) {
+    createUser(subscription, reject, resolve) {
         this.clashSubscriptionTable.create(subscription, (err, data) => {
             if (err) reject(err);
             else {
                 console.log(`Successfully saved subscription => ${JSON.stringify(data)}`);
                 resolve(subscription);
             }
+        })
+    }
+
+    updateUser(userDetailsToUpdate) {
+        return new Promise((resolve, reject) => {
+            this.clashSubscriptionTable.update(userDetailsToUpdate, (err, data) => {
+                if (err) reject(err);
+                else {
+                    console.log(`Successfully updated User Details => ${JSON.stringify(data)}`);
+                    resolve(data.attrs);
+                }
+            })
         })
     }
 
@@ -130,7 +142,7 @@ class ClashSubscriptionDbImpl {
             if (subscribed) {
                 subscription.subscribed = JSON.stringify(subscribed);
             }
-            this.updateUser(subscription, reject, resolve);
+            this.createUser(subscription, reject, resolve);
         })
     }
 

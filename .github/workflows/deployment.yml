@@ -59,6 +59,27 @@ jobs:
           if-no-files-found: error
           path: ClashBot-Service
 
+  service-update-latest-docker-image:
+    needs: build-service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: service
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker Image
+        run: |
+          docker build -t poss11111/clash-bot-service:latest .
+          docker push poss11111/clash-bot-service:latest
+
   deploy-service:
     needs: build-service
     runs-on: ubuntu-latest

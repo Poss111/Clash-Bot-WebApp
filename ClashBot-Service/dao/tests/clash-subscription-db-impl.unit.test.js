@@ -407,6 +407,48 @@ describe('Create User Subscription', () => {
     })
 })
 
+describe('Update User', () => {
+    test('When I call updateUser with an id and username, it should only call to update the username.', () => {
+        const expectedUserId = '1';
+        const priorUsername = 'Roid';
+        const updatedUsername = 'Roidrage';
+
+        const updatedRecord = {
+            id: expectedUserId,
+            playerName: updatedUsername
+        }
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            update: jest.fn().mockImplementation((updateParams, callback) => callback(undefined, { attrs: updatedRecord }))
+        }
+
+        return clashSubscriptionDbImpl.updateUser({id: expectedUserId, playerName: updatedUsername}).then((results) => {
+            expect(results).toEqual(updatedRecord);
+            expect(results.playerName).not.toEqual(priorUsername);
+        });
+    })
+
+    test('When I call updateUser with an id and username and an error occurs, it should properly reject it.', () => {
+        const expectedUserId = '1';
+        const updatedUsername = 'Roidrage';
+
+        const updatedRecord = {
+            id: expectedUserId,
+            playerName: updatedUsername
+        }
+
+        const expectedError = new Error('Failed to update');
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            update: jest.fn().mockImplementation((updateParams, callback) => callback(expectedError, { attrs: updatedRecord }))
+        }
+
+        return clashSubscriptionDbImpl.updateUser({id: expectedUserId, playerName: updatedUsername})
+            .then((results) => expect(true).toBeFalsy())
+            .catch(err => expect(err).toEqual(expectedError));
+    })
+})
+
 describe('Retrieve Usernames by ids', () => {
     test('If a User Id is passed an array with the username belonging to the id should be returned.', () => {
         const expectedPlayerId = '1';

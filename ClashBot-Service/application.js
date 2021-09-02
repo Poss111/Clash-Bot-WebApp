@@ -7,6 +7,7 @@ const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
+const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
 const urlPrefix = '/api';
@@ -40,9 +41,6 @@ let startUpApp = async () => {
             } else {
                 clashTeamsServiceImpl.createNewTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
-                        if (responsePayload.error) {
-                            res.statusCode = 400;
-                        }
                         res.json(responsePayload);
                     })
                     .catch(err => {
@@ -82,7 +80,10 @@ let startUpApp = async () => {
                 badRequestHandler(res, 'Missing Tournament Details to persist with.');
             } else {
                 console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
-                let teamName = req.body.teamName.split(' ')[1];
+                let teamName = req.body.teamName;
+                if (/\s/g.test(req.body.teamName)) {
+                    teamName = req.body.teamName.split(' ')[1];
+                }
                 clashTeamsServiceImpl.registerWithTeam(req.body.id, teamName, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
                         if (data.error) res.statusCode = 400
@@ -97,8 +98,6 @@ let startUpApp = async () => {
         app.delete(`${urlPrefix}/team/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
-            } else if (!req.body.teamName) {
-                badRequestHandler(res, 'Missing Team to unregister from.');
             } else if (!req.body.serverName) {
                 badRequestHandler(res, 'Missing Server to unregister Team with.');
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
@@ -201,6 +200,35 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/user/verify`, (req, res) => {
+            if (!req.body.id || !req.body.username || !req.body.serverName) {
+                badRequestHandler(res, 'Missing expected User Information');
+            } else {
+                clashUserServiceImpl.checkIfIdExists(req.body.id, req.body.username, req.body.serverName)
+                    .then((userDetails) => {
+                        let response = {
+                            id: userDetails.id,
+                            username: userDetails.username,
+                            serverName: userDetails.serverName,
+                            preferredChampions: userDetails.preferredChampions
+                        };
+                        if (!userDetails.subscribed) {
+                            response.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: false
+                            }
+                        } else {
+                            response.subscriptions = {
+                                UpcomingClashTournamentDiscordDM: true
+                            }
+                        }
+                        res.json(response);
+                    }).catch(err => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to verify User.');
+                })
+            }
+        })
+
         app.get(`${urlPrefix}/tentative`, (req, res) => {
             if (!req.query.serverName) {
                 badRequestHandler(res, 'Missing required query parameter.');
@@ -269,9 +297,9 @@ let startUpApp = async () => {
                 clashTentativeServiceImpl.handleTentativeRequest(req.body.id, req.body.serverName, req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
                     .then(response => res.json(response))
                     .catch((err) => {
-                    console.error(err);
-                    errorHandler(res, 'Failed to update Tentative record.');
-                });
+                        console.error(err);
+                        errorHandler(res, 'Failed to update Tentative record.');
+                    });
             }
         })
 

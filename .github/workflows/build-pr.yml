@@ -222,6 +222,7 @@ jobs:
 
       - name: Run Integration Tests
         working-directory: ./ClashBot-E2E
+        timeout-minutes: 5
         run: |
           export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}

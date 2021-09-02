@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "cypress:open": "cypress open",
-    "precy": "wait-on http://localhost:4200 && wait-on http://localhost:80/api/health",
+    "precy": "wait-on -t 30000 http://localhost:4200 && wait-on http://localhost:80/api/health",
     "cy": "cypress run"
   },
   "author": "",
