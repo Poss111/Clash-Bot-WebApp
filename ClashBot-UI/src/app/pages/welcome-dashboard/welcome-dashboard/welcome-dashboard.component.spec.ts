@@ -22,6 +22,7 @@ import {ApplicationDetailsService} from "../../../services/application-details.s
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {HttpErrorResponse} from "@angular/common/http";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../../../services/clash-bot.service");
@@ -71,7 +72,7 @@ describe('WelcomeDashboardComponent', () => {
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
       declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent],
-      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule ],
+      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule, MatProgressBarModule],
       providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
     })
       .compileComponents();
@@ -105,10 +106,11 @@ describe('WelcomeDashboardComponent', () => {
   test('Should attempt to login upon load up if there has not been a Login Attempt', () => {
     fixture = TestBed.createComponent(WelcomeDashboardComponent);
     component = fixture.componentInstance;
+    expect(component.loggedIn).toEqual('NOT_LOGGED_IN');
     fixture.detectChanges();
     expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
     expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
-    expect(component.loggedIn).toBeTruthy();
+    expect(component.loggedIn).toEqual('LOGGED_IN');
   })
 
   test('Should attempt to login with existing tournaments Days upon load up if there has not been a Login Attempt', () => {
@@ -124,11 +126,12 @@ describe('WelcomeDashboardComponent', () => {
 
       fixture = TestBed.createComponent(WelcomeDashboardComponent);
       component = fixture.componentInstance;
+      expect(component.loggedIn).toEqual('NOT_LOGGED_IN');
       fixture.detectChanges();
 
       expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
       expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
-      expect(component.loggedIn).toBeTruthy();
+      expect(component.loggedIn).toEqual('LOGGED_IN');
 
       fixture.detectChanges();
 
@@ -136,6 +139,7 @@ describe('WelcomeDashboardComponent', () => {
 
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
+      expect(component.loggedIn).toEqual('LOGGED_IN');
       expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
     });
   })
@@ -169,7 +173,7 @@ describe('WelcomeDashboardComponent', () => {
         expect(message).toEqual('Failed to login to discord.');
         expect(action).toEqual('X');
         expect(config).toEqual({duration: 5000});
-        expect(component.loggedIn).toBeFalsy();
+        expect(component.loggedIn).toEqual('NOT_LOGGED_IN');
         done();
       } catch (err) {
         done(err);
@@ -224,9 +228,10 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
-        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
         expect(clashBotMock.postUserDetails).not.toHaveBeenCalled();
+        expect(component.loggedIn).toEqual('LOGGED_IN');
       })
     })
 
@@ -267,10 +272,11 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
-        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockReturnedClashBotUser.serverName, userGuilds: mockGuilds });
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(component.loggedIn).toEqual('LOGGED_IN');
       })
     })
 
@@ -311,10 +317,11 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledTimes(1);
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
-        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: [], defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(component.loggedIn).toEqual('LOGGED_IN');
       })
     })
 
@@ -359,10 +366,11 @@ describe('WelcomeDashboardComponent', () => {
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
         expect(matSnackBarMock.open).toHaveBeenCalledWith('Oops, we see your discord username has changed. We failed to updated it. Please try to login again.', 'X', {duration: 5000});
-        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: []});
+        expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+        expect(applicationDetailsServiceMock.setApplicationDetails).not.toHaveBeenCalled();
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(component.loggedIn).toEqual('NOT_LOGGED_IN');
       })
     })
   })
