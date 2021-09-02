@@ -20,6 +20,7 @@ import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calen
 import {OAuthModule} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./services/discord-interceptor.service";
 import {DiscordService} from "./services/discord.service";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import {DiscordService} from "./services/discord.service";
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,
+    MatProgressBarModule,
     OAuthModule.forRoot(),
   ],
   providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],

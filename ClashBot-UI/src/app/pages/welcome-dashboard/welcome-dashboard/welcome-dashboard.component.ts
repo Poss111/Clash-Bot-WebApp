@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../../../environments/environment";
@@ -18,11 +18,11 @@ import {ApplicationDetails} from "../../../interfaces/application-details";
   styleUrls: ['./welcome-dashboard.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class WelcomeDashboardComponent {
+export class WelcomeDashboardComponent implements OnInit {
   tournamentDays: any[] = [];
   dataLoaded: boolean = false;
   guilds: any[] = [];
-  loggedIn: boolean = false;
+  loggedIn: string = 'NOT_LOGGED_IN';
 
   authCodeFlowConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
@@ -42,7 +42,9 @@ export class WelcomeDashboardComponent {
               private discordService: DiscordService,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
-              private _snackBar: MatSnackBar) {
+              private _snackBar: MatSnackBar) { }
+
+  ngOnInit(): void {
     this.clashBotService.getClashTournaments()
       .pipe(take(1))
       .subscribe((data) => {
@@ -52,10 +54,12 @@ export class WelcomeDashboardComponent {
           .pipe(take(1))
           .subscribe((appDetails) => {
             appDetails.currentTournaments = data;
-            applicationDetailsService.setApplicationDetails(appDetails);
+            this.applicationDetailsService.setApplicationDetails(appDetails);
           })
       });
-    this.loggedIn = oauthService.hasValidAccessToken();
+    if (this.oauthService.hasValidAccessToken()) {
+      this.loggedIn = 'LOGGED_IN';
+    }
     this.oauthService.configure(this.authCodeFlowConfig);
     if (sessionStorage.getItem('LoginAttempt')) {
       this.oauthService.tokenValidationHandler = new JwksValidationHandler();
@@ -63,17 +67,20 @@ export class WelcomeDashboardComponent {
         .then(() => this.setUserDetails())
         .catch(err => {
           console.error(err);
-          this.loggedIn = false;
+          this.loggedIn = 'NOT_LOGGED_IN';
           this._snackBar.open('Failed to login to discord.',
             'X',
             {duration: 5 * 1000});
         });
     } else {
-      this.loggedIn = oauthService.hasValidAccessToken();
+      if (this.oauthService.hasValidAccessToken()) {
+        this.loggedIn = 'LOGGED_IN';
+      }
     }
   }
 
   setUserDetails() {
+    this.loggedIn = 'LOGGING_IN';
     this.discordService.getUserDetails()
       .pipe(retryWhen(error =>
           error.pipe(
@@ -104,7 +111,15 @@ export class WelcomeDashboardComponent {
               })
             ))).subscribe((guilds) => {
           this.clashBotService.getUserDetails(data.id)
-            .pipe(take(1))
+            .pipe(take(1),
+              catchError(err => {
+              console.error(err);
+              this.loggedIn = 'NOT_LOGGED_IN';
+              this._snackBar.open('Oops, we failed to pull your data from our Servers :( Please try again later.',
+                'X',
+                {duration: 5 * 1000});
+              return throwError(err);
+            }))
             .subscribe((clashBotUser) => {
               this.applicationDetailsService.getApplicationDetails()
                 .pipe(take(1))
@@ -114,13 +129,13 @@ export class WelcomeDashboardComponent {
                       .pipe(take(1),
                         catchError(err => {
                         console.error(err);
-                        this.loggedIn = false;
+                        this.loggedIn = 'NOT_LOGGED_IN';
                         this._snackBar.open('Oops, we see your discord username has changed. We failed to updated it. Please try to login again.',
                           'X',
                           {duration: 5 * 1000});
                         return throwError(err);
                       }))
-                      .subscribe((savedUser) => {
+                      .subscribe(() => {
                         this.setLoggedInDetails(appDetails, clashBotUser, guilds);
                       });
                   } else {
@@ -136,7 +151,7 @@ export class WelcomeDashboardComponent {
     appDetails.defaultGuild = clashBotUser.serverName;
     appDetails.userGuilds = guilds;
     this.applicationDetailsService.setApplicationDetails(appDetails);
-    this.loggedIn = true;
+    this.loggedIn = 'LOGGED_IN';
   }
 
   loginToDiscord(): void {
