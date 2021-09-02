@@ -19,7 +19,7 @@ class ClashUserServiceImpl {
     }
 
     updateUserDetails(id, username) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             if (!id) {
                 reject('Failed to pass id.')
             } else {
