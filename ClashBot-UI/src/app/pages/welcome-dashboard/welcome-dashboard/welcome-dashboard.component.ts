@@ -135,8 +135,8 @@ export class WelcomeDashboardComponent implements OnInit {
                           {duration: 5 * 1000});
                         return throwError(err);
                       }))
-                      .subscribe(() => {
-                        this.setLoggedInDetails(appDetails, clashBotUser, guilds);
+                      .subscribe((savedUser) => {
+                        this.setLoggedInDetails(appDetails, savedUser, guilds);
                       });
                   } else {
                     this.setLoggedInDetails(appDetails, clashBotUser, guilds);

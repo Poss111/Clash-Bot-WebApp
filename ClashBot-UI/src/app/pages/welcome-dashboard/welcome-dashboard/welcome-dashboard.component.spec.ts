@@ -273,7 +273,7 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds });
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockReturnedClashBotUser.serverName, userGuilds: mockGuilds });
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
         expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
         expect(component.loggedIn).toEqual('LOGGED_IN');
