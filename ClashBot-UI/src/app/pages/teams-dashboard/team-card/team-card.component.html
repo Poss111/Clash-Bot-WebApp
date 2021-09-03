@@ -16,7 +16,7 @@
             <div *ngFor="let player of team.playersDetails; index as i">
                 <div>
                     <h2>{{player.role}} - {{player.name}}</h2>
-                    <div class="player-champion-list-container">
+                    <div class="player-champion-list-container" *ngIf="player.champions && player.champions.length > 0">
                         <h3>Champions: {{player.champions}}</h3>
                     </div>
                 </div>

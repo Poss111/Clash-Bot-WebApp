@@ -1,3 +1,4 @@
+docker compose stop
 pushd ClashBot-UI/
 npm run-script build
 docker build -t poss11111/clash-bot-ui:test .
