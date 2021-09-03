@@ -3,6 +3,7 @@ module.exports = {
         {
             serverName: ":serverName",
             playerName: "Roïdräge",
+            preferredChampions: ['Sett','Volibear','Darius'],
             updatedAt: "2021-07-25T22:44:04.258Z",
             timeAdded: "July 25 2021 03:40 pm PDT",
             createdAt: "2021-07-25T22:40:44.633Z",

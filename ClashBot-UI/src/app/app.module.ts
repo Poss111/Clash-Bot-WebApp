@@ -21,6 +21,7 @@ import {OAuthModule} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./services/discord-interceptor.service";
 import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import { TournamentNameTransformerPipe } from './tournament-name-transformer.pipe';
 
 @NgModule({
   declarations: [
