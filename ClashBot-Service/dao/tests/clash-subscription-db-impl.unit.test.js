@@ -444,7 +444,7 @@ describe('Update User', () => {
         }
 
         return clashSubscriptionDbImpl.updateUser({id: expectedUserId, playerName: updatedUsername})
-            .then((()) => expect(true).toBeFalsy())
+            .then(() => expect(true).toBeFalsy())
             .catch(err => expect(err).toEqual(expectedError));
     })
 })
