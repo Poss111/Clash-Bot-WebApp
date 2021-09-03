@@ -13,6 +13,26 @@ beforeEach(() => {
     jest.resetModules();
 })
 
+function mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails) {
+    return {
+        teamName: team.teamName,
+        serverName: expectedServerName,
+        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
+            let mappedPayload = {name: id};
+            let foundUser = retrieveAllUserDetails[id];
+            if (foundUser) {
+                mappedPayload = {name: foundUser.playerName, champions: foundUser.preferredChampions}
+            }
+            return mappedPayload;
+        }) : {},
+        tournamentDetails: {
+            tournamentName: team.tournamentName,
+            tournamentDay: team.tournamentDay
+        },
+        startTime: team.startTime,
+    };
+}
+
 describe('Clash Teams Service Impl', () => {
 
     function verifyIsTentativeIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
@@ -396,28 +416,36 @@ describe('Clash Teams Service Impl', () => {
             const expectedServerName = 'Goon Squad';
             const expectedPlayerId = '123131';
             const expectedUsername = 'Roidrage';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-                {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '2'
-                }];
+            const expectedTournaments = [{tournamentName: 'awesome_sauce', tournamentDay: '1'}, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
+            const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
             let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
             let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
             let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
             let expectedResponse = [];
             const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
-            let playerIdToNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
-            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToApiResponse(team, expectedServerName, playerIdToNameMap)));
+
+            const expectedUserDetails = {
+                key: expectedPlayerId,
+                playerName: expectedUsername,
+                serverName: expectedServerName,
+                timeAdded: new Date().toISOString(),
+                subscribed: {},
+                preferredChampions: expectedChampionsList
+            };
+            const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
+
+            clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
+
+            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)))
+
             expectedResponse.pop();
 
             clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
             return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
                 expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
-                verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
+                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
                 expect(results).toEqual(expectedResponse);
             })
         })
@@ -426,22 +454,28 @@ describe('Clash Teams Service Impl', () => {
             const expectedServerName = 'Goon Squad';
             const expectedPlayerId = '123131';
             const expectedUsername = 'Roidrage';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-                {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '2'
-                }];
+            const expectedTournaments = [{tournamentName: 'awesome_sauce', tournamentDay: '1'}, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
+            const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
             let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
             teamOne.players = [];
             let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
             let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
             let expectedResponse = [];
             const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
-            let playerIdToNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
-            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToApiResponse(team, expectedServerName, playerIdToNameMap)));
+
+            const expectedUserDetails = {
+                key: expectedPlayerId,
+                playerName: expectedUsername,
+                serverName: expectedServerName,
+                timeAdded: new Date().toISOString(),
+                subscribed: {},
+                preferredChampions: expectedChampionsList
+            };
+            const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
+
+            clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
+
+            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)));
             expectedResponse.splice(0, 1);
             expectedResponse.pop();
 
@@ -449,7 +483,8 @@ describe('Clash Teams Service Impl', () => {
             return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
                 expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
-                verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
+                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
                 expect(results).toEqual(expectedResponse);
             })
         })
@@ -486,8 +521,11 @@ describe('Clash Teams Service Impl', () => {
             let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
             let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
             let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+
             clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
-            clashSubscriptionDbImpl.retrievePlayerNames.mockRejectedValue(error);
+
+            clashSubscriptionDbImpl.retrieveAllUserDetails.mockRejectedValue(error);
+
             return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
                 .then(() => expect(true).toBeFalsy())
                 .catch(err => expect(err).toEqual(error));

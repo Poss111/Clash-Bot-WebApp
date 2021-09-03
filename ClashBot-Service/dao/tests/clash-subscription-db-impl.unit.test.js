@@ -444,7 +444,7 @@ describe('Update User', () => {
         }
 
         return clashSubscriptionDbImpl.updateUser({id: expectedUserId, playerName: updatedUsername})
-            .then((results) => expect(true).toBeFalsy())
+            .then(() => expect(true).toBeFalsy())
             .catch(err => expect(err).toEqual(expectedError));
     })
 })
@@ -521,6 +521,86 @@ describe('Retrieve Usernames by ids', () => {
         };
 
         return clashSubscriptionDbImpl.retrievePlayerNames().then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+            expect(usernames).toEqual({});
+        })
+    })
+})
+
+describe('Retrieve User details by ids', () => {
+    test('If a User Id is passed an array with the user details belonging to the id should be returned.', () => {
+        const expectedPlayerId = '1';
+        const data = [{
+            attrs: {
+                key: '1',
+                playerName: 'Roidrage'
+            }
+        }];
+
+        const expectedMap = data.reduce((map, record) =>
+            (map[record.attrs.key] = record.attrs, map), {});
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        }
+
+        return clashSubscriptionDbImpl.retrieveAllUserDetails(expectedPlayerId).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
+            expect(usernames).toEqual(expectedMap);
+        })
+    })
+
+    test('If multiple User Ids are passed an array with the  user details belonging to the id should be returned.', () => {
+        const expectedPlayerId = '1';
+        const expectedPlayerIdTwo = '2';
+
+        const data = [
+            {
+                attrs: {
+                    key: '1',
+                    playerName: 'Roidrage'
+                }
+            },
+            {
+                attrs: {
+                    key: '2',
+                    playerName: 'TheIncentive'
+                }
+            }
+        ];
+
+        const expectedMap = data.reduce((map, record) =>
+            (map[record.attrs.key] = record.attrs, map), {});
+
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrieveAllUserDetails([expectedPlayerId, expectedPlayerIdTwo]).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId, expectedPlayerIdTwo], expect.any(Function));
+            expect(usernames).toEqual(expectedMap);
+        })
+    })
+
+    test('If no ids are passed, then it should return with an empty object.', () => {
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrieveAllUserDetails([]).then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+            expect(usernames).toEqual({});
+        })
+    })
+
+    test('If undefined is passed, then it should return with an empty object.', () => {
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrieveAllUserDetails().then((usernames) => {
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
             expect(usernames).toEqual({});
         })

@@ -26,6 +26,7 @@ import {ApplicationDetails} from "../../../interfaces/application-details";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {MatTableModule} from "@angular/material/table";
+import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");
@@ -48,7 +49,7 @@ describe('TeamsDashboardComponent', () => {
     });
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
-      declarations: [TeamsDashboardComponent, TeamCardComponent],
+      declarations: [TeamsDashboardComponent, TeamCardComponent, TournamentNameTransformerPipe],
       imports: [MatProgressSpinnerModule,
         MatChipsModule,
         MatFormFieldModule,

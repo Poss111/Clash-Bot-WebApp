@@ -109,17 +109,32 @@ class ClashTeamsServiceImpl {
                     Array.isArray(team.players) &&
                     team.players.length > 0 &&
                     activeTournaments.find(tournament => tournament.tournamentName === team.tournamentName && tournament.tournamentDay === team.tournamentDay));
-                clashSubscriptionDbImpl.retrievePlayerNames(Array.from(new Set(dbResponse.map(team => team.players).flat())))
+                clashSubscriptionDbImpl.retrieveAllUserDetails(Array.from(new Set(dbResponse.map(team => team.players).flat())))
                     .then(idToPlayerNameMap => {
-                        dbResponse.forEach(response => {
-                            payload.push(this.mapDbToApiResponse(response, idToPlayerNameMap));
-                        });
+                        dbResponse.forEach(response => payload.push(this.mapDbToDetailedApiResponse(response, idToPlayerNameMap)));
                         resolve(payload);
                     }).catch(reject);
             }).catch(reject);
         });
     }
 
+    mapDbToDetailedApiResponse(response, idToPlayerNameMap) {
+        return {
+            teamName: response.teamName,
+            serverName: response.serverName,
+            playersDetails: Array.isArray(response.players) ? response.players.map(id => {
+                let mappedPayload = {name: id};
+                let foundUser = idToPlayerNameMap[id];
+                if (foundUser) mappedPayload = {name: foundUser.playerName, champions: foundUser.preferredChampions}
+                return mappedPayload;
+            }) : {},
+            tournamentDetails: {
+                tournamentName: response.tournamentName,
+                tournamentDay: response.tournamentDay
+            },
+            startTime: response.startTime,
+        };
+    }
 }
 
 module.exports = new ClashTeamsServiceImpl;
