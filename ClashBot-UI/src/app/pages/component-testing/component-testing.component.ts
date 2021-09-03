@@ -6,7 +6,7 @@ import {ClashTeam} from "../../interfaces/clash-team";
   templateUrl: './component-testing.component.html',
   styleUrls: ['./component-testing.component.scss']
 })
-export class ComponentTestingComponent implements OnInit {
+export class ComponentTestingComponent {
 
   sampleTeam: ClashTeam = {
     userOnTeam: true,
@@ -33,8 +33,5 @@ export class ComponentTestingComponent implements OnInit {
   }
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
 
 }
