@@ -16,7 +16,7 @@ describe('Clash User Service Impl', () => {
             const expectedServername = 'Goon Squad';
             const expectedPreferredChampions = [];
             const expectedUserDetails = {
-                id: expectedUserId,
+                key: expectedUserId,
                 username: expectedUsername,
                 serverName: expectedServername,
                 preferredChampions: expectedPreferredChampions,
@@ -38,7 +38,7 @@ describe('Clash User Service Impl', () => {
             const expectedServername = 'Goon Squad';
             const expectedPreferredChampions = [];
             const expectedUserDetails = {
-                id: expectedUserId,
+                key: expectedUserId,
                 username: expectedUsername,
                 serverName: expectedServername,
                 preferredChampions: expectedPreferredChampions,
@@ -60,7 +60,7 @@ describe('Clash User Service Impl', () => {
             const expectedServername = 'Goon Squad';
             const expectedPreferredChampions = [];
             const expectedUserDetails = {
-                id: expectedUserId,
+                key: expectedUserId,
                 username: expectedUsername,
                 serverName: expectedServername,
                 preferredChampions: expectedPreferredChampions,
@@ -79,22 +79,22 @@ describe('Clash User Service Impl', () => {
         test('When I pass the user id and a username, it should map it to playerName and pass it along to update the record.', () => {
             const expectedId = '1';
             const expectedUpdatedUsername = 'Roid';
-            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ id: expectedId, playerName: expectedUpdatedUsername });
+            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ key: expectedId, playerName: expectedUpdatedUsername });
             return clashUserServiceImpl.updateUserDetails(expectedId, expectedUpdatedUsername).then((results) => {
                 expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ id: expectedId, playerName: expectedUpdatedUsername });
-                expect(results).toEqual({ id: expectedId, playerName: expectedUpdatedUsername });
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ key: expectedId, playerName: expectedUpdatedUsername });
+                expect(results).toEqual({ key: expectedId, playerName: expectedUpdatedUsername });
             })
         })
 
         test('When I pass the user id and a preferred, it should map it to playerName and pass it along to update the record.', () => {
             const expectedId = '1';
             const expectedUpdatedUsername = 'Roid';
-            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ id: expectedId, playerName: expectedUpdatedUsername });
+            clashSubscriptionDbImpl.updateUser.mockResolvedValue({ key: expectedId, playerName: expectedUpdatedUsername });
             return clashUserServiceImpl.updateUserDetails(expectedId, expectedUpdatedUsername).then((results) => {
                 expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ id: expectedId, playerName: expectedUpdatedUsername });
-                expect(results).toEqual({ id: expectedId, playerName: expectedUpdatedUsername });
+                expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({ key: expectedId, playerName: expectedUpdatedUsername });
+                expect(results).toEqual({ key: expectedId, playerName: expectedUpdatedUsername });
             })
         })
 

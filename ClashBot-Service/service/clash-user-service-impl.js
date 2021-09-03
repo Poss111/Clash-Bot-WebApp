@@ -5,7 +5,7 @@ class ClashUserServiceImpl {
     checkIfIdExists(id, username, serverName) {
         return new Promise(resolve => {
             clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-                if (!userDetails || !userDetails.id) {
+                if (!userDetails || !userDetails.key) {
                     clashSubscriptionDbImpl.createUpdateUserDetails(id, serverName, username, [])
                         .then((createdUser) => {
                             console.log(`Created a new User entry for ('${id}')`)
@@ -24,7 +24,7 @@ class ClashUserServiceImpl {
                 reject('Failed to pass id.')
             } else {
                 let userUpdate = {
-                    id: id,
+                    key: id,
                     playerName: username
                 }
                 clashSubscriptionDbImpl.updateUser(userUpdate).then(updatedUserDetails => {
