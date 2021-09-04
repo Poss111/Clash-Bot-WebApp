@@ -25,6 +25,6 @@
       </div>
     </mat-card>
   </div>
-  <app-upcoming-tournament-details-card *ngIf="dataLoaded && tournaments" [tournaments]="tournaments"></app-upcoming-tournament-details-card>
-  <app-clash-tournament-calendar id="WelcomeMessage-Calendar" [daysSelected]="tournamentDays" *ngIf="dataLoaded"></app-clash-tournament-calendar>
+  <app-upcoming-tournament-details-card class="upcoming-tournament-container" *ngIf="dataLoaded && tournaments" [tournaments]="tournaments"></app-upcoming-tournament-details-card>
+  <app-clash-tournament-calendar class="tournament-calendar-container" id="WelcomeMessage-Calendar" [daysSelected]="tournamentDays" *ngIf="dataLoaded"></app-clash-tournament-calendar>
 </div>
