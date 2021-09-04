@@ -1,6 +1,6 @@
 # ClashBot - Release Notification
 
-# Release v4.3.0-a
+# Release v4.3.0-b
 - Technical Updates
     1. Fixed a few styling issues with the time update and Welcome Dashboard addition
 
