@@ -1,5 +1,6 @@
 describe('Simple Clash-Bot Webapp Application workflow', () => {
   beforeEach(() => {
+    localStorage.setItem('version', 'v4.0.1');
     cy.visit('http://localhost:4200');
   })
 

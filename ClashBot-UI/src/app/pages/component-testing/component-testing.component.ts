@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {ClashTeam} from "../../interfaces/clash-team";
+import {MatDialog} from "@angular/material/dialog";
+import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 
 @Component({
   selector: 'app-component-testing',
@@ -32,6 +34,9 @@ export class ComponentTestingComponent {
     id: 'charizard'
   }
 
-  constructor() { }
+  constructor(private dialog: MatDialog) { }
 
+  openReleaseNotification() {
+    this.dialog.open(ReleaseNotificationDialogComponent);
+  }
 }

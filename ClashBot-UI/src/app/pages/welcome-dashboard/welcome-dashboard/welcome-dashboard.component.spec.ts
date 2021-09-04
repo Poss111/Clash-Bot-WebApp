@@ -26,6 +26,10 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {UpcomingTournamentDetailsCardComponent} from "../../../upcoming-tournament-details-card/upcoming-tournament-details-card.component";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ReleaseNotificationDialogComponent} from "../../../dialogs/release-notification-dialog/release-notification-dialog.component";
+import {MarkdownModule} from "ngx-markdown";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../../../services/clash-bot.service");
@@ -35,9 +39,9 @@ jest.mock("../../../services/application-details.service");
 jest.mock("@angular/material/snack-bar");
 
 @NgModule({
-  declarations: [ClashTournamentCalendarHeaderComponent],
-  entryComponents: [ClashTournamentCalendarHeaderComponent],
-  imports: [MatIconModule]
+  declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
+  entryComponents: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
+  imports: [MatIconModule, MatDialogModule, MarkdownModule.forRoot()]
 })
 class WelcomeDashboardTestModule {
 }
@@ -54,6 +58,7 @@ describe('WelcomeDashboardComponent', () => {
   let applicationDetailsServiceMock: any;
   let validAccessTokenMock: any;
   let tryLoginMock: any;
+  let matDialogMock: any;
   const expectedOAuthConfig: AuthConfig = {
     loginUrl: 'https://discord.com/api/oauth2/authorize',
     tokenEndpoint: 'https://discord.com/api/oauth2/token',
@@ -75,8 +80,17 @@ describe('WelcomeDashboardComponent', () => {
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
       declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent, UpcomingTournamentDetailsCardComponent, TournamentNameTransformerPipe],
-      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule, MatProgressBarModule, MatListModule],
-      providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
+      imports: [MatCardModule,
+        MatIconModule,
+        MatDatepickerModule,
+        HttpClientTestingModule,
+        MatNativeDateModule,
+        WelcomeDashboardTestModule,
+        MatProgressBarModule,
+        MatListModule,
+        MatDialogModule,
+        BrowserAnimationsModule],
+      providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar, MatDialog]
     })
       .compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
@@ -86,6 +100,7 @@ describe('WelcomeDashboardComponent', () => {
     oAuthServiceMock = TestBed.inject(OAuthService);
     applicationDetailsServiceMock = TestBed.inject(ApplicationDetailsService);
     matSnackBarMock = TestBed.inject(MatSnackBar);
+    matDialogMock = TestBed.inject(MatDialog);
     validAccessTokenMock = jest.fn().mockReturnValueOnce(false);
     tryLoginMock = jest.fn();
     clashBotMock.getClashTournaments = jest.fn().mockReturnValue(of([]));
@@ -94,6 +109,7 @@ describe('WelcomeDashboardComponent', () => {
   });
 
   beforeEach(() => {
+    localStorage.clear();
     sessionStorage.clear();
     httpMock.verify();
     validAccessTokenMock.mockReturnValueOnce(true);
@@ -105,6 +121,36 @@ describe('WelcomeDashboardComponent', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
+
+  test('Should display the Release Notification dialog box if there is not a Release Notification version in local storage.', () => {
+    jest.spyOn(matDialogMock, 'open');
+    fixture = TestBed.createComponent(WelcomeDashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem('version')).toEqual(environment.version);
+  })
+
+  test('Should NOT display the Release Notification dialog box if there is a Release Notification version in local storage matching the one in the Environment and should then set the environment version into the local storage under version.', () => {
+    environment.version = '1';
+    localStorage.setItem('version', '1');
+    jest.spyOn(matDialogMock, 'open');
+    fixture = TestBed.createComponent(WelcomeDashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(matDialogMock.open).toHaveBeenCalledTimes(0);
+  })
+
+  test('Should display the Release Notification dialog box if there is a Release Notification version in local storage not matching the one in the Environment.', () => {
+    environment.version = '2';
+    localStorage.setItem('version', '1');
+    jest.spyOn(matDialogMock, 'open');
+    fixture = TestBed.createComponent(WelcomeDashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(matDialogMock.open).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem('version')).toEqual('2');
+  })
 
   test('Should attempt to login upon load up if there has not been a Login Attempt', () => {
     fixture = TestBed.createComponent(WelcomeDashboardComponent);

@@ -1,5 +1,6 @@
 describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   before(() => {
+    localStorage.setItem('version', 'v4.0.1');
     cy.visit('http://localhost:4200');
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
