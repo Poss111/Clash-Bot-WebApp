@@ -20,6 +20,8 @@ export class TeamCardComponent implements OnInit {
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
   imageUrl: string = '';
+  dateFormat: string = 'MMM d, y h:mm a';
+  timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   constructor(private dialog: MatDialog) {}
 

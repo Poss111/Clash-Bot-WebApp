@@ -1,5 +1,9 @@
 # ClashBot - Release Notification
 
+# Release v4.3.0-b
+- Technical Updates
+    1. Fixed a few styling issues with the time update and Welcome Dashboard addition
+
 # Release v4.3.0
 - User Features
     1. You are now able to see the upcoming Clash Tournaments on the Dashboard based on your Timezone.

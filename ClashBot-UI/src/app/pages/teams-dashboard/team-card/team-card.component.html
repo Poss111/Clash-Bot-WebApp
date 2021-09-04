@@ -9,7 +9,7 @@
                                *ngIf="team.tournamentDetails">{{ team.tournamentDetails.tournamentName | tournamentNameTransformer }} -
                 Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
             <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-start'">Start
-                Time: {{team.startTime}} PDT
+                Time: {{team.startTime | date:dateFormat:timezoneOffset }}
             </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
