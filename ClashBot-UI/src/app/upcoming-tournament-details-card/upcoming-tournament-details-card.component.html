@@ -1,12 +1,12 @@
 <mat-card>
-  <mat-card-title>Upcoming Tournaments</mat-card-title>
-  <mat-card-subtitle>Here are the details for the upcoming League of Legends Clash Tournaments.</mat-card-subtitle>
-  <mat-list role="list">
-    <mat-list-item *ngFor="let tournament of tournaments" role="listitem">
+  <mat-card-title id="clash-bot-upcoming-tournaments-title">Upcoming Tournaments</mat-card-title>
+  <mat-card-subtitle id="clash-bot-upcoming-tournaments-subtitle">Here are the details for the upcoming League of Legends Clash Tournaments.</mat-card-subtitle>
+  <mat-list id="clash-bot-upcoming-tournaments-list" role="list">
+    <mat-list-item id="clash-bot-clash-bot-upcoming-tournament" *ngFor="let tournament of tournaments" role="listitem">
       <mat-icon mat-list-icon>emoji_events</mat-icon>
-      <div mat-line>{{tournament.tournamentName | tournamentNameTransformer}}</div>
-      <div mat-line>Day {{tournament.tournamentDay}}</div>
-      <div mat-line>{{tournament.startTime | date:dateFormat:timezoneOffset}}</div>
+      <div id="clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-name" mat-line>{{tournament.tournamentName | tournamentNameTransformer}}</div>
+      <div id="clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-day" mat-line>Day {{tournament.tournamentDay}}</div>
+      <div id="clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-time" mat-line>{{tournament.startTime | date:dateFormat:timezoneOffset}}</div>
     </mat-list-item>
   </mat-list>
   <mat-card-footer class="subtext" align="end">As of : {{currentDate | date:dateFormat:timezoneOffset}}</mat-card-footer>
