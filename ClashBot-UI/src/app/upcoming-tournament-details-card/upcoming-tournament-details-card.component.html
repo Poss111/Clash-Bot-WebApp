@@ -6,8 +6,8 @@
       <mat-icon mat-list-icon>emoji_events</mat-icon>
       <div mat-line>{{tournament.tournamentName | tournamentNameTransformer}}</div>
       <div mat-line>Day {{tournament.tournamentDay}}</div>
-      <div mat-line>{{tournament.startTime }}</div>
+      <div mat-line>{{tournament.startTime | date:dateFormat:timezoneOffset}}</div>
     </mat-list-item>
   </mat-list>
-  <mat-card-footer align="end">As of : {{currentDate | date:dateFormat:timezoneOffset}}</mat-card-footer>
+  <mat-card-footer class="subtext" align="end">As of : {{currentDate | date:dateFormat:timezoneOffset}}</mat-card-footer>
 </mat-card>
