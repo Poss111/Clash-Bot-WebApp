@@ -24,7 +24,7 @@
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       </div>
     </mat-card>
-    <p>{{guilds}}</p>
   </div>
+  <app-upcoming-tournament-details-card *ngIf="dataLoaded && tournaments" [tournaments]="tournaments"></app-upcoming-tournament-details-card>
   <app-clash-tournament-calendar id="WelcomeMessage-Calendar" [daysSelected]="tournamentDays" *ngIf="dataLoaded"></app-clash-tournament-calendar>
 </div>

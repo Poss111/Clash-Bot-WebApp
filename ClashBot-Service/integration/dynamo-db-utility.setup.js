@@ -19,7 +19,7 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
     let formattedCurrentDate = currentDate.add(1, 'hour').format(dateFormat);
     let currentDatePlusOne = currentDate.add(1, 'day').format(dateFormat);
     let currentDatePlusTwo = currentDate.add(4, 'day').format(dateFormat);
-    let currentDatePlusThree = currentDate.add(5, 'day').format(dateFormat);
+    let currentDatePlusThree = currentDate.add(1, 'day').format(dateFormat);
     let overrides = {
         tournamentName: 'awesome_sauce',
         currentDateOne: formattedCurrentDate,
@@ -31,7 +31,7 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
         datePlusThreeDays: currentDatePlusThree,
         tournamentDayFour: '4',
         serverName: 'LoL-ClashBotSupport'
-    }
+    };
     console.log(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
     let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
     let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);

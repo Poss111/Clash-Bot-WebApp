@@ -21,14 +21,17 @@ import {OAuthModule} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./services/discord-interceptor.service";
 import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
-import { TournamentNameTransformerPipe } from './tournament-name-transformer.pipe';
+import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card/upcoming-tournament-details-card.component';
+import {MatListModule} from "@angular/material/list";
+import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
 
 @NgModule({
   declarations: [
     AppComponent,
     WelcomeDashboardComponent,
     ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent
+    ClashTournamentCalendarHeaderComponent,
+    UpcomingTournamentDetailsCardComponent
   ],
   imports: [
     BrowserModule,
@@ -44,7 +47,9 @@ import { TournamentNameTransformerPipe } from './tournament-name-transformer.pip
     MatNativeDateModule,
     MatMenuModule,
     MatProgressBarModule,
+    MatListModule,
     OAuthModule.forRoot(),
+    TeamsModule,
   ],
   providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
   bootstrap: [AppComponent]
