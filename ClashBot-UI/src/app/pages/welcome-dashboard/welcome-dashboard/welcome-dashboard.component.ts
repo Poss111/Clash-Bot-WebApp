@@ -12,6 +12,8 @@ import {throwError, timer} from "rxjs";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
+import {MatDialog} from "@angular/material/dialog";
+import {ReleaseNotificationDialogComponent} from "../../../dialogs/release-notification-dialog/release-notification-dialog.component";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -43,9 +45,14 @@ export class WelcomeDashboardComponent implements OnInit {
               private discordService: DiscordService,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
-              private _snackBar: MatSnackBar) { }
+              private _snackBar: MatSnackBar,
+              private matDialog: MatDialog) { }
 
   ngOnInit(): void {
+    if (localStorage.getItem('version') !== environment.version) {
+        this.matDialog.open(ReleaseNotificationDialogComponent);
+        localStorage.setItem('version', environment.version);
+    }
     this.clashBotService.getClashTournaments()
       .pipe(take(1))
       .subscribe((data) => {

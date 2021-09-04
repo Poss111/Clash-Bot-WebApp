@@ -1367,7 +1367,6 @@ describe('TeamsDashboardComponent', () => {
         const mockDialogObs = cold('x|', {x: true});
         const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
 
-
         jest.spyOn(matDialogMock, 'open');
 
         userDetailsServiceMock.getUserDetails.mockReturnValue(mockUserDetailsObs);

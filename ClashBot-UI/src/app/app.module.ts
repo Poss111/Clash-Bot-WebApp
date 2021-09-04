@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, SecurityContext} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
@@ -24,6 +24,9 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card/upcoming-tournament-details-card.component';
 import {MatListModule} from "@angular/material/list";
 import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
+import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
+import {MarkdownModule} from "ngx-markdown";
+import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
   declarations: [
@@ -31,7 +34,8 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
     WelcomeDashboardComponent,
     ClashTournamentCalendarComponent,
     ClashTournamentCalendarHeaderComponent,
-    UpcomingTournamentDetailsCardComponent
+    UpcomingTournamentDetailsCardComponent,
+    ReleaseNotificationDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -39,6 +43,7 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
     AppRoutingModule,
     BrowserAnimationsModule,
     MatCardModule,
+    MatDialogModule,
     MatButtonModule,
     MatToolbarModule,
     MatIconModule,
@@ -50,6 +55,9 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
     MatListModule,
     OAuthModule.forRoot(),
     TeamsModule,
+    MarkdownModule.forRoot({
+      sanitize: SecurityContext.HTML
+    })
   ],
   providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
   bootstrap: [AppComponent]
