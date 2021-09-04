@@ -167,7 +167,7 @@ jobs:
 
       - name: Run Prod Build Check
         working-directory: ./ClashBot-UI
-        run: npm run-script build
+        run: npm run-script build-int
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
