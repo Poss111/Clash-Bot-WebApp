@@ -13,7 +13,7 @@ import {MatCardModule} from "@angular/material/card";
 import {Router} from "@angular/router";
 import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component";
 import {TeamsDashboardComponent} from "./pages/teams-dashboard/teams-dashboard/teams-dashboard.component";
-import {NO_ERRORS_SCHEMA} from "@angular/core";
+import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {MatChipsModule} from "@angular/material/chips";
 import {DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
@@ -28,10 +28,23 @@ import {TestScheduler} from "rxjs/testing";
 import {ApplicationDetails} from "./interfaces/application-details";
 import {ApplicationDetailsService} from "./services/application-details.service";
 import {MatTableModule} from "@angular/material/table";
+import {MarkdownModule} from "ngx-markdown";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ClashTournamentCalendarHeaderComponent} from "./clash-tournament-calendar-header/clash-tournament-calendar-header.component";
+import {ReleaseNotificationDialogComponent} from "./dialogs/release-notification-dialog/release-notification-dialog.component";
 
 jest.mock('./services/user-details.service');
 jest.mock('./services/application-details.service');
 jest.mock('./google-analytics.service');
+
+@NgModule({
+  declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
+  entryComponents: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
+  imports: [MatIconModule, MatDialogModule, MarkdownModule.forRoot()]
+})
+class WelcomeDashboardTestModule {
+}
+
 
 describe('AppComponent', () => {
   let userDetailsServiceMock: any;
@@ -61,7 +74,10 @@ describe('AppComponent', () => {
         MatSnackBarModule,
         MatSelectModule,
         MatDialogModule,
-        MatTableModule
+        MatTableModule,
+        MarkdownModule.forRoot(),
+        BrowserAnimationsModule,
+        WelcomeDashboardTestModule
       ],
       declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
       providers: [UserDetailsService,

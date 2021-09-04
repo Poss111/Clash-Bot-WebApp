@@ -41,7 +41,7 @@ jest.mock("@angular/material/snack-bar");
 @NgModule({
   declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
   entryComponents: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
-  imports: [MatIconModule, MarkdownModule.forRoot()]
+  imports: [MatIconModule, MatDialogModule, MarkdownModule.forRoot()]
 })
 class WelcomeDashboardTestModule {
 }

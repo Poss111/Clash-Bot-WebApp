@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ReleaseNotificationDialogComponent } from './release-notification-dialog.component';
+import {MatDialogModule} from "@angular/material/dialog";
+import {MarkdownModule} from "ngx-markdown";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 
 describe('ReleaseNotificationDialogComponent', () => {
   let component: ReleaseNotificationDialogComponent;
@@ -8,7 +11,8 @@ describe('ReleaseNotificationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ReleaseNotificationDialogComponent ]
+      declarations: [ ReleaseNotificationDialogComponent ],
+      imports: [MatDialogModule, MarkdownModule.forRoot(), HttpClientModule]
     })
     .compileComponents();
   });
