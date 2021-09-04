@@ -23,7 +23,8 @@ import {TournamentNameTransformerPipe} from "../../../tournament-name-transforme
     declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,
         TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe],
     exports: [
-        TeamCardComponent
+        TeamCardComponent,
+        TournamentNameTransformerPipe
     ],
     imports: [
         CommonModule,

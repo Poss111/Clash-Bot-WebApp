@@ -23,6 +23,9 @@ import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {HttpErrorResponse} from "@angular/common/http";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {UpcomingTournamentDetailsCardComponent} from "../../../upcoming-tournament-details-card/upcoming-tournament-details-card.component";
+import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
+import {MatListModule} from "@angular/material/list";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../../../services/clash-bot.service");
@@ -71,8 +74,8 @@ describe('WelcomeDashboardComponent', () => {
     });
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
-      declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent],
-      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule, MatProgressBarModule],
+      declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent, UpcomingTournamentDetailsCardComponent, TournamentNameTransformerPipe],
+      imports: [MatCardModule, MatIconModule, MatDatepickerModule, HttpClientTestingModule, MatNativeDateModule, WelcomeDashboardTestModule, MatProgressBarModule, MatListModule],
       providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, UserDetailsService, MatSnackBar]
     })
       .compileComponents();

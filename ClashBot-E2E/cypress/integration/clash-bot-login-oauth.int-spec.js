@@ -17,7 +17,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-teams-header').should('have.text', 'Your available Servers to filter by');
     cy.get('#clash-bot-teams-lol-clashbotsupport').should('contain.text', 'LoL-ClashBotSupport');
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    cy.get('app-team-card').should('have.length', 5);
+    cy.get('app-team-card').should('have.length', 6);
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-title').should('have.text', 'LoL-ClashBotSupport - Team Pikachu');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-subtitle-tournament').should('have.text', 'Awesome Sauce - Day 2');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players>div').should('have.length', 5);

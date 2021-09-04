@@ -1,11 +1,11 @@
 module.exports = {
     Items: [
         {
-            startTime: ":currentDate",
+            startTime: ":currentDateOne",
             tournamentDay: ":tournamentDayOne",
             key: ":tournamentName#:tournamentDayOne",
             tournamentName: ":tournamentName",
-            registrationTime: ":currentDate"
+            registrationTime: ":currentDateOne"
         },
         {
             startTime: ":datePlusOneDay",

@@ -11,6 +11,7 @@ import {catchError, mergeMap, retryWhen, take} from "rxjs/operators";
 import {throwError, timer} from "rxjs";
 import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../../interfaces/application-details";
+import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -20,8 +21,8 @@ import {ApplicationDetails} from "../../../interfaces/application-details";
 })
 export class WelcomeDashboardComponent implements OnInit {
   tournamentDays: any[] = [];
+  tournaments?: ClashTournaments[];
   dataLoaded: boolean = false;
-  guilds: any[] = [];
   loggedIn: string = 'NOT_LOGGED_IN';
 
   authCodeFlowConfig: AuthConfig = {
@@ -48,6 +49,7 @@ export class WelcomeDashboardComponent implements OnInit {
     this.clashBotService.getClashTournaments()
       .pipe(take(1))
       .subscribe((data) => {
+        this.tournaments = data;
         data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
         this.dataLoaded = true;
         this.applicationDetailsService.getApplicationDetails()

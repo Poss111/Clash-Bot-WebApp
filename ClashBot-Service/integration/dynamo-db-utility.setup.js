@@ -7,31 +7,45 @@ const clashTeamsData = require('./mock-data/clash-teams-sample-data');
 const clashSubscriptionData = require('./mock-data/clash-subscriptions-sample-data');
 const clashTentativeData = require('./mock-data/clash-tentative-sample-data');
 const templateBuilder = require('../utility/template-builder');
-const moment = require('moment-timezone');
 
 process.env.INTEGRATION_TEST = true;
 
 let createdTables = new Map();
 
+Date.prototype.addDays = function(days) {
+    let date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+Date.prototype.addHours = function(hours) {
+    let date = new Date(this.valueOf());
+    date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+    return date;
+}
+
 let loadAllTables = async () => new Promise((resolve, reject) => {
-    const dateFormat = 'MMMM DD yyyy hh:mm a z';
-    let currentDate = new moment();
-    let formattedCurrentDate = currentDate.add(1, 'hour').format(dateFormat);
-    let currentDatePlusOne = currentDate.add(1, 'day').format(dateFormat);
-    let currentDatePlusTwo = currentDate.add(4, 'day').format(dateFormat);
-    let currentDatePlusThree = currentDate.add(5, 'day').format(dateFormat);
+    const options = { dateStyle: 'medium', timeStyle: 'long'};
+    const datePlusOneHour = new Date().addHours(1);
+    const datePlusOneDay = new Date().addDays(1);
+    const datePlusFiveDays = new Date().addDays(5);
+    const datePlusSixDays = new Date().addDays(6);
+    let formattedDatePlusOneHour = new Intl.DateTimeFormat('en-US', options).format(datePlusOneHour);
+    let formattedDatePlusOneDay = new Intl.DateTimeFormat('en-US', options).format(datePlusOneDay);
+    let formattedDatePlusFiveDays = new Intl.DateTimeFormat('en-US', options).format(datePlusFiveDays);
+    let formattedDatePlusSixDays = new Intl.DateTimeFormat('en-US', options).format(datePlusSixDays);
     let overrides = {
         tournamentName: 'awesome_sauce',
-        currentDateOne: formattedCurrentDate,
+        currentDateOne: formattedDatePlusOneHour,
         tournamentDayOne: '1',
-        datePlusOneDay: currentDatePlusOne,
+        datePlusOneDay: formattedDatePlusOneDay,
         tournamentDayTwo: '2',
-        datePlusTwoDays: currentDatePlusTwo,
+        datePlusTwoDays: formattedDatePlusFiveDays,
         tournamentDayThree: '3',
-        datePlusThreeDays: currentDatePlusThree,
+        datePlusThreeDays: formattedDatePlusSixDays,
         tournamentDayFour: '4',
         serverName: 'LoL-ClashBotSupport'
-    }
+    };
     console.log(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
     let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
     let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);

@@ -12,14 +12,14 @@
         <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item (click)="navigateToTeams()">
           <mat-icon>groups</mat-icon>
           <span>Clash Teams</span>
-        </button>app
+        </button>
         <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item
                 (click)="navigateToUserProfile()">
           <mat-icon>settings</mat-icon>
           <span>Settings</span>
         </button>
       </mat-menu>
-      <span>Clash Bot</span>
+      <span class="title">Clash Bot</span>
       <span class="clash-bot-spacer"></span>
       <span *ngIf="userDetailsLoaded && applicationDetailsLoaded" id="clash-bot-discord-username">{{ username }}</span>
     </mat-toolbar>
