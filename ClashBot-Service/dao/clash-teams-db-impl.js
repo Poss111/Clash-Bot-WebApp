@@ -7,7 +7,8 @@ class ClashTeamsDbImpl {
     Team;
     tableName = 'ClashTeam';
 
-    constructor() {}
+    constructor() {
+    }
 
     initialize() {
         return new Promise((resolve, reject) => {
@@ -16,9 +17,17 @@ class ClashTeamsDbImpl {
                 timestamps: true,
                 schema: {
                     key: Joi.string(),
+                    version: Joi.number(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
                     players: dynamodb.types.stringSet(),
+                    playersWRoles: Joi.object({
+                        Top: Joi.string(),
+                        Jg: Joi.string(),
+                        Mid: Joi.string(),
+                        Bot: Joi.string(),
+                        Supp: Joi.string(),
+                    }),
                     tournamentName: Joi.string(),
                     tournamentDay: Joi.string(),
                     startTime: Joi.string()
@@ -119,6 +128,42 @@ class ClashTeamsDbImpl {
         });
     }
 
+    registerPlayerWithRole(id, role, serverName, tournaments) {
+        return new Promise((resolve, reject) => {
+            this.mapTeamsToTournamentsByPlayer(id, serverName).then(teamsToTournaments => {
+                let reducedTeams = Object.values(teamsToTournaments).filter(record => record.userTeam
+                    && record.userTeam.players
+                    && record.userTeam.players.length === 1
+                    && record.userTeam.playersWRoles
+                    && Object.keys(record.userTeam.playersWRoles).length === 1);
+                if (reducedTeams.length === tournaments.length) {
+                    console.log(`Player ('${id}') is ineligible to create a new Team.`);
+                    resolve();
+                } else {
+                    const teamForTournaments = teamsToTournaments[`${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
+                    const callback = (err, data) => {
+                        if (err) reject(err);
+                        else resolve(data.attrs);
+                    }
+                    if (teamForTournaments && Array.isArray(teamForTournaments.availableTeams) && teamForTournaments.availableTeams.length > 0) {
+                        let teamToModify = teamForTournaments.availableTeams[0];
+                        teamToModify.players = [id];
+                        teamToModify.playersWRoles = {};
+                        teamToModify.playersWRoles[role] = id;
+                        console.log(`Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
+                        this.Team.update(teamToModify, callback);
+                    } else {
+                        let nextTeamIndex = teamsToTournaments.length + 1;
+                        if (!teamsToTournaments) {
+                           nextTeamIndex = 0;
+                        }
+                        this.createNewTeamWithRoles(id, serverName, role, tournaments[0], nextTeamIndex, callback);
+                    }
+                }
+            });
+        });
+    }
+
     registerWithSpecificTeam(id, serverName, tournaments, teamName) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((teams) => {
@@ -147,6 +192,38 @@ class ClashTeamsDbImpl {
                 };
                 this.addUserToTeam(id, foundTeam, callback);
             }).catch(err => reject(err));
+        })
+    }
+
+    registerWithSpecificTeamWithRole(id, role, serverName, tournaments, teamName){
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        });
+    }
+
+    mapTeamsToTournamentsByPlayer(playerId, serverName) {
+        return new Promise(resolve => {
+            this.getTeams(serverName).then(teams => {
+                let teamByTournaments = teams.reduce((acc, team) => {
+                    let key = `${team.tournamentName}#${team.tournamentDay}`;
+                    if (!acc[key]) {
+                        acc[key] = {
+                            availableTeams: [],
+                            userTeam: {}
+                        }
+                    }
+                    let objectToUpdate = acc[key];
+                    if ((team.players && team.players.includes(playerId))
+                        || (team.playersWRoles && Object.values(team.playersWRoles).includes(playerId))) {
+                        objectToUpdate.userTeam = team;
+                    } else {
+                        objectToUpdate.availableTeams.push(team);
+                    }
+                    acc[key] = objectToUpdate;
+                    return acc
+                }, {});
+                resolve(teamByTournaments);
+            });
         })
     }
 
@@ -286,6 +363,25 @@ class ClashTeamsDbImpl {
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime
+        };
+        createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
+        this.Team.update(createTeam, (err, data) => callback(err, data));
+    }
+
+    createNewTeamWithRoles(id, serverName, role, tournament, number, callback) {
+        console.log(`Creating v2 new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
+        let name = names[number];
+        let playerWRoles = {};
+        playerWRoles[role] = id;
+        let createTeam = {
+            teamName: `Team ${name}`,
+            serverName: serverName,
+            playersWRoles: playerWRoles,
+            players: [id],
+            tournamentName: tournament.tournamentName,
+            tournamentDay: tournament.tournamentDay,
+            startTime: tournament.startTime,
+            version: 2
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, (err, data) => callback(err, data));
