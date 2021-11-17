@@ -66,7 +66,7 @@ class ClashTeamsDbImpl {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
-                console.log(JSON.stringify(teams));
+                console.log(`# of teams pulled for server ('${teams.length}')`);
                 const tournamentToTeamMap = this.buildTournamentToTeamsMap(id, data);
                 let teamsCurrentlyOn = [];
                 let availableTeam = undefined;
