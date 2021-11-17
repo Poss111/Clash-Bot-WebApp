@@ -16,6 +16,13 @@
   }
 }
 
+#WelcomeMessage-PreseasonNotification {
+  font-size: 1.05em;
+  border: 0.35em outset #3f51b5;
+  -webkit-box-shadow: 5px 5px 15px rgb(0 0 0 / 40%);
+  font-style: oblique;
+}
+
 .welcome-message-container {
   max-width: 500px;
   padding-bottom: 0.5em;

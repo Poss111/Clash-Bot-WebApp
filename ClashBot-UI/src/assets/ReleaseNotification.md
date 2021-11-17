@@ -1,5 +1,9 @@
 # ClashBot - Release Notification
 
+# Release v4.3.0-c
+- Preseason Notification
+    1. Adding a notification to the main page to let users know that League is going into pre-season for preparation of Season 12. No Clash tournaments will be available until then so Clash Bot will not be able to schedule teams for Tournaments.
+
 # Release v4.3.0-b
 - Technical Updates
     1. Fixed a few styling issues with the time update and Welcome Dashboard addition
