@@ -12,10 +12,11 @@ class ClashTeamsDbImpl {
     initialize() {
         return new Promise((resolve, reject) => {
             dynamoDbHelper.initialize(this.tableName, {
-                hashKey: 'key',
+                hashKey: 'serverName',
+                rangeKey: 'teamDetails',
                 timestamps: true,
                 schema: {
-                    key: Joi.string(),
+                    teamDetails: Joi.string(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
                     players: dynamodb.types.stringSet(),
@@ -280,14 +281,14 @@ class ClashTeamsDbImpl {
         console.log(`Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
         let name = names[number];
         let createTeam = {
-            teamName: `Team ${name}`,
+            teamName: name,
             serverName: serverName,
             players: [id],
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime
         };
-        createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
+        createTeam.teamDetails = `${tournament.tournamentName}#${tournament.tournamentDay}#${name}`;
         this.Team.update(createTeam, (err, data) => callback(err, data));
     }
 

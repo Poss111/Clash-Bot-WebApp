@@ -60,10 +60,11 @@ describe('Initialize Table connection', () => {
         let expectedTableObject = {setupTable: true};
         dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
         const expectedTableDef = {
-            hashKey: 'key',
+            hashKey: 'serverName',
+            rangeKey: 'teamDetails',
             timestamps: true,
             schema: {
-                key: Joi.string(),
+                teamDetails: Joi.string(),
                 teamName: Joi.string(),
                 serverName: Joi.string(),
                 players: dynamodb.types.stringSet(),
@@ -1029,7 +1030,7 @@ describe('Create New Team', () => {
                 callback(undefined, teamCreated);
             })
         }
-        let teamName = `Team Abomasnow`
+        let teamName = `Abomasnow`
         let expectedBuiltTeam = {
             teamName: teamName,
             serverName: serverName,
@@ -1037,7 +1038,7 @@ describe('Create New Team', () => {
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime,
-            key: clashTeamsDbImpl.getKey(teamName, serverName, tournament.tournamentName, tournament.tournamentDay)
+            teamDetails: `${tournament.tournamentName}#${tournament.tournamentDay}#${teamName}`
         }
         clashTeamsDbImpl.createNewTeam(playerName, serverName, tournament, 0, (err, data) => {
             expect(clashTeamsDbImpl.Team.update).toBeCalledWith(expectedBuiltTeam, expect.any(Function));
