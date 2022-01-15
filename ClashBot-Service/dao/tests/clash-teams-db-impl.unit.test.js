@@ -10,10 +10,15 @@ jest.mock('dynamodb');
 jest.mock('../impl/dynamo-db-helper');
 
 function buildMockReturnForRegister(streamData, teamToBeReturned, add, update, del) {
-    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([streamData]));
     clashTeamsDbImpl.Team = jest.fn();
-    clashTeamsDbImpl.Team.exec = mockStream;
     clashTeamsDbImpl.Team.scan = jest.fn().mockReturnThis();
+    clashTeamsDbImpl.Team.query = jest.fn().mockReturnThis();
+    clashTeamsDbImpl.Team.where = jest.fn().mockReturnThis();
+    clashTeamsDbImpl.Team.beginsWith = jest.fn().mockReturnThis();
+    clashTeamsDbImpl.Team.exec = jest.fn();
+    for (let i in streamData) {
+        clashTeamsDbImpl.Team.exec.mockImplementationOnce(callback => callback(null, streamData[i]));
+    }
     clashTeamsDbImpl.Team.filterExpression = jest.fn().mockReturnThis();
     clashTeamsDbImpl.Team.expressionAttributeValues = jest.fn().mockReturnThis();
     clashTeamsDbImpl.Team.expressionAttributeNames = jest.fn().mockReturnThis();
@@ -93,27 +98,28 @@ describe('Retrieve Teams', () => {
         const value = {
             Items: [{
                 attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Sample Team',
                     serverName: 'Sample Server',
+                    teamDetails: 'msi2021#day_2#Sample Team',
+                    teamName: 'Sample Team',
                     players: ['Player1', 'Player2'],
                     tournamentName: 'msi2021',
                     tournamentDay: 'day_2'
                 }
             }
-            ]
+            ],
+            ScannedCount: 1
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         clashTeamsDbImpl.Team = jest.fn();
         clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream
+            query: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            beginsWith: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation(callback => callback(null, value))
         }
 
         return clashTeamsDbImpl.getTeams('Sample Server').then((data) => {
+            expect(clashTeamsDbImpl.Team.where.mock.calls.length).toEqual(0);
+            expect(clashTeamsDbImpl.Team.beginsWith.mock.calls.length).toEqual(0);
             expect(data).toEqual([value.Items[0].attrs]);
         });
     })
@@ -122,17 +128,17 @@ describe('Retrieve Teams', () => {
         const value = {
             Items: [{
                 attrs: {
-                    key: 'Sample Team#Sample Server',
+                    teamDetails: 'msi2021#day_1#Sample Team',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
                     players: ['Player1', 'Player2'],
                     tournamentName: 'msi2021',
-                    tournamentDay: 'day_2'
+                    tournamentDay: 'day_1'
                 }
             },
                 {
                     attrs: {
-                        key: 'Sample Team2#Sample Server',
+                        teamDetails: 'msi2021#day_2#Sample Team2',
                         teamName: 'Sample Team2',
                         serverName: 'Sample Server',
                         players: ['Player3', 'Player4'],
@@ -140,22 +146,136 @@ describe('Retrieve Teams', () => {
                         tournamentDay: 'day_2'
                     }
                 }
-            ]
+            ],
+            ScannedCount: 2
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         clashTeamsDbImpl.Team = jest.fn();
         clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream
+            query: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            beginsWith: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation(callback => callback(null, value))
         }
 
         return clashTeamsDbImpl.getTeams('Sample Server').then((data) => {
+            expect(clashTeamsDbImpl.Team.where.mock.calls.length).toEqual(0);
+            expect(clashTeamsDbImpl.Team.beginsWith.mock.calls.length).toEqual(0);
             expect(data).toEqual([value.Items[0].attrs, value.Items[1].attrs]);
         });
     })
+
+    test('I should retrieve all teams for a server and a Tournament name when getTeams is called with multiple teams.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    teamDetails: 'msi2021#day_2#Sample Team',
+                    teamName: 'Sample Team',
+                    serverName: 'Sample Server',
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_2'
+                }
+            }
+            ],
+            ScannedCount: 1
+        };
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team = {
+            query: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            beginsWith: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation(callback => callback(null, value))
+        }
+
+        return clashTeamsDbImpl.getTeams('Sample Server', 'msi2021').then((data) => {
+            expect(clashTeamsDbImpl.Team.where.mock.calls.length).toEqual(1);
+            expect(clashTeamsDbImpl.Team.where).toBeCalledWith('teamDetails');
+            expect(clashTeamsDbImpl.Team.beginsWith.mock.calls.length).toEqual(1);
+            expect(clashTeamsDbImpl.Team.beginsWith).toBeCalledWith('msi2021');
+            expect(data).toEqual([value.Items[0].attrs]);
+        });
+    })
+
+    test('I should retrieve all teams for a server and a Tournament name and Tournament day when getTeams is called with multiple teams.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    teamDetails: 'msi2021#1#Sample Team',
+                    teamName: 'Sample Team',
+                    serverName: 'Sample Server',
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ],
+            ScannedCount: 1
+        };
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team = {
+            query: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            beginsWith: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation(callback => callback(null, value))
+        }
+
+        return clashTeamsDbImpl.getTeams('Sample Server', 'msi2021', '1').then((data) => {
+            expect(clashTeamsDbImpl.Team.where.mock.calls.length).toEqual(1);
+            expect(clashTeamsDbImpl.Team.where).toBeCalledWith('teamDetails');
+            expect(clashTeamsDbImpl.Team.beginsWith.mock.calls.length).toEqual(1);
+            expect(clashTeamsDbImpl.Team.beginsWith).toBeCalledWith('msi2021#1');
+            expect(data).toEqual([value.Items[0].attrs]);
+        });
+    })
+
+    test('I should retrieve multiple teams for a server, Tournament name and Tournament day when retrieveTeams is called with multiple Tournaments.', () => {
+        const firstResponse = {
+            Items: [{
+                attrs: {
+                    teamDetails: 'msi2021#1#Sample Team',
+                    teamName: 'Sample Team',
+                    serverName: 'Sample Server',
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ],
+            ScannedCount: 1
+        };
+        const secondResponse = {
+            Items: [{
+                attrs: {
+                    teamDetails: 'msi2021#2#Sample Team2',
+                    teamName: 'Sample Team2',
+                    serverName: 'Sample Server',
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ],
+            ScannedCount: 1
+        };
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team = {
+            query: jest.fn().mockReturnThis(),
+            where: jest.fn().mockReturnThis(),
+            beginsWith: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementationOnce(callback => callback(null, firstResponse))
+                .mockImplementationOnce(callback => callback(null, secondResponse))
+        }
+
+        return clashTeamsDbImpl.retrieveTeamsBasedOnTournaments('Sample Server', [{ tournamentName: 'msi2021', tournamentDay: '1'},
+            { tournamentName: 'msi2021', tournamentDay: '2'}]).then((data) => {
+            expect(clashTeamsDbImpl.Team.where.mock.calls.length).toEqual(2);
+            expect(clashTeamsDbImpl.Team.where).toBeCalledWith('teamDetails');
+            expect(clashTeamsDbImpl.Team.beginsWith.mock.calls.length).toEqual(2);
+            expect(clashTeamsDbImpl.Team.beginsWith).toBeCalledWith('msi2021#1');
+            expect(data).toEqual([firstResponse.Items[0].attrs, secondResponse.Items[0].attrs]);
+        });
+    })
+
 })
 
 describe('Register Player', () => {
@@ -184,9 +304,9 @@ describe('Register Player', () => {
         const value = {
             Items: [{
                 attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Team Sample',
                     serverName: 'Sample Server',
+                    teamDetails: 'msi2021#day_2#Sample Team',
+                    teamName: 'Team Sample',
                     players: [expectedPlayerName],
                     tournamentName: 'msi2021',
                     tournamentDay: 'day_2'
@@ -202,14 +322,12 @@ describe('Register Player', () => {
             serverName: 'Sample Server',
             players: expectedPlayers
         };
-        buildMockReturnForRegister(value, mockTeam, true);
+        buildMockReturnForRegister([value], mockTeam, true);
 
-        let foundTeam = value.Items[0].attrs;
-        let key = clashTeamsDbImpl.getKey('Team Absol', foundTeam.serverName, 'msi2021', 'day_3');
         let expectedCreatedTeam = {
-            key: key,
-            teamName: 'Team Absol',
             serverName: 'Sample Server',
+            teamDetails: 'msi2021#day_3#Absol',
+            teamName: 'Absol',
             players: expectedPlayers,
             tournamentName: 'msi2021',
             tournamentDay: 'day_3'
@@ -239,9 +357,9 @@ describe('Register Player', () => {
         const value = {
             Items: [{
                 attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Team Sample',
                     serverName: 'Sample Server',
+                    teamDetails: 'msi2021#day_3#Sample',
+                    teamName: 'Sample',
                     players: [expectedPlayer],
                     tournamentName: 'msi2021',
                     tournamentDay: 'day_3'
@@ -249,15 +367,11 @@ describe('Register Player', () => {
             }
             ]
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         clashTeamsDbImpl.Team = jest.fn();
         clashTeamsDbImpl.Team.update = jest.fn();
         clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream
+            query: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementationOnce(callback => callback(null, value))
         }
 
         let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
@@ -274,9 +388,9 @@ describe('Register Player', () => {
             Items: [
                 {
                     attrs: {
-                        key: 'Sample Team#Sample Server#msi2021#day_3',
-                        teamName: 'Team Sample',
                         serverName: 'Sample Server',
+                        teamDetails: 'msi2021#day_3#Sample',
+                        teamName: 'Sample',
                         tournamentName: 'msi2021',
                         tournamentDay: 'day_3'
                     }
@@ -286,14 +400,14 @@ describe('Register Player', () => {
         let expectedPlayers = [];
         expectedPlayers.push('Player2');
         let mockTeam = {
-            key: 'Team Sample#Sample Server#msi2021#day_3',
-            teamName: 'Team Sample',
             serverName: 'Sample Server',
+            teamDetails: 'msi2021#day_3#Sample',
+            teamName: 'Sample',
             tournamentName: 'msi2021',
             tournamentDay: 'day_3',
             players: expectedPlayers
         };
-        buildMockReturnForRegister(value, mockTeam, false, true);
+        buildMockReturnForRegister([value], mockTeam, false, true);
 
         let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return clashTeamsDbImpl.registerPlayer('Player2', 'Sample Server', tournament).then(result => {

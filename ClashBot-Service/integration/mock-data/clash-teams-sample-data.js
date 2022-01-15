@@ -3,11 +3,11 @@ module.exports = {
         {
             startTime: ":currentDateOne",
             serverName: ":serverName",
-            teamName: "Team Abra",
+            teamName: "Abra",
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-25T01:44:24.048Z",
             tournamentDay: ":tournamentDayOne",
-            key: "Team Abra#:serverName#:tournamentName#:tournamentDayOne"
+            teamDetails: ":tournamentName#:tournamentDayOne#Abra"
         },
         {
             startTime: ":currentDateOne",
@@ -15,11 +15,11 @@ module.exports = {
             players: [
                 "5"
             ],
-            teamName: "Team Absol",
+            teamName: "Absol",
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-19T14:06:29.155Z",
             tournamentDay: ":tournamentDayOne",
-            key: "Team Absol#:serverName#:tournamentName#:tournamentDayOne"
+            teamDetails: ":tournamentName#:tournamentDayOne#Absol"
         },
         {
             startTime: ":datePlusOneDay",
@@ -32,7 +32,7 @@ module.exports = {
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-18T09:25:42.680Z",
             tournamentDay: ":tournamentDayTwo",
-            key: "Team Ho-oh#:serverName#:tournamentName#:tournamentDayTwo"
+            teamDetails: ":tournamentName#:tournamentDayTwo#Ho-oh"
         },
         {
             startTime: ":datePlusOneDay",
@@ -48,7 +48,7 @@ module.exports = {
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayTwo",
-            key: "Team Pikachu#:serverName#:tournamentName#:tournamentDayTwo"
+            teamDetails: ":tournamentName#:tournamentDayTwo#Pikachu"
         },
         {
             startTime: ":datePlusOneDay",
@@ -60,7 +60,7 @@ module.exports = {
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayThree",
-            key: "Team Blastoise#:serverName#:tournamentName#:tournamentDayThree"
+            teamDetails: ":tournamentName#:tournamentDayThree#Blastoise"
         },
         {
             startTime: ":datePlusOneDay",
@@ -72,7 +72,7 @@ module.exports = {
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayThree",
-            key: "Team Blaziken#:serverName#:tournamentName#:tournamentDayThree"
+            teamDetails: ":tournamentName#:tournamentDayThree#Blaziken"
         },
         {
             startTime: ":datePlusThreeDays",
@@ -84,7 +84,7 @@ module.exports = {
             tournamentName: ":tournamentName",
             updatedAt: "2021-07-24T23:40:54.973Z",
             tournamentDay: ":tournamentDayFour",
-            key: "Team Charizard#:serverName#:tournamentName#:tournamentDayFour"
+            teamDetails: ":tournamentName#:tournamentDayFour#Charizard"
         }
     ]
 }

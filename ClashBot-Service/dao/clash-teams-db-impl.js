@@ -7,7 +7,8 @@ class ClashTeamsDbImpl {
     Team;
     tableName = 'ClashTeam';
 
-    constructor() {}
+    constructor() {
+    }
 
     initialize() {
         return new Promise((resolve, reject) => {
@@ -167,7 +168,7 @@ class ClashTeamsDbImpl {
             ':playerName': dynamodb.Set([id], 'S')
         };
         this.Team.update({
-            key: this.getKey(foundTeam.teamName,
+            serverName: foundTeam.serverName, teamDetails: this.getKey(foundTeam.teamName,
                 foundTeam.serverName,
                 foundTeam.tournamentName,
                 foundTeam.tournamentDay)
@@ -252,29 +253,53 @@ class ClashTeamsDbImpl {
         });
     }
 
-    getTeams(serverName) {
+    getTeams(serverName, tournamentName, tournamentDay) {
         return new Promise((resolve, reject) => {
-            let teams = [];
-            let stream = this.Team.scan();
-            if (serverName) {
-                stream.filterExpression('#serverName = :name')
-                    .expressionAttributeValues({':name': `${serverName}`})
-                    .expressionAttributeNames({'#serverName': 'serverName'})
+            let query = this.Team.query(serverName);
+            let queryParameter;
+            if (tournamentName) {
+                queryParameter = tournamentName;
+            } if (tournamentDay) {
+                queryParameter += `#${tournamentDay}`;
             }
-            stream = stream.exec();
-            stream.on('readable', function () {
-                let read = stream.read();
-                if (read) {
-                    read.Items.forEach((data) => {
-                        teams.push(data.attrs)
-                    });
-                }
-            });
-            stream.on('end', function () {
-                resolve(teams);
-            });
-            stream.on('error', (err) => reject(err));
+            if (queryParameter) {
+                console.log(`Querying for Team that match :: '${queryParameter}...'`);
+                query.where('teamDetails')
+                    .beginsWith(queryParameter)
+                    .exec(this.parseDynamoResponse(reject, resolve));
+            } else {
+                query.exec(this.parseDynamoResponse(reject, resolve));
+            }
         });
+    }
+
+    retrieveTeamsBasedOnTournaments(serverName, tournaments) {
+        let calls = [];
+        for (let i in tournaments) {
+            calls.push(this.getTeams(serverName, tournaments[i].tournamentName, tournaments[i].tournamentDay));
+        }
+        return new Promise((resolve, reject) =>
+            Promise.all(calls)
+                .then((arrayOfArrayOfTeams) => {
+                    resolve([...new Set([].concat(...arrayOfArrayOfTeams))]);
+                })
+                .catch(err => reject(err)));
+    }
+
+    parseDynamoResponse(reject, resolve) {
+        return (err, team) => {
+            if (err) reject(err);
+            let teams = [];
+            console.log(`Scanned a total of '${team.ScannedCount}' records`)
+            if (team && Array.isArray(team.Items)) {
+                team.Items.forEach((data) => {
+                    teams.push(data.attrs)
+                });
+            } else {
+                teams.push(team.attrs)
+            }
+            resolve(teams);
+        };
     }
 
     createNewTeam(id, serverName, tournament, number, callback) {
