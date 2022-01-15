@@ -144,8 +144,9 @@ class ClashTeamsDbImpl {
                     const callback = (err, data) => {
                         if (err) reject(err);
                         else resolve(data.attrs);
-                    }
+                    };
                     if (teamForTournaments && Array.isArray(teamForTournaments.availableTeams) && teamForTournaments.availableTeams.length > 0) {
+                        // TODO Move this into separate method since it is reusable
                         let teamToModify = teamForTournaments.availableTeams[0];
                         teamToModify.players = [id];
                         teamToModify.playersWRoles = {};
@@ -154,7 +155,7 @@ class ClashTeamsDbImpl {
                         this.Team.update(teamToModify, callback);
                     } else {
                         let nextTeamIndex = teamsToTournaments.length + 1;
-                        if (!teamsToTournaments) {
+                        if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
                            nextTeamIndex = 0;
                         }
                         this.createNewTeamWithRoles(id, serverName, role, tournaments[0], nextTeamIndex, callback);
@@ -195,10 +196,36 @@ class ClashTeamsDbImpl {
         })
     }
 
-    registerWithSpecificTeamWithRole(id, role, serverName, tournaments, teamName){
+    registerWithSpecificTeamWithRole(id, role, serverName, tournament, teamName){
         return new Promise((resolve, reject) => {
-            resolve(true);
+            this.getTeams(serverName).then((teams) => {
+                teams = teams.filter(team => team.tournamentName === tournaments[0].tournamentName
+                    && team.tournamentDay === tournaments[0].tournamentDay);
+                let foundTeam = teams.filter(team => team.key === this.getKey(teamName, serverName, tournament.tournamentName, tournament.tournamentDay));
+                let currentTeam = foundTeam.find(team => this.isPlayerIsOnTeamV2(id, team));
+                console.log(`Team to be assigned to : ('${foundTeam.key}')...`);
+                if (!foundTeam) {
+                    resolve(foundTeam);
+                }
+                let callback = (err, data) => {
+                    if (err) reject(err);
+                    else {
+                        console.log(`Successfully added user to Team ('${data.key}').`);
+                        foundTeam = data.attrs;
+                        resolve(foundTeam);
+                    }
+                };
+                this.addUserToTeamV2(id, role, foundTeam, callback);
+            }).catch(err => reject(err));
         });
+    }
+
+    isPlayerIsOnTeamV2(id, team) {
+        if (team.playersWRoles) {
+            return Object.keys(team.playersWRoles).find(key => team.playersWRoles[key] === id);
+        } else {
+            return false;
+        }
     }
 
     mapTeamsToTournamentsByPlayer(playerId, serverName) {
@@ -247,6 +274,22 @@ class ClashTeamsDbImpl {
                 foundTeam.serverName,
                 foundTeam.tournamentName,
                 foundTeam.tournamentDay)
+        }, params, (err, record) => callback(err, record));
+    }
+
+    addUserToTeamV2(id, role, teamToBeUpdated, callback) {
+        let params = {};
+        teamToBeUpdated.playersWRoles[role] = id;
+        params.UpdateExpression = 'ADD players :playerName, SET #playersWRoles = :updatedRole';
+        params.ExpressionAttributeValues = {
+            ':playerName': dynamodb.Set([id], 'S'),
+            ':updatedRole': teamToBeUpdated.playersWRoles
+        };
+        this.Team.update({
+            key: this.getKey(teamToBeUpdated.teamName,
+                teamToBeUpdated.serverName,
+                teamToBeUpdated.tournamentName,
+                teamToBeUpdated.tournamentDay)
         }, params, (err, record) => callback(err, record));
     }
 
@@ -325,6 +368,30 @@ class ClashTeamsDbImpl {
                         console.log(`Successfully unregistered ('${id}') from ('${record.teamName}').`);
                     }
                 });
+        });
+    }
+
+    unregisterPlayerWithSpecificTeamV2(id, role, teamsToBeRemovedFrom, callback) {
+        console.log(`V2 - Unregistering ('${id}') from teams ('${teamsToBeRemovedFrom.map(team => team.teamName)}')...`);
+        teamsToBeRemovedFrom.forEach(record => {
+            console.log(`V2 - Unregistering ('${id}') from team ('${record.teamName}')...`);
+            delete record.playersWRoles[role];
+            let params = {};
+            params.UpdateExpression = 'DELETE players :playerName, SET #playersWRoles = :updatedRole';
+            params.ConditionExpression = 'teamName = :nameOfTeam';
+            params.ExpressionAttributeValues = {
+                ':playerName': dynamodb.Set([id], 'S'),
+                ':nameOfTeam': record.teamName,
+                ':updatedRole': record.playersWRoles,
+            };
+            this.Team.update({
+                    key: this.getKey(record.teamName,
+                        record.serverName,
+                        record.tournamentName,
+                        record.tournamentDay)
+                },
+                params,
+                callback);
         });
     }
 
