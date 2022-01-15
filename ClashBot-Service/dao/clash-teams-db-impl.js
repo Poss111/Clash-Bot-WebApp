@@ -128,7 +128,7 @@ class ClashTeamsDbImpl {
         });
     }
 
-    registerPlayerWithRole(id, role, serverName, tournaments) {
+    registerPlayerV2(id, role, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.mapTeamsToTournamentsByPlayer(id, serverName).then(teamsToTournaments => {
                 let reducedTeams = Object.values(teamsToTournaments).filter(record => record.userTeam
@@ -137,7 +137,7 @@ class ClashTeamsDbImpl {
                     && record.userTeam.playersWRoles
                     && Object.keys(record.userTeam.playersWRoles).length === 1);
                 if (reducedTeams.length === tournaments.length) {
-                    console.log(`Player ('${id}') is ineligible to create a new Team.`);
+                    console.log(`V2 - Player ('${id}') is ineligible to create a new Team.`);
                     resolve();
                 } else {
                     const teamForTournaments = teamsToTournaments[`${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
@@ -151,14 +151,14 @@ class ClashTeamsDbImpl {
                         teamToModify.players = [id];
                         teamToModify.playersWRoles = {};
                         teamToModify.playersWRoles[role] = id;
-                        console.log(`Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
+                        console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
                         this.Team.update(teamToModify, callback);
                     } else {
                         let nextTeamIndex = teamsToTournaments.length + 1;
                         if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
                            nextTeamIndex = 0;
                         }
-                        this.createNewTeamWithRoles(id, serverName, role, tournaments[0], nextTeamIndex, callback);
+                        this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, callback);
                     }
                 }
             });
@@ -196,21 +196,30 @@ class ClashTeamsDbImpl {
         })
     }
 
-    registerWithSpecificTeamWithRole(id, role, serverName, tournament, teamName){
+    registerWithSpecificTeamV2(id, role, serverName, tournament, teamName){
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((teams) => {
-                teams = teams.filter(team => team.tournamentName === tournaments[0].tournamentName
-                    && team.tournamentDay === tournaments[0].tournamentDay);
-                let foundTeam = teams.filter(team => team.key === this.getKey(teamName, serverName, tournament.tournamentName, tournament.tournamentDay));
-                let currentTeam = foundTeam.find(team => this.isPlayerIsOnTeamV2(id, team));
-                console.log(`Team to be assigned to : ('${foundTeam.key}')...`);
+                teams = teams.filter(team => team.tournamentName === tournament.tournamentName
+                    && team.tournamentDay === tournament.tournamentDay);
+                let foundTeam = teams.find(team => team.key === this.getKey(teamName, serverName,
+                    tournament.tournamentName, tournament.tournamentDay));
+                let currentTeam = teams.find(team => this.isPlayerIsOnTeamV2(id, team));
+                console.log(`V2 - Team to be assigned to : ('${foundTeam.key}')...`);
                 if (!foundTeam) {
                     resolve(foundTeam);
+                }
+                if (currentTeam) {
+                    const unregisterCallback = (err) => {
+                        if (err) reject();
+                        else console.log(`V2 - Successfully unregistered ('${id}') from ('${currentTeam.key}').`)
+                    };
+                    this.unregisterPlayerWithSpecificTeamV2(id, role, [currentTeam],
+                        unregisterCallback);
                 }
                 let callback = (err, data) => {
                     if (err) reject(err);
                     else {
-                        console.log(`Successfully added user to Team ('${data.key}').`);
+                        console.log(`V2 - Successfully added user to Team ('${data.key}') as role ('${role}').`);
                         foundTeam = data.attrs;
                         resolve(foundTeam);
                     }
@@ -435,8 +444,8 @@ class ClashTeamsDbImpl {
         this.Team.update(createTeam, (err, data) => callback(err, data));
     }
 
-    createNewTeamWithRoles(id, serverName, role, tournament, number, callback) {
-        console.log(`Creating v2 new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
+    createNewTeamV2(id, serverName, role, tournament, number, callback) {
+        console.log(`V2 - Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
         let name = names[number];
         let playerWRoles = {};
         playerWRoles[role] = id;
@@ -448,7 +457,7 @@ class ClashTeamsDbImpl {
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime,
-            version: 2
+            version: '2'
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, (err, data) => callback(err, data));
