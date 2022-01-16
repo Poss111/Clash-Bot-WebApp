@@ -130,7 +130,7 @@ class ClashTeamsDbImpl {
 
     registerPlayerV2(id, role, serverName, tournaments) {
         return new Promise((resolve, reject) => {
-            this.mapTeamsToTournamentsByPlayer(id, serverName).then(teamsToTournaments => {
+            this.mapTeamsToTournamentsByPlayerV2(id, serverName).then(teamsToTournaments => {
                 let reducedTeams = Object.values(teamsToTournaments).filter(record => record.userTeam
                     && record.userTeam.players
                     && record.userTeam.players.length === 1
@@ -140,23 +140,35 @@ class ClashTeamsDbImpl {
                     console.log(`V2 - Player ('${id}') is ineligible to create a new Team.`);
                     resolve();
                 } else {
-                    const teamForTournaments = teamsToTournaments[`${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
+                    const teamForTournaments = teamsToTournaments[
+                        `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
                     const callback = (err, data) => {
                         if (err) reject(err);
                         else resolve(data.attrs);
                     };
-                    if (teamForTournaments && Array.isArray(teamForTournaments.availableTeams) && teamForTournaments.availableTeams.length > 0) {
-                        // TODO Move this into separate method since it is reusable
+                    if (teamForTournaments && Array.isArray(teamForTournaments.availableTeams)
+                        && teamForTournaments.availableTeams.length > 0) {
                         let teamToModify = teamForTournaments.availableTeams[0];
-                        teamToModify.players = [id];
-                        teamToModify.playersWRoles = {};
-                        teamToModify.playersWRoles[role] = id;
-                        console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
-                        this.Team.update(teamToModify, callback);
+                        if (!teamToModify.playersWRoles) {
+                            teamToModify.players = [id];
+                            teamToModify.playersWRoles = {};
+                            teamToModify.playersWRoles[role] = id;
+                            console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team 
+                            ('${teamToModify.teamName}') with Role ('${role}')...`)
+                            this.Team.update(teamToModify, callback);
+                        } else {
+                            this.addUserToTeamV2(id, role, teamToModify, (err, returned) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve(returned.attrs)
+                                }
+                            });
+                        }
                     } else {
                         let nextTeamIndex = teamsToTournaments.length + 1;
                         if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
-                           nextTeamIndex = 0;
+                            nextTeamIndex = 0;
                         }
                         this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, callback);
                     }
@@ -196,7 +208,7 @@ class ClashTeamsDbImpl {
         })
     }
 
-    registerWithSpecificTeamV2(id, role, serverName, tournament, teamName){
+    registerWithSpecificTeamV2(id, role, serverName, tournament, teamName) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((teams) => {
                 teams = teams.filter(team => team.tournamentName === tournament.tournamentName
@@ -229,6 +241,10 @@ class ClashTeamsDbImpl {
         });
     }
 
+    isPlayerIsOnTeam(id, team) {
+        return team.players && team.players.includes(id);
+    }
+
     isPlayerIsOnTeamV2(id, team) {
         if (team.playersWRoles) {
             return Object.keys(team.playersWRoles).find(key => team.playersWRoles[key] === id);
@@ -239,29 +255,39 @@ class ClashTeamsDbImpl {
 
     mapTeamsToTournamentsByPlayer(playerId, serverName) {
         return new Promise(resolve => {
-            this.getTeams(serverName).then(teams => {
-                let teamByTournaments = teams.reduce((acc, team) => {
-                    let key = `${team.tournamentName}#${team.tournamentDay}`;
-                    if (!acc[key]) {
-                        acc[key] = {
-                            availableTeams: [],
-                            userTeam: {}
-                        }
-                    }
-                    let objectToUpdate = acc[key];
-                    if ((team.players && team.players.includes(playerId))
-                        || (team.playersWRoles && Object.values(team.playersWRoles).includes(playerId))) {
-                        objectToUpdate.userTeam = team;
-                    } else {
-                        objectToUpdate.availableTeams.push(team);
-                    }
-                    acc[key] = objectToUpdate;
-                    return acc
-                }, {});
-                resolve(teamByTournaments);
-            });
+            this.getTeams(serverName)
+                .then(teams => this.buildTeamToTournamentByPlayerLogic(playerId, teams, null, resolve));
         })
     }
+
+    mapTeamsToTournamentsByPlayerV2(playerId, serverName) {
+        return new Promise(resolve => {
+            this.getTeamsV2(serverName)
+                .then(teams => this.buildTeamToTournamentByPlayerLogic(playerId, teams, 2, resolve));
+        })
+    }
+
+    buildTeamToTournamentByPlayerLogic = (playerId, teams, version, callback) => {
+        let teamByTournaments = teams.reduce((acc, team) => {
+            let key = `${team.tournamentName}#${team.tournamentDay}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    availableTeams: [],
+                    userTeam: {}
+                }
+            }
+            let objectToUpdate = acc[key];
+            if ((!version && this.isPlayerIsOnTeam(playerId, team)) ||
+                (version = 2 && this.isPlayerIsOnTeamV2(playerId, team))) {
+                objectToUpdate.userTeam = team;
+            } else {
+                objectToUpdate.availableTeams.push(team);
+            }
+            acc[key] = objectToUpdate;
+            return acc
+        }, {});
+        callback(teamByTournaments);
+    };
 
     doesTeamNameMatch(teamNameToSearch, team) {
         if (!teamNameToSearch || !team || !team.teamName) {
@@ -405,13 +431,31 @@ class ClashTeamsDbImpl {
     }
 
     getTeams(serverName) {
+        return this.getTeamsByVersion(serverName);
+    }
+
+    getTeamsV2(serverName) {
+        return this.getTeamsByVersion(serverName, 2);
+    }
+
+    getTeamsByVersion(serverName, version) {
         return new Promise((resolve, reject) => {
             let teams = [];
             let stream = this.Team.scan();
             if (serverName) {
-                stream.filterExpression('#serverName = :name')
-                    .expressionAttributeValues({':name': `${serverName}`})
-                    .expressionAttributeNames({'#serverName': 'serverName'})
+                let filterExpression = '#serverName = :name';
+                let expressionAttributeValues = {':name': `${serverName}`};
+                let expressionAttributeNames = {'#serverName': 'serverName'};
+                if (!version) {
+                    filterExpression += ' AND attribute_not_exists(version)';
+                } else {
+                    filterExpression += ' AND #version = :versionNumber';
+                    expressionAttributeValues[':versionNumber'] = `${version}`;
+                    expressionAttributeNames['#version'] = 'version';
+                }
+                stream.filterExpression(filterExpression)
+                    .expressionAttributeValues(expressionAttributeValues)
+                    .expressionAttributeNames(expressionAttributeNames);
             }
             stream = stream.exec();
             stream.on('readable', function () {
@@ -457,7 +501,7 @@ class ClashTeamsDbImpl {
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime,
-            version: '2'
+            version: 2
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, (err, data) => callback(err, data));
