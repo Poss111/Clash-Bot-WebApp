@@ -142,28 +142,38 @@ class ClashTeamsDbImpl {
                 } else {
                     const teamForTournaments = teamsToTournaments[
                         `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
+                    console.log(`V2 - Tournament selected ('${teamForTournaments}').`);
                     const callback = (err, data) => {
                         if (err) reject(err);
                         else resolve(data.attrs);
                     };
-                    if (teamForTournaments && Array.isArray(teamForTournaments.availableTeams)
-                        && teamForTournaments.availableTeams.length > 0) {
-                        let teamToModify = teamForTournaments.availableTeams[0];
-                        if (!teamToModify.playersWRoles) {
-                            teamToModify.players = [id];
-                            teamToModify.playersWRoles = {};
-                            teamToModify.playersWRoles[role] = id;
-                            console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team 
-                            ('${teamToModify.teamName}') with Role ('${role}')...`)
-                            this.Team.update(teamToModify, callback);
-                        } else {
-                            this.addUserToTeamV2(id, role, teamToModify, (err, returned) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve(returned.attrs)
-                                }
-                            });
+                    if (teamForTournaments) {
+                        if (teamForTournaments.userTeam) {
+                            console.log(`V2 - Player is currently on Team for Tournament 
+                            ('${teamForTournaments.userTeam.key}')...`);
+                            this.unregisterPlayerWithSpecificTeamV2(id, role,
+                                [teamForTournaments.userTeam], callback)
+                        }
+                        if (Array.isArray(teamForTournaments.availableTeams)
+                            && teamForTournaments.availableTeams.length > 0) {
+                            console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams}').`);
+                            let teamToModify = teamForTournaments.availableTeams[0];
+                            if (!teamToModify.playersWRoles) {
+                                teamToModify.players = [id];
+                                teamToModify.playersWRoles = {};
+                                teamToModify.playersWRoles[role] = id;
+                                console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team 
+                                ('${teamToModify.teamName}') with Role ('${role}')...`)
+                                this.Team.update(teamToModify, callback);
+                            } else {
+                                this.addUserToTeamV2(id, role, teamToModify, (err, returned) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        resolve(returned.attrs)
+                                    }
+                                });
+                            }
                         }
                     } else {
                         let nextTeamIndex = teamsToTournaments.length + 1;

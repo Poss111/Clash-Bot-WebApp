@@ -1375,7 +1375,66 @@ describe('Register Player', () => {
         })
 
         test('When I register a player with a team that has an existing team role, server, ' +
-            'and tournament, they should be successfully registered to version two of the team format.', () => {
+            'and tournament and the player belongs to an existing team, they should be unregistered' +
+            'from the existing team and successfully registered to version two of the team format.', () => {
+            const expectedUserId = '1';
+            const expectedUserRole = 'Top';
+            const expectedUserServerName = 'Goon Squad';
+            const expectedTeamName = 'Team Abra';
+            const expectedUserTournaments = createMockListOfTournaments(2);
+            const expectedRoleToPlayerMap = { Top: expectedUserId, Mid: '2'};
+
+            let expectedRegisteredTeam = buildMockTeamV2(expectedUserServerName, ['2', expectedUserId],
+                expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName);
+
+            let returnedPlayersReturnedTeamOne = buildMockTeamV2(expectedUserServerName, ['2'],
+                { Mid: '2'}, expectedUserTournaments[0], expectedTeamName);
+            let returnedPlayersReturnedTeamWithPlayer = buildMockTeamV2(expectedUserServerName, [expectedUserId],
+                { Top: expectedUserId}, expectedUserTournaments[0], expectedTeamName);
+
+            clashTeamsDbImpl.Team = {
+                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects(
+                    [{Items: [{attrs: returnedPlayersReturnedTeamOne},
+                            {attrs: returnedPlayersReturnedTeamWithPlayer}]}])),
+                scan: jest.fn().mockReturnThis(),
+                filterExpression: jest.fn().mockReturnThis(),
+                expressionAttributeValues: jest.fn().mockReturnThis(),
+                expressionAttributeNames: jest.fn().mockReturnThis(),
+                update: jest.fn().mockImplementationOnce((key, params, callback) => callback(undefined,
+                    {attrs: expectedRegisteredTeam}))
+                    .mockImplementationOnce((key, params, callback) => callback(undefined,
+                    {attrs: expectedRegisteredTeam}))
+            };
+
+            let deleteParams = {
+                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+                ConditionExpression: 'teamName = :nameOfTeam',
+                ExpressionAttributeValues: {
+                    ':playerName': dynamodb.Set(['1'], 'S'),
+                    ':nameOfTeam': returnedPlayersReturnedTeamWithPlayer.teamName,
+                    ':updatedRole': {},
+                }
+            };
+
+            let updateParams = {
+                UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+                ExpressionAttributeValues: {
+                    ':playerName': dynamodb.Set(['1'], 'S'),
+                    ':updatedRole': expectedRoleToPlayerMap
+                }
+            };
+
+            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
+                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+                expect(registeredTeam).toBeTruthy();
+                expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeamWithPlayer.key },
+                    deleteParams, expect.any(Function));
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeamOne.key },
+                    updateParams, expect.any(Function));
+                expect(registeredTeam).toEqual(expectedRegisteredTeam);
+            });
         })
 
         test('When I register a player that belongs to a team with the specified role by himself for all tournaments, ' +
