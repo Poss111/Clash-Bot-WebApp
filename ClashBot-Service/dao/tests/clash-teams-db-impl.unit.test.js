@@ -2330,7 +2330,6 @@ describe('Unregister Player', () => {
 describe('Unregister Player v2', () => {
 
     test('I should remove a player from a team if unregister is called and they exist on a team. - v2', () => {
-        const expectedRole = 'Top';
         const value = {
             Items: [{
                 attrs: {
@@ -2400,7 +2399,7 @@ describe('Unregister Player v2', () => {
         let key = clashTeamsDbImpl.getKey(foundTeam.teamName, foundTeam.serverName,
             foundTeam.tournamentName, foundTeam.tournamentDay);
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1', expectedRole, 'Sample Server', leagueTimes)
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server', leagueTimes)
             .then((data) => {
             expect(data).toBeTruthy();
             expect(clashTeamsDbImpl.Team.update).toBeCalledWith({key: key}, {
@@ -2508,7 +2507,7 @@ describe('Unregister Player v2', () => {
         let keyTwo = clashTeamsDbImpl.getKey(foundTeamTwo.teamName, foundTeamTwo.serverName,
             foundTeamTwo.tournamentName, foundTeamTwo.tournamentDay);
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top', 'Sample Server',
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server',
             leagueTimes).then((data) => {
             expect(data).toBeTruthy();
             expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(2);
@@ -2671,7 +2670,7 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player2', 'Top','Sample Server', leagueTimes)
+        return clashTeamsDbImpl.deregisterPlayerV2('Player2','Sample Server', leagueTimes)
             .then((data) => {
             expect(data).toBeFalsy();
         })
@@ -2726,66 +2725,9 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1','Sample Server',
             leagueTimes).then((data) => {
             expect(data).toBeFalsy();
-        })
-    })
-
-    test('I should not remove a player from a team if unregister is called and they do not exist on a team with ' +
-        'the given role details. - v2', () => {
-        const value = {
-            Items: [{
-                attrs: {
-                    key: 'Sample Team#Sample Server',
-                    teamName: 'Team Sample',
-                    serverName: 'Sample Server',
-                    players: ['Player1'],
-                    playersWRoles: {'Mid': 'Player1'},
-                    tournamentName: 'msi2021',
-                    tournamentDay: '1'
-                }
-            }
-            ]
-        };
-        let leagueTimes = [
-            {
-                tournamentName: "msi2021",
-                tournamentDay: "1",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
-            },
-            {
-                tournamentName: "msi2021",
-                tournamentDay: "2",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
-            }
-        ];
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-        dynamodb.documentClient = (() => {
-            return {
-                documentClient: () => jest.fn().mockReturnThis(),
-                createSet: () => jest.fn().mockReturnThis()
-            }
-        });
-        clashTeamsDbImpl.Team = jest.fn();
-        clashTeamsDbImpl.Team.update = jest.fn();
-        clashTeamsDbImpl.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn().mockImplementation((key, params, callback) => {
-                callback(undefined, value);
-            })
-        }
-
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
-            leagueTimes).then((data) => {
-            expect(data).toBeFalsy();
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(0);
         })
     })
 

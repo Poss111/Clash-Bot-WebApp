@@ -34,9 +34,45 @@ class ClashTeamsServiceImpl {
         });
     }
 
+    createNewTeamV2(id, role, serverName, tournamentName, tournamentDay, startTime) {
+        return new Promise((resolve, reject) => {
+            clashTentativeDbImpl.isTentative(id, serverName,
+                {tournamentName: tournamentName, tournamentDay: tournamentDay})
+                .then(isTentativeResults => {
+                    let registerPlayer = () => {
+                        clashTeamsDbImpl.registerPlayerV2(id, role, serverName, [{
+                            tournamentName: tournamentName,
+                            tournamentDay: tournamentDay,
+                            startTime: startTime
+                        }]).then((response) => {
+                            if (Array.isArray(response) && response[0].exist) {
+                                resolve({error: 'Player is not eligible to create a new Team.'});
+                            } else {
+                                resolve(this.mapTeamDbResponseToApiResponseV2(response));
+                            }
+                        }).catch(reject);
+                    };
+                    if (isTentativeResults.onTentative) {
+                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
+                            .then(registerPlayer)
+                            .catch(reject);
+                    } else {
+                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        registerPlayer();
+                    }
+                }).catch(reject);
+        });
+    }
+
     async mapTeamDbResponseToApiResponse(response) {
         let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
         return this.mapDbToApiResponse(response, idToNameMap);
+    }
+
+    async mapTeamDbResponseToApiResponseV2(response) {
+        let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
+        return this.mapDbToApiResponseV2(response, idToNameMap);
     }
 
     mapDbToApiResponse(response, idToNameMap) {
@@ -52,6 +88,27 @@ class ClashTeamsServiceImpl {
             },
             startTime: response.startTime,
         };
+    }
+
+    mapDbToApiResponseV2(response, idToNameMap) {
+        let mappedResponse = {
+            teamName: response.teamName,
+            serverName: response.serverName,
+            playersDetails: Array.isArray(response.players) ? response.players.map(data => {
+                return {name: !idToNameMap[data] ? data : idToNameMap[data]}
+            }) : {},
+            tournamentDetails: {
+                tournamentName: response.tournamentName,
+                tournamentDay: response.tournamentDay
+            },
+            startTime: response.startTime,
+            playersRoleDetails: {}
+        };
+        let keys = Object.keys(response.playersWRoles);
+        for (let key in keys) {
+            mappedResponse.playersRoleDetails[keys[key]] = idToNameMap[response.playersWRoles[keys[key]]]
+        }
+        return mappedResponse;
     }
 
     registerWithTeam(id, teamName, serverName, tournamentName, tournamentDay) {
@@ -82,6 +139,40 @@ class ClashTeamsServiceImpl {
                     } else {
                         console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerWithSpecificTeam();
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    registerWithTeamV2(id, role, teamName, serverName, tournamentName, tournamentDay) {
+        return new Promise((resolve, reject) => {
+            let registerWithSpecificTeamV2 = () => {
+                clashTeamsDbImpl.registerWithSpecificTeamV2(id, role, serverName, [{
+                    tournamentName: tournamentName,
+                    tournamentDay: tournamentDay
+                }], teamName)
+                    .then((dbResponse) => {
+                        if (!dbResponse) {
+                            resolve({error: 'Unable to find the Team requested to be persisted.'});
+                        } else {
+                            resolve(this.mapTeamDbResponseToApiResponseV2(dbResponse));
+                        }
+                    }).catch(reject);
+            }
+            clashTentativeDbImpl.isTentative(id, serverName, {
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+            })
+                .then(tentativeResults => {
+                    if (tentativeResults.onTentative) {
+                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
+                            .then(registerWithSpecificTeamV2)
+                            .catch(reject);
+                    } else {
+                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        registerWithSpecificTeamV2();
                     }
                 })
                 .catch(reject);

@@ -397,12 +397,12 @@ class ClashTeamsDbImpl {
         });
     }
 
-    deregisterPlayerV2(id, role, serverName, tournaments) {
+    deregisterPlayerV2(id, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.getTeamsV2(serverName).then((data) => {
                 let filter = [];
                 data.forEach(record => {
-                    if (this.isPlayerIsOnTeamWRoleV2(id, role, record)
+                    if (this.isPlayerIsOnTeamV2(id, record)
                         && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
                             && tournament.tournamentDay === record.tournamentDay)) {
                         filter.push(record);
