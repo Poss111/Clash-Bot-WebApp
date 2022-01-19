@@ -263,6 +263,15 @@ class ClashTeamsDbImpl {
         }
     }
 
+    isPlayerIsOnTeamWRoleV2(id, role, team) {
+        if (team.playersWRoles) {
+            return team.playersWRoles[role] === id;
+        } else {
+            return false;
+        }
+    }
+
+
     mapTeamsToTournamentsByPlayer(playerId, serverName) {
         return new Promise(resolve => {
             this.getTeams(serverName)
@@ -380,6 +389,31 @@ class ClashTeamsDbImpl {
                 });
                 if (filter.length > 0) {
                     this.unregisterPlayerWithSpecificTeam(id, filter, serverName, reject);
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    deregisterPlayerV2(id, role, serverName, tournaments) {
+        return new Promise((resolve, reject) => {
+            this.getTeamsV2(serverName).then((data) => {
+                let filter = [];
+                data.forEach(record => {
+                    if (this.isPlayerIsOnTeamWRoleV2(id, role, record)
+                        && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
+                            && tournament.tournamentDay === record.tournamentDay)) {
+                        filter.push(record);
+                    }
+                });
+                const callback = (err, response) => {
+                  if (err) reject(err);
+                  else resolve(response.Items[0].attrs);
+                };
+                if (filter.length > 0) {
+                    this.unregisterPlayerWithSpecificTeamV2(id, role, filter, callback);
                     resolve(true);
                 } else {
                     resolve(false);

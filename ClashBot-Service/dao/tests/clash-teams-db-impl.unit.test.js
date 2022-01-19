@@ -2328,6 +2328,520 @@ describe('Unregister Player', () => {
 })
 
 describe('Unregister Player v2', () => {
+
+    test('I should remove a player from a team if unregister is called and they exist on a team. - v2', () => {
+        const expectedRole = 'Top';
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: { 'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ]
+        };
+        const expectedUpdatedValue = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: [],
+                    playersWRoles: {},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        let expectedPlayers = ['Player1'];
+        let updatedRoleToPlayerMap = {};
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback(undefined, expectedUpdatedValue);
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let key = clashTeamsDbImpl.getKey(foundTeam.teamName, foundTeam.serverName,
+            foundTeam.tournamentName, foundTeam.tournamentDay);
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', expectedRole, 'Sample Server', leagueTimes)
+            .then((data) => {
+            expect(data).toBeTruthy();
+            expect(clashTeamsDbImpl.Team.update).toBeCalledWith({key: key}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample',
+                    ':updatedRole': updatedRoleToPlayerMap
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+            }, expect.any(Function));
+        })
+    })
+
+    test('I should remove a player from multiple teams if unregister is called and they belong to multiple teams ' +
+        'that match the criteria. - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: { 'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample2',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: { 'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ]
+        };
+        const expectedUpdatedValues = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: [],
+                    playersWRoles: {},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample2',
+                    serverName: 'Sample Server',
+                    players: [],
+                    playersWRoles: {},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        let expectedPlayers = ['Player1'];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback(undefined, expectedUpdatedValues);
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let keyOne = clashTeamsDbImpl.getKey(foundTeam.teamName, foundTeam.serverName,
+            foundTeam.tournamentName, foundTeam.tournamentDay);
+        let foundTeamTwo = value.Items[1].attrs;
+        let keyTwo = clashTeamsDbImpl.getKey(foundTeamTwo.teamName, foundTeamTwo.serverName,
+            foundTeamTwo.tournamentName, foundTeamTwo.tournamentDay);
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top', 'Sample Server',
+            leagueTimes).then((data) => {
+            expect(data).toBeTruthy();
+            expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(2);
+            expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([[{key: keyOne}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample',
+                    ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+            }, expect.any(Function)], [
+                {key: keyTwo}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers,
+                        ':nameOfTeam': 'Team Sample2',
+                        ':updatedRole': expectedUpdatedValues.Items[1].attrs.playersWRoles
+                    },
+                    ConditionExpression: 'teamName = :nameOfTeam',
+                    UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+                }, expect.any(Function)
+            ]]);
+        })
+    })
+
+    test('I should remove a player from a single team if unregister is called and they belong ' +
+        'to a single teams that matches the criteria (One Tournament). - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: { 'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample2',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: { 'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ]
+        };
+        const expectedUpdatedValues = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: [],
+                    playersWRoles: {},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            }
+        ];
+        let expectedPlayers = ['Player1'];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback(undefined, expectedUpdatedValues);
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let keyOne = clashTeamsDbImpl.getKey(foundTeam.teamName, foundTeam.serverName,
+            foundTeam.tournamentName, foundTeam.tournamentDay);
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top', 'Sample Server', leagueTimes)
+            .then((data) => {
+            expect(data).toBeTruthy();
+            expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(1);
+            expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([[{key: keyOne}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample',
+                    ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+            }, expect.any(Function)]]);
+        })
+    })
+
+    test('I should not remove a player from a team if unregister is called and they do not exist on a team. - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback();
+            })
+        }
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player2', 'Top','Sample Server', leagueTimes)
+            .then((data) => {
+            expect(data).toBeFalsy();
+        })
+    })
+
+    test('I should not remove a player from a team if unregister is called and they do not exist on a team with ' +
+        'the given tournament details. - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback();
+            })
+        }
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
+            leagueTimes).then((data) => {
+            expect(data).toBeFalsy();
+        })
+    })
+
+    test('I should not remove a player from a team if unregister is called and they do not exist on a team with ' +
+        'the given role details. - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: {'Mid': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback(undefined, value);
+            })
+        }
+
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
+            leagueTimes).then((data) => {
+            expect(data).toBeFalsy();
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(0);
+        })
+    })
+
+    test('I should return and error if an error occurs upon the update of the Team object. - v2', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    playersWRoles: {'Top': 'Player1'},
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        clashTeamsDbImpl.Team = jest.fn();
+        clashTeamsDbImpl.Team.update = jest.fn();
+        clashTeamsDbImpl.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback('Failed to update.');
+            })
+        }
+
+        return expect(clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
+            leagueTimes)).rejects.toMatch('Failed to update.');
+    })
+
     test('When I request to unregister a player from a Team, they should be removed from the player list and playersWRole object.', () => {
         let expectedServerName = 'Goon Squad';
         let originalPlayers = ['1'];
