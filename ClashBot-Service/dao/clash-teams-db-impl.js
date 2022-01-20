@@ -480,7 +480,7 @@ class ClashTeamsDbImpl {
                     filterExpression += ' AND attribute_not_exists(version)';
                 } else {
                     filterExpression += ' AND #version = :versionNumber';
-                    expressionAttributeValues[':versionNumber'] = `${version}`;
+                    expressionAttributeValues[':versionNumber'] = version;
                     expressionAttributeNames['#version'] = 'version';
                 }
                 stream.filterExpression(filterExpression)

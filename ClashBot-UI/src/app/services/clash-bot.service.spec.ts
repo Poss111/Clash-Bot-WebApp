@@ -612,7 +612,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`http://localhost:80/api/v2/tentative?serverName=Some%20Guild`);
+      const req = httpMock.expectOne(`http://localhost:80/api/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedClashBotTentativeDetails);
     })
@@ -635,7 +635,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`/api/v2/tentative?serverName=Some%20Guild`);
+      const req = httpMock.expectOne(`/api/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedClashBotTentativeDetails);
     })

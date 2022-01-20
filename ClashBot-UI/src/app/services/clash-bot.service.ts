@@ -46,7 +46,7 @@ export class ClashBotService {
   }
 
   getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
-    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/v2/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
+    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
   }
 
   postTentativeList(userId: string, serverName: string, tournamentName: string, tournamentDay: string): Observable<ClashBotTentativeDetails> {

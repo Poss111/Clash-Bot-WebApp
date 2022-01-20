@@ -275,7 +275,7 @@ describe('Retrieve Teams - v2', () => {
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                 ':name': 'Sample Server',
-                ':versionNumber': '2'
+                ':versionNumber': 2
             })
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -332,7 +332,7 @@ describe('Retrieve Teams - v2', () => {
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                 ':name': 'Sample Server',
-                ':versionNumber': '2'
+                ':versionNumber': 2
             })
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
