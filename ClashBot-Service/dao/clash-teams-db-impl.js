@@ -263,14 +263,6 @@ class ClashTeamsDbImpl {
         }
     }
 
-    isPlayerIsOnTeamWRoleV2(id, role, team) {
-        if (team.playersWRoles) {
-            return team.playersWRoles[role] === id;
-        } else {
-            return false;
-        }
-    }
-
     mapTeamsToTournamentsByPlayer(playerId, serverName) {
         return new Promise(resolve => {
             this.getTeams(serverName)
