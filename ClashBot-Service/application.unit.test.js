@@ -2291,148 +2291,303 @@ describe('Clash Bot Service API Controller', () => {
     });
 
     describe('POST Tentative - /api/tentative', () => {
-        test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id, they should successfully be added.', (done) => {
-            const expectedResponse = {
-                tentativePlayers: ['Roidrage'],
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            };
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            };
-            clashTentativeServiceImpl.handleTentativeRequest.mockResolvedValue(expectedResponse);
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(200, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
-                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
-                    expect(res.body).toEqual(expectedResponse);
-                    done();
-                })
+        describe('POST Tentative - /api/tentative', () => {
+            test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id, they should successfully be added.', (done) => {
+                const expectedResponse = {
+                    tentativePlayers: ['Roidrage'],
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                };
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                };
+                clashTentativeServiceImpl.handleTentativeRequest.mockResolvedValue(expectedResponse);
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(200, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
+                        expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
+                        expect(res.body).toEqual(expectedResponse);
+                        done();
+                    })
+            })
+
+            test('ERROR - Failed to persist tentative - There was an error updating the tentative record.', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                clashTentativeServiceImpl.handleTentativeRequest.mockRejectedValue(new Error('Failed to persist tentative record.'));
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(500, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
+                        expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
+                        expect(res.body).toEqual({error: 'Failed to update Tentative record.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Id - The user id was not passed.', (done) => {
+                const payload = {
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Server Name - The user id was not passed.', (done) => {
+                const payload = {
+                    id: '2',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Tournament Details - The user id was not passed.', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                }
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Tournament Name - The user id was not passed.', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentDay: '2'}
+                }
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Tournament Day - The user id was not passed.', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce'}
+                }
+                request(application)
+                    .post(`/api/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
         })
 
-        test('ERROR - Failed to persist tentative - There was an error updating the tentative record.', (done) => {
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            clashTentativeServiceImpl.handleTentativeRequest.mockRejectedValue(new Error('Failed to persist tentative record.'));
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(500, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledTimes(1);
-                    expect(clashTentativeServiceImpl.handleTentativeRequest).toHaveBeenCalledWith(payload.id, payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
-                    expect(res.body).toEqual({error: 'Failed to update Tentative record.'});
-                    done();
-                })
-        })
+        describe('POST Tentative - /api/v2/tentative - v2', () => {
+            test('When a User calls to be added or removed to the tentative list ' +
+                'with the server name, tournament details and their id, they should ' +
+                'successfully be added. - v2', (done) => {
+                const expectedResponse = {
+                    tentativePlayers: ['Roidrage'],
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                };
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                };
+                clashTentativeServiceImpl.handleTentativeRequestV2.mockResolvedValue(expectedResponse);
+                request(application)
+                    .post('/api/v2/tentative')
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(200, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(1);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledWith(payload.id,
+                            payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
+                        expect(res.body).toEqual(expectedResponse);
+                        done();
+                    })
+            })
 
-        test('Bad request - Missing Id - The user id was not passed.', (done) => {
-            const payload = {
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
-                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
-                    done();
-                })
-        })
+            test('ERROR - Failed to persist tentative - There was an error updating ' +
+                'the tentative record. - v2', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                clashTentativeServiceImpl.handleTentativeRequestV2.mockRejectedValue(
+                    new Error('Failed to persist tentative record.'));
+                request(application)
+                    .post(`/api/v2/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(500, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(1);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledWith(payload.id,
+                            payload.serverName, payload.tournamentDetails.tournamentName,
+                            payload.tournamentDetails.tournamentDay);
+                        expect(res.body).toEqual({error: 'Failed to update Tentative record.'});
+                        done();
+                    })
+            })
 
-        test('Bad request - Missing Server Name - The user id was not passed.', (done) => {
-            const payload = {
-                id: '2',
-                tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
-            }
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
-                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
-                    done();
-                })
-        })
+            test('Bad request - Missing Id - The user id was not passed. - v2', (done) => {
+                const payload = {
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                request(application)
+                    .post(`/api/v2/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
 
-        test('Bad request - Missing Tournament Details - The user id was not passed.', (done) => {
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-            }
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
-                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
-                    done();
-                })
-        })
+            test('Bad request - Missing Server Name - The user id was not passed. - v2', (done) => {
+                const payload = {
+                    id: '2',
+                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                }
+                request(application)
+                    .post(`/api/v2/tentative`)
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
 
-        test('Bad request - Missing Tournament Name - The user id was not passed.', (done) => {
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentDay: '2'}
-            }
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
-                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
-                    done();
-                })
-        })
+            test('Bad request - Missing Tournament Details - The user id was not passed. - v2', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                }
+                request(application)
+                    .post('/api/v2/tentative')
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
 
-        test('Bad request - Missing Tournament Day - The user id was not passed.', (done) => {
-            const payload = {
-                id: '2',
-                serverName: 'Goon Squad',
-                tournamentDetails: {tournamentName: 'awesome_sauce'}
-            }
-            request(application)
-                .post(`/api/tentative`)
-                .send(payload)
-                .set('Content-Type', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400, (err, res) => {
-                    if (err) return done(err);
-                    expect(clashTentativeDbImpl.handleTentative).toHaveBeenCalledTimes(0);
-                    expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
-                    expect(res.body).toEqual({error: 'Missing required request parameter.'});
-                    done();
-                })
+            test('Bad request - Missing Tournament Name - The user id was not passed. - v2', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentDay: '2'}
+                }
+                request(application)
+                    .post('/api/v2/tentative')
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
+
+            test('Bad request - Missing Tournament Day - The user id was not passed. - v2', (done) => {
+                const payload = {
+                    id: '2',
+                    serverName: 'Goon Squad',
+                    tournamentDetails: {tournamentName: 'awesome_sauce'}
+                }
+                request(application)
+                    .post('/api/v2/tentative')
+                    .send(payload)
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(400, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(0);
+                        expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(0);
+                        expect(res.body).toEqual({error: 'Missing required request parameter.'});
+                        done();
+                    })
+            })
         })
     })
 

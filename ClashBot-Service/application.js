@@ -395,6 +395,23 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/v2/tentative`, (req, res) => {
+            if (!req.body.id || !req.body.serverName
+                || !req.body.tournamentDetails
+                || !req.body.tournamentDetails.tournamentName
+                || !req.body.tournamentDetails.tournamentDay) {
+                badRequestHandler(res, 'Missing required request parameter.');
+            } else {
+                clashTentativeServiceImpl.handleTentativeRequestV2(req.body.id, req.body.serverName,
+                    req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
+                    .then(response => res.json(response))
+                    .catch((err) => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to update Tentative record.');
+                    });
+            }
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
             res.json({
                 status: 'Healthy'
