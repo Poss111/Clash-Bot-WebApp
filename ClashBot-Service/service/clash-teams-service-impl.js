@@ -71,7 +71,6 @@ class ClashTeamsServiceImpl {
     }
 
     async mapTeamDbResponseToApiResponseV2(response) {
-        let idToNameMap = {};
         if (Array.isArray(response)) {
             let responseArray = [];
             let ids = response.map(id => id.players);
