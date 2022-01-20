@@ -16,7 +16,7 @@ export class ClashBotService {
   }
 
   getClashTeams(server: string): Observable<ClashTeam[]> {
-    return this.httpClient.get<ClashTeam[]>(this.buildHostUrl(`/api/teams/${server}`));
+    return this.httpClient.get<ClashTeam[]>(this.buildHostUrl(`/api/v2/teams/${server}`));
   }
 
   getClashTournaments(): Observable<ClashTournaments[]> {
@@ -31,7 +31,7 @@ export class ClashBotService {
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     }
-    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team/register'), payload);
+    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/v2/team/register'), payload);
   }
 
   unregisterUserFromTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashBotGenericResponse> {
@@ -42,11 +42,11 @@ export class ClashBotService {
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     };
-    return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/team/register'), { body: payload});
+    return this.httpClient.delete<ClashBotGenericResponse>(this.buildHostUrl('/api/v2/team/register'), { body: payload});
   }
 
   getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
-    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
+    return this.httpClient.get<ClashBotTentativeDetails[]>(this.buildHostUrl('/api/v2/tentative'), { params: new HttpParams({fromString: `serverName=${serverName}`}) });
   }
 
   postTentativeList(userId: string, serverName: string, tournamentName: string, tournamentDay: string): Observable<ClashBotTentativeDetails> {
@@ -58,7 +58,7 @@ export class ClashBotService {
         tournamentDay: tournamentDay
       }
     };
-    return this.httpClient.post<ClashBotTentativeDetails>(this.buildHostUrl('/api/tentative'), payload);
+    return this.httpClient.post<ClashBotTentativeDetails>(this.buildHostUrl('/api/v2/tentative'), payload);
   }
 
   buildHostUrl(url: string): string {
@@ -77,7 +77,7 @@ export class ClashBotService {
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay,
       startTime: teamRequest.startTime
     };
-    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/team'), payload);
+    return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/v2/team'), payload);
   }
 
   getUserDetails(id: string): Observable<ClashBotUserDetails> {

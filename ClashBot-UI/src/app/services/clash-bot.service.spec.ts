@@ -87,7 +87,7 @@ describe('ClashBotService', () => {
           }
         ])
       });
-      const req = httpMock.expectOne(`http://localhost:80/api/teams/${serverName}`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/teams/${serverName}`);
       req.flush(mockResponse);
     })
 
@@ -141,7 +141,7 @@ describe('ClashBotService', () => {
           }
         ])
       });
-      const req = httpMock.expectOne(`/api/teams/${serverName}`);
+      const req = httpMock.expectOne(`/api/v2/teams/${serverName}`);
       req.flush(mockResponse);
     })
   })
@@ -243,7 +243,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`http://localhost:80/api/team`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/team`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -294,7 +294,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`/api/team`);
+      const req = httpMock.expectOne(`/api/v2/team`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -347,7 +347,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`http://localhost:80/api/team/register`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/team/register`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -398,7 +398,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`/api/team/register`);
+      const req = httpMock.expectOne(`/api/v2/team/register`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -451,7 +451,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`http://localhost:80/api/team/register`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/team/register`);
       expect(req.request.method).toBe('DELETE');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -502,7 +502,7 @@ describe('ClashBotService', () => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
-      const req = httpMock.expectOne(`/api/team/register`);
+      const req = httpMock.expectOne(`/api/v2/team/register`);
       expect(req.request.method).toBe('DELETE');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(mockResponse);
@@ -612,7 +612,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`http://localhost:80/api/tentative?serverName=Some%20Guild`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedClashBotTentativeDetails);
     })
@@ -635,7 +635,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`/api/tentative?serverName=Some%20Guild`);
+      const req = httpMock.expectOne(`/api/v2/tentative?serverName=Some%20Guild`);
       expect(req.request.method).toBe('GET');
       req.flush(expectedClashBotTentativeDetails);
     })
@@ -671,7 +671,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`http://localhost:80/api/tentative`);
+      const req = httpMock.expectOne(`http://localhost:80/api/v2/tentative`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(expectedClashBotTentativeDetails);
@@ -706,7 +706,7 @@ describe('ClashBotService', () => {
           done();
         });
 
-      const req = httpMock.expectOne(`/api/tentative`);
+      const req = httpMock.expectOne(`/api/v2/tentative`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(expectedPayload);
       req.flush(expectedClashBotTentativeDetails);
