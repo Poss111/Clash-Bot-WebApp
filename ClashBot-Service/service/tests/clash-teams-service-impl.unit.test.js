@@ -33,6 +33,35 @@ function mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllU
     };
 }
 
+function mapToExpectedDetailedApiResponseV2(team, expectedServerName, retrieveAllUserDetails) {
+    let mappedResponse = {
+        teamName: team.teamName,
+        serverName: expectedServerName,
+        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
+            let mappedPayload = {name: id};
+            let foundUser = retrieveAllUserDetails[id];
+            let roleMap = Object.keys(team.playersWRoles).reduce((ret, key) => {
+                ret[team.playersWRoles[key]] = key;
+                return ret;
+            }, {});
+            if (foundUser) {
+                mappedPayload = {
+                    name: foundUser.playerName,
+                    role: roleMap[id],
+                    champions: foundUser.preferredChampions
+                };
+            }
+            return mappedPayload;
+        }) : {},
+        tournamentDetails: {
+            tournamentName: team.tournamentName,
+            tournamentDay: team.tournamentDay
+        },
+        startTime: team.startTime,
+    };
+    return mappedResponse
+}
+
 describe('Clash Teams Service Impl', () => {
 
     describe('Create New Team', () => {
@@ -444,9 +473,9 @@ describe('Clash Teams Service Impl', () => {
                 expect(clashTeamsDbImpl.registerWithSpecificTeamV2).toHaveBeenCalledWith(expectedPlayerId,
                     expectedRole,
                     expectedServerName, [{
-                    tournamentName: expectedTournamentName,
-                    tournamentDay: expectedTournamentDay
-                }], expectedTeamName);
+                        tournamentName: expectedTournamentName,
+                        tournamentDay: expectedTournamentDay
+                    }], expectedTeamName);
             }
 
             test('When I call to register with a Team, I should be removed from ' +
@@ -663,8 +692,8 @@ describe('Clash Teams Service Impl', () => {
         describe('Unregister from Team - v2', () => {
             function verifyUnregisterWithTeamIsInvokedV2(expectedPlayerId, expectedServerName,
                                                          expectedTournamentName, expectedTournamentDay) {
-                expect(clashTeamsDbImpl.deregisterPlayer).toHaveBeenCalledTimes(1);
-                expect(clashTeamsDbImpl.deregisterPlayer).toHaveBeenCalledWith(expectedPlayerId, expectedServerName, [{
+                expect(clashTeamsDbImpl.deregisterPlayerV2).toHaveBeenCalledTimes(1);
+                expect(clashTeamsDbImpl.deregisterPlayerV2).toHaveBeenCalledWith(expectedPlayerId, expectedServerName, [{
                     tournamentName: expectedTournamentName,
                     tournamentDay: expectedTournamentDay
                 }]);
@@ -686,34 +715,41 @@ describe('Clash Teams Service Impl', () => {
                     expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
                 mockUnregisterTeamsDbResponse.players.pop();
 
-                clashTeamsDbImpl.deregisterPlayer.mockResolvedValue(mockUnregisterTeamsDbResponse);
+                clashTeamsDbImpl.deregisterPlayerV2.mockResolvedValue([mockUnregisterTeamsDbResponse]);
 
-                return clashTeamsServiceImpl.unregisterFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                return clashTeamsServiceImpl.unregisterFromTeamV2(expectedPlayerId, expectedServerName,
+                    expectedTournamentName, expectedTournamentDay)
                     .then(result => {
-                        verifyUnregisterWithTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                        verifyUnregisterWithTeamIsInvokedV2(expectedPlayerId, expectedServerName, expectedTournamentName,
+                            expectedTournamentDay);
                         verifyRetrievePlayerNamesIsInvoked(mockUnregisterTeamsDbResponse.players);
-                        expect(result).toEqual(mapToApiResponse(mockUnregisterTeamsDbResponse, expectedServerName, idToPlayerNameMap));
+                        expect(result).toEqual([mapToApiResponseV2(mockUnregisterTeamsDbResponse, expectedServerName,
+                            idToPlayerNameMap)]);
                         expect(result).toBeTruthy();
                     });
             })
 
-            test('When I call to unregister from a Team, and I do not belong to the Team then I should return a payload stating such error.', () => {
+            test('When I call to unregister from a Team, and I do not belong to the Team then ' +
+                'I should return a payload stating such error. - v2', () => {
                 const expectedServerName = 'Goon Squad';
                 const expectedTournamentName = 'awesome_sauce';
                 const expectedTournamentDay = '2';
                 const expectedPlayerId = '123131';
 
-                clashTeamsDbImpl.deregisterPlayer.mockResolvedValue(undefined);
+                clashTeamsDbImpl.deregisterPlayerV2.mockResolvedValue(undefined);
 
-                return clashTeamsServiceImpl.unregisterFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                return clashTeamsServiceImpl.unregisterFromTeamV2(expectedPlayerId, expectedServerName,
+                    expectedTournamentName, expectedTournamentDay)
                     .then(result => {
-                        verifyUnregisterWithTeamIsInvoked(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                        verifyUnregisterWithTeamIsInvokedV2(expectedPlayerId, expectedServerName,
+                            expectedTournamentName, expectedTournamentDay);
                         expect(clashSubscriptionDbImpl.retrievePlayerNames).not.toHaveBeenCalled();
                         expect(result).toEqual({error: 'User not found on requested Team.'});
                     });
             })
 
-            test('Error - deregisterPlayer - If deregisterPlayer fails with an error, it should be rejected properly.', () => {
+            test('Error - deregisterPlayer - If deregisterPlayer fails with an error, ' +
+                'it should be rejected properly. - v2', () => {
                 const expectedServerName = 'Goon Squad';
                 const expectedTournamentName = 'awesome_sauce';
                 const expectedTournamentDay = '2';
@@ -721,9 +757,10 @@ describe('Clash Teams Service Impl', () => {
 
                 const error = new Error('Failed to unregister player.');
 
-                clashTeamsDbImpl.deregisterPlayer.mockRejectedValue(error);
+                clashTeamsDbImpl.deregisterPlayerV2.mockRejectedValue(error);
 
-                clashTeamsServiceImpl.unregisterFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay)
+                clashTeamsServiceImpl.unregisterFromTeamV2(expectedPlayerId, expectedServerName,
+                    expectedTournamentName, expectedTournamentDay)
                     .then(() => expect(true).toBeFalsy())
                     .catch(err => expect(err).toEqual(error));
             })
@@ -732,255 +769,453 @@ describe('Clash Teams Service Impl', () => {
     })
 
     describe('Retrieve Teams for given Server Name and Tournaments', () => {
-        test('When I pass a Server Name, I should retrieve all Teams with the given Server Name and active Tournaments.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            }, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
-            const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
-            let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
-            let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
-            let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
-            let expectedResponse = [];
-            const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
 
-            const expectedUserDetails = {
-                key: expectedPlayerId,
-                playerName: expectedUsername,
-                serverName: expectedServerName,
-                timeAdded: new Date().toISOString(),
-                subscribed: {},
-                preferredChampions: expectedChampionsList
-            };
-            const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
+        describe('Retrieve Teams for given Server Name and Tournaments', () => {
+            test('When I pass a Server Name, I should retrieve all Teams with the given Server Name and active Tournaments.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                }, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
+                const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
+                let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
+                let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
+                let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+                let expectedResponse = [];
+                const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
 
-            clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
+                const expectedUserDetails = {
+                    key: expectedPlayerId,
+                    playerName: expectedUsername,
+                    serverName: expectedServerName,
+                    timeAdded: new Date().toISOString(),
+                    subscribed: {},
+                    preferredChampions: expectedChampionsList
+                };
+                const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
 
-            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)))
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
 
-            expectedResponse.pop();
+                getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)))
 
-            clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
-            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
-                expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
-                expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
-                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
-                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
-                expect(results).toEqual(expectedResponse);
+                expectedResponse.pop();
+
+                clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
+                    expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
+                    expect(results).toEqual(expectedResponse);
+                })
             })
+
+            test('When I pass a Server Name, I should retrieve all Teams with players and the given Server Name and active Tournaments.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                }, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
+                const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
+                let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
+                teamOne.players = [];
+                let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
+                let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+                let expectedResponse = [];
+                const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
+
+                const expectedUserDetails = {
+                    key: expectedPlayerId,
+                    playerName: expectedUsername,
+                    serverName: expectedServerName,
+                    timeAdded: new Date().toISOString(),
+                    subscribed: {},
+                    preferredChampions: expectedChampionsList
+                };
+                const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
+
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
+
+                getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)));
+                expectedResponse.splice(0, 1);
+                expectedResponse.pop();
+
+                clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
+                    expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
+                    expect(results).toEqual(expectedResponse);
+                })
+            })
+
+            test('Error - getTeams - If getTeams fails with an error, it should be rejected properly.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                    {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    }];
+                const error = new Error('Failed to retrieve clash teams.');
+                clashTeamsDbImpl.getTeams.mockRejectedValue(error);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
+                    .then(() => expect(true).toBeFalsy())
+                    .catch(err => expect(err).toEqual(error));
+            })
+
+            test('Error - retrievePlayerNames - If retrievePlayerNames fails with an error, it should be rejected properly.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                    {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    }];
+                const error = new Error('Failed to retrieve clash teams.');
+                let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
+                let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
+                let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+
+                clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
+
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockRejectedValue(error);
+
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
+                    .then(() => expect(true).toBeFalsy())
+                    .catch(err => expect(err).toEqual(error));
+            })
+
         })
 
-        test('When I pass a Server Name, I should retrieve all Teams with players and the given Server Name and active Tournaments.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            }, {tournamentName: 'awesome_sauce', tournamentDay: '2'}];
-            const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
-            let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
-            teamOne.players = [];
-            let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
-            let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
-            let expectedResponse = [];
-            const getTeamsDbResponse = [teamOne, teamTwo, teamThree];
-
-            const expectedUserDetails = {
-                key: expectedPlayerId,
-                playerName: expectedUsername,
-                serverName: expectedServerName,
-                timeAdded: new Date().toISOString(),
-                subscribed: {},
-                preferredChampions: expectedChampionsList
-            };
-            const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) => (map[record.key] = record, map), {});
-
-            clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
-
-            getTeamsDbResponse.forEach(team => expectedResponse.push(mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails)));
-            expectedResponse.splice(0, 1);
-            expectedResponse.pop();
-
-            clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
-            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments).then(results => {
-                expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledTimes(1);
-                expect(clashTeamsDbImpl.getTeams).toHaveBeenCalledWith(expectedServerName);
-                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
-                expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith([expectedPlayerId]);
-                expect(results).toEqual(expectedResponse);
-            })
-        })
-
-        test('Error - getTeams - If getTeams fails with an error, it should be rejected properly.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-                {
+        describe('Retrieve Teams for given Server Name and Tournaments - v2', () => {
+            test('When I pass a Server Name, I should retrieve all Teams with the given ' +
+                'Server Name and active Tournaments. - v2', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                }, {
                     tournamentName: 'awesome_sauce',
                     tournamentDay: '2'
                 }];
-            const error = new Error('Failed to retrieve clash teams.');
-            clashTeamsDbImpl.getTeams.mockRejectedValue(error);
-            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
-                .then(() => expect(true).toBeFalsy())
-                .catch(err => expect(err).toEqual(error));
-        })
+                const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
+                let teams = [createNewMockDbTeamResponseV2(expectedPlayerId, 'Top', expectedServerName,
+                    expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay),
+                    createNewMockDbTeamResponseV2(expectedPlayerId, 'Mid', expectedServerName,
+                        expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay),
+                    createNewMockDbTeamResponseV2(expectedPlayerId, 'Bot', expectedServerName,
+                        expectedTournaments[0].tournamentName, '0')]
+                let expectedResponse = [];
+                const getTeamsDbResponse = [...teams];
 
-        test('Error - retrievePlayerNames - If retrievePlayerNames fails with an error, it should be rejected properly.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedPlayerId = '123131';
-            const expectedTournaments = [{
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-                {
+                const expectedUserDetails = {
+                    key: expectedPlayerId,
+                    playerName: expectedUsername,
+                    serverName: expectedServerName,
+                    timeAdded: new Date().toISOString(),
+                    subscribed: {},
+                    preferredChampions: expectedChampionsList
+                };
+                const retrieveAllUserDetails = [expectedUserDetails].reduce((map, record) =>
+                    (map[record.key] = record, map), {});
+
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
+
+                getTeamsDbResponse.forEach(team =>
+                    expectedResponse.push(mapToExpectedDetailedApiResponseV2(team, expectedServerName,
+                        retrieveAllUserDetails)))
+
+                expectedResponse.pop();
+
+                clashTeamsDbImpl.getTeamsV2.mockResolvedValue([...teams]);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(expectedServerName,
+                    expectedTournaments).then(results => {
+                    expect(clashTeamsDbImpl.getTeamsV2).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsDbImpl.getTeamsV2).toHaveBeenCalledWith(expectedServerName);
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+                        .toHaveBeenCalledWith([expectedPlayerId]);
+                    expect(results).toEqual(expectedResponse);
+                })
+            })
+
+            test('When I pass a Server Name, I should retrieve all Teams with ' +
+                'players and the given Server Name and active Tournaments. - v2', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                }, {
                     tournamentName: 'awesome_sauce',
                     tournamentDay: '2'
                 }];
-            const error = new Error('Failed to retrieve clash teams.');
-            let teamOne = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay);
-            let teamTwo = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay);
-            let teamThree = createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournaments[0].tournamentName, '0');
+                const expectedChampionsList = ['Sett', 'Volibear', 'Anivia'];
+                let teams = [createNewMockDbTeamResponseV2(expectedPlayerId, 'Top',
+                    expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay)];
+                teams[0].players = [];
+                teams[0].playersWRoles = {};
+                teams.push(createNewMockDbTeamResponseV2(expectedPlayerId, 'Mid',
+                    expectedServerName, expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay));
+                teams.push(createNewMockDbTeamResponseV2(expectedPlayerId, 'Bot',
+                    expectedServerName, expectedTournaments[0].tournamentName, '0'));
+                let expectedResponse = [];
+                const getTeamsDbResponse = [...teams];
 
-            clashTeamsDbImpl.getTeams.mockResolvedValue([teamOne, teamTwo, teamThree]);
+                const expectedUserDetails = {
+                    key: expectedPlayerId,
+                    playerName: expectedUsername,
+                    serverName: expectedServerName,
+                    timeAdded: new Date().toISOString(),
+                    subscribed: {},
+                    preferredChampions: expectedChampionsList
+                };
+                const retrieveAllUserDetails = [expectedUserDetails]
+                    .reduce((map, record) => (map[record.key] = record, map), {});
 
-            clashSubscriptionDbImpl.retrieveAllUserDetails.mockRejectedValue(error);
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(retrieveAllUserDetails);
 
-            return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName, expectedTournaments)
-                .then(() => expect(true).toBeFalsy())
-                .catch(err => expect(err).toEqual(error));
+                getTeamsDbResponse.forEach(team =>
+                    expectedResponse.push(mapToExpectedDetailedApiResponseV2(team,
+                        expectedServerName, retrieveAllUserDetails)));
+                expectedResponse.splice(0, 1);
+                expectedResponse.pop();
+
+                clashTeamsDbImpl.getTeamsV2.mockResolvedValue([...teams]);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(expectedServerName,
+                    expectedTournaments).then(results => {
+                    expect(clashTeamsDbImpl.getTeamsV2).toHaveBeenCalledTimes(1);
+                    expect(clashTeamsDbImpl.getTeamsV2).toHaveBeenCalledWith(expectedServerName);
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1)
+                    expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+                        .toHaveBeenCalledWith([expectedPlayerId]);
+                    expect(results).toEqual(expectedResponse);
+                })
+            })
+
+            test('Error - getTeams - If getTeams fails with an error, ' +
+                'it should be rejected properly. - v2', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournaments = [
+                    {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    },
+                    {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    }
+                ];
+                const error = new Error('Failed to retrieve clash teams.');
+                clashTeamsDbImpl.getTeamsV2.mockRejectedValue(error);
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(expectedServerName,
+                    expectedTournaments)
+                    .then(() => expect(true).toBeFalsy())
+                    .catch(err => expect(err).toEqual(error));
+            })
+
+            test('Error - retrievePlayerNames - If retrievePlayerNames fails with an ' +
+                'error, it should be rejected properly. - v2', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedPlayerId = '123131';
+                const expectedTournaments = [{
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                    {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    }];
+                const error = new Error('Failed to retrieve clash teams.');
+                let teams = [createNewMockDbTeamResponseV2(expectedPlayerId, expectedServerName,
+                    expectedTournaments[0].tournamentName, expectedTournaments[0].tournamentDay),
+                createNewMockDbTeamResponseV2(expectedPlayerId, expectedServerName,
+                    expectedTournaments[0].tournamentName, expectedTournaments[1].tournamentDay),
+                createNewMockDbTeamResponseV2(expectedPlayerId, expectedServerName,
+                    expectedTournaments[0].tournamentName, '0')];
+
+                clashTeamsDbImpl.getTeams.mockResolvedValue([...teams]);
+
+                clashSubscriptionDbImpl.retrieveAllUserDetails.mockRejectedValue(error);
+
+                return clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(expectedServerName,
+                    expectedTournaments)
+                    .then(() => expect(true).toBeFalsy())
+                    .catch(err => expect(err).toEqual(error));
+            })
+
         })
 
     })
 
     describe('Map Team Db Response to API Response', () => {
-        test('When given a Team Db Response with a single player, I should respond with a single mapped player id.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedTeamName = 'Abra';
 
-            let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
+        describe('Map Team Db Response to API Response', () => {
+            test('When given a Team Db Response with a single player, I should respond with a single mapped player id.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTeamName = 'Abra';
 
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
-                expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
-            });
+                let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
+                    expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
+                });
+            })
+
+            test('When given a Team Db Response with a multiple players, I should respond with multiple mapped player id.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedSecondUsername = 'TheIncentive';
+                const expectedTeamName = 'Abra';
+
+                let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                mockDbTeamResponse.players.push('1');
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
+                    expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
+                });
+            })
+
+            test('When given a Team Db Response with a no players, I should respond with the payload without a list of players and no call to retrieve .', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedSecondUsername = 'TheIncentive';
+                const expectedTeamName = 'Abra';
+
+                let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
+                mockDbTeamResponse.players.push('1');
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
+                    expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
+                });
+            })
         })
 
-        test('When given a Team Db Response with a multiple players, I should respond with multiple mapped player id.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedSecondUsername = 'TheIncentive';
-            const expectedTeamName = 'Abra';
+        describe('Map Team Db Response to API Response - v2', () => {
+            test('When given a Team Db Response with a single player, I should respond with a ' +
+                'single mapped player id with v2.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTeamName = 'Abra';
+                const expectedRole = 'Top';
 
-            let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
-            mockDbTeamResponse.players.push('1');
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
+                let mockDbTeamResponse = createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
+                    expectedServerName, expectedTournamentName, expectedTournamentDay);
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
 
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
-                expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
-            });
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
+                    expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
+                        playerIdToPlayerNameMap));
+                });
+            })
+
+            test('When given a Team Db Response with a multiple players, I should respond with ' +
+                'multiple mapped player id with v2.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedSecondUsername = 'TheIncentive';
+                const expectedTeamName = 'Abra';
+                const expectedRole = 'Top';
+
+                let mockDbTeamResponse = createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
+                    expectedServerName, expectedTournamentName, expectedTournamentDay);
+                mockDbTeamResponse.players.push('1');
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
+                    expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
+                        playerIdToPlayerNameMap));
+                });
+            })
+
+            test('When given a Team Db Response with a no players, I should respond with the payload without a list of ' +
+                'players and no call to retrieve with v2.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedUsername = 'Roidrage';
+                const expectedSecondUsername = 'TheIncentive';
+                const expectedTeamName = 'Abra';
+
+                let mockDbTeamResponse = createMockDbTeamResponseV2(null, null, expectedTeamName,
+                    expectedServerName, expectedTournamentName, expectedTournamentDay);
+                let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players,
+                    [expectedUsername, expectedSecondUsername]);
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
+                    expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
+                        playerIdToPlayerNameMap));
+                });
+            })
+
+            test('When given a Team Db Response with multiple teams, I should respond with an ' +
+                'array mapped player id with v2.', () => {
+                const expectedServerName = 'Goon Squad';
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '2';
+                const expectedPlayerId = '123131';
+                const expectedUsername = 'Roidrage';
+                const expectedTeamName = 'Abra';
+                const expectedRole = 'Top';
+
+                const arrayResponse = [createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
+                    expectedServerName, expectedTournamentName, expectedTournamentDay),
+                    createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
+                        expectedServerName, expectedTournamentName, expectedTournamentDay)];
+
+                const playerIdToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
+
+                let mappedResponses = [];
+                arrayResponse.forEach((record) => {
+                    mappedResponses.push(mapToApiResponseV2(record, expectedServerName, playerIdToPlayerNameMap));
+                });
+
+                return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(arrayResponse).then(response => {
+                    verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
+                    expect(response).toEqual(mappedResponses);
+                });
+            })
         })
 
-        test('When given a Team Db Response with a no players, I should respond with the payload without a list of players and no call to retrieve .', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedSecondUsername = 'TheIncentive';
-            const expectedTeamName = 'Abra';
-
-            let mockDbTeamResponse = createMockDbTeamResponse(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay);
-            mockDbTeamResponse.players.push('1');
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
-
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponse(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
-                expect(response).toEqual(mapToApiResponse(mockDbTeamResponse, expectedServerName, playerIdToPlayerNameMap));
-            });
-        })
-    })
-
-    describe('Map Team Db Response to API Response - v2', () => {
-        test('When given a Team Db Response with a single player, I should respond with a ' +
-            'single mapped player id with v2.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedTeamName = 'Abra';
-            const expectedRole = 'Top';
-
-            let mockDbTeamResponse = createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
-                expectedServerName, expectedTournamentName, expectedTournamentDay);
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
-
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(expectedPlayerId);
-                expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
-                    playerIdToPlayerNameMap));
-            });
-        })
-
-        test('When given a Team Db Response with a multiple players, I should respond with ' +
-            'multiple mapped player id with v2.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedPlayerId = '123131';
-            const expectedUsername = 'Roidrage';
-            const expectedSecondUsername = 'TheIncentive';
-            const expectedTeamName = 'Abra';
-            const expectedRole = 'Top';
-
-            let mockDbTeamResponse = createMockDbTeamResponseV2(expectedPlayerId, expectedRole, expectedTeamName,
-                expectedServerName, expectedTournamentName, expectedTournamentDay);
-            mockDbTeamResponse.players.push('1');
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players, [expectedUsername, expectedSecondUsername]);
-
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
-                expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
-                    playerIdToPlayerNameMap));
-            });
-        })
-
-        test('When given a Team Db Response with a no players, I should respond with the payload without a list of ' +
-            'players and no call to retrieve with v2.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedTournamentName = 'awesome_sauce';
-            const expectedTournamentDay = '2';
-            const expectedUsername = 'Roidrage';
-            const expectedSecondUsername = 'TheIncentive';
-            const expectedTeamName = 'Abra';
-
-            let mockDbTeamResponse = createMockDbTeamResponseV2(null, null, expectedTeamName,
-                expectedServerName, expectedTournamentName, expectedTournamentDay);
-            let playerIdToPlayerNameMap = setupRetrievePlayerNames(mockDbTeamResponse.players,
-                [expectedUsername, expectedSecondUsername]);
-
-            return clashTeamsServiceImpl.mapTeamDbResponseToApiResponseV2(mockDbTeamResponse).then(response => {
-                verifyRetrievePlayerNamesIsInvoked(mockDbTeamResponse.players);
-                expect(response).toEqual(mapToApiResponseV2(mockDbTeamResponse, expectedServerName,
-                    playerIdToPlayerNameMap));
-            });
-        })
     })
 
 })
@@ -1051,10 +1286,10 @@ function verifyRegisterPlayerIsInvokedV2(expectedPlayerId, expectedRole, expecte
     expect(clashTeamsDbImpl.registerPlayerV2).toHaveBeenCalledTimes(1);
     expect(clashTeamsDbImpl.registerPlayerV2).toHaveBeenCalledWith(expectedPlayerId, expectedRole,
         expectedServerName, [{
-        tournamentName: expectedTournamentName,
-        tournamentDay: expectedTournamentDay,
-        startTime: expectedStartTime
-    }]);
+            tournamentName: expectedTournamentName,
+            tournamentDay: expectedTournamentDay,
+            startTime: expectedStartTime
+        }]);
 }
 
 function verifyRetrievePlayerNamesIsInvoked(expectedPlayerIds) {

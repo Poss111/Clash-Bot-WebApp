@@ -2606,7 +2606,7 @@ describe('Unregister Player v2', () => {
         let keyOne = clashTeamsDbImpl.getKey(foundTeam.teamName, foundTeam.serverName,
             foundTeam.tournamentName, foundTeam.tournamentDay);
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top', 'Sample Server', leagueTimes)
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server', leagueTimes)
             .then((data) => {
             expect(data).toBeTruthy();
             expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(1);
@@ -2780,7 +2780,7 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return expect(clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Top','Sample Server',
+        return expect(clashTeamsDbImpl.deregisterPlayerV2('Player1','Sample Server',
             leagueTimes)).rejects.toMatch('Failed to update.');
     })
 

@@ -271,7 +271,6 @@ class ClashTeamsDbImpl {
         }
     }
 
-
     mapTeamsToTournamentsByPlayer(playerId, serverName) {
         return new Promise(resolve => {
             this.getTeams(serverName)
@@ -400,24 +399,19 @@ class ClashTeamsDbImpl {
     deregisterPlayerV2(id, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.getTeamsV2(serverName).then((data) => {
-                let filter = [];
+                let teamsRemovedFrom = [];
+                const callback = (err, response) => {
+                    if (err) reject(err);
+                    else teamsRemovedFrom.push(response.Items[0].attrs);
+                };
                 data.forEach(record => {
-                    if (this.isPlayerIsOnTeamV2(id, record)
-                        && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
+                    let role = this.isPlayerIsOnTeamV2(id, record);
+                    if (role && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
                             && tournament.tournamentDay === record.tournamentDay)) {
-                        filter.push(record);
+                        this.unregisterPlayerWithSpecificTeamV2(id, role, [record], callback);
                     }
                 });
-                const callback = (err, response) => {
-                  if (err) reject(err);
-                  else resolve(response.Items[0].attrs);
-                };
-                if (filter.length > 0) {
-                    this.unregisterPlayerWithSpecificTeamV2(id, role, filter, callback);
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
+                resolve(teamsRemovedFrom.length !== 0 ? teamsRemovedFrom : false);
             });
         });
     }

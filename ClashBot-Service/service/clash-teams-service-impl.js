@@ -71,8 +71,19 @@ class ClashTeamsServiceImpl {
     }
 
     async mapTeamDbResponseToApiResponseV2(response) {
-        let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
-        return this.mapDbToApiResponseV2(response, idToNameMap);
+        let idToNameMap = {};
+        if (Array.isArray(response)) {
+            let responseArray = [];
+            let ids = response.map(id => id.players);
+            let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames([...new Set(ids.flat())]);
+            response.forEach((record) =>
+                responseArray.push(this.mapDbToApiResponseV2(record, idToNameMap)));
+            return responseArray;
+        }
+        else {
+            let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
+            return this.mapDbToApiResponseV2(response, idToNameMap);
+        }
     }
 
     mapDbToApiResponse(response, idToNameMap) {
@@ -192,6 +203,21 @@ class ClashTeamsServiceImpl {
         });
     }
 
+    unregisterFromTeamV2(id, serverName, tournamentName, tournamentDay) {
+        return new Promise((resolve, reject) => {
+            clashTeamsDbImpl.deregisterPlayerV2(id, serverName, [{
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+            }])
+                .then(dbResponse => {
+                    if (!dbResponse) resolve({error: 'User not found on requested Team.'});
+                    else {
+                        resolve(this.mapTeamDbResponseToApiResponseV2(dbResponse));
+                    }
+                }).catch(reject);
+        });
+    }
+
     retrieveTeamsByServerAndTournaments(serverName, activeTournaments) {
         return new Promise((resolve, reject) => {
             clashTeamsDbImpl.getTeams(serverName).then(dbResponse => {
@@ -203,6 +229,26 @@ class ClashTeamsServiceImpl {
                 clashSubscriptionDbImpl.retrieveAllUserDetails(Array.from(new Set(dbResponse.map(team => team.players).flat())))
                     .then(idToPlayerNameMap => {
                         dbResponse.forEach(response => payload.push(this.mapDbToDetailedApiResponse(response, idToPlayerNameMap)));
+                        resolve(payload);
+                    }).catch(reject);
+            }).catch(reject);
+        });
+    }
+
+    retrieveTeamsByServerAndTournamentsV2(serverName, activeTournaments) {
+        return new Promise((resolve, reject) => {
+            clashTeamsDbImpl.getTeamsV2(serverName).then(dbResponse => {
+                let payload = [];
+                dbResponse = dbResponse.filter(team =>
+                    Array.isArray(team.players) &&
+                    team.players.length > 0 &&
+                    activeTournaments.find(tournament => tournament.tournamentName === team.tournamentName
+                        && tournament.tournamentDay === team.tournamentDay));
+                clashSubscriptionDbImpl.retrieveAllUserDetails(
+                    Array.from(new Set(dbResponse.map(team => team.players).flat())))
+                    .then(idToPlayerNameMap => {
+                        dbResponse.forEach(response =>
+                            payload.push(this.mapDbToDetailedApiResponseV2(response, idToPlayerNameMap)));
                         resolve(payload);
                     }).catch(reject);
             }).catch(reject);
@@ -225,6 +271,35 @@ class ClashTeamsServiceImpl {
             },
             startTime: response.startTime,
         };
+    }
+
+    mapDbToDetailedApiResponseV2(response, idToPlayerNameMap) {
+        let mappedResponse = {
+            teamName: response.teamName,
+            serverName: response.serverName,
+            playersDetails: Array.isArray(response.players) ? response.players.map(id => {
+                let mappedPayload = {name: id};
+                let foundUser = idToPlayerNameMap[id];
+                let roleMap = Object.keys(response.playersWRoles).reduce((ret, key) => {
+                    ret[response.playersWRoles[key]] = key;
+                    return ret;
+                }, {});
+                if (foundUser) {
+                    mappedPayload = {
+                        name: foundUser.playerName,
+                        role: roleMap[id],
+                        champions: foundUser.preferredChampions
+                    };
+                }
+                return mappedPayload;
+            }) : {},
+            tournamentDetails: {
+                tournamentName: response.tournamentName,
+                tournamentDay: response.tournamentDay
+            },
+            startTime: response.startTime,
+        };
+        return mappedResponse;
     }
 }
 
