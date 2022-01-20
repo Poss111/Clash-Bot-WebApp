@@ -1856,7 +1856,6 @@ describe('Clash Bot Service API Controller', () => {
                 'are passed, it should default to the id. - v2', () => {
                 let expectedServer = 'Test Server';
                 let expectedUserId = '123';
-                let expectedUsername = 'Roidrage';
                 let expectedRole = 'Top';
                 let expectedTeam = 'Team Awesomenaught';
                 let expectedTournamentName = 'awesome_sauce';
@@ -1875,7 +1874,7 @@ describe('Clash Bot Service API Controller', () => {
                 let idToNameObject = {};
                 let convertTeamDbToTeamPayload1 = convertTeamDbToTeamPayloadV2(expectedNewTeam, idToNameObject);
                 expect(convertTeamDbToTeamPayload1.playersDetails)
-                    .toEqual([{name: expectedUserId, role: expectedRole}]);
+                    .toEqual([{name: expectedUserId, role: expectedRole, id: expectedUserId}]);
             })
 
             test('No available Teams - As a User, I should be able to receive a generic ' +

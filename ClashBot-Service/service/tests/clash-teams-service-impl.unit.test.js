@@ -13,55 +13,6 @@ beforeEach(() => {
     jest.resetModules();
 })
 
-function mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails) {
-    return {
-        teamName: team.teamName,
-        serverName: expectedServerName,
-        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
-            let mappedPayload = {name: id};
-            let foundUser = retrieveAllUserDetails[id];
-            if (foundUser) {
-                mappedPayload = {name: foundUser.playerName, champions: foundUser.preferredChampions}
-            }
-            return mappedPayload;
-        }) : {},
-        tournamentDetails: {
-            tournamentName: team.tournamentName,
-            tournamentDay: team.tournamentDay
-        },
-        startTime: team.startTime,
-    };
-}
-
-function mapToExpectedDetailedApiResponseV2(team, expectedServerName, retrieveAllUserDetails) {
-    let mappedResponse = {
-        teamName: team.teamName,
-        serverName: expectedServerName,
-        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
-            let mappedPayload = {name: id};
-            let foundUser = retrieveAllUserDetails[id];
-            let roleMap = Object.keys(team.playersWRoles).reduce((ret, key) => {
-                ret[team.playersWRoles[key]] = key;
-                return ret;
-            }, {});
-            if (foundUser) {
-                mappedPayload = {
-                    name: foundUser.playerName,
-                    role: roleMap[id],
-                    champions: foundUser.preferredChampions
-                };
-            }
-            return mappedPayload;
-        }) : {},
-        tournamentDetails: {
-            tournamentName: team.tournamentName,
-            tournamentDay: team.tournamentDay
-        },
-        startTime: team.startTime,
-    };
-    return mappedResponse
-}
-
 describe('Clash Teams Service Impl', () => {
 
     describe('Create New Team', () => {
@@ -1220,6 +1171,56 @@ describe('Clash Teams Service Impl', () => {
 
 })
 
+function mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllUserDetails) {
+    return {
+        teamName: team.teamName,
+        serverName: expectedServerName,
+        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
+            let mappedPayload = {name: id};
+            let foundUser = retrieveAllUserDetails[id];
+            if (foundUser) {
+                mappedPayload = {name: foundUser.playerName, champions: foundUser.preferredChampions}
+            }
+            return mappedPayload;
+        }) : {},
+        tournamentDetails: {
+            tournamentName: team.tournamentName,
+            tournamentDay: team.tournamentDay
+        },
+        startTime: team.startTime,
+    };
+}
+
+function mapToExpectedDetailedApiResponseV2(team, expectedServerName, retrieveAllUserDetails) {
+    let mappedResponse = {
+        teamName: team.teamName,
+        serverName: expectedServerName,
+        playersDetails: Array.isArray(team.players) ? team.players.map(id => {
+            let mappedPayload = {name: id};
+            let foundUser = retrieveAllUserDetails[id];
+            let roleMap = Object.keys(team.playersWRoles).reduce((ret, key) => {
+                ret[team.playersWRoles[key]] = key;
+                return ret;
+            }, {});
+            if (foundUser) {
+                mappedPayload = {
+                    name: foundUser.playerName,
+                    role: roleMap[id],
+                    id: id,
+                    champions: foundUser.preferredChampions
+                };
+            }
+            return mappedPayload;
+        }) : {},
+        tournamentDetails: {
+            tournamentName: team.tournamentName,
+            tournamentDay: team.tournamentDay
+        },
+        startTime: team.startTime,
+    };
+    return mappedResponse
+}
+
 function createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
     let mockDbTeamResponseBase = createMockDbTeamResponseBase(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay);
     mockDbTeamResponseBase.teamName = `Team ${Math.random() * 10000}`;
@@ -1325,7 +1326,7 @@ function mapToApiResponseV2(mockDbResponse, expectedServerName, idToNameObject) 
         teamName: mockDbResponse.teamName,
         serverName: expectedServerName,
         playersDetails: Array.isArray(mockDbResponse.players) ? mockDbResponse.players.map(id => {
-            return {name: idToNameObject[id] ? idToNameObject[id] : id}
+            return {name: idToNameObject[id] ? idToNameObject[id] : id, id: id}
         }) : {},
         tournamentDetails: {
             tournamentName: mockDbResponse.tournamentName,

@@ -105,7 +105,7 @@ class ClashTeamsServiceImpl {
             teamName: response.teamName,
             serverName: response.serverName,
             playersDetails: Array.isArray(response.players) ? response.players.map(data => {
-                return {name: !idToNameMap[data] ? data : idToNameMap[data]}
+                return {name: !idToNameMap[data] ? data : idToNameMap[data], id: data}
             }) : {},
             tournamentDetails: {
                 tournamentName: response.tournamentName,
@@ -287,6 +287,7 @@ class ClashTeamsServiceImpl {
                     mappedPayload = {
                         name: foundUser.playerName,
                         role: roleMap[id],
+                        id: id,
                         champions: foundUser.preferredChampions
                     };
                 }

@@ -459,7 +459,7 @@ let convertTeamDbToTeamPayloadV2 = (expectedNewTeam, idsToNameList) => {
                 ret[expectedNewTeam.playersWRoles[key]] = key;
                 return ret;
             }, {});
-            return {name: !idsToNameList[data] ? data : idsToNameList[data], role: roleMap[data]}
+            return {name: !idsToNameList[data] ? data : idsToNameList[data], role: roleMap[data], id: data}
         }) : {},
     };
 }
