@@ -210,16 +210,19 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
@@ -228,18 +231,20 @@ describe('ClashBotService', () => {
         };
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
+      const expectedRole = 'Top';
       const expectedPayload = {
         id: userDetail.id,
+        role: expectedRole,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
-      }
-      service.createNewTeam(userDetail, teamRequest).subscribe(data => {
+      };
+      service.createNewTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
@@ -261,16 +266,19 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
@@ -279,18 +287,20 @@ describe('ClashBotService', () => {
         };
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
+      const expectedRole = 'Top';
       const expectedPayload = {
         id: userDetail.id,
+        role: expectedRole,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
-      service.createNewTeam(userDetail, teamRequest).subscribe(data => {
+      service.createNewTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
@@ -314,36 +324,41 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
             }
           ]
         };
+      const expectedRole = 'Top';
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
       const expectedPayload = {
         id: userDetail.id,
+        role: expectedRole,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
-      service.registerUserForTeam(userDetail, teamRequest).subscribe(data => {
+      service.registerUserForTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
@@ -365,36 +380,41 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
             }
           ]
         };
+      const expectedRole = 'Top';
       const teamRequest: ClashTeam = mockResponse;
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
       const expectedPayload = {
         id: userDetail.id,
+        role: expectedRole,
         teamName: teamRequest.teamName,
         serverName: teamRequest.serverName,
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
-      service.registerUserForTeam(userDetail, teamRequest).subscribe(data => {
+      service.registerUserForTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
@@ -419,16 +439,19 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
@@ -436,7 +459,7 @@ describe('ClashBotService', () => {
           ]
         };
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
@@ -470,16 +493,19 @@ describe('ClashBotService', () => {
           },
           playersDetails: [
             {
+              id: 1,
               name: 'Roïdräge',
               champions: ['Volibear', 'Ornn', 'Sett'],
               role: 'Top'
             },
             {
+              id: 2,
               name: 'TheIncentive',
               champions: ['Lucian'],
               role: 'ADC'
             },
             {
+              id: 3,
               name: 'Pepe Conrad',
               champions: ['Lucian'],
               role: 'Jg'
@@ -487,7 +513,7 @@ describe('ClashBotService', () => {
           ]
         };
       const userDetail: UserDetails = {
-        id: '1234',
+        id: 1234,
         username: 'Test User',
         discriminator: ';lkj213412'
       };
@@ -513,7 +539,7 @@ describe('ClashBotService', () => {
     test('When I request for user information from localhost, I should respond with an Observable<ClashBotUserDetails>', (done) => {
       stubLocation({hostname: "localhost"});
       const expectedUserDetails: ClashBotUserDetails = {
-        id: '12345566',
+        id: 12345566,
         username: 'Some Player',
         serverName: 'Some Guild',
         preferredChampions: [],
@@ -532,7 +558,7 @@ describe('ClashBotService', () => {
     test('When I request for user information, I should respond with an Observable<ClashBotUserDetails>', (done) => {
       stubLocation({hostname: "clash-bot.ninja"});
       const expectedUserDetails: ClashBotUserDetails = {
-        id: '12345566',
+        id: 12345566,
         username: 'Some Player',
         serverName: 'Some Guild',
         preferredChampions: [],
@@ -553,7 +579,7 @@ describe('ClashBotService', () => {
     test('When I request to persist data of the User to localhost, I should use the local host and be returned an Observable<ClashBotUser>', () => {
       stubLocation({hostname: "localhost"});
       let payload = {
-        id: '1234556778',
+        id: 1234556778,
         playerName: 'Some Player',
         serverName: 'Some Server',
         preferredChampions: ['Sett'],
@@ -574,7 +600,7 @@ describe('ClashBotService', () => {
     test('When I request to persist data of the User t, I should be returned an Observable<ClashBotUser>', () => {
       stubLocation({hostname: "clash-bot.ninja"});
       let payload = {
-        id: '1234556778',
+        id: 1234556778,
         playerName: 'Some Player',
         serverName: 'Some Server',
         preferredChampions: ['Sett'],

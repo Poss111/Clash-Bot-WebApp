@@ -1010,7 +1010,7 @@ describe('TeamsDashboardComponent', () => {
 
         component = fixture.componentInstance;
         component.formControl = ({value: ` ${expectedServerName} `} as any);
-        component.createNewTeamFormControl = ({value: `${mockEligibleTournaments[0].tournamentName} ${mockEligibleTournaments[0].tournamentDay}`} as any);
+        component.createNewTeamFormGroup = ({value: `${mockEligibleTournaments[0].tournamentName} ${mockEligibleTournaments[0].tournamentDay}`} as any);
         component.eligibleTournaments = JSON.parse(JSON.stringify(mockEligibleTournaments));
 
         let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});

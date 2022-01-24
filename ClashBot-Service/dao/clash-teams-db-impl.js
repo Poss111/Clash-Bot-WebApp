@@ -142,13 +142,14 @@ class ClashTeamsDbImpl {
                 } else {
                     const teamForTournaments = teamsToTournaments[
                         `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
-                    console.log(`V2 - Tournament selected ('${teamForTournaments}').`);
+                    console.log(`V2 - Tournament selected ('${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}').`);
                     const callback = (err, data) => {
                         if (err) reject(err);
                         else resolve(data.attrs);
                     };
                     if (teamForTournaments) {
-                        if (teamForTournaments.userTeam) {
+                        if (teamForTournaments.userTeam
+                            && Object.keys(teamForTournaments.userTeam).length !== 0) {
                             console.log(`V2 - Player is currently on Team for Tournament 
                             ('${teamForTournaments.userTeam.key}')...`);
                             this.unregisterPlayerWithSpecificTeamV2(id, role,
@@ -156,9 +157,11 @@ class ClashTeamsDbImpl {
                         }
                         if (Array.isArray(teamForTournaments.availableTeams)
                             && teamForTournaments.availableTeams.length > 0) {
-                            console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams}').`);
-                            let teamToModify = teamForTournaments.availableTeams[0];
-                            if (!teamToModify.playersWRoles) {
+                            console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams.length}').`);
+                            let teamToModify = teamForTournaments.availableTeams.find((record) => {
+                                return Object.keys(record.playersWRoles).length === 0
+                            });
+                            if (teamToModify) {
                                 teamToModify.players = [id];
                                 teamToModify.playersWRoles = {};
                                 teamToModify.playersWRoles[role] = id;
@@ -166,6 +169,8 @@ class ClashTeamsDbImpl {
                                 ('${teamToModify.teamName}') with Role ('${role}')...`)
                                 this.Team.update(teamToModify, callback);
                             } else {
+                                teamToModify = teamForTournaments.availableTeams[0];
+                                console.log(`V2 - Adding User ('${id}') to existing Team ('${teamToModify.teamName}')...`)
                                 this.addUserToTeamV2(id, role, teamToModify, (err, returned) => {
                                     if (err) {
                                         reject(err);
@@ -325,7 +330,7 @@ class ClashTeamsDbImpl {
     addUserToTeamV2(id, role, teamToBeUpdated, callback) {
         let params = {};
         teamToBeUpdated.playersWRoles[role] = id;
-        params.UpdateExpression = 'ADD players :playerName, SET #playersWRoles = :updatedRole';
+        params.UpdateExpression = 'ADD players :playerName SET playersWRoles = :updatedRole';
         params.ExpressionAttributeValues = {
             ':playerName': dynamodb.Set([id], 'S'),
             ':updatedRole': teamToBeUpdated.playersWRoles
@@ -394,7 +399,11 @@ class ClashTeamsDbImpl {
                 let teamsRemovedFrom = [];
                 const callback = (err, response) => {
                     if (err) reject(err);
-                    else teamsRemovedFrom.push(response.Items[0].attrs);
+                    else if (response.Items) {
+                        teamsRemovedFrom.push(response.Items[0].attrs);
+                    } else {
+                        teamsRemovedFrom.push(response.attrs);
+                    }
                 };
                 data.forEach(record => {
                     let role = this.isPlayerIsOnTeamV2(id, record);
@@ -442,7 +451,7 @@ class ClashTeamsDbImpl {
             console.log(`V2 - Unregistering ('${id}') from team ('${record.teamName}')...`);
             delete record.playersWRoles[role];
             let params = {};
-            params.UpdateExpression = 'DELETE players :playerName, SET #playersWRoles = :updatedRole';
+            params.UpdateExpression = 'DELETE players :playerName SET playersWRoles = :updatedRole';
             params.ConditionExpression = 'teamName = :nameOfTeam';
             params.ExpressionAttributeValues = {
                 ':playerName': dynamodb.Set([id], 'S'),

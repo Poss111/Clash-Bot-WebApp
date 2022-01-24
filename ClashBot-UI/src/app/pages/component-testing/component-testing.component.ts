@@ -11,17 +11,19 @@ import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notifica
 export class ComponentTestingComponent {
 
   sampleTeam: ClashTeam = {
-    userOnTeam: true,
     teamName: 'Team Charizard',
     playersDetails: [
       {
         name: 'Roidrage',
+        id: 1,
         role: 'Top',
-        champions: ['Sett', 'Volibear', 'Ornn']
+        champions: ['Sett', 'Volibear', 'Ornn'],
+        isUser: true
       },
       {
         name: 'TheIncentive',
-        role: 'ADC',
+        id: 1,
+        role: 'Bot',
         champions: ['Lucian', 'Senna', 'Jhin']
       }
     ],

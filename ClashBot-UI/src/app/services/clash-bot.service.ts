@@ -8,6 +8,7 @@ import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response"
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
 import {ClashBotTentativeRequest} from "../interfaces/clash-bot-tentative-request";
+import {ClashBotUserRegister} from "../interfaces/clash-bot-user-register";
 
 @Injectable()
 export class ClashBotService {
@@ -23,9 +24,10 @@ export class ClashBotService {
     return this.httpClient.get<ClashTournaments[]>(this.buildHostUrl('/api/tournaments'));
   }
 
-  registerUserForTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
+  registerUserForTeam(userDetail: UserDetails, teamRequest: ClashBotUserRegister): Observable<ClashTeam> {
     let payload = {
       id: userDetail.id,
+      role: teamRequest.role,
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -68,9 +70,10 @@ export class ClashBotService {
     return url;
   }
 
-  createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashTeam> {
+  createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam, role: string): Observable<ClashTeam> {
     let payload = {
       id: userDetail.id,
+      role: role,
       teamName: teamRequest.teamName,
       serverName: teamRequest.serverName,
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
@@ -80,12 +83,12 @@ export class ClashBotService {
     return this.httpClient.post<ClashTeam>(this.buildHostUrl('/api/v2/team'), payload);
   }
 
-  getUserDetails(id: string): Observable<ClashBotUserDetails> {
+  getUserDetails(id: number): Observable<ClashBotUserDetails> {
     const opts = { params: new HttpParams({fromString: `id=${id}`}) };
     return this.httpClient.get<ClashBotUserDetails>(this.buildHostUrl('/api/user'), opts);
   }
 
-  postUserDetails(id: string, serverName: string, preferredChampionList: Set<string>, subscriptions: any, playerName: string): Observable<ClashBotUserDetails> {
+  postUserDetails(id: number, serverName: string, preferredChampionList: Set<string>, subscriptions: any, playerName: string): Observable<ClashBotUserDetails> {
     let payload = {
       id: id,
       playerName: playerName,

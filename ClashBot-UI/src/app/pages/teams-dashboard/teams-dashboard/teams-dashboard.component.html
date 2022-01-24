@@ -55,30 +55,40 @@
            class="mat-elevation-z8">
   <ng-container matColumnDef="tournamentName">
     <mat-header-cell *matHeaderCellDef> Tournament</mat-header-cell>
-    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name" *matCellDef="let element"> {{element.tournamentDetails.tournamentName}} </mat-cell>
+    <mat-cell
+      id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name"
+      *matCellDef="let element"> {{element.tournamentDetails.tournamentName}} </mat-cell>
   </ng-container>
   <ng-container matColumnDef="tournamentDay">
     <mat-header-cell *matHeaderCellDef> Day</mat-header-cell>
-    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day" *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
+    <mat-cell
+      id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day"
+      *matCellDef="let element"> {{element.tournamentDetails.tournamentDay}} </mat-cell>
   </ng-container>
   <ng-container matColumnDef="tentativePlayers">
     <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>
-    <mat-cell id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players" *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
+    <mat-cell
+      id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players"
+      *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
   </ng-container>
   <ng-container matColumnDef="action" stickyEnd>
     <th mat-header-cell *matHeaderCellDef>+/-</th>
     <td mat-cell *matCellDef="let element; index as i">
       <div *ngIf="!element.isMember; else elseBlock">
-        <button id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add" mat-icon-button color="primary"
-                aria-label="Add to Tentative"
-                (click)="tentativeRegister(element, i)">
+        <button
+          id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add"
+          mat-icon-button color="primary"
+          aria-label="Add to Tentative"
+          (click)="tentativeRegister(element, i)">
           <mat-icon>add</mat-icon>
         </button>
       </div>
       <ng-template #elseBlock>
-        <button id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove" mat-icon-button color="warn"
-                aria-label="Remove from Tentative"
-                (click)="tentativeRegister(element, i)">
+        <button
+          id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove"
+          mat-icon-button color="warn"
+          aria-label="Remove from Tentative"
+          (click)="tentativeRegister(element, i)">
           <mat-icon>remove</mat-icon>
         </button>
       </ng-template>
@@ -99,16 +109,30 @@
               aria-label="Create a new Team" (click)="creatingNewTeam = true">
         <mat-icon>add</mat-icon>
       </button>
-      <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
-        <mat-label>Choose a Tournament</mat-label>
-        <mat-select id="clash-bot-teams-card-create-new-dropdown" [formControl]="createNewTeamFormControl">
-          <mat-option
-            [id]="'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay"
-            #option="matOption" (click)="createNewTeam(option)" *ngFor="let eligibleTournament of eligibleTournaments"
-            value="{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}">{{eligibleTournament.tournamentName}}
-            - Day {{eligibleTournament.tournamentDay}}</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <form [formGroup]="createNewTeamFormGroup" class="clash-bot-teams-card-create-new-forms">
+        <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
+          <mat-label>Choose a Tournament</mat-label>
+          <mat-select id="clash-bot-teams-card-create-new-dropdown"
+                      [formControl]="tournamentControl" required>
+            <mat-option
+              [id]="'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay"
+              #option="matOption" (click)="createNewTeam(option)" *ngFor="let eligibleTournament of eligibleTournaments"
+              value="{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}">{{eligibleTournament.tournamentName}}
+              - Day {{eligibleTournament.tournamentDay}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
+          <mat-label>Choose a Role</mat-label>
+          <mat-select id="clash-bot-teams-card-create-new-dropdown"
+                      [formControl]="roleControl" required>
+            <mat-option
+              [id]="'clash-bot-teams-card-create-new-dropdown-' + role"
+              #option="matOption" (click)="createNewTeam(option)" *ngFor="let role of rolesAsString"
+              value="{{role}}">{{role}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
     </div>
   </mat-card>
 </div>

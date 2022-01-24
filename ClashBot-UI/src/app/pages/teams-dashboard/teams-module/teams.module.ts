@@ -17,31 +17,32 @@ import {MatSelectModule} from "@angular/material/select";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {MatTableModule} from "@angular/material/table";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
+import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 
 
 @NgModule({
     declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,
-        TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe],
+        TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],
     exports: [
         TeamCardComponent,
         TournamentNameTransformerPipe
     ],
-    imports: [
-        CommonModule,
-        TeamsRoutingModule,
-        MatChipsModule,
-        MatProgressSpinnerModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatIconModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatOptionModule,
-        MatSelectModule,
-        MatTableModule
-    ]
+  imports: [
+    CommonModule,
+    TeamsRoutingModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatOptionModule,
+    MatSelectModule,
+    MatTableModule
+  ]
 })
 export class TeamsModule {
 }

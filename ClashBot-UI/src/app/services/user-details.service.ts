@@ -7,7 +7,7 @@ import {BehaviorSubject} from "rxjs";
 })
 export class UserDetailsService {
 
-  user: BehaviorSubject<UserDetails> = new BehaviorSubject<UserDetails>({ id: '', username: '', discriminator: ''});
+  user: BehaviorSubject<UserDetails> = new BehaviorSubject<UserDetails>({ id: 0, username: '', discriminator: ''});
 
   constructor() {}
 

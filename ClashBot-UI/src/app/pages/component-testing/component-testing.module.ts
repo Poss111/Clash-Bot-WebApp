@@ -16,24 +16,27 @@ import {ComponentTestingRoutingModule} from "./component-testing-routing.module"
 import {TeamsModule} from "../teams-dashboard/teams-module/teams.module";
 
 @NgModule({
-    declarations: [ComponentTestingComponent],
-    imports: [
-        CommonModule,
-        ComponentTestingRoutingModule,
-        MatChipsModule,
-        MatProgressSpinnerModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatIconModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatOptionModule,
-        MatSelectModule,
-        MatTableModule,
-        TeamsModule
-    ]
+  declarations: [ComponentTestingComponent],
+  exports: [
+    ComponentTestingComponent
+  ],
+  imports: [
+    CommonModule,
+    ComponentTestingRoutingModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatOptionModule,
+    MatSelectModule,
+    MatTableModule,
+    TeamsModule,
+  ]
 })
 export class ComponentTestingModule {
 }
