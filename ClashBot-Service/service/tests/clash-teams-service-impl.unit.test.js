@@ -1192,7 +1192,7 @@ function mapToExpectedDetailedApiResponse(team, expectedServerName, retrieveAllU
 }
 
 function mapToExpectedDetailedApiResponseV2(team, expectedServerName, retrieveAllUserDetails) {
-    let mappedResponse = {
+    return {
         teamName: team.teamName,
         serverName: expectedServerName,
         playersDetails: Array.isArray(team.players) ? team.players.map(id => {
@@ -1218,7 +1218,6 @@ function mapToExpectedDetailedApiResponseV2(team, expectedServerName, retrieveAl
         },
         startTime: team.startTime,
     };
-    return mappedResponse
 }
 
 function createNewMockDbTeamResponse(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay) {
@@ -1290,7 +1289,8 @@ function verifyRegisterPlayerIsInvokedV2(expectedPlayerId, expectedRole, expecte
             tournamentName: expectedTournamentName,
             tournamentDay: expectedTournamentDay,
             startTime: expectedStartTime
-        }]);
+        }],
+        true);
 }
 
 function verifyRetrievePlayerNamesIsInvoked(expectedPlayerIds) {

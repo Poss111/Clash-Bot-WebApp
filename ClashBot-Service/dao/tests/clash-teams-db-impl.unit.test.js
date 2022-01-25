@@ -122,7 +122,7 @@ describe('Add Player with Role to Team - v2', () => {
             update: jest.fn().mockImplementation((key, params, callback) => callback(null, expectedMockTeam))
         };
         let expectedParams = {
-            UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set(['2'], 'S'),
                 ':updatedRole': expectedRoleToPlayerMap
@@ -137,7 +137,8 @@ describe('Add Player with Role to Team - v2', () => {
         clashTeamsDbImpl.addUserToTeamV2('2', 'Mid', originalMockTeam, callback);
 
         expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedMockTeam.key}, expectedParams, expect.any(Function));
+        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedMockTeam.key},
+            expectedParams, expect.any(Function));
         expect(updatedTeam).toEqual(expectedMockTeam);
     })
 })
@@ -422,7 +423,7 @@ describe('Get Teams by version', () => {
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                 ':name': 'Sample Server',
-                ':versionNumber': '2'
+                ':versionNumber': 2
             })
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -781,7 +782,7 @@ describe('Filter Retrieved Teams', () => {
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                     ':name': expectedServer,
-                    ':versionNumber': '2'
+                    ':versionNumber': 2
                 })
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -833,7 +834,7 @@ describe('Filter Retrieved Teams', () => {
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                     ':name': expectedServer,
-                    ':versionNumber': '2'
+                    ':versionNumber': 2
                 })
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -889,7 +890,7 @@ describe('Filter Retrieved Teams', () => {
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                     ':name': expectedServer,
-                    ':versionNumber': '2'
+                    ':versionNumber': 2
                 })
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -923,7 +924,7 @@ describe('Filter Retrieved Teams', () => {
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                     ':name': expectedServer,
-                    ':versionNumber': '2'
+                    ':versionNumber': 2
                 })
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -978,7 +979,7 @@ describe('Filter Retrieved Teams', () => {
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeValues).toHaveBeenCalledWith({
                     ':name': expectedServer,
-                    ':versionNumber': '2'
+                    ':versionNumber': 2
                 })
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.expressionAttributeNames).toHaveBeenCalledWith({
@@ -1252,7 +1253,8 @@ describe('Register Player', () => {
             const expectedUserTournaments = createMockListOfTournaments(2);
             const expectedVersion = 2;
             let expectedRegisteredTeam = {
-                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName, expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
                 version: expectedVersion,
                 teamName: expectedTeamName,
                 serverName: expectedUserServerName,
@@ -1274,7 +1276,8 @@ describe('Register Player', () => {
                 update: jest.fn().mockImplementation((params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
             };
 
-            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole, expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
+                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith(expectedRegisteredTeam, expect.any(Function));
                 expect(registeredTeam).toEqual(expectedRegisteredTeam);
@@ -1290,7 +1293,8 @@ describe('Register Player', () => {
             const expectedUserTournaments = createMockListOfTournaments(2);
             const expectedVersion = 2;
             let expectedRegisteredTeam = {
-                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName, expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
                 version: expectedVersion,
                 teamName: expectedTeamName,
                 serverName: expectedUserServerName,
@@ -1303,7 +1307,8 @@ describe('Register Player', () => {
             };
 
             let expectedUndefinedPlayersReturnedTeam = {
-                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName, expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
                 version: expectedVersion,
                 teamName: expectedTeamName,
                 serverName: expectedUserServerName,
@@ -1312,7 +1317,8 @@ describe('Register Player', () => {
             };
 
             clashTeamsDbImpl.Team = {
-                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([{Items: [{attrs: expectedUndefinedPlayersReturnedTeam}]}])),
+                exec: jest.fn().mockImplementation(() => streamTest.v2
+                    .fromObjects([{Items: [{attrs: expectedUndefinedPlayersReturnedTeam}]}])),
                 scan: jest.fn().mockReturnThis(),
                 filterExpression: jest.fn().mockReturnThis(),
                 expressionAttributeValues: jest.fn().mockReturnThis(),
@@ -1320,7 +1326,8 @@ describe('Register Player', () => {
                 update: jest.fn().mockImplementation((params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
             }
 
-            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole, expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole, expectedUserServerName,
+                expectedUserTournaments).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith(expectedRegisteredTeam, expect.any(Function));
@@ -1336,7 +1343,6 @@ describe('Register Player', () => {
             const expectedTeamName = 'Team Abra';
             const expectedUserTournaments = createMockListOfTournaments(2);
             const expectedRoleToPlayerMap = { Top: expectedUserId, Mid: '2'};
-            const expectedVersion = 2;
 
             let expectedRegisteredTeam = buildMockTeamV2(expectedUserServerName, ['2', expectedUserId],
                 expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName);
@@ -1357,7 +1363,7 @@ describe('Register Player', () => {
 
 
             let expectedParams = {
-                UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+                UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
                 ExpressionAttributeValues: {
                     ':playerName': dynamodb.Set(['1'], 'S'),
                     ':updatedRole': expectedRoleToPlayerMap
@@ -1407,7 +1413,7 @@ describe('Register Player', () => {
             };
 
             let deleteParams = {
-                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
                 ConditionExpression: 'teamName = :nameOfTeam',
                 ExpressionAttributeValues: {
                     ':playerName': dynamodb.Set(['1'], 'S'),
@@ -1417,7 +1423,7 @@ describe('Register Player', () => {
             };
 
             let updateParams = {
-                UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+                UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
                 ExpressionAttributeValues: {
                     ':playerName': dynamodb.Set(['1'], 'S'),
                     ':updatedRole': expectedRoleToPlayerMap
@@ -1699,19 +1705,21 @@ describe('Register Specific Team', () => {
 
 describe('Register Specific Team - v2', () => {
 
-    test('When a specific Team is passed. A user should pass their id, role, serverName, teamName, and Tournament to join with and should be successfully joined.', () => {
+    test('When a specific Team is passed. A user should pass their id, role, serverName, teamName, and ' +
+        'Tournament to join with and should be successfully joined.', () => {
         const expectedUserId = '1';
         const expectedUserRole = 'Top';
         const expectedUserServerName = 'Goon Squad';
-        const expectedTeamName = 'Team Abomasnow';
+        const expectedTeamName = 'Abomasnow';
         const expectedUserTournaments = createMockListOfTournaments(2);
         const expectedVersion = 2;
         let foundTeam = {
             Items: [{
                 attrs: {
-                    key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName, expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                    key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
+                        expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
                     version: expectedVersion,
-                    teamName: expectedTeamName,
+                    teamName: `Team ${expectedTeamName}`,
                     serverName: expectedUserServerName,
                     players: [],
                     playersWRoles: {},
@@ -1722,9 +1730,10 @@ describe('Register Specific Team - v2', () => {
             }]
         };
         let expectedRegisteredTeam = {
-            key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName, expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+            key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
+                expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
             version: expectedVersion,
-            teamName: expectedTeamName,
+            teamName: `Team ${expectedTeamName}`,
             serverName: expectedUserServerName,
             playersWRoles: {
                 Top: expectedUserId
@@ -1741,11 +1750,12 @@ describe('Register Specific Team - v2', () => {
             filterExpression: jest.fn().mockReturnThis(),
             expressionAttributeValues: jest.fn().mockReturnThis(),
             expressionAttributeNames: jest.fn().mockReturnThis(),
-            update: jest.fn().mockImplementation((key, params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
+            update: jest.fn().mockImplementation((key, params, callback) =>
+                callback(undefined, {attrs: expectedRegisteredTeam}))
         };
 
         let addParams = {
-            UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set([expectedUserId], 'S'),
                 ':updatedRole': expectedRegisteredTeam.playersWRoles
@@ -1755,7 +1765,7 @@ describe('Register Specific Team - v2', () => {
         return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
             expectedUserRole,
             expectedUserServerName,
-            expectedUserTournaments[0],
+            expectedUserTournaments,
             expectedTeamName).then(registeredTeam => {
             expect(registeredTeam).toBeTruthy();
             expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
@@ -1770,12 +1780,12 @@ describe('Register Specific Team - v2', () => {
         const expectedUserId = '1';
         const expectedUserRole = 'Top';
         const expectedUserServerName = 'Goon Squad';
-        const expectedTeamName = 'Team Abomasnow';
+        const expectedTeamName = 'Abomasnow';
         const expectedUserTournaments = createMockListOfTournaments(2);
         const expectedVersion = 2;
         const expectedCurrentTeamToBeRegisteredTo = buildMockTeamV2(expectedUserServerName, [expectedUserId],
-            {}, expectedUserTournaments[0], expectedTeamName)
-        const expectedCurrentTeamToBeUnregisteredFrom = buildMockTeamV2(expectedUserServerName, [expectedUserId],
+            {}, expectedUserTournaments[0], `Team ${expectedTeamName}`)
+        const expectedCurrentTeamToBeUnregisteredFrom = buildMockTeamV2(expectedTeamName, [expectedUserId],
             {Top: expectedUserId}, expectedUserTournaments[0], 'Team Abra')
         let foundTeam = {
             Items: [{
@@ -1786,10 +1796,10 @@ describe('Register Specific Team - v2', () => {
                 }]
         };
         let expectedRegisteredTeam = {
-            key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+            key: clashTeamsDbImpl.getKey(`Team ${expectedUserServerName}`, expectedUserServerName,
                 expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
             version: expectedVersion,
-            teamName: expectedTeamName,
+            teamName: `Team ${expectedUserServerName}`,
             serverName: expectedUserServerName,
             playersWRoles: {
                 Top: expectedUserId
@@ -1812,7 +1822,7 @@ describe('Register Specific Team - v2', () => {
         };
 
         let unregisterParams = {
-            UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
             ConditionExpression: 'teamName = :nameOfTeam',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set([expectedUserId], 'S'),
@@ -1822,7 +1832,7 @@ describe('Register Specific Team - v2', () => {
         };
 
         let addParams = {
-            UpdateExpression: 'ADD players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set([expectedUserId], 'S'),
                 ':updatedRole': expectedRegisteredTeam.playersWRoles
@@ -1832,7 +1842,7 @@ describe('Register Specific Team - v2', () => {
         return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
             expectedUserRole,
             expectedUserServerName,
-            expectedUserTournaments[0],
+            expectedUserTournaments,
             expectedTeamName).then(registeredTeam => {
             expect(registeredTeam).toBeTruthy();
             expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
@@ -1864,7 +1874,6 @@ describe('Is Player on Team v2', () => {
         expect(clashTeamsDbImpl.isPlayerIsOnTeamV2('1', team)).toBeFalsy();
     })
     test('If the playersWRoles is empty then isPlayerIsOnTeamV2 should return false.', () => {
-        const expectedUserId = '1';
         const expectedUserServerName = 'Goon Squad';
         const expectedTeamName = 'Team Abomasnow';
         const expectedUserTournaments = createMockListOfTournaments(2);
@@ -2409,7 +2418,7 @@ describe('Unregister Player v2', () => {
                     ':updatedRole': updatedRoleToPlayerMap
                 },
                 ConditionExpression: 'teamName = :nameOfTeam',
-                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
             }, expect.any(Function));
         })
     })
@@ -2518,7 +2527,7 @@ describe('Unregister Player v2', () => {
                     ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
                 },
                 ConditionExpression: 'teamName = :nameOfTeam',
-                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
             }, expect.any(Function)], [
                 {key: keyTwo}, {
                     ExpressionAttributeValues: {
@@ -2527,7 +2536,7 @@ describe('Unregister Player v2', () => {
                         ':updatedRole': expectedUpdatedValues.Items[1].attrs.playersWRoles
                     },
                     ConditionExpression: 'teamName = :nameOfTeam',
-                    UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+                    UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
                 }, expect.any(Function)
             ]]);
         })
@@ -2617,7 +2626,7 @@ describe('Unregister Player v2', () => {
                     ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
                 },
                 ConditionExpression: 'teamName = :nameOfTeam',
-                UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole'
+                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
             }, expect.any(Function)]]);
         })
     })
@@ -2672,7 +2681,7 @@ describe('Unregister Player v2', () => {
 
         return clashTeamsDbImpl.deregisterPlayerV2('Player2','Sample Server', leagueTimes)
             .then((data) => {
-            expect(data).toBeFalsy();
+            expect(data).toEqual([]);
         })
     })
 
@@ -2727,7 +2736,7 @@ describe('Unregister Player v2', () => {
 
         return clashTeamsDbImpl.deregisterPlayerV2('Player1','Sample Server',
             leagueTimes).then((data) => {
-            expect(data).toBeFalsy();
+            expect(data).toEqual([]);
         })
     })
 
@@ -2808,11 +2817,13 @@ describe('Unregister Player v2', () => {
         let updatedTeam = {};
         let callback = (err, record) => {
             updatedTeam = record
-            console.log(record);
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam.key}, params, expect.any(Function));
+            expect(record).toEqual(expectedTeam);
         };
 
         let params = {
-            UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
             ConditionExpression: 'teamName = :nameOfTeam',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set(['2'], 'S'),
@@ -2821,11 +2832,7 @@ describe('Unregister Player v2', () => {
             }
         }
 
-        clashTeamsDbImpl.unregisterPlayerWithSpecificTeamV2('2', 'Mid', [origTeam], callback);
-
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam.key}, params, expect.any(Function));
-        expect(updatedTeam).toEqual(expectedTeam);
+        clashTeamsDbImpl.unregisterPlayerWithSpecificTeamV2('2', [origTeam], callback);
     })
 
     test('When I request to unregister a player from multiple Teams, they should be removed from the player list and playersWRole object.', () => {
@@ -2865,11 +2872,14 @@ describe('Unregister Player v2', () => {
         let updatedTeams = [];
         let callback = (err, record) => {
             updatedTeams.push(record);
-            console.log(record);
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam.key}, params, expect.any(Function));
+            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam2.key}, params2, expect.any(Function));
+            expect(record).toEqual([expectedTeam, expectedTeam2]);
         };
 
         let params = {
-            UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
             ConditionExpression: 'teamName = :nameOfTeam',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set(['2'], 'S'),
@@ -2879,7 +2889,7 @@ describe('Unregister Player v2', () => {
         }
 
         let params2 = {
-            UpdateExpression: 'DELETE players :playerName, SET #playersWRoles = :updatedRole',
+            UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
             ConditionExpression: 'teamName = :nameOfTeam',
             ExpressionAttributeValues: {
                 ':playerName': dynamodb.Set(['2'], 'S'),
@@ -2888,12 +2898,7 @@ describe('Unregister Player v2', () => {
             }
         }
 
-        clashTeamsDbImpl.unregisterPlayerWithSpecificTeamV2('2', 'Mid', [origTeam, origTeam2], callback);
-
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam.key}, params, expect.any(Function));
-        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam2.key}, params2, expect.any(Function));
-        expect(updatedTeams).toEqual([expectedTeam, expectedTeam2]);
+        clashTeamsDbImpl.unregisterPlayerWithSpecificTeamV2('2', [origTeam, origTeam2], callback);
     })
 })
 

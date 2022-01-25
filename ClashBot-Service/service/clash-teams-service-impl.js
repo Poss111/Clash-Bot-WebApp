@@ -43,8 +43,8 @@ class ClashTeamsServiceImpl {
                         clashTeamsDbImpl.registerPlayerV2(id, role, serverName, [{
                             tournamentName: tournamentName,
                             tournamentDay: tournamentDay,
-                            startTime: startTime
-                        }]).then((response) => {
+                            startTime: startTime,
+                        }], true).then((response) => {
                             if (Array.isArray(response) && response[0].exist) {
                                 resolve({error: 'Player is not eligible to create a new Team.'});
                             } else {
@@ -74,12 +74,14 @@ class ClashTeamsServiceImpl {
         if (Array.isArray(response)) {
             let responseArray = [];
             let ids = response.map(id => id.players);
-            let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames([...new Set(ids.flat())]);
+            let idToNameMap = {};
+            if (ids.length > 0) {
+                idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames([...new Set(ids.flat())]);
+            }
             response.forEach((record) =>
                 responseArray.push(this.mapDbToApiResponseV2(record, idToNameMap)));
             return responseArray;
-        }
-        else {
+        } else {
             let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
             return this.mapDbToApiResponseV2(response, idToNameMap);
         }
@@ -273,7 +275,7 @@ class ClashTeamsServiceImpl {
     }
 
     mapDbToDetailedApiResponseV2(response, idToPlayerNameMap) {
-        let mappedResponse = {
+        return {
             teamName: response.teamName,
             serverName: response.serverName,
             playersDetails: Array.isArray(response.players) ? response.players.map(id => {
@@ -299,7 +301,6 @@ class ClashTeamsServiceImpl {
             },
             startTime: response.startTime,
         };
-        return mappedResponse;
     }
 }
 
