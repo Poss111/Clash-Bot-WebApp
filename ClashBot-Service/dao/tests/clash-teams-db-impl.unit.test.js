@@ -1381,7 +1381,7 @@ describe('Register Player', () => {
         })
 
         test('When I register a player with a team that has an existing team role, server, ' +
-            'and tournament and the player belongs to an existing team, they should be unregistered' +
+            'and tournament and the player belongs to an existing team, they should be unregistered ' +
             'from the existing team and successfully registered to version two of the team format.', () => {
             const expectedUserId = '1';
             const expectedUserRole = 'Top';
@@ -1407,7 +1407,7 @@ describe('Register Player', () => {
                 expressionAttributeValues: jest.fn().mockReturnThis(),
                 expressionAttributeNames: jest.fn().mockReturnThis(),
                 update: jest.fn().mockImplementationOnce((key, params, callback) => callback(undefined,
-                    {attrs: expectedRegisteredTeam}))
+                    [{attrs: expectedRegisteredTeam}]))
                     .mockImplementationOnce((key, params, callback) => callback(undefined,
                     {attrs: expectedRegisteredTeam}))
             };

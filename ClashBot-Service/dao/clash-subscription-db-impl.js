@@ -147,15 +147,17 @@ class ClashSubscriptionDbImpl {
     }
 
     retrievePlayerNames(ids) {
-        return new Promise((resolve => {
-            if (!ids || ids.length < 1) {
+        return new Promise((resolve, reject) => {
+            if (!ids || ids.length < 1 || ids[0] === undefined) {
                 resolve({});
             } else {
+                console.log(`Retrieving names for ids ('${ids}')...`)
                 this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
+                    if (err) reject(err);
                     resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {}));
                 });
             }
-        }))
+        });
     }
 
     retrieveAllUserDetails(ids) {

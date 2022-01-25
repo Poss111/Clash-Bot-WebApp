@@ -153,7 +153,11 @@ class ClashTeamsDbImpl {
                     console.log(`V2 - Tournament selected ('${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}').`);
                     const unregisterCallback = (err, data) => {
                         if (err) reject(err);
-                        else console.log(`V2 - Successfully unregistered player ('${id}') from Team ('${data.attrs.teamName}').`);
+                        else {
+                            data.forEach(item => {
+                                console.log(`V2 - Successfully unregistered player ('${id}') from Team ('${item.attrs.teamName}').`);
+                            })
+                        }
                     };
 
                     const updatedCallback = (err, data) => {
@@ -172,8 +176,7 @@ class ClashTeamsDbImpl {
                     // Unregister if User is on a team for the Tournament
                     if (teamForTournaments.userTeam
                         && Object.keys(teamForTournaments.userTeam).length !== 0) {
-                        console.log(`V2 - Player is currently on Team for Tournament 
-                            ('${teamForTournaments.userTeam.key}')...`);
+                        console.log(`V2 - Player is currently on Team for Tournament ('${teamForTournaments.userTeam.key}')...`);
                         this.unregisterPlayerWithSpecificTeamV2(id,
                             [teamForTournaments.userTeam], unregisterCallback)
                     }
@@ -194,8 +197,7 @@ class ClashTeamsDbImpl {
                         teamToModify.players = [id];
                         teamToModify.playersWRoles = {};
                         teamToModify.playersWRoles[role] = id;
-                        console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team 
-                                ('${teamToModify.teamName}') with Role ('${role}')...`)
+                        console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
                         this.Team.update(teamToModify, updatedCallback);
                     }
                     // If user wants to createNew and no undefined Team to join
