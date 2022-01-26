@@ -358,7 +358,7 @@ describe('ClashBotService', () => {
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
-      service.registerUserForTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
+      service.registerUserForTeam(userDetail, teamRequest).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
@@ -414,7 +414,7 @@ describe('ClashBotService', () => {
         tournamentName: teamRequest.tournamentDetails?.tournamentName,
         tournamentDay: teamRequest.tournamentDetails?.tournamentDay
       }
-      service.registerUserForTeam(userDetail, teamRequest, expectedRole).subscribe(data => {
+      service.registerUserForTeam(userDetail, teamRequest).subscribe(data => {
         expect(data).toBeTruthy();
         expect(data).toEqual(mockResponse);
       });
