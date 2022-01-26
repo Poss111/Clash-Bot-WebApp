@@ -266,14 +266,6 @@ class ClashTeamsDbImpl {
                 if (!foundTeam) {
                     resolve(foundTeam);
                 }
-                if (currentTeam) {
-                    const unregisterCallback = (err) => {
-                        if (err) reject();
-                        else console.log(`V2 - Successfully unregistered ('${id}') from ('${currentTeam.key}').`)
-                    };
-                    this.unregisterPlayerWithSpecificTeamV2(id, [currentTeam],
-                        unregisterCallback);
-                }
                 let callback = (err, data) => {
                     if (err) reject(err);
                     else {
@@ -282,7 +274,17 @@ class ClashTeamsDbImpl {
                         resolve(foundTeam);
                     }
                 };
-                this.addUserToTeamV2(id, role, foundTeam, callback);
+                if (currentTeam) {
+                    const unregisterCallback = (err) => {
+                        if (err) reject();
+                        else console.log(`V2 - Successfully unregistered ('${id}') from ('${currentTeam.key}').`)
+                        this.addUserToTeamV2(id, role, foundTeam, callback);
+                    };
+                    this.unregisterPlayerWithSpecificTeamV2(id, [currentTeam],
+                        unregisterCallback);
+                } else {
+                    this.addUserToTeamV2(id, role, foundTeam, callback);
+                }
             }).catch(err => reject(err));
         });
     }
@@ -430,10 +432,12 @@ class ClashTeamsDbImpl {
                 let teamsRemovedFrom = [];
                 const callback = (err, response) => {
                     if (err) reject(err);
-                    response.forEach((items) => {
-                        teamsRemovedFrom.push(items.attrs);
-                    })
-                    resolve(teamsRemovedFrom);
+                    else {
+                        response.forEach((items) => {
+                            teamsRemovedFrom.push(items.attrs);
+                        })
+                        resolve(teamsRemovedFrom);
+                    }
                 };
                 data = data.filter(record => {
                     let role = this.isPlayerIsOnTeamV2(id, record);

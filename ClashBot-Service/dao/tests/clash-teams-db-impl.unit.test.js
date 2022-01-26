@@ -2819,7 +2819,7 @@ describe('Unregister Player v2', () => {
             updatedTeam = record
             expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedTeam.key}, params, expect.any(Function));
-            expect(record).toEqual(expectedTeam);
+            expect(record[0]).toEqual(expectedTeam);
         };
 
         let params = {
