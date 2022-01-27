@@ -1314,7 +1314,7 @@ describe('Register Player', () => {
                 teamName: 'Team Abra',
                 serverName: expectedUserServerName,
                 playersWRoles: {
-                  'Top': '2'
+                    'Top': '2'
                 },
                 tournamentName: expectedUserTournaments[0].tournamentName,
                 tournamentDay: expectedUserTournaments[0].tournamentDay
@@ -1395,13 +1395,13 @@ describe('Register Player', () => {
             const expectedUserServerName = 'Goon Squad';
             const expectedTeamName = 'Team Abra';
             const expectedUserTournaments = createMockListOfTournaments(2);
-            const expectedRoleToPlayerMap = { Top: expectedUserId, Mid: '2'};
+            const expectedRoleToPlayerMap = {Top: expectedUserId, Mid: '2'};
 
             let expectedRegisteredTeam = buildMockTeamV2(expectedUserServerName, ['2', expectedUserId],
                 expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName);
 
             let returnedPlayersReturnedTeam = buildMockTeamV2(expectedUserServerName, ['2'],
-                { Mid: '2'}, expectedUserTournaments[0], expectedTeamName)
+                {Mid: '2'}, expectedUserTournaments[0], expectedTeamName)
 
             clashTeamsDbImpl.Team = {
                 exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects(
@@ -1427,7 +1427,7 @@ describe('Register Player', () => {
                 expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
-                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeam.key },
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: returnedPlayersReturnedTeam.key},
                     expectedParams, expect.any(Function));
                 expect(registeredTeam).toEqual(expectedRegisteredTeam);
             });
@@ -1441,20 +1441,22 @@ describe('Register Player', () => {
             const expectedUserServerName = 'Goon Squad';
             const expectedTeamName = 'Team Abra';
             const expectedUserTournaments = createMockListOfTournaments(2);
-            const expectedRoleToPlayerMap = { Top: expectedUserId, Mid: '2'};
+            const expectedRoleToPlayerMap = {Top: expectedUserId, Mid: '2'};
 
             let expectedRegisteredTeam = buildMockTeamV2(expectedUserServerName, ['2', expectedUserId],
                 expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName);
 
             let returnedPlayersReturnedTeamOne = buildMockTeamV2(expectedUserServerName, ['2'],
-                { Mid: '2'}, expectedUserTournaments[0], expectedTeamName);
+                {Mid: '2'}, expectedUserTournaments[0], expectedTeamName);
             let returnedPlayersReturnedTeamWithPlayer = buildMockTeamV2(expectedUserServerName, [expectedUserId],
-                { Top: expectedUserId}, expectedUserTournaments[0], expectedTeamName);
+                {Top: expectedUserId}, expectedUserTournaments[0], expectedTeamName);
 
             clashTeamsDbImpl.Team = {
                 exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects(
-                    [{Items: [{attrs: returnedPlayersReturnedTeamOne},
-                            {attrs: returnedPlayersReturnedTeamWithPlayer}]}])),
+                    [{
+                        Items: [{attrs: returnedPlayersReturnedTeamOne},
+                            {attrs: returnedPlayersReturnedTeamWithPlayer}]
+                    }])),
                 scan: jest.fn().mockReturnThis(),
                 filterExpression: jest.fn().mockReturnThis(),
                 expressionAttributeValues: jest.fn().mockReturnThis(),
@@ -1462,7 +1464,7 @@ describe('Register Player', () => {
                 update: jest.fn().mockImplementationOnce((key, params, callback) => callback(undefined,
                     [{attrs: expectedRegisteredTeam}]))
                     .mockImplementationOnce((key, params, callback) => callback(undefined,
-                    {attrs: expectedRegisteredTeam}))
+                        {attrs: expectedRegisteredTeam}))
             };
 
             let deleteParams = {
@@ -1488,9 +1490,9 @@ describe('Register Player', () => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
-                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeamWithPlayer.key },
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: returnedPlayersReturnedTeamWithPlayer.key},
                     deleteParams, expect.any(Function));
-                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeamOne.key },
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: returnedPlayersReturnedTeamOne.key},
                     updateParams, expect.any(Function));
                 expect(registeredTeam).toEqual(expectedRegisteredTeam);
             });
@@ -1570,153 +1572,91 @@ describe('Register Player', () => {
 })
 
 describe('Register Specific Team', () => {
-    test('A user should be able to request to join a specific Team based on the Tournament and Team name.', () => {
-        let playerName = 'TestPlayer1';
-        let serverName = 'Test Server';
-        let tournaments = [{
-            tournamentName: 'msi2021',
-            tournamentDay: '3'
-        }];
-        let teamName = 'Abra';
-        const dynamoDbRetrieveList = {
-            Items: [{
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team Awesome`,
-                    serverName: serverName,
-                    players: undefined,
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
+    describe('Register Specific Team', () => {
+        test('A user should be able to request to join a specific Team based on the Tournament and Team name.', () => {
+            let playerName = 'TestPlayer1';
+            let serverName = 'Test Server';
+            let tournaments = [{
+                tournamentName: 'msi2021',
+                tournamentDay: '3'
+            }];
+            let teamName = 'Abra';
+            const dynamoDbRetrieveList = {
+                Items: [{
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                        teamName: `Team Awesome`,
+                        serverName: serverName,
+                        players: undefined,
+                        tournamentName: tournaments[0].tournamentName,
+                        tournamentDay: tournaments[0].tournamentDay
+                    }
+                }, {
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                        teamName: `Team Existing`,
+                        serverName: serverName,
+                        players: ['Player3', playerName],
+                        tournamentName: tournaments[0].tournamentName,
+                        tournamentDay: tournaments[0].tournamentDay
+                    }
+                }, {
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(`Team ${teamName}`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                        teamName: `Team ${teamName}`,
+                        serverName: serverName,
+                        players: ['Player3'],
+                        tournamentName: tournaments[0].tournamentName,
+                        tournamentDay: tournaments[0].tournamentDay
+                    }
                 }
-            }, {
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team Existing`,
-                    serverName: serverName,
-                    players: ['Player3', playerName],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }, {
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team ${teamName}`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team ${teamName}`,
-                    serverName: serverName,
-                    players: ['Player3'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }
-            ]
-        };
-        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[1].attrs.players)).concat(playerName);
-        let mockTeam = {
-            key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-            teamName: `Team ${teamName}`,
-            serverName: serverName,
-            players: updatedExpectedPlayers,
-            tournamentName: tournaments[0].tournamentName,
-            tournamentDay: tournaments[0].tournamentDay
-        };
-        buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
-        return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName, () => {
-            console.log('Do Something.');
-        }).then(data => {
-            expect(data).toBeTruthy();
-            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[2].attrs.teamName);
-            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[2].attrs.serverName);
-            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentName);
-            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentDay);
-            expect(data.players).toEqual(updatedExpectedPlayers);
-            expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
-                [
-                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName],
-                            ':nameOfTeam': dynamoDbRetrieveList.Items[1].attrs.teamName
-                        },
-                        ConditionExpression: 'teamName = :nameOfTeam',
-                        UpdateExpression: 'DELETE players :playerName'
-                    }, expect.any(Function)
-                ],
-                [
-                    {key: dynamoDbRetrieveList.Items[2].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName]
-                        },
-                        UpdateExpression: 'ADD players :playerName'
-                    }, expect.any(Function)
-                ],
-            ]);
+                ]
+            };
+            let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[1].attrs.players)).concat(playerName);
+            let mockTeam = {
+                key: clashTeamsDbImpl.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                teamName: `Team ${teamName}`,
+                serverName: serverName,
+                players: updatedExpectedPlayers,
+                tournamentName: tournaments[0].tournamentName,
+                tournamentDay: tournaments[0].tournamentDay
+            };
+            buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
+            return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName, () => {
+                console.log('Do Something.');
+            }).then(data => {
+                expect(data).toBeTruthy();
+                expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[2].attrs.teamName);
+                expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[2].attrs.serverName);
+                expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentName);
+                expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentDay);
+                expect(data.players).toEqual(updatedExpectedPlayers);
+                expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
+                    [
+                        {key: dynamoDbRetrieveList.Items[1].attrs.key},
+                        {
+                            ExpressionAttributeValues: {
+                                ':playerName': [playerName],
+                                ':nameOfTeam': dynamoDbRetrieveList.Items[1].attrs.teamName
+                            },
+                            ConditionExpression: 'teamName = :nameOfTeam',
+                            UpdateExpression: 'DELETE players :playerName'
+                        }, expect.any(Function)
+                    ],
+                    [
+                        {key: dynamoDbRetrieveList.Items[2].attrs.key},
+                        {
+                            ExpressionAttributeValues: {
+                                ':playerName': [playerName]
+                            },
+                            UpdateExpression: 'ADD players :playerName'
+                        }, expect.any(Function)
+                    ],
+                ]);
+            })
         })
-    })
 
-    test('If the team that the user is requesting, does not exist, return with an undefined response.', () => {
-        let playerName = 'TestPlayer1';
-        let serverName = 'Test Server';
-        let tournaments = [{
-            tournamentName: 'msi2021',
-            tournamentDay: '3'
-        }];
-        let teamName = 'Abra';
-        const dynamoDbRetrieveList = {
-            Items: [{
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team DNE`,
-                    serverName: serverName,
-                    players: ['Player3'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }, {
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team Hello`,
-                    serverName: serverName,
-                    players: ['Player1', 'Player2'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }
-            ]
-        };
-        buildMockReturnForRegister(dynamoDbRetrieveList);
-        return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
-            expect(data).toBeFalsy();
-        })
-    })
-
-    test('If the team that the user is requesting, has 5 players, return with an undefined response.', () => {
-        let playerName = 'TestPlayer1';
-        let serverName = 'Test Server';
-        let tournaments = [{
-            tournamentName: 'msi2021',
-            tournamentDay: '3'
-        }];
-        let teamName = 'Abra';
-        const dynamoDbRetrieveList = {
-            Items: [{
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team ${teamName}`,
-                    serverName: serverName,
-                    players: ['Player3', 'Player2', 'Player3', 'Player4', 'Player5'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
-            }]
-        };
-        buildMockReturnForRegister(dynamoDbRetrieveList);
-        return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
-            expect(data).toBeFalsy();
-        })
-    })
-
-    describe('Error', () => {
-        test('If there is an error upon querying for records, the error should be caught and rejected.', () => {
+        test('If the team that the user is requesting, does not exist, return with an undefined response.', () => {
             let playerName = 'TestPlayer1';
             let serverName = 'Test Server';
             let tournaments = [{
@@ -1747,165 +1687,274 @@ describe('Register Specific Team', () => {
                 ]
             };
             buildMockReturnForRegister(dynamoDbRetrieveList);
-            clashTeamsDbImpl.Team.exec = undefined;
-
             return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
                 expect(data).toBeFalsy();
-            }).catch(err => expect(err).toBeTruthy());
+            })
+        })
+
+        test('If the team that the user is requesting, has 5 players, return with an undefined response.', () => {
+            let playerName = 'TestPlayer1';
+            let serverName = 'Test Server';
+            let tournaments = [{
+                tournamentName: 'msi2021',
+                tournamentDay: '3'
+            }];
+            let teamName = 'Abra';
+            const dynamoDbRetrieveList = {
+                Items: [{
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                        teamName: `Team ${teamName}`,
+                        serverName: serverName,
+                        players: ['Player3', 'Player2', 'Player3', 'Player4', 'Player5'],
+                        tournamentName: tournaments[0].tournamentName,
+                        tournamentDay: tournaments[0].tournamentDay
+                    }
+                }]
+            };
+            buildMockReturnForRegister(dynamoDbRetrieveList);
+            return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
+                expect(data).toBeFalsy();
+            })
+        })
+
+        describe('Error', () => {
+            test('If there is an error upon querying for records, the error should be caught and rejected.', () => {
+                let playerName = 'TestPlayer1';
+                let serverName = 'Test Server';
+                let tournaments = [{
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3'
+                }];
+                let teamName = 'Abra';
+                const dynamoDbRetrieveList = {
+                    Items: [{
+                        attrs: {
+                            key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                            teamName: `Team DNE`,
+                            serverName: serverName,
+                            players: ['Player3'],
+                            tournamentName: tournaments[0].tournamentName,
+                            tournamentDay: tournaments[0].tournamentDay
+                        }
+                    }, {
+                        attrs: {
+                            key: clashTeamsDbImpl.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                            teamName: `Team Hello`,
+                            serverName: serverName,
+                            players: ['Player1', 'Player2'],
+                            tournamentName: tournaments[0].tournamentName,
+                            tournamentDay: tournaments[0].tournamentDay
+                        }
+                    }
+                    ]
+                };
+                buildMockReturnForRegister(dynamoDbRetrieveList);
+                clashTeamsDbImpl.Team.exec = undefined;
+
+                return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
+                    expect(data).toBeFalsy();
+                }).catch(err => expect(err).toBeTruthy());
+            })
+        })
+
+    })
+
+    describe('Register Specific Team - v2', () => {
+
+        test('When a specific Team is passed. A user should pass their id, role, serverName, teamName, and ' +
+            'Tournament to join with and should be successfully joined.', () => {
+            const expectedUserId = '1';
+            const expectedUserRole = 'Top';
+            const expectedUserServerName = 'Goon Squad';
+            const expectedTeamName = 'Abomasnow';
+            const expectedUserTournaments = createMockListOfTournaments(2);
+            const expectedVersion = 2;
+            let foundTeam = {
+                Items: [{
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
+                            expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                        version: expectedVersion,
+                        teamName: `Team ${expectedTeamName}`,
+                        serverName: expectedUserServerName,
+                        players: [],
+                        playersWRoles: {},
+                        tournamentName: expectedUserTournaments[0].tournamentName,
+                        tournamentDay: expectedUserTournaments[0].tournamentDay,
+                        startTime: expectedUserTournaments[0].startTime
+                    }
+                }]
+            };
+            let expectedRegisteredTeam = {
+                key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                version: expectedVersion,
+                teamName: `Team ${expectedTeamName}`,
+                serverName: expectedUserServerName,
+                playersWRoles: {
+                    Top: expectedUserId
+                },
+                players: [expectedUserId],
+                tournamentName: expectedUserTournaments[0].tournamentName,
+                tournamentDay: expectedUserTournaments[0].tournamentDay,
+                startTime: expectedUserTournaments[0].startTime
+            };
+
+            clashTeamsDbImpl.Team = {
+                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([foundTeam])),
+                scan: jest.fn().mockReturnThis(),
+                filterExpression: jest.fn().mockReturnThis(),
+                expressionAttributeValues: jest.fn().mockReturnThis(),
+                expressionAttributeNames: jest.fn().mockReturnThis(),
+                update: jest.fn().mockImplementation((key, params, callback) =>
+                    callback(undefined, {attrs: expectedRegisteredTeam}))
+            };
+
+            let addParams = {
+                UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
+                ExpressionAttributeValues: {
+                    ':playerName': dynamodb.Set([expectedUserId], 'S'),
+                    ':updatedRole': expectedRegisteredTeam.playersWRoles
+                }
+            };
+
+            return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
+                expectedUserRole,
+                expectedUserServerName,
+                expectedUserTournaments,
+                expectedTeamName).then(registeredTeam => {
+                expect(registeredTeam).toBeTruthy();
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedRegisteredTeam.key}, addParams, expect.any(Function));
+                expect(registeredTeam).toEqual(expectedRegisteredTeam);
+            });
+        })
+
+        test('When a specific Team is passed with a role that exists on said Team, they should not be ' +
+            'successfully registered to the given Team.', () => {
+            const expectedUserId = '1';
+            const expectedUserRole = 'Top';
+            const expectedUserServerName = 'Goon Squad';
+            const expectedTeamName = 'Abomasnow';
+            const expectedUserTournaments = createMockListOfTournaments(2);
+            const expectedVersion = 2;
+            let foundTeam = {
+                Items: [{
+                    attrs: {
+                        key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
+                            expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                        version: expectedVersion,
+                        teamName: `Team ${expectedTeamName}`,
+                        serverName: expectedUserServerName,
+                        players: [],
+                        playersWRoles: {
+                            Top: '2'
+                        },
+                        tournamentName: expectedUserTournaments[0].tournamentName,
+                        tournamentDay: expectedUserTournaments[0].tournamentDay,
+                        startTime: expectedUserTournaments[0].startTime
+                    }
+                }]
+            };
+
+            clashTeamsDbImpl.Team = {
+                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([foundTeam])),
+                scan: jest.fn().mockReturnThis(),
+                filterExpression: jest.fn().mockReturnThis(),
+                expressionAttributeValues: jest.fn().mockReturnThis(),
+                expressionAttributeNames: jest.fn().mockReturnThis(),
+                update: jest.fn()
+            };
+
+            return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
+                expectedUserRole,
+                expectedUserServerName,
+                expectedUserTournaments,
+                expectedTeamName).then(registeredTeam => {
+                expect(registeredTeam).toBeFalsy();
+                expect(clashTeamsDbImpl.Team.update).not.toHaveBeenCalled();
+            });
+        })
+
+        test('When a specific Team is passed and they belong to a team during the same tournament. A user should pass their ' +
+            'id, role, serverName, teamName, and Tournament to join with and should be successfully joined and be ' +
+            'unregistered from their other team.', () => {
+            const expectedUserId = '1';
+            const expectedUserRole = 'Top';
+            const expectedUserServerName = 'Goon Squad';
+            const expectedTeamName = 'Abomasnow';
+            const expectedUserTournaments = createMockListOfTournaments(2);
+            const expectedVersion = 2;
+            const expectedCurrentTeamToBeRegisteredTo = buildMockTeamV2(expectedUserServerName, [expectedUserId],
+                {}, expectedUserTournaments[0], `Team ${expectedTeamName}`)
+            const expectedCurrentTeamToBeUnregisteredFrom = buildMockTeamV2(expectedTeamName, [expectedUserId],
+                {Top: expectedUserId}, expectedUserTournaments[0], 'Team Abra')
+            let foundTeam = {
+                Items: [{
+                    attrs: expectedCurrentTeamToBeRegisteredTo
+                },
+                    {
+                        attrs: expectedCurrentTeamToBeUnregisteredFrom
+                    }]
+            };
+            let expectedRegisteredTeam = {
+                key: clashTeamsDbImpl.getKey(`Team ${expectedUserServerName}`, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                version: expectedVersion,
+                teamName: `Team ${expectedUserServerName}`,
+                serverName: expectedUserServerName,
+                playersWRoles: {
+                    Top: expectedUserId
+                },
+                players: [expectedUserId],
+                tournamentName: expectedUserTournaments[0].tournamentName,
+                tournamentDay: expectedUserTournaments[0].tournamentDay,
+                startTime: expectedUserTournaments[0].startTime
+            };
+
+            clashTeamsDbImpl.Team = {
+                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([foundTeam])),
+                scan: jest.fn().mockReturnThis(),
+                filterExpression: jest.fn().mockReturnThis(),
+                expressionAttributeValues: jest.fn().mockReturnThis(),
+                expressionAttributeNames: jest.fn().mockReturnThis(),
+                update: jest.fn().mockImplementationOnce((key, params, callback) => callback(null))
+                    .mockImplementationOnce((key, params, callback) => callback(undefined,
+                        {attrs: expectedRegisteredTeam}))
+            };
+
+            let unregisterParams = {
+                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
+                ConditionExpression: 'teamName = :nameOfTeam',
+                ExpressionAttributeValues: {
+                    ':playerName': dynamodb.Set([expectedUserId], 'S'),
+                    ':nameOfTeam': expectedCurrentTeamToBeUnregisteredFrom.teamName,
+                    ':updatedRole': {},
+                }
+            };
+
+            let addParams = {
+                UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
+                ExpressionAttributeValues: {
+                    ':playerName': dynamodb.Set([expectedUserId], 'S'),
+                    ':updatedRole': expectedRegisteredTeam.playersWRoles
+                }
+            };
+
+            return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
+                expectedUserRole,
+                expectedUserServerName,
+                expectedUserTournaments,
+                expectedTeamName).then(registeredTeam => {
+                expect(registeredTeam).toBeTruthy();
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedCurrentTeamToBeUnregisteredFrom.key}, unregisterParams, expect.any(Function));
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedCurrentTeamToBeRegisteredTo.key}, addParams, expect.any(Function));
+                expect(registeredTeam).toEqual(expectedRegisteredTeam);
+            });
         })
     })
-
-})
-
-describe('Register Specific Team - v2', () => {
-
-    test('When a specific Team is passed. A user should pass their id, role, serverName, teamName, and ' +
-        'Tournament to join with and should be successfully joined.', () => {
-        const expectedUserId = '1';
-        const expectedUserRole = 'Top';
-        const expectedUserServerName = 'Goon Squad';
-        const expectedTeamName = 'Abomasnow';
-        const expectedUserTournaments = createMockListOfTournaments(2);
-        const expectedVersion = 2;
-        let foundTeam = {
-            Items: [{
-                attrs: {
-                    key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
-                        expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
-                    version: expectedVersion,
-                    teamName: `Team ${expectedTeamName}`,
-                    serverName: expectedUserServerName,
-                    players: [],
-                    playersWRoles: {},
-                    tournamentName: expectedUserTournaments[0].tournamentName,
-                    tournamentDay: expectedUserTournaments[0].tournamentDay,
-                    startTime: expectedUserTournaments[0].startTime
-                }
-            }]
-        };
-        let expectedRegisteredTeam = {
-            key: clashTeamsDbImpl.getKey(`Team ${expectedTeamName}`, expectedUserServerName,
-                expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
-            version: expectedVersion,
-            teamName: `Team ${expectedTeamName}`,
-            serverName: expectedUserServerName,
-            playersWRoles: {
-                Top: expectedUserId
-            },
-            players: [expectedUserId],
-            tournamentName: expectedUserTournaments[0].tournamentName,
-            tournamentDay: expectedUserTournaments[0].tournamentDay,
-            startTime: expectedUserTournaments[0].startTime
-        };
-
-        clashTeamsDbImpl.Team = {
-            exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([foundTeam])),
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            update: jest.fn().mockImplementation((key, params, callback) =>
-                callback(undefined, {attrs: expectedRegisteredTeam}))
-        };
-
-        let addParams = {
-            UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
-            ExpressionAttributeValues: {
-                ':playerName': dynamodb.Set([expectedUserId], 'S'),
-                ':updatedRole': expectedRegisteredTeam.playersWRoles
-            }
-        };
-
-        return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
-            expectedUserRole,
-            expectedUserServerName,
-            expectedUserTournaments,
-            expectedTeamName).then(registeredTeam => {
-            expect(registeredTeam).toBeTruthy();
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedRegisteredTeam.key}, addParams, expect.any(Function));
-            expect(registeredTeam).toEqual(expectedRegisteredTeam);
-        });
-    })
-
-    test('When a specific Team is passed and they belong to a team during the same tournament. A user should pass their ' +
-        'id, role, serverName, teamName, and Tournament to join with and should be successfully joined and be ' +
-        'unregistered from their other team.', () => {
-        const expectedUserId = '1';
-        const expectedUserRole = 'Top';
-        const expectedUserServerName = 'Goon Squad';
-        const expectedTeamName = 'Abomasnow';
-        const expectedUserTournaments = createMockListOfTournaments(2);
-        const expectedVersion = 2;
-        const expectedCurrentTeamToBeRegisteredTo = buildMockTeamV2(expectedUserServerName, [expectedUserId],
-            {}, expectedUserTournaments[0], `Team ${expectedTeamName}`)
-        const expectedCurrentTeamToBeUnregisteredFrom = buildMockTeamV2(expectedTeamName, [expectedUserId],
-            {Top: expectedUserId}, expectedUserTournaments[0], 'Team Abra')
-        let foundTeam = {
-            Items: [{
-                attrs: expectedCurrentTeamToBeRegisteredTo
-            },
-                {
-                    attrs: expectedCurrentTeamToBeUnregisteredFrom
-                }]
-        };
-        let expectedRegisteredTeam = {
-            key: clashTeamsDbImpl.getKey(`Team ${expectedUserServerName}`, expectedUserServerName,
-                expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
-            version: expectedVersion,
-            teamName: `Team ${expectedUserServerName}`,
-            serverName: expectedUserServerName,
-            playersWRoles: {
-                Top: expectedUserId
-            },
-            players: [expectedUserId],
-            tournamentName: expectedUserTournaments[0].tournamentName,
-            tournamentDay: expectedUserTournaments[0].tournamentDay,
-            startTime: expectedUserTournaments[0].startTime
-        };
-
-        clashTeamsDbImpl.Team = {
-            exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects([foundTeam])),
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            update: jest.fn().mockImplementationOnce((key, params, callback) => callback(null))
-                .mockImplementationOnce((key, params, callback) => callback(undefined,
-                    {attrs: expectedRegisteredTeam}))
-        };
-
-        let unregisterParams = {
-            UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole',
-            ConditionExpression: 'teamName = :nameOfTeam',
-            ExpressionAttributeValues: {
-                ':playerName': dynamodb.Set([expectedUserId], 'S'),
-                ':nameOfTeam': expectedCurrentTeamToBeUnregisteredFrom.teamName,
-                ':updatedRole': {},
-            }
-        };
-
-        let addParams = {
-            UpdateExpression: 'ADD players :playerName SET playersWRoles = :updatedRole',
-            ExpressionAttributeValues: {
-                ':playerName': dynamodb.Set([expectedUserId], 'S'),
-                ':updatedRole': expectedRegisteredTeam.playersWRoles
-            }
-        };
-
-        return clashTeamsDbImpl.registerWithSpecificTeamV2(expectedUserId,
-            expectedUserRole,
-            expectedUserServerName,
-            expectedUserTournaments,
-            expectedTeamName).then(registeredTeam => {
-            expect(registeredTeam).toBeTruthy();
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedCurrentTeamToBeUnregisteredFrom.key}, unregisterParams, expect.any(Function));
-            expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({key: expectedCurrentTeamToBeRegisteredTo.key}, addParams, expect.any(Function));
-            expect(registeredTeam).toEqual(expectedRegisteredTeam);
-        });
-    })
-
 })
 
 describe('Is Player on Team v2', () => {
@@ -2400,7 +2449,7 @@ describe('Unregister Player v2', () => {
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
                     players: ['Player1'],
-                    playersWRoles: { 'Top': 'Player1'},
+                    playersWRoles: {'Top': 'Player1'},
                     tournamentName: 'msi2021',
                     tournamentDay: '1'
                 }
@@ -2464,17 +2513,17 @@ describe('Unregister Player v2', () => {
 
         return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server', leagueTimes)
             .then((data) => {
-            expect(data).toBeTruthy();
-            expect(clashTeamsDbImpl.Team.update).toBeCalledWith({key: key}, {
-                ExpressionAttributeValues: {
-                    ':playerName': expectedPlayers,
-                    ':nameOfTeam': 'Team Sample',
-                    ':updatedRole': updatedRoleToPlayerMap
-                },
-                ConditionExpression: 'teamName = :nameOfTeam',
-                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
-            }, expect.any(Function));
-        })
+                expect(data).toBeTruthy();
+                expect(clashTeamsDbImpl.Team.update).toBeCalledWith({key: key}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers,
+                        ':nameOfTeam': 'Team Sample',
+                        ':updatedRole': updatedRoleToPlayerMap
+                    },
+                    ConditionExpression: 'teamName = :nameOfTeam',
+                    UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
+                }, expect.any(Function));
+            })
     })
 
     test('I should remove a player from multiple teams if unregister is called and they belong to multiple teams ' +
@@ -2486,7 +2535,7 @@ describe('Unregister Player v2', () => {
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
                     players: ['Player1'],
-                    playersWRoles: { 'Top': 'Player1'},
+                    playersWRoles: {'Top': 'Player1'},
                     tournamentName: 'msi2021',
                     tournamentDay: '1'
                 }
@@ -2496,7 +2545,7 @@ describe('Unregister Player v2', () => {
                     teamName: 'Team Sample2',
                     serverName: 'Sample Server',
                     players: ['Player1'],
-                    playersWRoles: { 'Top': 'Player1'},
+                    playersWRoles: {'Top': 'Player1'},
                     tournamentName: 'msi2021',
                     tournamentDay: '2'
                 }
@@ -2605,7 +2654,7 @@ describe('Unregister Player v2', () => {
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
                     players: ['Player1'],
-                    playersWRoles: { 'Top': 'Player1'},
+                    playersWRoles: {'Top': 'Player1'},
                     tournamentName: 'msi2021',
                     tournamentDay: '1'
                 }
@@ -2615,7 +2664,7 @@ describe('Unregister Player v2', () => {
                     teamName: 'Team Sample2',
                     serverName: 'Sample Server',
                     players: ['Player1'],
-                    playersWRoles: { 'Top': 'Player1'},
+                    playersWRoles: {'Top': 'Player1'},
                     tournamentName: 'msi2021',
                     tournamentDay: '2'
                 }
@@ -2671,18 +2720,18 @@ describe('Unregister Player v2', () => {
 
         return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server', leagueTimes)
             .then((data) => {
-            expect(data).toBeTruthy();
-            expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(1);
-            expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([[{key: keyOne}, {
-                ExpressionAttributeValues: {
-                    ':playerName': expectedPlayers,
-                    ':nameOfTeam': 'Team Sample',
-                    ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
-                },
-                ConditionExpression: 'teamName = :nameOfTeam',
-                UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
-            }, expect.any(Function)]]);
-        })
+                expect(data).toBeTruthy();
+                expect(clashTeamsDbImpl.Team.update.mock.calls.length).toEqual(1);
+                expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([[{key: keyOne}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers,
+                        ':nameOfTeam': 'Team Sample',
+                        ':updatedRole': expectedUpdatedValues.Items[0].attrs.playersWRoles
+                    },
+                    ConditionExpression: 'teamName = :nameOfTeam',
+                    UpdateExpression: 'DELETE players :playerName SET playersWRoles = :updatedRole'
+                }, expect.any(Function)]]);
+            })
     })
 
     test('I should not remove a player from a team if unregister is called and they do not exist on a team. - v2', () => {
@@ -2733,10 +2782,10 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player2','Sample Server', leagueTimes)
+        return clashTeamsDbImpl.deregisterPlayerV2('Player2', 'Sample Server', leagueTimes)
             .then((data) => {
-            expect(data).toEqual([]);
-        })
+                expect(data).toEqual([]);
+            })
     })
 
     test('I should not remove a player from a team if unregister is called and they do not exist on a team with ' +
@@ -2788,7 +2837,7 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return clashTeamsDbImpl.deregisterPlayerV2('Player1','Sample Server',
+        return clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server',
             leagueTimes).then((data) => {
             expect(data).toEqual([]);
         })
@@ -2843,7 +2892,7 @@ describe('Unregister Player v2', () => {
             })
         }
 
-        return expect(clashTeamsDbImpl.deregisterPlayerV2('Player1','Sample Server',
+        return expect(clashTeamsDbImpl.deregisterPlayerV2('Player1', 'Sample Server',
             leagueTimes)).rejects.toMatch('Failed to update.');
     })
 

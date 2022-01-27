@@ -261,13 +261,16 @@ class ClashTeamsDbImpl {
             this.getTeamsV2(serverName).then((teams) => {
                 teams = teams.filter(team => team.tournamentName === tournament[0].tournamentName
                     && team.tournamentDay === tournament[0].tournamentDay);
-                let foundTeam = teams.find(team => team.key === this.getKey(`Team ${teamName}`, serverName,
-                    tournament[0].tournamentName, tournament[0].tournamentDay));
+                let key = this.getKey(`Team ${teamName}`, serverName,
+                    tournament[0].tournamentName, tournament[0].tournamentDay)
+                let foundTeam = teams.find(team => team.key === key
+                    && ((team.playersWRoles && !team.playersWRoles[role]) || !team.playersWRoles));
                 let currentTeam = teams.find(team => this.isPlayerIsOnTeamV2(id, team));
-                console.log(`V2 - Team to be assigned to : ('${foundTeam.key}')...`);
                 if (!foundTeam) {
+                    console.log(`V2 - Error - ('${key}') - Unable to join Team due to either dne or role is taken.`)
                     resolve(foundTeam);
                 }
+                console.log(`V2 - Team to be assigned to : ('${foundTeam.key}')...`);
                 let callback = (err, data) => {
                     if (err) reject(err);
                     else {
