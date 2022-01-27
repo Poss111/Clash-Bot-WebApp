@@ -192,6 +192,12 @@ class ClashTeamsDbImpl {
                         }
                     }
 
+                    let availableTeamForRole;
+                    if (teamForTournaments.availableTeams) {
+                        availableTeamForRole = teamForTournaments.availableTeams
+                            .find(team => team.playersWRoles && !team.playersWRoles[role]);
+                    }
+
                     // If user wants to createNew and an undefined Team is available
                     if (createNew && teamToModify) {
                         teamToModify.players = [id];
@@ -201,7 +207,7 @@ class ClashTeamsDbImpl {
                         this.Team.update(teamToModify, updatedCallback);
                     }
                     // If user wants to createNew and no undefined Team to join
-                    else if (createNew) {
+                    else if (createNew && !availableTeamForRole) {
                         let nextTeamIndex = teamsToTournaments.length + 1;
                         if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
                             nextTeamIndex = 0;
@@ -210,13 +216,9 @@ class ClashTeamsDbImpl {
                     }
                     // If user wants to join an existing Team regardless of players
                     else {
-                        if (Array.isArray(teamForTournaments.availableTeams)
-                            && teamForTournaments.availableTeams.length > 0) {
-                            console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams.length}').`);
-                            teamToModify = teamForTournaments.availableTeams[0];
-                            console.log(`V2 - Adding User ('${id}') to existing Team ('${teamToModify.teamName}')...`)
-                            this.addUserToTeamV2(id, role, teamToModify, updatedCallback);
-                        }
+                        console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams.length}').`);
+                        console.log(`V2 - Adding User ('${id}') to existing Team ('${availableTeamForRole.teamName}')...`)
+                        this.addUserToTeamV2(id, role, availableTeamForRole, updatedCallback);
                     }
                 }
             });

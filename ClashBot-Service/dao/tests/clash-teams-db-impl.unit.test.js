@@ -1277,7 +1277,7 @@ describe('Register Player', () => {
             };
 
             return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
-                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+                expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith(expectedRegisteredTeam, expect.any(Function));
                 expect(registeredTeam).toEqual(expectedRegisteredTeam);
@@ -1311,7 +1311,7 @@ describe('Register Player', () => {
                 key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
                     expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
                 version: expectedVersion,
-                teamName: expectedTeamName,
+                teamName: 'Team Abra',
                 serverName: expectedUserServerName,
                 playersWRoles: {
                   'Top': '2'
@@ -1327,13 +1327,13 @@ describe('Register Player', () => {
                 filterExpression: jest.fn().mockReturnThis(),
                 expressionAttributeValues: jest.fn().mockReturnThis(),
                 expressionAttributeNames: jest.fn().mockReturnThis(),
-                update: jest.fn().mockImplementation((key, params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
+                update: jest.fn().mockImplementation((params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
             };
 
             return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
-                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
-                expect(clashTeamsDbImpl.Team.update).not.toHaveBeenCalled();
-                expect(registeredTeam).toBeFalsy();
+                expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
+                expect(clashTeamsDbImpl.Team.update).toHaveBeenCalled();
+                expect(registeredTeam).toEqual(expectedRegisteredTeam);
             });
         })
 
@@ -1380,7 +1380,7 @@ describe('Register Player', () => {
             }
 
             return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole, expectedUserServerName,
-                expectedUserTournaments).then(registeredTeam => {
+                expectedUserTournaments, true).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith(expectedRegisteredTeam, expect.any(Function));
@@ -1424,7 +1424,7 @@ describe('Register Player', () => {
             }
 
             return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
-                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+                expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith({ key: returnedPlayersReturnedTeam.key },
@@ -1484,7 +1484,7 @@ describe('Register Player', () => {
             };
 
             return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
-                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+                expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(registeredTeam).toBeTruthy();
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(2);
@@ -1557,7 +1557,8 @@ describe('Register Player', () => {
                 update: jest.fn().mockImplementation((params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
             }
 
-            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole, expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
+                expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).not.toHaveBeenCalled();
                 expect(registeredTeam).toBeFalsy();
