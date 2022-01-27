@@ -7,6 +7,7 @@ import {ClashBotGenericResponse} from "../interfaces/clash-bot-generic-response"
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {ClashBotTentativeDetails} from "../interfaces/clash-bot-tentative-details";
 import {ClashBotTentativeRequest} from "../interfaces/clash-bot-tentative-request";
+import {ClashBotUserRegister} from "../interfaces/clash-bot-user-register";
 
 describe('ClashBotService', () => {
   let service: ClashBotService;
@@ -344,7 +345,14 @@ describe('ClashBotService', () => {
           ]
         };
       const expectedRole = 'Top';
-      const teamRequest: ClashTeam = mockResponse;
+      let teamRequest: ClashBotUserRegister = {
+        teamName: 'Team Abra',
+        role: expectedRole,
+        tournamentDetails: {
+
+        },
+        serverName: 'Integration Server'
+      };
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',
@@ -400,7 +408,14 @@ describe('ClashBotService', () => {
           ]
         };
       const expectedRole = 'Top';
-      const teamRequest: ClashTeam = mockResponse;
+      let teamRequest: ClashBotUserRegister = {
+        teamName: 'Team Abra',
+        role: expectedRole,
+        tournamentDetails: {
+
+        },
+        serverName: 'Integration Server'
+      };
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',
