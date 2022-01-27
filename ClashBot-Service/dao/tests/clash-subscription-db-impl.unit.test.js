@@ -193,6 +193,36 @@ describe('Update preferred Champion', () => {
         });
     })
 
+    test('Should not be able to add more than 5 champions to the Users preferred champions.', () => {
+        let id = '12345667';
+        let championToAdd = 'Aatrox';
+        let server = 'TestServer';
+        let playerName = 'Sample User';
+        let initialData = {
+            key: id,
+            playerName: playerName,
+            preferredChampions: ['Akali', 'Aaniva', 'Katarina', 'Ahri', 'Volibear'],
+            subscribed: false,
+            serverName: server,
+            timeAdded: expect.any(String)
+        };
+        let expectedData = JSON.parse(JSON.stringify(initialData));
+        expectedData.preferredChampions = initialData.preferredChampions;
+        expectedData.timeAdded = expect.any(String);
+        expectedData.error = 'User has maximum preferred Champions. Cannot add.';
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            query: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation((callback) => {
+                callback(undefined, {Items: [{attrs: initialData}]});
+            }),
+            update: jest.fn()
+        };
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then(data => {
+            expect(data).toEqual(expectedData);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).not.toHaveBeenCalled();
+        });
+    })
+
     test('If the user is requesting to add a champion and the champion array is undefined, they should be able to still add.', () => {
         let id = '12345667';
         let server = 'TestServer';

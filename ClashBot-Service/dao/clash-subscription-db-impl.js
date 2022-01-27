@@ -79,20 +79,28 @@ class ClashSubscriptionDbImpl {
             this.retrieveUserDetails(id).then(userData => {
                 if (userData.key) {
                     console.log(`Updating user preferences id ('${id}') champions ('${champion}')`);
-
-                    if (Array.isArray(userData.preferredChampions) && userData.preferredChampions.includes(champion)) {
-                        userData.preferredChampions = userData.preferredChampions.filter(championName => championName !== champion);
+                    if (Array.isArray(userData.preferredChampions)
+                        && userData.preferredChampions.length === 5) {
+                        userData.error = 'User has maximum preferred Champions. Cannot add.';
+                        resolve(userData);
                     } else {
-                        Array.isArray(userData.preferredChampions) ? userData.preferredChampions.push(champion) : userData.preferredChampions = [champion];
-                    }
-
-                    this.clashSubscriptionTable.update(userData, (err, data) => {
-                        if (err) reject(err);
-                        else {
-                            console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
-                            resolve(data.attrs);
+                        if (Array.isArray(userData.preferredChampions)
+                            && userData.preferredChampions.includes(champion)) {
+                            userData.preferredChampions = userData.preferredChampions
+                                .filter(championName => championName !== champion);
+                        } else {
+                            Array.isArray(userData.preferredChampions) ? userData.preferredChampions.push(champion)
+                                : userData.preferredChampions = [champion];
                         }
-                    });
+
+                        this.clashSubscriptionTable.update(userData, (err, data) => {
+                            if (err) reject(err);
+                            else {
+                                console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
+                                resolve(data.attrs);
+                            }
+                        });
+                    }
                 } else {
                     console.log(`Creating user preferences id ('${id}') champions ('${champion}')`);
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
