@@ -70,12 +70,12 @@ describe('UserProfileComponent', () => {
           permissions_new: '0'
         }];
         let mockUserDetails: UserDetails = {
-          id: '12312321312',
+          id: 12312321312,
           username: 'Roidrage',
           discriminator: '12312312'
         };
         let mockClashBotUserDetails: ClashBotUserDetails = {
-          id: '12312321312',
+          id: 12312321312,
           username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
@@ -157,9 +157,9 @@ describe('UserProfileComponent', () => {
             permissions: 0,
             permissions_new: '0'
           }];
-          let mockUserDetails: UserDetails = {id: '', username: '', discriminator: ''};
+          let mockUserDetails: UserDetails = {id: 0, username: '', discriminator: ''};
           let mockClashBotUserDetails: ClashBotUserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
@@ -232,7 +232,7 @@ describe('UserProfileComponent', () => {
             permissions_new: '0'
           }];
           let mockUserDetails: UserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             discriminator: '12312312'
           };
@@ -308,7 +308,7 @@ describe('UserProfileComponent', () => {
             permissions_new: '0'
           }];
           let mockUserDetails: UserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             discriminator: '12312312'
           };
@@ -384,12 +384,12 @@ describe('UserProfileComponent', () => {
             permissions_new: '0'
           }];
           let mockUserDetails: UserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             discriminator: '12312312'
           };
           let mockClashBotUserDetails: ClashBotUserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
@@ -461,12 +461,12 @@ describe('UserProfileComponent', () => {
             permissions_new: '0'
           }];
           let mockUserDetails: UserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             discriminator: '12312312'
           };
           let mockClashBotUserDetails: ClashBotUserDetails = {
-            id: '12312321312',
+            id: 12312321312,
             username: 'Roidrage',
             serverName: 'Goon Squad',
             preferredChampions: ['Sett'],
@@ -535,12 +535,12 @@ describe('UserProfileComponent', () => {
           permissions_new: '0'
         }];
         let mockUserDetails: UserDetails = {
-          id: '12312321312',
+          id: 12312321312,
           username: 'Roidrage',
           discriminator: '12312312'
         };
         let mockClashBotUserDetails: ClashBotUserDetails = {
-          id: '12312321312',
+          id: 12312321312,
           username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
@@ -638,6 +638,58 @@ describe('UserProfileComponent', () => {
         expect(component.userDetailsForm.controls.preferredChampionsFC.setValue).toHaveBeenCalledWith([...component.preferredChampions]);
         expect(component.userDetailsForm.markAsDirty).toHaveBeenCalledTimes(1);
         expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
+      } else {
+        expect(true).toBeFalsy();
+      }
+    })
+
+    test('When I select an element from the champion auto complete, and the preferred champion list would then be ' +
+      'greater than 5 then do not add selected champion.', () => {
+      createComponent();
+      let mockMatAutoCompleteEvent = ({
+        option: {
+          viewValue: 'Sylas'
+        }
+      } as any);
+      component.championInput = {
+        nativeElement: {}
+      }
+      component.championAutoCompleteCtrl = ({
+        setValue: jest.fn()
+      } as any);
+      component.userDetailsForm = ({
+        controls: {
+          preferredChampionsFC: {
+            setValue: jest.fn()
+          },
+          subscribedDiscordDMFC: {
+            value: true
+          }
+        },
+        markAsDirty: jest.fn(),
+        markAsPristine: jest.fn()
+      } as any);
+      component.listOfChampions = [mockMatAutoCompleteEvent.option.viewValue];
+      component.preferredChampions.add('Ahri');
+      component.preferredChampions.add('Aatrox');
+      component.preferredChampions.add('Malphite');
+      component.preferredChampions.add('Anivia');
+      component.preferredChampions.add('Zed');
+      component.initialFormControlState = {
+        preferredChampionsFC: ['Ahri','Aatrox','Malphite','Anivia','Zed'],
+        subscribedDiscordDMFC: true
+      };
+      component.selected(mockMatAutoCompleteEvent);
+      expect(component.championInput.nativeElement.value).toEqual('');
+      expect(component.championInput.nativeElement.value).toEqual('');
+      expect(component.championAutoCompleteCtrl.setValue).toHaveBeenCalledWith(null);
+      expect(component.preferredChampions.has(mockMatAutoCompleteEvent.option.viewValue)).toBeFalsy();
+      expect(component.preferredChampions.size).toEqual(5);
+      if (component.userDetailsForm) {
+        expect(component.userDetailsForm.controls.preferredChampionsFC.setValue)
+          .toHaveBeenCalledWith([...component.preferredChampions]);
+        expect(component.userDetailsForm.markAsDirty).toHaveBeenCalledTimes(0);
+        expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
       } else {
         expect(true).toBeFalsy();
       }
@@ -805,12 +857,12 @@ describe('UserProfileComponent', () => {
           markAsPending: jest.fn()
         } as any);
         component.userDetails = {
-          id: '123321312',
+          id: 123321312,
           username: 'Roidrage',
           discriminator: '1232132131231'
         };
         let userDetailsResponse: ClashBotUserDetails = {
-          id: '12321',
+          id: 12321,
           username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],
@@ -860,7 +912,7 @@ describe('UserProfileComponent', () => {
           markAsPending: jest.fn()
         } as any);
         component.userDetails = {
-          id: '123321312',
+          id: 123321312,
           discriminator: '1232132131231',
           username: 'Roidrage'
         };
@@ -920,7 +972,7 @@ describe('UserProfileComponent', () => {
           markAsPending: jest.fn()
         } as any);
         component.userDetails = {
-          id: '123321312',
+          id: 123321312,
           discriminator: '1232132131231',
           username: 'Roidrage'
         };
@@ -931,7 +983,7 @@ describe('UserProfileComponent', () => {
           subscribedDiscordDMFC: true
         }
         let userDetailsResponse: ClashBotUserDetails = {
-          id: '12321',
+          id: 12321,
           username: 'Roidrage',
           serverName: 'Goon Squad',
           preferredChampions: ['Sett'],

@@ -111,7 +111,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   private syncChampionsList(value: string) {
-    if (this.listOfChampions.indexOf(value) > -1) {
+    if (this.listOfChampions.indexOf(value) > -1 && this.preferredChampions.size < 5) {
       this.listOfChampions.splice(this.listOfChampions.indexOf(value), 1);
       this.listOfChampions.sort();
       this.preferredChampions.add(value);
