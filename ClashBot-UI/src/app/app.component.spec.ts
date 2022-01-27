@@ -114,7 +114,7 @@ describe('AppComponent', () => {
 
       let mockUserDetails: UserDetails = {
         username: '',
-        id: '',
+        id: 0,
         discriminator: ''
       };
       let mockApplicationDetails: ApplicationDetails = {
@@ -124,7 +124,7 @@ describe('AppComponent', () => {
 
       let mockUserDetailsPopulated: UserDetails = {
         username: 'Roidrage',
-        id: '1',
+        id: 1,
         discriminator: '131232131'
       };
       let mockApplicationDetailsPopulated: ApplicationDetails = {

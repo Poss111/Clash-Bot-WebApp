@@ -17,7 +17,7 @@ describe('UserDetailsService', () => {
 
   test('When setUserDetails is set, it should emit to the User Details subject.', () => {
     let mockUser: UserDetails = {
-      discriminator: "321", id: "123", username: "Test"
+      discriminator: "321", id: 123, username: "Test"
     };
     service.user.subscribe((data) => {
       expect(data).toEqual(mockUser);

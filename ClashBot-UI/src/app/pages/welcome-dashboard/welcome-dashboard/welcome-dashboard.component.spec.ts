@@ -473,7 +473,7 @@ function createMockTournaments() {
 
 function createMockUser() {
   return {
-    "id": "299370234228506627",
+    id: 299370234228506627,
     "username": "Roïdräge",
     "avatar": "4393f322cfd8882c2d74648ad321c1eb",
     "discriminator": "2657",
@@ -487,7 +487,7 @@ function createMockUser() {
   };
 }
 
-function createMockClashBotUser(mockUser: { banner_color: string; accent_color: number; flags: number; banner: null; mfa_enabled: boolean; id: string; avatar: string; public_flags: number; locale: string; username: string; discriminator: string }) {
+function createMockClashBotUser(mockUser: { banner_color: string; accent_color: number; flags: number; banner: null; mfa_enabled: boolean; id: number; avatar: string; public_flags: number; locale: string; username: string; discriminator: string }) {
   return {
     preferredChampions: [],
     username: 'Some User',
