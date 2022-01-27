@@ -165,7 +165,7 @@ export class TeamsDashboardComponent implements OnInit {
             this.teams = [{error: 'No data'}];
             this.eligibleTournaments = applicationDetails.currentTournaments;
           } else {
-            let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
+            let map = this.createUserToTournamentMap(userDetails.id, applicationDetails.currentTournaments, this.teams);
             let newEligibleTournaments: ClashTournaments[] = [];
             map.forEach((value, key) => {
               if (!value) {
@@ -284,15 +284,21 @@ export class TeamsDashboardComponent implements OnInit {
       });
   }
 
-  createUserToTournamentMap(loggedInUser: string, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
+  createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
     let tournamentToTeamUserMap = new Map<ClashTournaments, any>();
     clashTournaments.forEach((tournament) =>
-      tournamentToTeamUserMap.set(tournament, clashTeams.find(team => team.tournamentDetails
-        && team.tournamentDetails.tournamentName === tournament.tournamentName
-        && team.tournamentDetails.tournamentDay === tournament.tournamentDay
-        && team.playersDetails
-        && team.playersDetails.length == 1
-        && team.playersDetails.find(user => user.name === loggedInUser))));
+      tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {
+          let reducedMap;
+          if (team.playersDetails) {
+              reducedMap = new Set(team.playersDetails.map(object => object.id));
+          }
+          return team.tournamentDetails
+              && team.tournamentDetails.tournamentName === tournament.tournamentName
+              && team.tournamentDetails.tournamentDay === tournament.tournamentDay
+              && reducedMap
+              && reducedMap.size === 2
+              && reducedMap.has(currentUserId)
+      })));
     return tournamentToTeamUserMap;
   }
 
