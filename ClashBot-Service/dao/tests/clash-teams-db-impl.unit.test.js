@@ -1284,6 +1284,59 @@ describe('Register Player', () => {
             });
         })
 
+        test('When I register a player with a team that has an existing playersWRoles attribute, role, server, ' +
+            'and tournament, it should not allow me to join a role that is already taken.', () => {
+            const expectedUserId = '1';
+            const expectedUserRole = 'Top';
+            const expectedUserServerName = 'Goon Squad';
+            const expectedTeamName = 'Team Abomasnow';
+            const expectedUserTournaments = createMockListOfTournaments(2);
+            const expectedVersion = 2;
+            let expectedRegisteredTeam = {
+                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                version: expectedVersion,
+                teamName: expectedTeamName,
+                serverName: expectedUserServerName,
+                playersWRoles: {
+                    Top: expectedUserId
+                },
+                players: [expectedUserId],
+                tournamentName: expectedUserTournaments[0].tournamentName,
+                tournamentDay: expectedUserTournaments[0].tournamentDay,
+                startTime: expectedUserTournaments[0].startTime
+            };
+
+            let expectedPlayersReturnedTeam = {
+                key: clashTeamsDbImpl.getKey(expectedTeamName, expectedUserServerName,
+                    expectedUserTournaments[0].tournamentName, expectedUserTournaments[0].tournamentDay),
+                version: expectedVersion,
+                teamName: expectedTeamName,
+                serverName: expectedUserServerName,
+                playersWRoles: {
+                  'Top': '2'
+                },
+                tournamentName: expectedUserTournaments[0].tournamentName,
+                tournamentDay: expectedUserTournaments[0].tournamentDay
+            };
+
+            clashTeamsDbImpl.Team = {
+                exec: jest.fn().mockImplementation(() => streamTest.v2.fromObjects(
+                    [{Items: [{attrs: expectedPlayersReturnedTeam}]}])),
+                scan: jest.fn().mockReturnThis(),
+                filterExpression: jest.fn().mockReturnThis(),
+                expressionAttributeValues: jest.fn().mockReturnThis(),
+                expressionAttributeNames: jest.fn().mockReturnThis(),
+                update: jest.fn().mockImplementation((key, params, callback) => callback(undefined, {attrs: expectedRegisteredTeam}))
+            };
+
+            return clashTeamsDbImpl.registerPlayerV2(expectedUserId, expectedUserRole,
+                expectedUserServerName, expectedUserTournaments).then(registeredTeam => {
+                expect(clashTeamsDbImpl.Team.update).not.toHaveBeenCalled();
+                expect(registeredTeam).toBeFalsy();
+            });
+        })
+
         test('When I register a player with a team that has an undefined playersWRoles attribute, role, server, ' +
             'and tournament, they should be successfully registered to version two of the team format.', () => {
             const expectedUserId = '1';
