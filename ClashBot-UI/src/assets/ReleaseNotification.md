@@ -3,10 +3,12 @@
 - Get your roles here!
     - We now have role assignment for your clash teams. Just move to the Team page, create a new Team and select a Role to join with. If there are existing teams you will be able to assign your self to any open roles.
     - Keep your eyes open for new functionality and good luck during your placements!
+- Bug Fix
+    - You are now only able to assign at most 5 preferred champions to your profile.
 
 # Release v4.3.0-c
 - Preseason Notification
-    1. Adding a notification to the main page to let users know that League is going into pre-season for preparation of Season 12. No Clash tournaments will be available until then so Clash Bot will not be able to schedule teams for Tournaments.
+    1. Adding a notification to the main page to let users know UI - hat League is going into pre-season for preparation of Season 12. No Clash tournaments will be available until then so Clash Bot will not be able to schedule teams for Tournaments.
 
 # Release v4.3.0-b
 - Technical Updates
