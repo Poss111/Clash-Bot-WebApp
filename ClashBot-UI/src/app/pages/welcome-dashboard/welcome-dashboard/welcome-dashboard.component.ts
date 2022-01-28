@@ -50,7 +50,7 @@ export class WelcomeDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     if (localStorage.getItem('version') !== environment.version) {
-        this.matDialog.open(ReleaseNotificationDialogComponent);
+        this.matDialog.open(ReleaseNotificationDialogComponent, { autoFocus: false });
         localStorage.setItem('version', environment.version);
     }
     this.clashBotService.getClashTournaments()

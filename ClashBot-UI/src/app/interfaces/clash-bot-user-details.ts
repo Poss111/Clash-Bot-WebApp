@@ -1,5 +1,5 @@
 export interface ClashBotUserDetails {
-  id: string,
+  id: number,
   username: string,
   serverName: string,
   preferredChampions: string[],

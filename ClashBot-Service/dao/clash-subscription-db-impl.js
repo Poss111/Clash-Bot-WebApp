@@ -79,20 +79,28 @@ class ClashSubscriptionDbImpl {
             this.retrieveUserDetails(id).then(userData => {
                 if (userData.key) {
                     console.log(`Updating user preferences id ('${id}') champions ('${champion}')`);
-
-                    if (Array.isArray(userData.preferredChampions) && userData.preferredChampions.includes(champion)) {
-                        userData.preferredChampions = userData.preferredChampions.filter(championName => championName !== champion);
+                    if (Array.isArray(userData.preferredChampions)
+                        && userData.preferredChampions.length === 5) {
+                        userData.error = 'User has maximum preferred Champions. Cannot add.';
+                        resolve(userData);
                     } else {
-                        Array.isArray(userData.preferredChampions) ? userData.preferredChampions.push(champion) : userData.preferredChampions = [champion];
-                    }
-
-                    this.clashSubscriptionTable.update(userData, (err, data) => {
-                        if (err) reject(err);
-                        else {
-                            console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
-                            resolve(data.attrs);
+                        if (Array.isArray(userData.preferredChampions)
+                            && userData.preferredChampions.includes(champion)) {
+                            userData.preferredChampions = userData.preferredChampions
+                                .filter(championName => championName !== champion);
+                        } else {
+                            Array.isArray(userData.preferredChampions) ? userData.preferredChampions.push(champion)
+                                : userData.preferredChampions = [champion];
                         }
-                    });
+
+                        this.clashSubscriptionTable.update(userData, (err, data) => {
+                            if (err) reject(err);
+                            else {
+                                console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
+                                resolve(data.attrs);
+                            }
+                        });
+                    }
                 } else {
                     console.log(`Creating user preferences id ('${id}') champions ('${champion}')`);
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
@@ -135,27 +143,33 @@ class ClashSubscriptionDbImpl {
 
     createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed) {
         return new Promise((resolve, reject) => {
-            const dateFormat = 'MMMM DD yyyy hh:mm a z';
-            const timeZone = 'America/Los_Angeles';
-            moment.tz.setDefault(timeZone);
-            let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
-            if (subscribed) {
-                subscription.subscribed = JSON.stringify(subscribed);
+            if (preferredChampions && preferredChampions.length > 5) {
+                resolve({error :'Cannot persist more than 5 champions.'});
+            } else {
+                const dateFormat = 'MMMM DD yyyy hh:mm a z';
+                const timeZone = 'America/Los_Angeles';
+                moment.tz.setDefault(timeZone);
+                let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
+                if (subscribed) {
+                    subscription.subscribed = JSON.stringify(subscribed);
+                }
+                this.createUser(subscription, reject, resolve);
             }
-            this.createUser(subscription, reject, resolve);
-        })
+        });
     }
 
     retrievePlayerNames(ids) {
-        return new Promise((resolve => {
-            if (!ids || ids.length < 1) {
+        return new Promise((resolve, reject) => {
+            if (!ids || ids.length < 1 || ids[0] === undefined) {
                 resolve({});
             } else {
+                console.log(`Retrieving names for ids ('${ids}')...`)
                 this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
+                    if (err) reject(err);
                     resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {}));
                 });
             }
-        }))
+        });
     }
 
     retrieveAllUserDetails(ids) {

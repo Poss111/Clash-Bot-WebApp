@@ -19,7 +19,6 @@ class ClashTentativeServiceImpl {
         return mappedApiResponse;
     }
 
-
     handleTentativeRequest(id, serverName, tournamentName, tournamentDay) {
         return new Promise((resolve, reject) => {
             clashTentativeDbImpl.isTentative(id, serverName, {
@@ -29,6 +28,35 @@ class ClashTentativeServiceImpl {
                 .then(isTentativeResults => {
                     if (!isTentativeResults.onTentative) {
                         clashTeamsServiceImpl.unregisterFromTeam(id, serverName, tournamentName, tournamentDay)
+                            .then(() => {
+                                clashTentativeDbImpl.addToTentative(id, serverName, {
+                                    tournamentName: tournamentName,
+                                    tournamentDay: tournamentDay
+                                }, isTentativeResults.tentativeList)
+                                    .then((addTentativeDbResponse) => {
+                                        resolve(this.mapToApiResponse(addTentativeDbResponse))
+                                    }).catch(reject);
+                            }).catch(reject);
+                    } else {
+                        clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
+                            .then((removeTentativeDbResponse) => {
+                                resolve(this.mapToApiResponse(removeTentativeDbResponse))
+                            }).catch(reject);
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    handleTentativeRequestV2(id, serverName, tournamentName, tournamentDay) {
+        return new Promise((resolve, reject) => {
+            clashTentativeDbImpl.isTentative(id, serverName, {
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+            })
+                .then(isTentativeResults => {
+                    if (!isTentativeResults.onTentative) {
+                        clashTeamsServiceImpl.unregisterFromTeamV2(id, serverName, tournamentName, tournamentDay)
                             .then(() => {
                                 clashTentativeDbImpl.addToTentative(id, serverName, {
                                     tournamentName: tournamentName,

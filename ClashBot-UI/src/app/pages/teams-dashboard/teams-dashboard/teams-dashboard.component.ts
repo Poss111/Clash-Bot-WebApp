@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ClashTeam} from "../../../interfaces/clash-team";
+import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {throwError} from "rxjs";
-import {FormControl} from "@angular/forms";
+import {FormControl, FormGroup} from "@angular/forms";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
@@ -19,6 +19,7 @@ import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
+import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -26,6 +27,8 @@ import {MatTable} from "@angular/material/table";
   styleUrls: ['./teams-dashboard.component.scss']
 })
 export class TeamsDashboardComponent implements OnInit {
+  roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
+  rolesAsString: string[] = Object.keys(this.roles);
   teams: ClashTeam[] = [];
   teamFilters: TeamFilter[] = [];
   color: any;
@@ -33,7 +36,9 @@ export class TeamsDashboardComponent implements OnInit {
   value: any;
   showSpinner: boolean;
   formControl?: FormControl;
-  createNewTeamFormControl = new FormControl();
+  createNewTeamFormGroup: FormGroup;
+  tournamentControl: FormControl = new FormControl('');
+  roleControl: FormControl = new FormControl('');
   private readonly MAX_TIMEOUT = 4000;
   eligibleTournaments: ClashTournaments[] = [];
   creatingNewTeam: boolean;
@@ -51,6 +56,10 @@ export class TeamsDashboardComponent implements OnInit {
               private dialog: MatDialog) {
     this.showSpinner = false;
     this.creatingNewTeam = false;
+    this.createNewTeamFormGroup = new FormGroup({
+      tournament: this.tournamentControl,
+      role: this.roleControl
+    })
   }
 
   ngOnInit(): void {
@@ -156,7 +165,7 @@ export class TeamsDashboardComponent implements OnInit {
             this.teams = [{error: 'No data'}];
             this.eligibleTournaments = applicationDetails.currentTournaments;
           } else {
-            let map = this.createUserToTournamentMap(userDetails.username, applicationDetails.currentTournaments, this.teams);
+            let map = this.createUserToTournamentMap(userDetails.id, applicationDetails.currentTournaments, this.teams);
             let newEligibleTournaments: ClashTournaments[] = [];
             map.forEach((value, key) => {
               if (!value) {
@@ -171,13 +180,30 @@ export class TeamsDashboardComponent implements OnInit {
 
   private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {
     return data.map(record => {
-      record.id = `${record.serverName}-${record.teamName}`.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
-      record.userOnTeam = record.playersDetails && record.playersDetails.find(value => value.name === userDetails.username) !== undefined;
+      record.id = `${record.serverName}-${record.teamName}`
+        .replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+      let rolesMissing: string[] = [...Object.keys(this.roles)];
+      if (record.playersDetails) {
+        record.playersDetails.map((record) => {
+          record.isUser = record.id === userDetails.id;
+          rolesMissing = rolesMissing.filter(role => role !== record.role);
+          return record;
+        });
+      }
+      if (!Array.isArray(record.playersDetails)
+        || record.playersDetails.length === 0) {
+        record.playersDetails = [];
+      }
+      for (let role in rolesMissing) {
+        record.playersDetails.push({name: '', id: 0, isUser: false, role: rolesMissing[role]});
+      }
+      record.playersDetails.sort((a: PlayerDetails, b: PlayerDetails) =>
+        this.roles[a.role] - this.roles[b.role] || a.role.localeCompare(b.role));
       return record;
     });
   }
 
-  registerForTeam($event: ClashTeam) {
+  registerForTeam($event: ClashBotUserRegister) {
     this.userDetailsService.getUserDetails()
       .pipe(take(1))
       .subscribe((userDetails) => {
@@ -258,15 +284,21 @@ export class TeamsDashboardComponent implements OnInit {
       });
   }
 
-  createUserToTournamentMap(loggedInUser: string, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
+  createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
     let tournamentToTeamUserMap = new Map<ClashTournaments, any>();
     clashTournaments.forEach((tournament) =>
-      tournamentToTeamUserMap.set(tournament, clashTeams.find(team => team.tournamentDetails
-        && team.tournamentDetails.tournamentName === tournament.tournamentName
-        && team.tournamentDetails.tournamentDay === tournament.tournamentDay
-        && team.playersDetails
-        && team.playersDetails.length == 1
-        && team.playersDetails.find(user => user.name === loggedInUser))));
+      tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {
+          let reducedMap;
+          if (team.playersDetails) {
+              reducedMap = new Set(team.playersDetails.map(object => object.id));
+          }
+          return team.tournamentDetails
+              && team.tournamentDetails.tournamentName === tournament.tournamentName
+              && team.tournamentDetails.tournamentDay === tournament.tournamentDay
+              && reducedMap
+              && reducedMap.size === 2
+              && reducedMap.has(currentUserId)
+      })));
     return tournamentToTeamUserMap;
   }
 
@@ -281,42 +313,61 @@ export class TeamsDashboardComponent implements OnInit {
 
   createNewTeam(element: MatOption) {
     element.select();
-    let split = this.createNewTeamFormControl.value.split(' ');
-    let tournamentName = split[0];
-    let tournamentDay = split[1];
-    let clashTournaments = this.eligibleTournaments.find(tournament => tournament.tournamentName === tournamentName && tournament.tournamentDay === tournamentDay);
+    let role = this.roleControl.value;
+    let tournamentName = '';
+    let tournamentDay = '';
+    let clashTournaments: ClashTournaments | undefined;
+    if (this.tournamentControl.value) {
+      let split = this.tournamentControl.value.split(' ');
+      tournamentName = split[0];
+      tournamentDay = split[1];
+      clashTournaments = this.eligibleTournaments.find(tournament =>
+        tournament.tournamentName === tournamentName
+        && tournament.tournamentDay === tournamentDay);
+    }
     let serverName = '';
     if (this.formControl) {
       serverName = this.formControl.value.trimLeft().trimRight();
     }
-    element.deselect();
-    this.userDetailsService.getUserDetails()
-      .pipe(take(1))
-      .subscribe((userDetails) => {
-        this.clashBotService.createNewTeam(userDetails, {
-          serverName: serverName,
-          tournamentDetails: {
-            tournamentName: tournamentName,
-            tournamentDay: tournamentDay
-          },
-          startTime: clashTournaments?.startTime
-        }).pipe(
-          take(1),
-          finalize(() => {
-            if (serverName) {
-              this.showSpinner = true;
-              this.clashBotService.getClashTeams(serverName)
-                .pipe(
-                  take(1),
-                  timeout(this.MAX_TIMEOUT),
-                  catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
-                  finalize(() => this.showSpinner = false))
-                .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
-            }
-          }))
-          .subscribe(() => console.log('Successfully created new team.'));
-      })
-    this.creatingNewTeam = false;
+    if (role && tournamentName && tournamentDay) {
+      element.deselect();
+      this.userDetailsService.getUserDetails()
+        .pipe(take(1))
+        .subscribe((userDetails) => {
+          this.clashBotService.createNewTeam(userDetails, {
+              serverName: serverName,
+              tournamentDetails: {
+                tournamentName: tournamentName,
+                tournamentDay: tournamentDay
+              },
+              startTime: clashTournaments?.startTime
+            },
+            role).pipe(
+            catchError((err) => {
+              console.error(err);
+              this._snackBar.open('You are not able to create a new Team. Please try again later.',
+                'X',
+                {duration: 5 * 1000});
+              this.teams = [{error: err.message}];
+              return throwError(err);
+            }),
+            take(1),
+            finalize(() => {
+              if (serverName) {
+                this.showSpinner = true;
+                this.clashBotService.getClashTeams(serverName)
+                  .pipe(
+                    take(1),
+                    timeout(this.MAX_TIMEOUT),
+                    catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
+                    finalize(() => this.showSpinner = false))
+                  .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
+              }
+            }))
+            .subscribe(() => console.log('Successfully created new team.'));
+        })
+      this.creatingNewTeam = false;
+    }
   }
 
   showHelpDialog() {
@@ -334,7 +385,7 @@ export class TeamsDashboardComponent implements OnInit {
         .pipe(take(1))
         .subscribe((userDetails) => {
           if (result) {
-            this.clashBotService.postTentativeList(userDetails.id, element.serverName,
+            this.clashBotService.postTentativeList(`${userDetails.id}`, element.serverName,
               element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)
               .pipe(take(1),
                 catchError(err => {
@@ -345,15 +396,15 @@ export class TeamsDashboardComponent implements OnInit {
                   return throwError(err);
                 })
               ).subscribe((response) => {
-                response.isMember = response.tentativePlayers.includes(userDetails.username);
-                if (this.tentativeList) {
-                  this.tentativeList[index] = response;
-                  if (this.table) this.table.renderRows();
-                }
-                if (this.formControl) {
-                  this.filterForTeamsByServer(this.formControl.value);
-                }
-              });
+              response.isMember = response.tentativePlayers.includes(userDetails.username);
+              if (this.tentativeList) {
+                this.tentativeList[index] = response;
+                if (this.table) this.table.renderRows();
+              }
+              if (this.formControl) {
+                this.filterForTeamsByServer(this.formControl.value);
+              }
+            });
           }
         })
     })

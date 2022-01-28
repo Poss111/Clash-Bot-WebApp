@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClashTeam} from "../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 
 @Component({
   selector: 'app-team-card',
@@ -14,7 +15,7 @@ export class TeamCardComponent implements OnInit {
   team: ClashTeam = {};
 
   @Output()
-  registerUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+  registerUser: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
 
   @Output()
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
@@ -38,17 +39,29 @@ export class TeamCardComponent implements OnInit {
     }
   }
 
-  registerToTeam() {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: { message: 'Are you sure you want to register to this Team?'}});
+  registerToTeam(role?: string) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent,
+      {data: { message: `Are you sure you want to register to this Team as ${role}?`}});
+    console.log(this.team.teamName + " -> " + role);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.registerUser.emit(this.team);
+        const clashBotUserRegister: ClashBotUserRegister = {
+          role: role,
+          teamName: this.team.teamName,
+          serverName: this.team.serverName,
+          tournamentDetails: {
+            tournamentName: this.team.tournamentDetails?.tournamentName,
+            tournamentDay: this.team.tournamentDetails?.tournamentDay,
+          }
+        };
+        this.registerUser.emit(clashBotUserRegister);
       }
     })
   }
 
   unregisterFromTeam() {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: { message: 'Are you sure you want to unregister from this Team?'}});
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent,
+      {data: { message: 'Are you sure you want to unregister from this Team?'}});
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.unregisterUser.emit(this.team);

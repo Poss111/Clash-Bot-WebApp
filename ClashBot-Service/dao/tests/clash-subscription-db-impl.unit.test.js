@@ -193,6 +193,36 @@ describe('Update preferred Champion', () => {
         });
     })
 
+    test('Should not be able to add more than 5 champions to the Users preferred champions.', () => {
+        let id = '12345667';
+        let championToAdd = 'Aatrox';
+        let server = 'TestServer';
+        let playerName = 'Sample User';
+        let initialData = {
+            key: id,
+            playerName: playerName,
+            preferredChampions: ['Akali', 'Aaniva', 'Katarina', 'Ahri', 'Volibear'],
+            subscribed: false,
+            serverName: server,
+            timeAdded: expect.any(String)
+        };
+        let expectedData = JSON.parse(JSON.stringify(initialData));
+        expectedData.preferredChampions = initialData.preferredChampions;
+        expectedData.timeAdded = expect.any(String);
+        expectedData.error = 'User has maximum preferred Champions. Cannot add.';
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            query: jest.fn().mockReturnThis(),
+            exec: jest.fn().mockImplementation((callback) => {
+                callback(undefined, {Items: [{attrs: initialData}]});
+            }),
+            update: jest.fn()
+        };
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then(data => {
+            expect(data).toEqual(expectedData);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).not.toHaveBeenCalled();
+        });
+    })
+
     test('If the user is requesting to add a champion and the champion array is undefined, they should be able to still add.', () => {
         let id = '12345667';
         let server = 'TestServer';
@@ -405,6 +435,23 @@ describe('Create User Subscription', () => {
                 expect(data).toEqual(expectedResults);
             }).catch(err => expect(err).toBeFalsy());
     })
+
+    test('If a user tries to persist greater than 5 champions then an error should be returned.', () => {
+        let id = '123456789';
+        let server = 'Goon Squad';
+        let preferredChampions = ['Akali', 'Aatrox', 'Aanivia', 'Ahri', 'Annie', 'Miss Fortune'];
+        let subscribed = false;
+        let playerName = 'Sample User';
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            create: jest.fn()
+        };
+        return clashSubscriptionDbImpl
+            .createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed)
+            .then(data => {
+                expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).not.toHaveBeenCalled();
+                expect(data.error).toEqual('Cannot persist more than 5 champions.');
+            }).catch(err => expect(err).toBeFalsy());
+    })
 })
 
 describe('Update User', () => {
@@ -521,6 +568,17 @@ describe('Retrieve Usernames by ids', () => {
         };
 
         return clashSubscriptionDbImpl.retrievePlayerNames().then((usernames) => {
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+            expect(usernames).toEqual({});
+        })
+    })
+
+    test('If undefined in an array is passed, then it should return with an empty object.', () => {
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data))
+        };
+
+        return clashSubscriptionDbImpl.retrievePlayerNames([undefined]).then((usernames) => {
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
             expect(usernames).toEqual({});
         })

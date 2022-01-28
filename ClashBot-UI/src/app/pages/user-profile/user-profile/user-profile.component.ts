@@ -60,7 +60,7 @@ export class UserProfileComponent implements OnInit {
             appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
           }
         this.userDetailsService.getUserDetails().pipe(take(1)).subscribe((userDetails) => {
-          if (!userDetails || !userDetails.id || userDetails.id == '') {
+          if (!userDetails || !userDetails.id || userDetails.id == 0) {
             this.matSnackBar.open('Oops! You are not logged in. Please navigate back to the home screen and log in.', 'X', {duration: 5000})
           } else {
             this.userDetails = userDetails;
@@ -111,7 +111,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   private syncChampionsList(value: string) {
-    if (this.listOfChampions.indexOf(value) > -1) {
+    if (this.listOfChampions.indexOf(value) > -1 && this.preferredChampions.size < 5) {
       this.listOfChampions.splice(this.listOfChampions.indexOf(value), 1);
       this.listOfChampions.sort();
       this.preferredChampions.add(value);

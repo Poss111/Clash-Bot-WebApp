@@ -50,6 +50,30 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/v2/team`, (req, res) => {
+            if (!req.body.id) {
+                badRequestHandler(res, 'Missing User to persist.');
+            } else if (!req.body.role) {
+                badRequestHandler(res, 'Missing Role to persist with.');
+            } else if (!req.body.serverName) {
+                badRequestHandler(res, 'Missing Server to persist with.');
+            } else if (!req.body.tournamentName || !req.body.tournamentDay) {
+                badRequestHandler(res, 'Missing Tournament Details to persist with.');
+            } else if (!req.body.startTime) {
+                badRequestHandler(res, 'Missing Tournament start time to persist.');
+            } else {
+                clashTeamsServiceImpl.createNewTeamV2(req.body.id, req.body.role, req.body.serverName,
+                    req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
+                    .then((responsePayload) => {
+                        res.json(responsePayload);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to create new Team.');
+                    });
+            }
+        })
+
         app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
             if (req.params.serverName) {
                 console.log(`Querying for server : ('${req.params.serverName}')...`);
@@ -58,6 +82,25 @@ let startUpApp = async () => {
             }
             clashTimeDbImpl.findTournament().then(activeTournaments => {
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.params.serverName, activeTournaments)
+                    .then(payload => res.json(payload))
+                    .catch(err => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to retrieve Teams.');
+                    });
+            }).catch(err => {
+                console.error(err);
+                errorHandler(res, 'Failed to retrieve active Tournaments.');
+            });
+        })
+
+        app.get(`${urlPrefix}/v2/teams/:serverName?`, (req, res) => {
+            if (req.params.serverName) {
+                console.log(`Querying for server : ('${req.params.serverName}')...`);
+            } else {
+                console.log('Querying for all teams...');
+            }
+            clashTimeDbImpl.findTournament().then(activeTournaments => {
+                clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(req.params.serverName, activeTournaments)
                     .then(payload => res.json(payload))
                     .catch(err => {
                         console.error(err);
@@ -95,6 +138,30 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/v2/team/register`, (req, res) => {
+            if (!req.body.id) badRequestHandler(res, 'Missing User to persist.');
+            else if (!req.body.role) badRequestHandler(res, 'Missing Role to persist with.');
+            else if (!req.body.teamName) badRequestHandler(res, 'Missing Team to persist with.');
+            else if (!req.body.serverName) badRequestHandler(res, 'Missing Server to persist with.');
+            else if (!req.body.tournamentName || !req.body.tournamentDay) badRequestHandler(res, 'Missing Tournament Details to persist with.');
+            else {
+                console.log(`V2 - Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
+                let teamName = req.body.teamName;
+                if (/\s/g.test(req.body.teamName)) {
+                    teamName = req.body.teamName.split(' ')[1];
+                }
+                clashTeamsServiceImpl.registerWithTeamV2(req.body.id, req.body.role, teamName,
+                    req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then(data => {
+                        if (data.error) res.statusCode = 400
+                        res.json(data);
+                    }).catch(err => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to persist User to Team.')
+                });
+            }
+        })
+
         app.delete(`${urlPrefix}/team/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
@@ -104,6 +171,31 @@ let startUpApp = async () => {
                 badRequestHandler(res, 'Missing Tournament Details to unregister with.');
             } else {
                 clashTeamsServiceImpl.unregisterFromTeam(req.body.id, req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
+                    .then((data) => {
+                        let payload = {message: 'Successfully removed from Team.'};
+                        if (data.error) {
+                            res.statusCode = 400;
+                            payload = {error: 'User not found on requested Team.'};
+                        }
+                        res.json(payload);
+                    }).catch(err => {
+                    console.error(err);
+                    errorHandler(res, 'Failed to unregister User from Team due.')
+                });
+            }
+        })
+
+        app.delete(`${urlPrefix}/v2/team/register`, (req, res) => {
+            if (!req.body.id) {
+                badRequestHandler(res, 'Missing User to unregister with.');
+            } else if (!req.body.serverName) {
+                badRequestHandler(res, 'Missing Server to unregister Team with.');
+            } else if (!req.body.tournamentName || !req.body.tournamentDay) {
+                badRequestHandler(res, 'Missing Tournament Details to unregister with.');
+            } else {
+                clashTeamsServiceImpl.unregisterFromTeamV2(req.body.id,
+                    req.body.serverName, req.body.tournamentName,
+                    req.body.tournamentDay)
                     .then((data) => {
                         let payload = {message: 'Successfully removed from Team.'};
                         if (data.error) {
@@ -177,22 +269,26 @@ let startUpApp = async () => {
                     req.body.preferredChampions,
                     req.body.subscriptions.UpcomingClashTournamentDiscordDM)
                     .then(data => {
-                        let payload = {
-                            id: data.key,
-                            username: data.playerName,
-                            serverName: data.serverName,
-                            preferredChampions: data.preferredChampions,
-                        };
-                        if (!data.subscribed) {
-                            payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: false
-                            }
+                        if (data.error) {
+                            badRequestHandler(res, data.error);
                         } else {
-                            payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: true
+                            let payload = {
+                                id: data.key,
+                                username: data.playerName,
+                                serverName: data.serverName,
+                                preferredChampions: data.preferredChampions,
+                            };
+                            if (!data.subscribed) {
+                                payload.subscriptions = {
+                                    UpcomingClashTournamentDiscordDM: false
+                                }
+                            } else {
+                                payload.subscriptions = {
+                                    UpcomingClashTournamentDiscordDM: true
+                                }
                             }
+                            res.json(payload);
                         }
-                        res.json(payload);
                     }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to retrieve User.');
@@ -303,6 +399,23 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(`${urlPrefix}/v2/tentative`, (req, res) => {
+            if (!req.body.id || !req.body.serverName
+                || !req.body.tournamentDetails
+                || !req.body.tournamentDetails.tournamentName
+                || !req.body.tournamentDetails.tournamentDay) {
+                badRequestHandler(res, 'Missing required request parameter.');
+            } else {
+                clashTentativeServiceImpl.handleTentativeRequestV2(req.body.id, req.body.serverName,
+                    req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
+                    .then(response => res.json(response))
+                    .catch((err) => {
+                        console.error(err);
+                        errorHandler(res, 'Failed to update Tentative record.');
+                    });
+            }
+        })
+
         app.get(`${urlPrefix}/health`, (req, res) => {
             res.json({
                 status: 'Healthy'
@@ -336,5 +449,25 @@ let convertTeamDbToTeamPayload = (expectedNewTeam, idsToNameList) => {
     };
 }
 
+let convertTeamDbToTeamPayloadV2 = (expectedNewTeam, idsToNameList) => {
+    return {
+        teamName: expectedNewTeam.teamName,
+        tournamentDetails: {
+            tournamentName: expectedNewTeam.tournamentName,
+            tournamentDay: expectedNewTeam.tournamentDay
+        },
+        serverName: expectedNewTeam.serverName,
+        startTime: expectedNewTeam.startTime,
+        playersDetails: Array.isArray(expectedNewTeam.players) ? expectedNewTeam.players.map(data => {
+            let roleMap = Object.keys(expectedNewTeam.playersWRoles).reduce((ret, key) => {
+                ret[expectedNewTeam.playersWRoles[key]] = key;
+                return ret;
+            }, {});
+            return {name: !idsToNameList[data] ? data : idsToNameList[data], role: roleMap[data], id: data}
+        }) : {},
+    };
+}
+
 module.exports.startUpApp = startUpApp;
 module.exports.convertTeamDbToTeamPayload = convertTeamDbToTeamPayload;
+module.exports.convertTeamDbToTeamPayloadV2 = convertTeamDbToTeamPayloadV2;

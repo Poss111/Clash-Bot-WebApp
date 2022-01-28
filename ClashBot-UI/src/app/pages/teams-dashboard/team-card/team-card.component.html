@@ -1,4 +1,4 @@
-<mat-card class="example-card">
+<mat-card id="clash-bot-team-card" class="example-card">
     <div *ngIf="!team.error; else elseBlock">
         <mat-card-header>
             <div mat-card-avatar
@@ -13,29 +13,10 @@
             </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
-            <div *ngFor="let player of team.playersDetails; index as i">
-                <div>
-                    <h2>{{player.role}} - {{player.name}}</h2>
-                    <div class="player-champion-list-container" *ngIf="player.champions && player.champions.length > 0">
-                        <h3>Champions: {{player.champions}}</h3>
-                    </div>
-                </div>
-            </div>
-        </mat-card-content>
-        <mat-card-content>
-            <div class="clash-bot-button-container">
-                <button mat-mini-fab color="warn"
-                        [id]="'clash-bot-team-card-' + team.id + '-unregister-button'"
-                        *ngIf="team.userOnTeam" (click)="unregisterFromTeam()"
-                        aria-label="Unregister with this Team">
-                    <mat-icon>remove</mat-icon>
-                </button>
-                <button mat-mini-fab color="primary"
-                        [id]="'clash-bot-team-card-' + team.id + '-register-button'"
-                        *ngIf="!team.userOnTeam && team.playersDetails && team.playersDetails.length < 5"
-                        (click)="registerToTeam()" aria-label="Register with this Team">
-                    <mat-icon>add</mat-icon>
-                </button>
+            <div *ngFor="let playerDetails of team.playersDetails">
+              <app-team-card-player-details [player]="playerDetails"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
             </div>
         </mat-card-content>
     </div>

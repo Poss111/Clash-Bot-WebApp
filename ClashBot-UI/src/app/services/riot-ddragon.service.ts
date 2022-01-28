@@ -8,7 +8,7 @@ import {ChampionData} from "../interfaces/championData";
 })
 export class RiotDdragonService {
 
-  host: string = 'https://ddragon.leagueoflegends.com/cdn/11.16.1/data/en_US';
+  host: string = 'https://ddragon.leagueoflegends.com/cdn/12.2.1/data/en_US';
 
   constructor(private httpClient: HttpClient) { }
 

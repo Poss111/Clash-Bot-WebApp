@@ -7,7 +7,8 @@ class ClashTeamsDbImpl {
     Team;
     tableName = 'ClashTeam';
 
-    constructor() {}
+    constructor() {
+    }
 
     initialize() {
         return new Promise((resolve, reject) => {
@@ -16,9 +17,17 @@ class ClashTeamsDbImpl {
                 timestamps: true,
                 schema: {
                     key: Joi.string(),
+                    version: Joi.number(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
                     players: dynamodb.types.stringSet(),
+                    playersWRoles: Joi.object({
+                        Top: Joi.string(),
+                        Jg: Joi.string(),
+                        Mid: Joi.string(),
+                        Bot: Joi.string(),
+                        Supp: Joi.string(),
+                    }),
                     tournamentName: Joi.string(),
                     tournamentDay: Joi.string(),
                     startTime: Joi.string()
@@ -57,7 +66,7 @@ class ClashTeamsDbImpl {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
-                console.log(JSON.stringify(teams));
+                console.log(`# of teams pulled for server ('${teams.length}')`);
                 const tournamentToTeamMap = this.buildTournamentToTeamsMap(id, data);
                 let teamsCurrentlyOn = [];
                 let availableTeam = undefined;
@@ -119,6 +128,103 @@ class ClashTeamsDbImpl {
         });
     }
 
+    registerPlayerV2(id, role, serverName, tournaments, createNew) {
+        return new Promise((resolve, reject) => {
+            this.mapTeamsToTournamentsByPlayerV2(id, serverName).then(teamsToTournaments => {
+                let requestedTournamentKeys = tournaments
+                    .map(tournamentKey => `${tournamentKey.tournamentName}#${tournamentKey.tournamentDay}`);
+                const filteredTeamsToTournamentMap = Object.keys(teamsToTournaments)
+                    .filter(key => requestedTournamentKeys.includes(key))
+                    .reduce((obj, key) => {
+                        obj[key] = teamsToTournaments[key];
+                        return obj;
+                    }, {})
+                let reducedTeams = Object.values(filteredTeamsToTournamentMap).filter(record => record.userTeam
+                    && record.userTeam.players
+                    && record.userTeam.players.length === 1
+                    && record.userTeam.playersWRoles
+                    && Object.keys(record.userTeam.playersWRoles).length === 1);
+                if (reducedTeams.length === tournaments.length) {
+                    console.log(`V2 - Player ('${id}') is ineligible to create a new Team.`);
+                    resolve();
+                } else {
+                    let teamForTournaments = teamsToTournaments[
+                        `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
+                    console.log(`V2 - Tournament selected ('${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}').`);
+                    const unregisterCallback = (err, data) => {
+                        if (err) reject(err);
+                        else {
+                            data.forEach(item => {
+                                console.log(`V2 - Successfully unregistered player ('${id}') from Team ('${item.attrs.teamName}').`);
+                            })
+                        }
+                    };
+
+                    const updatedCallback = (err, data) => {
+                        if (err) reject(err);
+                        else {
+                            console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);
+                            resolve(data.attrs);
+                        }
+                    };
+
+                    if (!teamForTournaments) {
+                        teamForTournaments = {};
+                        createNew = true;
+                    }
+
+                    // Unregister if User is on a team for the Tournament
+                    if (teamForTournaments.userTeam
+                        && Object.keys(teamForTournaments.userTeam).length !== 0) {
+                        console.log(`V2 - Player is currently on Team for Tournament ('${teamForTournaments.userTeam.key}')...`);
+                        this.unregisterPlayerWithSpecificTeamV2(id,
+                            [teamForTournaments.userTeam], unregisterCallback)
+                    }
+
+                    // Find an available undefined Team to join
+                    let teamToModify;
+                    if (Array.isArray(teamForTournaments.availableTeams)) {
+                        teamToModify = teamForTournaments.availableTeams.find((record) => {
+                            return !record.playersWRoles || Object.keys(record.playersWRoles).length === 0
+                        });
+                        if (teamToModify) {
+                            createNew = true;
+                        }
+                    }
+
+                    let availableTeamForRole;
+                    if (teamForTournaments.availableTeams) {
+                        availableTeamForRole = teamForTournaments.availableTeams
+                            .find(team => team.playersWRoles && !team.playersWRoles[role]);
+                    }
+
+                    // If user wants to createNew and an undefined Team is available
+                    if (createNew && teamToModify) {
+                        teamToModify.players = [id];
+                        teamToModify.playersWRoles = {};
+                        teamToModify.playersWRoles[role] = id;
+                        console.log(`V2 - Found undefined Team, Register Player ('${id}') to Team ('${teamToModify.teamName}') with Role ('${role}')...`)
+                        this.Team.update(teamToModify, updatedCallback);
+                    }
+                    // If user wants to createNew and no undefined Team to join
+                    else if (createNew && !availableTeamForRole) {
+                        let nextTeamIndex = teamsToTournaments.length + 1;
+                        if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
+                            nextTeamIndex = 0;
+                        }
+                        this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, updatedCallback);
+                    }
+                    // If user wants to join an existing Team regardless of players
+                    else {
+                        console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams.length}').`);
+                        console.log(`V2 - Adding User ('${id}') to existing Team ('${availableTeamForRole.teamName}')...`)
+                        this.addUserToTeamV2(id, role, availableTeamForRole, updatedCallback);
+                    }
+                }
+            });
+        });
+    }
+
     registerWithSpecificTeam(id, serverName, tournaments, teamName) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((teams) => {
@@ -150,6 +256,92 @@ class ClashTeamsDbImpl {
         })
     }
 
+    registerWithSpecificTeamV2(id, role, serverName, tournament, teamName) {
+        return new Promise((resolve, reject) => {
+            this.getTeamsV2(serverName).then((teams) => {
+                teams = teams.filter(team => team.tournamentName === tournament[0].tournamentName
+                    && team.tournamentDay === tournament[0].tournamentDay);
+                let key = this.getKey(`Team ${teamName}`, serverName,
+                    tournament[0].tournamentName, tournament[0].tournamentDay)
+                let foundTeam = teams.find(team => team.key === key
+                    && ((team.playersWRoles && !team.playersWRoles[role]) || !team.playersWRoles));
+                let currentTeam = teams.find(team => this.isPlayerIsOnTeamV2(id, team));
+                if (!foundTeam) {
+                    console.log(`V2 - Error - ('${key}') - Unable to join Team due to either dne or role is taken.`)
+                    resolve(foundTeam);
+                }
+                console.log(`V2 - Team to be assigned to : ('${foundTeam.key}')...`);
+                let callback = (err, data) => {
+                    if (err) reject(err);
+                    else {
+                        console.log(`V2 - Successfully added user to Team ('${data.key}') as role ('${role}').`);
+                        foundTeam = data.attrs;
+                        resolve(foundTeam);
+                    }
+                };
+                if (currentTeam) {
+                    const unregisterCallback = (err) => {
+                        if (err) reject();
+                        else console.log(`V2 - Successfully unregistered ('${id}') from ('${currentTeam.key}').`)
+                        this.addUserToTeamV2(id, role, foundTeam, callback);
+                    };
+                    this.unregisterPlayerWithSpecificTeamV2(id, [currentTeam],
+                        unregisterCallback);
+                } else {
+                    this.addUserToTeamV2(id, role, foundTeam, callback);
+                }
+            }).catch(err => reject(err));
+        });
+    }
+
+    isPlayerIsOnTeam(id, team) {
+        return team.players && team.players.includes(id);
+    }
+
+    isPlayerIsOnTeamV2(id, team) {
+        if (team.playersWRoles) {
+            return Object.keys(team.playersWRoles).find(key => team.playersWRoles[key] === id);
+        } else {
+            return false;
+        }
+    }
+
+    mapTeamsToTournamentsByPlayer(playerId, serverName) {
+        return new Promise(resolve => {
+            this.getTeams(serverName)
+                .then(teams => this.buildTeamToTournamentByPlayerLogic(playerId, teams, null, resolve));
+        })
+    }
+
+    mapTeamsToTournamentsByPlayerV2(playerId, serverName) {
+        return new Promise(resolve => {
+            this.getTeamsV2(serverName)
+                .then(teams => this.buildTeamToTournamentByPlayerLogic(playerId, teams, 2, resolve));
+        })
+    }
+
+    buildTeamToTournamentByPlayerLogic = (playerId, teams, version, callback) => {
+        let teamByTournaments = teams.reduce((acc, team) => {
+            let key = `${team.tournamentName}#${team.tournamentDay}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    availableTeams: [],
+                    userTeam: {}
+                }
+            }
+            let objectToUpdate = acc[key];
+            if ((!version && this.isPlayerIsOnTeam(playerId, team)) ||
+                (version = 2 && this.isPlayerIsOnTeamV2(playerId, team))) {
+                objectToUpdate.userTeam = team;
+            } else {
+                objectToUpdate.availableTeams.push(team);
+            }
+            acc[key] = objectToUpdate;
+            return acc
+        }, {});
+        callback(teamByTournaments);
+    };
+
     doesTeamNameMatch(teamNameToSearch, team) {
         if (!teamNameToSearch || !team || !team.teamName) {
             return false;
@@ -170,6 +362,22 @@ class ClashTeamsDbImpl {
                 foundTeam.serverName,
                 foundTeam.tournamentName,
                 foundTeam.tournamentDay)
+        }, params, (err, record) => callback(err, record));
+    }
+
+    addUserToTeamV2(id, role, teamToBeUpdated, callback) {
+        let params = {};
+        teamToBeUpdated.playersWRoles[role] = id;
+        params.UpdateExpression = 'ADD players :playerName SET playersWRoles = :updatedRole';
+        params.ExpressionAttributeValues = {
+            ':playerName': dynamodb.Set([id], 'S'),
+            ':updatedRole': teamToBeUpdated.playersWRoles
+        };
+        this.Team.update({
+            key: this.getKey(teamToBeUpdated.teamName,
+                teamToBeUpdated.serverName,
+                teamToBeUpdated.tournamentName,
+                teamToBeUpdated.tournamentDay)
         }, params, (err, record) => callback(err, record));
     }
 
@@ -223,6 +431,29 @@ class ClashTeamsDbImpl {
         });
     }
 
+    deregisterPlayerV2(id, serverName, tournaments) {
+        return new Promise((resolve, reject) => {
+            this.getTeamsV2(serverName).then((data) => {
+                let teamsRemovedFrom = [];
+                const callback = (err, response) => {
+                    if (err) reject(err);
+                    else {
+                        response.forEach((items) => {
+                            teamsRemovedFrom.push(items.attrs);
+                        })
+                        resolve(teamsRemovedFrom);
+                    }
+                };
+                data = data.filter(record => {
+                    let role = this.isPlayerIsOnTeamV2(id, record);
+                    return role && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
+                        && tournament.tournamentDay === record.tournamentDay)
+                });
+                this.unregisterPlayerWithSpecificTeamV2(id, data, callback);
+            });
+        });
+    }
+
     unregisterPlayerWithSpecificTeam(id, teamsToBeRemovedFrom, serverName, callback) {
         console.log(`Unregistering ${id} from teams ('${teamsToBeRemovedFrom.map(team => team.teamName)}')...`);
         teamsToBeRemovedFrom.forEach(record => {
@@ -251,14 +482,65 @@ class ClashTeamsDbImpl {
         });
     }
 
+    unregisterPlayerWithSpecificTeamV2(id, teamsToBeRemovedFrom, callback) {
+        console.log(`V2 - Unregistering ('${id}') from teams ('${teamsToBeRemovedFrom.map(team => team.teamName)}')...`);
+        let promises = [];
+        teamsToBeRemovedFrom.forEach(record => {
+            console.log(`V2 - Unregistering ('${id}') from team ('${record.teamName}')...`);
+            let role = this.isPlayerIsOnTeamV2(id, record);
+            delete record.playersWRoles[role];
+            let params = {};
+            params.UpdateExpression = 'DELETE players :playerName SET playersWRoles = :updatedRole';
+            params.ConditionExpression = 'teamName = :nameOfTeam';
+            params.ExpressionAttributeValues = {
+                ':playerName': dynamodb.Set([id], 'S'),
+                ':nameOfTeam': record.teamName,
+                ':updatedRole': record.playersWRoles,
+            };
+            promises.push(new Promise((resolve, reject) => {
+                this.Team.update({
+                        key: this.getKey(record.teamName,
+                            record.serverName,
+                            record.tournamentName,
+                            record.tournamentDay)
+                    },
+                    params, (err, data) => {
+                        if (err) reject(err);
+                        else resolve(data);
+                    });
+            }));
+        });
+        Promise.all(promises).then((results) => {
+            callback(undefined, results.flat());
+        }).catch(err => callback(err));
+    }
+
     getTeams(serverName) {
+        return this.getTeamsByVersion(serverName);
+    }
+
+    getTeamsV2(serverName) {
+        return this.getTeamsByVersion(serverName, 2);
+    }
+
+    getTeamsByVersion(serverName, version) {
         return new Promise((resolve, reject) => {
             let teams = [];
             let stream = this.Team.scan();
             if (serverName) {
-                stream.filterExpression('#serverName = :name')
-                    .expressionAttributeValues({':name': `${serverName}`})
-                    .expressionAttributeNames({'#serverName': 'serverName'})
+                let filterExpression = '#serverName = :name';
+                let expressionAttributeValues = {':name': `${serverName}`};
+                let expressionAttributeNames = {'#serverName': 'serverName'};
+                if (!version) {
+                    filterExpression += ' AND attribute_not_exists(version)';
+                } else {
+                    filterExpression += ' AND #version = :versionNumber';
+                    expressionAttributeValues[':versionNumber'] = version;
+                    expressionAttributeNames['#version'] = 'version';
+                }
+                stream.filterExpression(filterExpression)
+                    .expressionAttributeValues(expressionAttributeValues)
+                    .expressionAttributeNames(expressionAttributeNames);
             }
             stream = stream.exec();
             stream.on('readable', function () {
@@ -286,6 +568,25 @@ class ClashTeamsDbImpl {
             tournamentName: tournament.tournamentName,
             tournamentDay: tournament.tournamentDay,
             startTime: tournament.startTime
+        };
+        createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
+        this.Team.update(createTeam, (err, data) => callback(err, data));
+    }
+
+    createNewTeamV2(id, serverName, role, tournament, number, callback) {
+        console.log(`V2 - Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
+        let name = names[number];
+        let playerWRoles = {};
+        playerWRoles[role] = id;
+        let createTeam = {
+            teamName: `Team ${name}`,
+            serverName: serverName,
+            playersWRoles: playerWRoles,
+            players: [id],
+            tournamentName: tournament.tournamentName,
+            tournamentDay: tournament.tournamentDay,
+            startTime: tournament.startTime,
+            version: 2
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, (err, data) => callback(err, data));

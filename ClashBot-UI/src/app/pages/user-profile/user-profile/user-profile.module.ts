@@ -17,31 +17,32 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatButtonModule} from "@angular/material/button";
 import {MatSelectModule} from "@angular/material/select";
-import {KebabCasePipe} from "../../../kebab-case.pipe";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {SharedModule} from "../../../shared/shared.module";
 
 @NgModule({
-  declarations: [ UserProfileComponent, KebabCasePipe],
-  imports: [
-    CommonModule,
-    UserProfileRoutingModule,
-    MatExpansionModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-    MatListModule,
-    MatChipsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatOptionModule,
-    MatAutocompleteModule,
-    MatRadioModule,
-    MatSliderModule,
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatProgressBarModule
-  ],
-  providers: [ClashBotService]
+    declarations: [UserProfileComponent],
+    imports: [
+        CommonModule,
+        UserProfileRoutingModule,
+        MatExpansionModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatDatepickerModule,
+        MatListModule,
+        MatChipsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatOptionModule,
+        MatAutocompleteModule,
+        MatRadioModule,
+        MatSliderModule,
+        MatSlideToggleModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatProgressBarModule,
+        SharedModule
+    ],
+    providers: [ClashBotService]
 })
 export class UserProfileModule { }
