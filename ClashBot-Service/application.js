@@ -269,22 +269,26 @@ let startUpApp = async () => {
                     req.body.preferredChampions,
                     req.body.subscriptions.UpcomingClashTournamentDiscordDM)
                     .then(data => {
-                        let payload = {
-                            id: data.key,
-                            username: data.playerName,
-                            serverName: data.serverName,
-                            preferredChampions: data.preferredChampions,
-                        };
-                        if (!data.subscribed) {
-                            payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: false
-                            }
+                        if (data.error) {
+                            badRequestHandler(res, data.error);
                         } else {
-                            payload.subscriptions = {
-                                UpcomingClashTournamentDiscordDM: true
+                            let payload = {
+                                id: data.key,
+                                username: data.playerName,
+                                serverName: data.serverName,
+                                preferredChampions: data.preferredChampions,
+                            };
+                            if (!data.subscribed) {
+                                payload.subscriptions = {
+                                    UpcomingClashTournamentDiscordDM: false
+                                }
+                            } else {
+                                payload.subscriptions = {
+                                    UpcomingClashTournamentDiscordDM: true
+                                }
                             }
+                            res.json(payload);
                         }
-                        res.json(payload);
                     }).catch(err => {
                     console.error(err);
                     errorHandler(res, 'Failed to retrieve User.');

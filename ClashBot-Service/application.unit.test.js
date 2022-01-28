@@ -2730,6 +2730,30 @@ describe('Clash Bot Service API Controller', () => {
                 })
         })
 
+        test('As a User, if an error is returned as an attribute return as 400 with the error.', (done) => {
+            let payload = {
+                id: '1234556778',
+                playerName: 'some player',
+                serverName: 'Some Server',
+                preferredChampions: ['Sett'],
+                subscriptions: {}
+            };
+            const mockDbResponse = {
+                error: 'Cannot persist more than 5 champions.'
+            };
+            clashSubscriptionDbImpl.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
+            request(application)
+                .post('/api/user')
+                .send(payload)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400, (err, res) => {
+                    if (err) return done(err);
+                    expect(res.body).toEqual({ error: 'Cannot persist more than 5 champions.' });
+                    done();
+                })
+        })
+
         test('Bad Request - missing id - As a User, when I request to create my data, I want to receive an error related to the Id passed if it is missing.', (done) => {
             let payload = {
                 playerName: 'Some Player',

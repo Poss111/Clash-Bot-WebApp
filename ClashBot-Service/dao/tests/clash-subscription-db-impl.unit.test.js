@@ -435,6 +435,23 @@ describe('Create User Subscription', () => {
                 expect(data).toEqual(expectedResults);
             }).catch(err => expect(err).toBeFalsy());
     })
+
+    test('If a user tries to persist greater than 5 champions then an error should be returned.', () => {
+        let id = '123456789';
+        let server = 'Goon Squad';
+        let preferredChampions = ['Akali', 'Aatrox', 'Aanivia', 'Ahri', 'Annie', 'Miss Fortune'];
+        let subscribed = false;
+        let playerName = 'Sample User';
+        clashSubscriptionDbImpl.clashSubscriptionTable = {
+            create: jest.fn()
+        };
+        return clashSubscriptionDbImpl
+            .createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed)
+            .then(data => {
+                expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).not.toHaveBeenCalled();
+                expect(data.error).toEqual('Cannot persist more than 5 champions.');
+            }).catch(err => expect(err).toBeFalsy());
+    })
 })
 
 describe('Update User', () => {

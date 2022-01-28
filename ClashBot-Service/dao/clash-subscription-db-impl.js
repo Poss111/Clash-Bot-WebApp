@@ -143,15 +143,19 @@ class ClashSubscriptionDbImpl {
 
     createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed) {
         return new Promise((resolve, reject) => {
-            const dateFormat = 'MMMM DD yyyy hh:mm a z';
-            const timeZone = 'America/Los_Angeles';
-            moment.tz.setDefault(timeZone);
-            let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
-            if (subscribed) {
-                subscription.subscribed = JSON.stringify(subscribed);
+            if (preferredChampions && preferredChampions.length > 5) {
+                resolve({error :'Cannot persist more than 5 champions.'});
+            } else {
+                const dateFormat = 'MMMM DD yyyy hh:mm a z';
+                const timeZone = 'America/Los_Angeles';
+                moment.tz.setDefault(timeZone);
+                let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
+                if (subscribed) {
+                    subscription.subscribed = JSON.stringify(subscribed);
+                }
+                this.createUser(subscription, reject, resolve);
             }
-            this.createUser(subscription, reject, resolve);
-        })
+        });
     }
 
     retrievePlayerNames(ids) {
