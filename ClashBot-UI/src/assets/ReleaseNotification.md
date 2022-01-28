@@ -1,5 +1,3 @@
-# ClashBot - Release Notification
-
 # Release v5.0.0
 - Preseason Notification Removed (Hello Season 12!)
 - Get your roles here!

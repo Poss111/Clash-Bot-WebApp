@@ -1,3 +1,6 @@
+const MAT_CHIP_LOCATORS = '#clash-bot-user-profile-preferred-champions-list>div>div>div>mat-chip-list>div>mat-chip';
+let initialUserData = {};
+
 describe('Validate User Profile of Clash Bot', () => {
   before(() => {
     localStorage.setItem('version', 'v4.0.1');
@@ -5,6 +8,15 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
     cy.get('#clash-bot-discord-username').should('have.text', 'Roïdräge');
+    cy.request('get', 'http://localhost:80/api/user?id=299370234228506627')
+        .then((response) => {
+          initialUserData = response.body;
+          initialUserData.playerName = 'Roïdräge';
+        });
+  })
+
+  after(() => {
+    cy.request('post', 'http://localhost:80/api/user', initialUserData);
   })
 
   function searchForChampion(searchTeam, championName) {
@@ -21,7 +33,7 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get('#clash-bot-user-profile-default-guild').click();
     cy.get('#clash-bot-user-profile-autocomplete-lolclashbotsupport-guild').should('contain.text', 'LoL-ClashBotSupport');
     cy.get('#clash-bot-user-profile-autocomplete-lolclashbotsupport-guild').click()
-    cy.get('#clash-bot-user-profile-preferred-champions-list').should('have.length', '0');
+    cy.get(MAT_CHIP_LOCATORS).should('have.length', '3');
     searchForChampion('Se', 'Sett');
     cy.get('#clash-bot-user-profile-preferred-champion-sett').should('exist');
     cy.get('#clash-bot-user-profile-discord-dm-notification-toggle>label>div>input').should('not.be.checked');
@@ -44,4 +56,19 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get('#clash-bot-menu-teams-page').click();
     cy.get('#clash-bot-teams-lol-clashbotsupport', { timeout: 10000 }).should('have.attr', 'aria-selected');
   })
+
+  it('I should not be able to enter more than 5 champions in my preferred list.', () => {
+    cy.get('#clash-bot-menu').click();
+    cy.get('#clash-bot-menu-user-profile-page').click();
+    cy.get('#clash-bot-user-profile-username', { timeout: 15000 }).should('have.text', 'Roïdräge');
+    searchForChampion('Ahri', 'Ahri');
+    searchForChampion('Rammus', 'Rammus');
+    searchForChampion('Zoe', 'Zoe');
+    searchForChampion('Zed', 'Zed');
+    searchForChampion('Jinx', 'Jinx');
+    searchForChampion('Jhin', 'Jhin');
+    cy.get(MAT_CHIP_LOCATORS).should('have.length', '5');
+  })
+
+
 })

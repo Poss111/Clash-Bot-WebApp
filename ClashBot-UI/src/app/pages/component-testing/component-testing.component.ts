@@ -39,6 +39,6 @@ export class ComponentTestingComponent {
   constructor(private dialog: MatDialog) { }
 
   openReleaseNotification() {
-    this.dialog.open(ReleaseNotificationDialogComponent);
+    this.dialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});
   }
 }

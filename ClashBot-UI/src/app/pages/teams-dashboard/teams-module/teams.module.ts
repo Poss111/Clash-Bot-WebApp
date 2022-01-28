@@ -18,6 +18,7 @@ import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/
 import {MatTableModule} from "@angular/material/table";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
+import {SharedModule} from "../../../shared/shared.module";
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-deta
     MatDialogModule,
     MatOptionModule,
     MatSelectModule,
-    MatTableModule
+    MatTableModule,
+    SharedModule
   ]
 })
 export class TeamsModule {

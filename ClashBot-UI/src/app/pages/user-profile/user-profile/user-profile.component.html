@@ -42,9 +42,9 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
       <p>Cannot exceed 5 champions.</p>
-      <mat-form-field class="example-chip-list" appearance="fill">
+      <mat-form-field id="clash-bot-user-profile-preferred-champions-list" class="example-chip-list" appearance="fill">
         <mat-label>Current Preferred Champions</mat-label>
-        <mat-chip-list id="clash-bot-user-profile-preferred-champions-list" #chipList aria-label="Fruit selection">
+        <mat-chip-list #chipList aria-label="Preferred Champion selection">
           <mat-chip
             *ngFor="let champion of preferredChampions"
             id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}"
