@@ -7,6 +7,7 @@ import {MatCardContent, MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDialogModule} from "@angular/material/dialog";
 import {TeamCardPlayerDetailsComponent} from "../teams-dashboard/team-card/team-card-player-details/team-card-player-details.component";
+import {SharedModule} from "../../shared/shared.module";
 
 describe('ComponentTestingComponent', () => {
   let component: ComponentTestingComponent;
@@ -16,7 +17,7 @@ describe('ComponentTestingComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ComponentTestingComponent, TournamentNameTransformerPipe, TeamCardComponent,
         TeamCardPlayerDetailsComponent],
-      imports: [MatCardModule, MatIconModule, MatDialogModule]
+      imports: [MatCardModule, MatIconModule, MatDialogModule, SharedModule]
     })
     .compileComponents();
   });

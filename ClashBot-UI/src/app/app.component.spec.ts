@@ -32,6 +32,7 @@ import {MarkdownModule} from "ngx-markdown";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ClashTournamentCalendarHeaderComponent} from "./clash-tournament-calendar-header/clash-tournament-calendar-header.component";
 import {ReleaseNotificationDialogComponent} from "./dialogs/release-notification-dialog/release-notification-dialog.component";
+import {SharedModule} from "./shared/shared.module";
 
 jest.mock('./services/user-details.service');
 jest.mock('./services/application-details.service');
@@ -77,7 +78,8 @@ describe('AppComponent', () => {
         MatTableModule,
         MarkdownModule.forRoot(),
         BrowserAnimationsModule,
-        WelcomeDashboardTestModule
+        WelcomeDashboardTestModule,
+        SharedModule
       ],
       declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
       providers: [UserDetailsService,
