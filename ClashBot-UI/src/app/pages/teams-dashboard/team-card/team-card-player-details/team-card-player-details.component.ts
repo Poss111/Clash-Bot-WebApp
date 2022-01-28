@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {PlayerDetails} from "../../../../interfaces/clash-team";
 
 @Component({
@@ -6,7 +6,7 @@ import {PlayerDetails} from "../../../../interfaces/clash-team";
   templateUrl: './team-card-player-details.component.html',
   styleUrls: ['./team-card-player-details.component.scss']
 })
-export class TeamCardPlayerDetailsComponent implements OnInit {
+export class TeamCardPlayerDetailsComponent {
 
   @Input()
   player: PlayerDetails = { name: 'Hello', id: 1, role: 'Top', champions: []};
@@ -18,9 +18,6 @@ export class TeamCardPlayerDetailsComponent implements OnInit {
   unregisterUserForRole: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
 
   registerToTeam(role: string) {
     this.registerUserForRole.emit(role);
