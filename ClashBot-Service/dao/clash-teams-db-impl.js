@@ -146,7 +146,10 @@ class ClashTeamsDbImpl {
                     && Object.keys(record.userTeam.playersWRoles).length === 1);
                 if (reducedTeams.length === tournaments.length) {
                     console.log(`V2 - Player ('${id}') is ineligible to create a new Team.`);
-                    resolve();
+                    resolve(reducedTeams.map(team => {
+                        team.userTeam.exist = true;
+                        return team.userTeam;
+                    }));
                 } else {
                     let teamForTournaments = teamsToTournaments[
                         `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
