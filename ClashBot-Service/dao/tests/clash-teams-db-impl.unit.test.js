@@ -1529,7 +1529,8 @@ describe('Register Player', () => {
                 },
                 players: [expectedUserId],
                 tournamentName: expectedUserTournaments[0].tournamentName,
-                tournamentDay: expectedUserTournaments[0].tournamentDay
+                tournamentDay: expectedUserTournaments[0].tournamentDay,
+                exist: true
             };
 
             let expectedPlayersReturnedTeamTwo = {
@@ -1542,7 +1543,8 @@ describe('Register Player', () => {
                 },
                 players: [expectedUserId],
                 tournamentName: expectedUserTournaments[1].tournamentName,
-                tournamentDay: expectedUserTournaments[1].tournamentDay
+                tournamentDay: expectedUserTournaments[1].tournamentDay,
+                exist: true
             };
 
             clashTeamsDbImpl.Team = {
@@ -1563,7 +1565,7 @@ describe('Register Player', () => {
                 expectedUserServerName, expectedUserTournaments, true).then(registeredTeam => {
                 expect(clashTeamsDbImpl.Team.exec).toHaveBeenCalledTimes(1);
                 expect(clashTeamsDbImpl.Team.update).not.toHaveBeenCalled();
-                expect(registeredTeam).toBeFalsy();
+                expect(registeredTeam).toEqual([expectedPlayersReturnedTeam, expectedPlayersReturnedTeamTwo])
             });
         })
 
