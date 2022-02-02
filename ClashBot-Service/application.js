@@ -10,6 +10,7 @@ const clashTentativeServiceImpl = require('./service/clash-tentative-service-imp
 const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const app = express();
+const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
 let startUpApp = async () => {
@@ -21,12 +22,31 @@ let startUpApp = async () => {
             clashTentativeDbImpl.initialize()]);
 
         app.use(express.json());
-        app.use(cors())
+        app.use(cors());
+
+        // startUpWsApp(app);
 
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
             console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
+        })
+
+        app.ws('/ws', (ws, req) => {
+            ws.on('message', (msg) => {
+                clashTimeDbImpl.findTournament().then(activeTournaments => {
+                    clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(msg, activeTournaments)
+                        .then(payload => ws.send(JSON.stringify(payload)))
+                        .catch(err => {
+                            console.error(err);
+                            errorHandler(ws, 'Failed to retrieve Teams.');
+                        });
+                }).catch(err => {
+                    console.error(err);
+                    errorHandler(ws, 'Failed to retrieve active Tournaments.');
+                });
+            });
+            console.log('socket running');
         })
 
         app.post(`${urlPrefix}/team`, (req, res) => {
@@ -154,6 +174,13 @@ let startUpApp = async () => {
                     req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
                         if (data.error) res.statusCode = 400
+                        expressWs.getWss().clients.forEach((client) => {
+                            if (client) {
+                                let payload = JSON.parse(JSON.stringify(data));
+                                payload.type = 'add';
+                                client.send(JSON.stringify(payload));
+                            }
+                        })
                         res.json(data);
                     }).catch(err => {
                     console.error(err);
