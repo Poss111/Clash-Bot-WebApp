@@ -19,7 +19,13 @@ class ClashSubscriptionDbImpl {
                     timeAdded: Joi.string(),
                     subscribed: Joi.string(),
                     preferredChampions: Joi.array()
-                }
+                },
+                indexes: [{
+                    hashKey : 'key',
+                    rangeKey : 'subscribed',
+                    name : 'subscribed-users-index',
+                    type : 'global'
+                }]
             }).then((tableDef) => {
                 console.log(`Successfully setup table def for ('${this.tableName}')`);
                 this.clashSubscriptionTable = tableDef;

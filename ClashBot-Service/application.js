@@ -14,6 +14,15 @@ const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
 let startUpApp = async () => {
+    function sendTeamUpdateThroughWs(data) {
+        expressWs.getWss().clients.forEach((client) => {
+            if (client) {
+                let payload = JSON.parse(JSON.stringify(data));
+                client.send(JSON.stringify(payload));
+            }
+        })
+    }
+
     try {
         await Promise.all([
             clashTeamsDbImpl.initialize(),
@@ -174,13 +183,7 @@ let startUpApp = async () => {
                     req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
                         if (data.error) res.statusCode = 400
-                        expressWs.getWss().clients.forEach((client) => {
-                            if (client) {
-                                let payload = JSON.parse(JSON.stringify(data));
-                                payload.type = 'add';
-                                client.send(JSON.stringify(payload));
-                            }
-                        })
+                        sendTeamUpdateThroughWs(data);
                         res.json(data);
                     }).catch(err => {
                     console.error(err);
@@ -229,6 +232,7 @@ let startUpApp = async () => {
                             res.statusCode = 400;
                             payload = {error: 'User not found on requested Team.'};
                         }
+                        sendTeamUpdateThroughWs(data);
                         res.json(payload);
                     }).catch(err => {
                     console.error(err);
