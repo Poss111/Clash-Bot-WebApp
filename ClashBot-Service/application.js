@@ -14,13 +14,18 @@ const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
 let startUpApp = async () => {
+
+    let clientTopics = new Map();
     function sendTeamUpdateThroughWs(data) {
-        expressWs.getWss().clients.forEach((client) => {
+        const clients = clientTopics.get(data[0].serverName);
+        if (clients && clients.length > 0) {
+        clients.forEach((client) => {
             if (client) {
                 let payload = JSON.parse(JSON.stringify(data));
                 client.send(JSON.stringify(payload));
             }
         })
+        }
     }
 
     try {
@@ -33,8 +38,6 @@ let startUpApp = async () => {
         app.use(express.json());
         app.use(cors());
 
-        // startUpWsApp(app);
-
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
@@ -43,17 +46,10 @@ let startUpApp = async () => {
 
         app.ws('/ws', (ws, req) => {
             ws.on('message', (msg) => {
-                clashTimeDbImpl.findTournament().then(activeTournaments => {
-                    clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(msg, activeTournaments)
-                        .then(payload => ws.send(JSON.stringify(payload)))
-                        .catch(err => {
-                            console.error(err);
-                            errorHandler(ws, 'Failed to retrieve Teams.');
-                        });
-                }).catch(err => {
-                    console.error(err);
-                    errorHandler(ws, 'Failed to retrieve active Tournaments.');
-                });
+                let clients = clientTopics.get(msg)
+                if (!clients) clients = [];
+                clients.push(ws);
+                clientTopics.set(msg, clients);
             });
             console.log('socket running');
         })

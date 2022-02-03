@@ -20,6 +20,7 @@ import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
+import {TeamsWebsocketService} from "../../../teams-websocket.service";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -53,7 +54,8 @@ export class TeamsDashboardComponent implements OnInit {
               private _snackBar: MatSnackBar,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private teamsWebsocketService: TeamsWebsocketService) {
     this.showSpinner = false;
     this.creatingNewTeam = false;
     this.createNewTeamFormGroup = new FormGroup({
@@ -78,6 +80,10 @@ export class TeamsDashboardComponent implements OnInit {
 
           this.formControl = new FormControl(appDetails.defaultGuild);
           if (appDetails.defaultGuild) {
+            this.teamsWebsocketService.subject.subscribe((msg) => {
+                console.log('Update received from teams ws!' + JSON.stringify(msg));
+              }, error => console.error(error),
+              () => console.log('Connection closed to teams ws.'));
             this.filterForTeamsByServer(appDetails.defaultGuild);
           }
         }
