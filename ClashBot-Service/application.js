@@ -9,6 +9,7 @@ const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
+const {WebSocket} = require('ws');
 const app = express();
 const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
@@ -16,15 +17,24 @@ const urlPrefix = '/api';
 let startUpApp = async () => {
 
     let clientTopics = new Map();
+
     function sendTeamUpdateThroughWs(data) {
-        const clients = clientTopics.get(data[0].serverName);
-        if (clients && clients.length > 0) {
-        clients.forEach((client) => {
-            if (client) {
-                let payload = JSON.parse(JSON.stringify(data));
-                client.send(JSON.stringify(payload));
+        console.log('WS notified to update clients...');
+        try {
+            const clients = clientTopics.get(data.serverName);
+            if (clients && clients.length > 0) {
+                clients.forEach((client) => {
+                    if (client && client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify(data));
+                        console.log(`Posted message to subscribed client for '${data.serverName}'.`);
+                    } else if (client.readyState === WebSocket.CLOSED) {
+                        clients.splice(clients.indexOf(client), 1);
+                        console.log('Cleared stale client.')
+                    }
+                })
             }
-        })
+        } catch(err) {
+            console.error(`Failed to send update through ws for '${JSON.stringify(data)}'`, err);
         }
     }
 
@@ -46,10 +56,13 @@ let startUpApp = async () => {
 
         app.ws('/ws', (ws, req) => {
             ws.on('message', (msg) => {
-                let clients = clientTopics.get(msg)
+                let parsedServerName = JSON.parse(msg);
+                let clients = clientTopics.get(parsedServerName);
                 if (!clients) clients = [];
                 clients.push(ws);
-                clientTopics.set(msg, clients);
+                clientTopics.set(parsedServerName, clients);
+                ws.send(JSON.stringify({}));
+                console.log(`Set ws client for '${parsedServerName}'.`)
             });
             console.log('socket running');
         })
@@ -228,7 +241,7 @@ let startUpApp = async () => {
                             res.statusCode = 400;
                             payload = {error: 'User not found on requested Team.'};
                         }
-                        sendTeamUpdateThroughWs(data);
+                        sendTeamUpdateThroughWs(data[0]);
                         res.json(payload);
                     }).catch(err => {
                     console.error(err);

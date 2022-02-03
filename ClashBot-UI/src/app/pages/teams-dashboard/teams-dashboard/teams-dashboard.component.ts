@@ -20,7 +20,7 @@ import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
-import {TeamsWebsocketService} from "../../../teams-websocket.service";
+import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -80,10 +80,6 @@ export class TeamsDashboardComponent implements OnInit {
 
           this.formControl = new FormControl(appDetails.defaultGuild);
           if (appDetails.defaultGuild) {
-            this.teamsWebsocketService.subject.subscribe((msg) => {
-                console.log('Update received from teams ws!' + JSON.stringify(msg));
-              }, error => console.error(error),
-              () => console.log('Connection closed to teams ws.'));
             this.filterForTeamsByServer(appDetails.defaultGuild);
           }
         }
@@ -156,6 +152,24 @@ export class TeamsDashboardComponent implements OnInit {
             )
             .subscribe((data: ClashTeam[]) => {
               this.syncTeamInformation(data, userDetails);
+                this.teamsWebsocketService.subject.subscribe((msg) => {
+                    let teamToBeUpdated = <ClashTeam>msg;
+                    console.log('Update received from teams ws!' + JSON.stringify(teamToBeUpdated));
+                    let foundTeam = this.teams.find((team) => team.teamName === teamToBeUpdated.teamName);
+                    if (!foundTeam) {
+                        if (teamToBeUpdated.teamName) {
+                            let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
+                            this.teams.push(...mappedTeam);
+                        }
+                    } else if(teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
+                        let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
+                        foundTeam.playersDetails = mappedTeam[0].playersDetails;
+                    } else {
+                        this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);
+                    }
+                }, error => console.error(error),
+                () => console.log('Connection closed to teams ws.'));
+                this.teamsWebsocketService.subject.next(valueToSearchFor);
             })
         }
       })
@@ -232,18 +246,20 @@ export class TeamsDashboardComponent implements OnInit {
                   {duration: 5 * 1000});
                 return throwError(err);
               }),
-              take(1),
-              finalize(() => {
-                if ($event.serverName) {
-                  this.showSpinner = true;
-                  this.clashBotService.getClashTeams($event.serverName)
-                    .pipe(take(1),
-                      catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
-                      finalize(() => this.showSpinner = false))
-                    .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
-                }
-              }))
-            .subscribe(() => console.log('Registered successfully.'));
+              take(1)
+              // finalize(() => {
+              //   if ($event.serverName) {
+              //     this.showSpinner = true;
+              //     this.clashBotService.getClashTeams($event.serverName)
+              //       .pipe(take(1),
+              //         catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
+              //         finalize(() => this.showSpinner = false))
+              //       .subscribe((updatedTeams) =>
+              //           this.syncTeamInformation(updatedTeams, userDetails)
+              //       )
+              //   }
+              // })
+            ).subscribe(() => console.log('Registered successfully.'));
         }
       })
   }
@@ -273,19 +289,19 @@ export class TeamsDashboardComponent implements OnInit {
                   {duration: 5 * 1000});
                 return throwError(err);
               }),
-              finalize(() => {
-                if ($event.serverName) {
-                  this.showSpinner = true;
-                  this.clashBotService.getClashTeams($event.serverName)
-                    .pipe(
-                      take(1),
-                      timeout(this.MAX_TIMEOUT),
-                      catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
-                      finalize(() => this.showSpinner = false))
-                    .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
-                }
-              }))
-            .subscribe(() => console.log('Unregistered User successfully.'));
+              // finalize(() => {
+              //   if ($event.serverName) {
+              //     this.showSpinner = true;
+              //     this.clashBotService.getClashTeams($event.serverName)
+              //       .pipe(
+              //         take(1),
+              //         timeout(this.MAX_TIMEOUT),
+              //         catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
+              //         finalize(() => this.showSpinner = false))
+              //       .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
+              //   }
+              // })
+            ).subscribe(() => console.log('Unregistered User successfully.'));
         }
       });
   }
@@ -358,19 +374,19 @@ export class TeamsDashboardComponent implements OnInit {
               return throwError(err);
             }),
             take(1),
-            finalize(() => {
-              if (serverName) {
-                this.showSpinner = true;
-                this.clashBotService.getClashTeams(serverName)
-                  .pipe(
-                    take(1),
-                    timeout(this.MAX_TIMEOUT),
-                    catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
-                    finalize(() => this.showSpinner = false))
-                  .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
-              }
-            }))
-            .subscribe(() => console.log('Successfully created new team.'));
+            // finalize(() => {
+            //   if (serverName) {
+            //     this.showSpinner = true;
+            //     this.clashBotService.getClashTeams(serverName)
+            //       .pipe(
+            //         take(1),
+            //         timeout(this.MAX_TIMEOUT),
+            //         catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
+            //         finalize(() => this.showSpinner = false))
+            //       .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
+            //   }
+            // })
+          ).subscribe(() => console.log('Successfully created new team.'));
         })
       this.creatingNewTeam = false;
     }

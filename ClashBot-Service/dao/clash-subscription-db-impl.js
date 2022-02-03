@@ -179,15 +179,16 @@ class ClashSubscriptionDbImpl {
     }
 
     retrieveAllUserDetails(ids) {
-        return new Promise((resolve => {
-            if (!ids || ids.length < 1) {
+        return new Promise((resolve, reject) => {
+            if (!ids || ids.length < 1 || ids[0] === undefined) {
                 resolve({});
             } else {
                 this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
-                    resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {}));
+                    if (err) reject(err)
+                    else resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {}));
                 });
             }
-        }))
+        })
     }
 
     createUserDetails(id, playerName, server, dateFormat, preferredChampions) {

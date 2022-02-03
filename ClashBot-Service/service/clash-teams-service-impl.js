@@ -76,14 +76,14 @@ class ClashTeamsServiceImpl {
             let ids = response.map(id => id.players);
             let idToNameMap = {};
             if (ids.length > 0) {
-                idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames([...new Set(ids.flat())]);
+                idToNameMap = await clashSubscriptionDbImpl.retrieveAllUserDetails([...new Set(ids.flat())]);
             }
             response.forEach((record) =>
-                responseArray.push(this.mapDbToApiResponseV2(record, idToNameMap)));
+                responseArray.push(this.mapDbToDetailedApiResponseV2(record, idToNameMap)));
             return responseArray;
         } else {
-            let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
-            return this.mapDbToApiResponseV2(response, idToNameMap);
+            let idToNameMap = await clashSubscriptionDbImpl.retrieveAllUserDetails(response.players);
+            return this.mapDbToDetailedApiResponseV2(response, idToNameMap);
         }
     }
 
