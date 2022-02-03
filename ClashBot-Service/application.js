@@ -103,6 +103,7 @@ let startUpApp = async () => {
                 clashTeamsServiceImpl.createNewTeamV2(req.body.id, req.body.role, req.body.serverName,
                     req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
+                        sendTeamUpdateThroughWs(responsePayload);
                         res.json(responsePayload);
                     })
                     .catch(err => {

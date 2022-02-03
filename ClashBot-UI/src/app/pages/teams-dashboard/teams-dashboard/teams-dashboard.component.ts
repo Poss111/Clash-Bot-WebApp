@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {throwError} from "rxjs";
+import {Subject, Subscription, throwError} from "rxjs";
 import {FormControl, FormGroup} from "@angular/forms";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -20,7 +20,7 @@ import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
-import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
+import { TeamsWebsocketService } from 'src/app/services/teams-websocket.service';
 
 @Component({
   selector: 'app-teams-dashboard',
@@ -47,6 +47,7 @@ export class TeamsDashboardComponent implements OnInit {
   displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];
   showTentative: boolean = false;
   tentativeDataStatus: string = 'NOT_LOADED';
+  $teamsSub: Subscription;
 
   @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
@@ -114,6 +115,7 @@ export class TeamsDashboardComponent implements OnInit {
 
   filterTeam(chip: MatChip) {
     chip.selected ? chip.deselect() : chip.selectViaInteraction();
+    this.$teamsSub.unsubscribe();
     this.showSpinner = true;
     this.teams = [];
     let valueToSearchFor = '';
@@ -152,7 +154,7 @@ export class TeamsDashboardComponent implements OnInit {
             )
             .subscribe((data: ClashTeam[]) => {
               this.syncTeamInformation(data, userDetails);
-                this.teamsWebsocketService.subject.subscribe((msg) => {
+              this.$teamsSub = this.teamsWebsocketService.subject.subscribe((msg) => {
                     let teamToBeUpdated = <ClashTeam>msg;
                     console.log('Update received from teams ws!' + JSON.stringify(teamToBeUpdated));
                     let foundTeam = this.teams.find((team) => team.teamName === teamToBeUpdated.teamName);
