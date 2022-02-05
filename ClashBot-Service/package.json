@@ -21,7 +21,8 @@
     "express-ws": "^5.0.2",
     "joi": "^17.4.2",
     "moment-timezone": "^0.5.33",
-    "supertest": "^6.1.5"
+    "supertest": "^6.1.5",
+    "ws": "^8.4.2"
   },
   "devDependencies": {
     "forever": "^4.0.1",

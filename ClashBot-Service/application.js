@@ -21,19 +21,15 @@ let startUpApp = async () => {
     function sendTeamUpdateThroughWs(data) {
         console.log('WS notified to update clients...');
         try {
-            const clients = clientTopics.get(data.serverName);
-            if (clients && clients.length > 0) {
-                clients.forEach((client) => {
+            [...expressWs.getWss().clients]
+                .filter(client => client.topic === data.serverName)
+                .forEach(client => {
                     if (client && client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify(data));
                         console.log(`Posted message to subscribed client for '${data.serverName}'.`);
-                    } else if (client.readyState === WebSocket.CLOSED) {
-                        clients.splice(clients.indexOf(client), 1);
-                        console.log('Cleared stale client.')
                     }
                 })
-            }
-        } catch(err) {
+        } catch (err) {
             console.error(`Failed to send update through ws for '${JSON.stringify(data)}'`, err);
         }
     }
@@ -55,15 +51,32 @@ let startUpApp = async () => {
         })
 
         app.ws('/ws', (ws, req) => {
+            let interval = setInterval(() => {
+                expressWs.getWss().clients.forEach(s => {
+                    if (s.readyState === WebSocket.OPEN) {
+                        s.isAlive = false;
+                        s.ping();
+                    }
+                }, 5000);
+            })
             ws.on('message', (msg) => {
                 let parsedServerName = JSON.parse(msg);
                 let clients = clientTopics.get(parsedServerName);
+                ws.topic = parsedServerName;
                 if (!clients) clients = [];
                 clients.push(ws);
                 clientTopics.set(parsedServerName, clients);
                 ws.send(JSON.stringify({}));
                 console.log(`Set ws client for '${parsedServerName}'.`)
             });
+            ws.on('pong', (ws) => {
+                ws.isAlive = true;
+            })
+            ws.on('close', (msg) => {
+                console.log('Connection closed.', msg);
+
+                clearInterval(interval);
+            })
             console.log('socket running');
         })
 

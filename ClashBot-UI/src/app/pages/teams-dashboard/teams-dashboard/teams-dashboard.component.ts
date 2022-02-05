@@ -47,7 +47,7 @@ export class TeamsDashboardComponent implements OnInit {
   displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];
   showTentative: boolean = false;
   tentativeDataStatus: string = 'NOT_LOADED';
-  $teamsSub: Subscription;
+  $teamsSub: Subscription | undefined;
 
   @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
@@ -115,7 +115,9 @@ export class TeamsDashboardComponent implements OnInit {
 
   filterTeam(chip: MatChip) {
     chip.selected ? chip.deselect() : chip.selectViaInteraction();
-    this.$teamsSub.unsubscribe();
+    if (this.$teamsSub) {
+      this.$teamsSub.unsubscribe();
+    }
     this.showSpinner = true;
     this.teams = [];
     let valueToSearchFor = '';
@@ -154,6 +156,7 @@ export class TeamsDashboardComponent implements OnInit {
             )
             .subscribe((data: ClashTeam[]) => {
               this.syncTeamInformation(data, userDetails);
+              if (this.$teamsSub) this.$teamsSub.unsubscribe();
               this.$teamsSub = this.teamsWebsocketService.subject.subscribe((msg) => {
                     let teamToBeUpdated = <ClashTeam>msg;
                     console.log('Update received from teams ws!' + JSON.stringify(teamToBeUpdated));
