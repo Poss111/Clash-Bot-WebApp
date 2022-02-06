@@ -2072,7 +2072,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing Tournament start time to persist.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })
@@ -2101,7 +2101,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing User to persist.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })
@@ -2129,7 +2129,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing Server to persist with.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })
@@ -2156,7 +2156,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing Tournament Details to persist with.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })
@@ -2183,7 +2183,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing Tournament Details to persist with.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })
@@ -2208,7 +2208,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(400, (err, res) => {
                         if (err) return done(err);
                         expect(res.body).toEqual({error: 'Missing Role to persist with.'});
-                        expect(clashTeamsDbImpl.registerPlayerV2).not.toHaveBeenCalled();
+                        expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).not.toHaveBeenCalled();
                         done();
                     })
             })

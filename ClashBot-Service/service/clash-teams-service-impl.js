@@ -40,11 +40,11 @@ class ClashTeamsServiceImpl {
                 {tournamentName: tournamentName, tournamentDay: tournamentDay})
                 .then(isTentativeResults => {
                     let registerPlayer = () => {
-                        clashTeamsDbImpl.registerPlayerV2(id, role, serverName, [{
+                        clashTeamsDbImpl.registerPlayerToNewTeamV2(id, role, serverName, [{
                             tournamentName: tournamentName,
                             tournamentDay: tournamentDay,
                             startTime: startTime,
-                        }], true).then((dbResponse) => {
+                        }]).then((dbResponse) => {
                             if (Array.isArray(dbResponse) && dbResponse[0].exist) {
                                 resolve({error: 'Player is not eligible to create a new Team.'});
                             } else {

@@ -128,7 +128,7 @@ class ClashTeamsDbImpl {
         });
     }
 
-    registerPlayerV2(id, role, serverName, tournaments, createNew) {
+    registerPlayerToNewTeamV2(id, role, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.mapTeamsToTournamentsByPlayerV2(id, serverName).then(teamsToTournaments => {
                     let requestedTournamentKeys = tournaments
@@ -161,7 +161,6 @@ class ClashTeamsDbImpl {
 
                         if (!teamForTournaments) {
                             teamForTournaments = {};
-                            createNew = true;
                         }
 
                         // Unregister if User is on a team for the Tournament
@@ -189,19 +188,10 @@ class ClashTeamsDbImpl {
                             teamToModify = teamForTournaments.availableTeams.find((record) => {
                                 return !record.playersWRoles || Object.keys(record.playersWRoles).length === 0
                             });
-                            if (teamToModify) {
-                                createNew = true;
-                            }
-                        }
-
-                        let availableTeamForRole;
-                        if (teamForTournaments.availableTeams) {
-                            availableTeamForRole = teamForTournaments.availableTeams
-                                .find(team => team.playersWRoles && !team.playersWRoles[role]);
                         }
 
                         // If user wants to createNew and an undefined Team is available
-                        if (createNew && teamToModify) {
+                        if (teamToModify) {
                             teamToModify.players = [id];
                             teamToModify.playersWRoles = {};
                             teamToModify.playersWRoles[role] = id;
@@ -229,7 +219,7 @@ class ClashTeamsDbImpl {
                             }
                         }
                         // If user wants to createNew and no undefined Team to join
-                        else if (createNew && !availableTeamForRole) {
+                        else {
                             let nextTeamIndex = teamsToTournaments.length + 1;
                             if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
                                 nextTeamIndex = 0;
@@ -247,32 +237,6 @@ class ClashTeamsDbImpl {
                                 }).catch(err => reject(err));
                             } else {
                                 this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, (err, data) => {
-                                    if (err) reject(err);
-                                    else {
-                                        console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);
-                                        registerDetails.registeredTeam = data.attrs;
-                                        resolve(registerDetails);
-                                    }
-                                })
-                            }
-                        }
-                        // If user wants to join an existing Team regardless of players
-                        else {
-                            console.log(`V2 - # of available Teams ('${teamForTournaments.availableTeams.length}').`);
-                            console.log(`V2 - Adding User ('${id}') to existing Team ('${availableTeamForRole.teamName}')...`)
-                            if (unregisterPromise) {
-                                unregisterPromise.then(() => {
-                                    this.addUserToTeamV2(id, role, availableTeamForRole, (err, data) => {
-                                        if (err) reject(err);
-                                        else {
-                                            console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);
-                                            registerDetails.registeredTeam = data.attrs;
-                                            resolve(registerDetails);
-                                        }
-                                    })
-                                }).catch(err => reject(err));
-                            } else {
-                                this.addUserToTeamV2(id, role, availableTeamForRole, (err, data) => {
                                     if (err) reject(err);
                                     else {
                                         console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);

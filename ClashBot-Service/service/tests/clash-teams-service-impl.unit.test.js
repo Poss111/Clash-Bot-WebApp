@@ -192,7 +192,7 @@ describe('Clash Teams Service Impl', () => {
                 const mockIsTentativeObject = setupIsTentativeReturn(isTentative, expectedPlayerId,
                     expectedServerName, expectedTournamentName, expectedTournamentDay);
 
-                clashTeamsDbImpl.registerPlayerV2.mockResolvedValue(mockDbResponses);
+                clashTeamsDbImpl.registerPlayerToNewTeamV2.mockResolvedValue(mockDbResponses);
                 return {
                     expectedServerName,
                     expectedTournamentName,
@@ -271,7 +271,7 @@ describe('Clash Teams Service Impl', () => {
                 const expectedRole = 'Top';
                 const expectedStartTime = new Date().toISOString();
 
-                clashTeamsDbImpl.registerPlayerV2.mockResolvedValue([{exist: true}]);
+                clashTeamsDbImpl.registerPlayerToNewTeamV2.mockResolvedValue([{exist: true}]);
 
                 setupIsTentativeReturn(false, expectedPlayerId, expectedServerName,
                     expectedTournamentName, expectedTournamentDay);
@@ -1534,8 +1534,8 @@ function verifyRegisterPlayerIsInvoked(expectedPlayerId, expectedServerName, exp
 }
 
 function verifyRegisterPlayerIsInvokedV2(expectedPlayerId, expectedRole, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime) {
-    expect(clashTeamsDbImpl.registerPlayerV2).toHaveBeenCalledTimes(1);
-    expect(clashTeamsDbImpl.registerPlayerV2).toHaveBeenCalledWith(expectedPlayerId, expectedRole,
+    expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).toHaveBeenCalledTimes(1);
+    expect(clashTeamsDbImpl.registerPlayerToNewTeamV2).toHaveBeenCalledWith(expectedPlayerId, expectedRole,
         expectedServerName, [{
             tournamentName: expectedTournamentName,
             tournamentDay: expectedTournamentDay,
