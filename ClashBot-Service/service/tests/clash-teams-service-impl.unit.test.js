@@ -1014,6 +1014,57 @@ describe('Clash Teams Service Impl', () => {
 
     })
 
+    describe('Build Player Id List from registrationResponse', () => {
+
+        test('If there is a single player in the registeredTeam list and no unregisteredTeams' +
+            'It should have a single player id.', () => {
+            const registrationDetails = {
+                registeredTeam: {
+                    players: ['1']
+                },
+                unregisteredTeams: []
+            };
+            expect(Array.from(clashTeamsServiceImpl
+                .buildPlayerIdListFromTeamRegistrationResponse(registrationDetails))).toEqual(['1']);
+        })
+
+        test('If there are multiple players in the registeredTeam list and no unregisteredTeams' +
+            'It should have all player ids.', () => {
+            const registrationDetails = {
+                registeredTeam: {
+                    players: ['1', '2']
+                },
+                unregisteredTeams: []
+            };
+            expect(Array.from(clashTeamsServiceImpl
+                .buildPlayerIdListFromTeamRegistrationResponse(registrationDetails))).toEqual(['1', '2']);
+        })
+
+        test('If there are multiple players in the registeredTeams and unregisteredTeams ' +
+            'It should have all player ids.', () => {
+            const registrationDetails = {
+                registeredTeam: {
+                    players: ['1', '2']
+                },
+                unregisteredTeams: [{
+                    players: ['3']
+                }]
+            };
+            expect(Array.from(clashTeamsServiceImpl
+                .buildPlayerIdListFromTeamRegistrationResponse(registrationDetails))).toEqual(['1', '2', '3']);
+        })
+
+        test('If no player id is found. Should return with an empty set.', () => {
+            const registrationDetails = {
+                unregisteredTeams: [{
+                    players: []
+                }]
+            };
+            expect(Array.from(clashTeamsServiceImpl
+                .buildPlayerIdListFromTeamRegistrationResponse(registrationDetails))).toEqual([]);
+        })
+    })
+
     describe('Retrieve Teams for given Server Name and Tournaments', () => {
 
         describe('Retrieve Teams for given Server Name and Tournaments', () => {

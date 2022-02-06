@@ -79,7 +79,7 @@ class ClashTeamsServiceImpl {
     buildPlayerIdListFromTeamRegistrationResponse(dbResponse) {
         let playerIds = new Set();
         if (dbResponse.registeredTeam) {
-            playerIds.add(...dbResponse.registeredTeam.players);
+            dbResponse.registeredTeam.players.forEach(id => playerIds.add(id));
         }
         if (Array.isArray(dbResponse.unregisteredTeams)) {
             let unregisteredUsers = dbResponse.unregisteredTeams
@@ -87,7 +87,7 @@ class ClashTeamsServiceImpl {
                 .flat()
                 .filter(id => id);
             if (unregisteredUsers.length > 0) {
-                playerIds.add(...unregisteredUsers);
+                unregisteredUsers.forEach(id => playerIds.add(id));
             }
         }
         return playerIds;
