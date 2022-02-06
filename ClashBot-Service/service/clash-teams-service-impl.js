@@ -168,12 +168,31 @@ class ClashTeamsServiceImpl {
                         if (!dbResponse || !dbResponse.registeredTeam) {
                             resolve({error: 'Unable to find the Team requested to be persisted.'});
                         } else {
-                            let registeredTeamResponse =
-                                this.mapTeamDbResponseToApiResponseV2(dbResponse.registeredTeam);
-                            const registrationApiResponsePayload = {
-                                registeredTeam: registeredTeamResponse
-                            };
-                            resolve(registrationApiResponsePayload);
+                            let playerIds = new Set();
+                            if (dbResponse.registeredTeam) {
+                                playerIds.add(...dbResponse.registeredTeam.players);
+                            }
+                            if (Array.isArray(dbResponse.unregisteredTeams)) {
+                                let unregisteredUsers = dbResponse.unregisteredTeams
+                                    .map(data => data.players)
+                                    .flat()
+                                    .filter(id => id);
+                                if (unregisteredUsers.length > 0) {
+                                    playerIds.add(...unregisteredUsers);
+                                }
+                            }
+
+                            clashSubscriptionDbImpl.retrieveAllUserDetails([...playerIds])
+                                .then((idToPlayerMap) => {
+                                    const mappedUnregisteredTeams = dbResponse.unregisteredTeams.map(item =>
+                                        this.mapDbToDetailedApiResponseV2(item, idToPlayerMap));
+                                    const registrationApiResponsePayload = {
+                                        registeredTeam:
+                                            this.mapDbToDetailedApiResponseV2(dbResponse.registeredTeam, idToPlayerMap),
+                                        unregisteredTeams: [...mappedUnregisteredTeams]
+                                    };
+                                    resolve(registrationApiResponsePayload);
+                                })
                         }
                     }).catch(reject);
             }
