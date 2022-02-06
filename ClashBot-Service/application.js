@@ -9,30 +9,13 @@ const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
+const { sendTeamUpdateThroughWs } = require('./websocket-service-impl');
 const {WebSocket} = require('ws');
 const app = express();
 const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
 let startUpApp = async () => {
-
-    let clientTopics = new Map();
-
-    function sendTeamUpdateThroughWs(data) {
-        console.log('WS notified to update clients...');
-        try {
-            [...expressWs.getWss().clients]
-                .filter(client => client.topic === data.serverName)
-                .forEach(client => {
-                    if (client && client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify(data));
-                        console.log(`Posted message to subscribed client for '${data.serverName}'.`);
-                    }
-                })
-        } catch (err) {
-            console.error(`Failed to send update through ws for '${JSON.stringify(data)}'`, err);
-        }
-    }
 
     try {
         await Promise.all([
@@ -60,21 +43,14 @@ let startUpApp = async () => {
                 }, 5000);
             })
             ws.on('message', (msg) => {
-                let parsedServerName = JSON.parse(msg);
-                let clients = clientTopics.get(parsedServerName);
-                ws.topic = parsedServerName;
-                if (!clients) clients = [];
-                clients.push(ws);
-                clientTopics.set(parsedServerName, clients);
+                ws.topic = JSON.parse(msg);
                 ws.send(JSON.stringify({}));
-                console.log(`Set ws client for '${parsedServerName}'.`)
             });
             ws.on('pong', (ws) => {
                 ws.isAlive = true;
             })
             ws.on('close', (msg) => {
                 console.log('Connection closed.', msg);
-
                 clearInterval(interval);
             })
             console.log('socket running');
@@ -116,7 +92,9 @@ let startUpApp = async () => {
                 clashTeamsServiceImpl.createNewTeamV2(req.body.id, req.body.role, req.body.serverName,
                     req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
-                        sendTeamUpdateThroughWs(responsePayload);
+                        if (!responsePayload.error) {
+                            sendTeamUpdateThroughWs([responsePayload.registeredTeam], expressWs);
+                        }
                         res.json(responsePayload);
                     })
                     .catch(err => {
@@ -205,8 +183,12 @@ let startUpApp = async () => {
                 clashTeamsServiceImpl.registerWithTeamV2(req.body.id, req.body.role, teamName,
                     req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
-                        if (data.error) res.statusCode = 400
-                        sendTeamUpdateThroughWs(data);
+                        if (data.error) {
+                            res.statusCode = 400
+                        } else {
+                            const wsPayloads = [...data.unregisteredTeams, data.registeredTeam]
+                            sendTeamUpdateThroughWs(wsPayloads, expressWs);
+                        }
                         res.json(data);
                     }).catch(err => {
                     console.error(err);
@@ -255,7 +237,7 @@ let startUpApp = async () => {
                             res.statusCode = 400;
                             payload = {error: 'User not found on requested Team.'};
                         }
-                        sendTeamUpdateThroughWs(data[0]);
+                        sendTeamUpdateThroughWs(data, expressWs);
                         res.json(payload);
                     }).catch(err => {
                     console.error(err);

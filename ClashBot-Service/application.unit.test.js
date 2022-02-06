@@ -5,6 +5,7 @@ const clashTentativeDbImpl = require('./dao/clash-tentative-db-impl');
 const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const clashUserServiceImpl = require('./service/clash-user-service-impl');
+const { sendTeamUpdateThroughWs } = require('./websocket-service-impl');
 
 const {startUpApp, convertTeamDbToTeamPayload, convertTeamDbToTeamPayloadV2} = require('./application');
 const request = require('supertest');
@@ -17,16 +18,19 @@ jest.mock('./dao/clash-tentative-db-impl');
 jest.mock('./service/clash-teams-service-impl');
 jest.mock('./service/clash-tentative-service-impl');
 jest.mock('./service/clash-user-service-impl');
+jest.mock('./websocket-service-impl');
 
 describe('Clash Bot Service API Controller', () => {
     let application;
     let server;
+    let expressWs;
 
     beforeAll(async () => {
         clashTimeDbImpl.initialize.mockResolvedValue(true);
         clashTeamsDbImpl.initialize.mockResolvedValue(true);
         clashSubscriptionDbImpl.initialize.mockResolvedValue(true);
         application = await startUpApp();
+        expressWs = require('express-ws')(application);
         server = await application.listen();
     })
 
@@ -847,6 +851,7 @@ describe('Clash Bot Service API Controller', () => {
         describe('POST Clash Team Registration - v2', () => {
             test('As a User, I should be able to call /api/v2/team/register ' +
                 'to register with a specific team. - v2', (done) => {
+
                 let expectedUserId = '123456';
                 let expectedRole = 'Top';
                 let expectedUsername = 'Roidrage';
@@ -856,20 +861,112 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 const mockReturnedTeam =
                     {
-                        tournamentDetails: {
-                            tournamentDay: expectedTournamentDay,
-                            tournamentName: expectedTournamentName,
+                        registeredTeam: {
+                            tournamentDetails: {
+                                tournamentDay: expectedTournamentDay,
+                                tournamentName: expectedTournamentName,
+                            },
+                            serverName: expectedServer,
+                            teamName: expectedTeam,
+                            playersDetails: [
+                                {
+                                    name: expectedUsername,
+                                    role: expectedRole
+                                },
+                                {
+                                    name: '1234321',
+                                    role: 'Mid'
+                                }
+                            ]
                         },
-                        serverName: expectedServer,
-                        teamName: expectedTeam,
-                        playersDetails: [
+                        unregisteredTeams: []
+                    };
+                clashTeamsServiceImpl.registerWithTeamV2.mockResolvedValue(mockReturnedTeam);
+                request(application)
+                    .post('/api/v2/team/register')
+                    .send(
+                        {
+                            id: expectedUserId,
+                            role: expectedRole,
+                            teamName: expectedTeam,
+                            serverName: expectedServer,
+                            tournamentName: 'awesome_sauce',
+                            tournamentDay: '1'
+                        }
+                    )
+                    .set('Content-Type', 'application/json')
+                    .expect('Content-Type', /json/)
+                    .expect(200, (err, res) => {
+                        if (err) return done(err);
+                        expect(clashTeamsServiceImpl.registerWithTeamV2)
+                            .toBeCalledWith(expectedUserId, expectedRole,
+                                'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledTimes(1);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith([mockReturnedTeam.registeredTeam], expect.anything());
+                        expect(res.body).toEqual(mockReturnedTeam);
+                        done();
+                    })
+            })
+
+            test('As a User, I should be able to call /api/v2/team/register ' +
+                'to register with a specific team and send any unregistered or registered teams' +
+                'through the websocket. - v2', (done) => {
+
+                let expectedUserId = '123456';
+                let expectedRole = 'Top';
+                let expectedUsername = 'Roidrage';
+                let expectedServer = 'Integration Server'
+                let expectedTeam = 'Team Abra';
+                let expectedTournamentName = "awesome_sauce";
+                let expectedTournamentDay = "1";
+                const mockReturnedTeam =
+                    {
+                        registeredTeam: {
+                            tournamentDetails: {
+                                tournamentDay: expectedTournamentDay,
+                                tournamentName: expectedTournamentName,
+                            },
+                            serverName: expectedServer,
+                            teamName: expectedTeam,
+                            playersDetails: [
+                                {
+                                    name: expectedUsername,
+                                    role: expectedRole
+                                },
+                                {
+                                    name: '1234321',
+                                    role: 'Mid'
+                                }
+                            ]
+                        },
+                        unregisteredTeams: [
                             {
-                                name: expectedUsername,
-                                role: expectedRole
+                                tournamentDetails: {
+                                    tournamentDay: expectedTournamentDay,
+                                    tournamentName: expectedTournamentName,
+                                },
+                                serverName: expectedServer,
+                                teamName: 'Team One',
+                                playersDetails: [
+                                    {
+                                        name: '1234321',
+                                        role: 'Mid'
+                                    }
+                                ]
                             },
                             {
-                                name: '1234321',
-                                role: 'Mid'
+                                tournamentDetails: {
+                                    tournamentDay: expectedTournamentDay,
+                                    tournamentName: expectedTournamentName,
+                                },
+                                serverName: expectedServer,
+                                teamName: 'Team Two',
+                                playersDetails: [
+                                    {
+                                        name: '1234321',
+                                        role: 'Mid'
+                                    }
+                                ]
                             }
                         ]
                     };
@@ -893,6 +990,10 @@ describe('Clash Bot Service API Controller', () => {
                         expect(clashTeamsServiceImpl.registerWithTeamV2)
                             .toBeCalledWith(expectedUserId, expectedRole,
                                 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledTimes(1);
+                        expect(sendTeamUpdateThroughWs)
+                            .toHaveBeenCalledWith([...mockReturnedTeam.unregisteredTeams,
+                                mockReturnedTeam.registeredTeam], expect.anything());
                         expect(res.body).toEqual(mockReturnedTeam);
                         done();
                     })
@@ -907,7 +1008,8 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTeam = 'Abra';
                 let expectedTournamentName = "awesome_sauce";
                 let expectedTournamentDay = "1";
-                const mockReturnedTeam =
+                const mockReturnedTeam = {
+                    registeredTeam:
                     {
                         tournamentDetails: {
                             tournamentDay: expectedTournamentDay,
@@ -919,7 +1021,9 @@ describe('Clash Bot Service API Controller', () => {
                             {name: expectedUsername},
                             {name: '1234321'}
                         ]
-                    };
+                    },
+                    unregisteredTeams: []
+                };
                 clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
                 request(application)
                     .post('/api/team/register')
@@ -1378,15 +1482,16 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentName = "awesome_sauce";
                 let expectedUsername = 'Roidrage';
                 let expectedTournamentDay = "1";
-                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue({
+                let responseUnregistered = [{
                     tournamentDetails: {
                         tournamentDay: expectedTournamentDay,
-                        tournamentName: expectedTournamentName,
+                            tournamentName: expectedTournamentName,
                     },
                     serverName: expectedServer,
-                    teamName: expectedTeam,
+                        teamName: expectedTeam,
                     playersDetails: [{name: expectedUsername}]
-                });
+                }];
+                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue(responseUnregistered);
                 request(application)
                     .delete('/api/v2/team/register')
                     .send(
@@ -1402,6 +1507,8 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
                         if (err) return done(err);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledTimes(1);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith(responseUnregistered, expect.anything());
                         expect(clashTeamsServiceImpl.unregisterFromTeamV2)
                             .toBeCalledWith(expectedUserId, expectedServer,
                                 expectedTournamentName, expectedTournamentDay);
@@ -1827,13 +1934,16 @@ describe('Clash Bot Service API Controller', () => {
                     startTime: 'Aug 12th 2021 7:00 pm PDT'
                 };
                 let expectedNewTeam = {
-                    teamName: 'New Team',
-                    serverName: payload.serverName,
-                    players: ['Roidrage'],
-                    playersRoleDetails: {},
-                    tournamentName: payload.tournamentName,
-                    tournamentDay: payload.tournamentDay,
-                    startTime: payload.startTime
+                    registeredTeam: {
+                        teamName: 'New Team',
+                        serverName: payload.serverName,
+                        players: ['Roidrage'],
+                        playersRoleDetails: {},
+                        tournamentName: payload.tournamentName,
+                        tournamentDay: payload.tournamentDay,
+                        startTime: payload.startTime
+                    },
+                    unregisteredTeams: []
                 };
                 expectedNewTeam[payload.role] = 'Roidrage';
                 clashTeamsServiceImpl.createNewTeamV2.mockResolvedValue(expectedNewTeam);
@@ -1844,6 +1954,8 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
                         if (err) return done(err);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledTimes(1);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith([expectedNewTeam.registeredTeam], expect.anything());
                         expect(res.body).toEqual(expectedNewTeam);
                         expect(clashTeamsServiceImpl.createNewTeamV2).toHaveBeenCalledTimes(1);
                         expect(clashTeamsServiceImpl.createNewTeamV2).toHaveBeenCalledWith(payload.id, payload.role,
@@ -1898,6 +2010,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
                         if (err) return done(err);
+                        expect(sendTeamUpdateThroughWs).not.toHaveBeenCalled();
                         expect(res.body).toEqual(expectedNewTeam);
                         expect(clashTeamsServiceImpl.createNewTeamV2).toHaveBeenCalledTimes(1);
                         expect(clashTeamsServiceImpl.createNewTeamV2).toHaveBeenCalledWith(payload.id, payload.role,
@@ -2749,7 +2862,7 @@ describe('Clash Bot Service API Controller', () => {
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
                     if (err) return done(err);
-                    expect(res.body).toEqual({ error: 'Cannot persist more than 5 champions.' });
+                    expect(res.body).toEqual({error: 'Cannot persist more than 5 champions.'});
                     done();
                 })
         })
@@ -2877,7 +2990,12 @@ describe('Clash Bot Service API Controller', () => {
                 preferredChampions: [],
                 subscriptions: {'UpcomingClashTournamentDiscordDM': false}
             };
-            clashUserServiceImpl.checkIfIdExists.mockResolvedValue({ id: payload.id, username: payload.username, serverName: payload.serverName, preferredChampions: []});
+            clashUserServiceImpl.checkIfIdExists.mockResolvedValue({
+                id: payload.id,
+                username: payload.username,
+                serverName: payload.serverName,
+                preferredChampions: []
+            });
             request(application)
                 .post('/api/user/verify')
                 .send(payload)
@@ -2908,7 +3026,7 @@ describe('Clash Bot Service API Controller', () => {
                     if (err) return done(err);
                     expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledTimes(1);
                     expect(clashUserServiceImpl.checkIfIdExists).toHaveBeenCalledWith(payload.id, payload.username, payload.serverName);
-                    expect(res.body).toEqual({ error: 'Failed to verify User.'});
+                    expect(res.body).toEqual({error: 'Failed to verify User.'});
                     done();
                 })
         })
@@ -2918,7 +3036,7 @@ describe('Clash Bot Service API Controller', () => {
                 username: 'some player',
                 serverName: 'Some Server'
             };
-            const expectedResponse = { error : 'Missing expected User Information' };
+            const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
                 .post('/api/user/verify')
                 .send(payload)
@@ -2937,7 +3055,7 @@ describe('Clash Bot Service API Controller', () => {
                 id: '1',
                 serverName: 'Some Server'
             };
-            const expectedResponse = { error : 'Missing expected User Information' };
+            const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
                 .post('/api/user/verify')
                 .send(payload)
@@ -2956,7 +3074,7 @@ describe('Clash Bot Service API Controller', () => {
                 id: '1',
                 username: 'some player'
             };
-            const expectedResponse = { error : 'Missing expected User Information' };
+            const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
                 .post('/api/user/verify')
                 .send(payload)

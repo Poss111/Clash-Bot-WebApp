@@ -26,7 +26,15 @@ describe('Initialize Table connection', () => {
                         timeAdded: Joi.string(),
                         subscribed: Joi.string(),
                         preferredChampions: Joi.array()
-                    }
+                    },
+                    indexes: [
+                        {
+                            hashKey : 'key',
+                            rangeKey : 'subscribed',
+                            name : 'subscribed-users-index',
+                            type : 'global'
+                        }
+                    ]
                 });
         });
     })
