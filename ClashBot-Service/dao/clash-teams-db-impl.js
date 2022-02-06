@@ -155,7 +155,9 @@ class ClashTeamsDbImpl {
                             `${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`];
                         console.log(`V2 - Tournament selected ('${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}').`);
                         let unregisterPromise;
-                        let registerDetails = {};
+                        let registerDetails = {
+                            unregisteredTeams: []
+                        };
 
                         if (!teamForTournaments) {
                             teamForTournaments = {};
@@ -172,7 +174,7 @@ class ClashTeamsDbImpl {
                                         if (err) reject1(err);
                                         else {
                                             let unregisteredTeams = data.map(item => item.attrs);
-                                            registerDetails.unregisteredTeams = unregisteredTeams;
+                                            registerDetails.unregisteredTeams.push(...unregisteredTeams);
                                             unregisteredTeams.forEach(item =>
                                                 console.log(`V2 - Successfully unregistered player ('${id}') from Team ('${item.teamName}').`))
                                             resolve1(unregisteredTeams);
@@ -331,7 +333,9 @@ class ClashTeamsDbImpl {
                     console.log(`V2 - Error - ('${key}') - Unable to join Team due to either dne or role is taken.`)
                     resolve(foundTeam);
                 }
-                let registrationDetails = {};
+                let registrationDetails = {
+                    unregisteredTeams: []
+                };
                 console.log(`V2 - Team to be assigned to : ('${foundTeam.key}')...`);
                 let callback = (err, data) => {
                     if (err) reject(err);

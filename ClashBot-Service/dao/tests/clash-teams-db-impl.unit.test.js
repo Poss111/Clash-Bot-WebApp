@@ -1272,7 +1272,8 @@ describe('Register Player', () => {
             const expectedVersion = 2;
             const expectedResults = {
                 registeredTeam: buildExpectedTeamV2(expectedTeamName, expectedUserServerName,
-                    expectedUserTournaments, expectedVersion, expectedUserId)
+                    expectedUserTournaments, expectedVersion, expectedUserId),
+                unregisteredTeams: []
             }
 
             clashTeamsDbImpl.Team = {
@@ -1303,7 +1304,8 @@ describe('Register Player', () => {
             const expectedVersion = 2;
             const expectedResults = {
                 registeredTeam: buildExpectedTeamV2(expectedTeamName, expectedUserServerName,
-                    expectedUserTournaments, expectedVersion, expectedUserId)
+                    expectedUserTournaments, expectedVersion, expectedUserId),
+                unregisteredTeams: []
             }
 
             let expectedPlayersReturnedTeam = {
@@ -1347,7 +1349,8 @@ describe('Register Player', () => {
             const expectedVersion = 2;
             const expectedResults = {
                 registeredTeam: buildExpectedTeamV2(expectedTeamName, expectedUserServerName,
-                    expectedUserTournaments, expectedVersion, expectedUserId)
+                    expectedUserTournaments, expectedVersion, expectedUserId),
+                unregisteredTeams: []
             }
 
             let expectedUndefinedPlayersReturnedTeam = {
@@ -1392,7 +1395,8 @@ describe('Register Player', () => {
 
             let expectedRegisteredTeam = {
                 registeredTeam: buildMockTeamV2(expectedUserServerName, ['2', expectedUserId],
-                    expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName)
+                    expectedRoleToPlayerMap, expectedUserTournaments[0], expectedTeamName),
+                unregisteredTeams: []
             };
 
             let returnedPlayersReturnedTeam = buildMockTeamV2(expectedUserServerName, ['2'],
@@ -1790,7 +1794,8 @@ describe('Register Specific Team', () => {
             };
             let expectedRegisteredTeam = {
                 registeredTeam: buildExpectedTeamV2(`Team ${expectedTeamName}`, expectedUserServerName,
-                    expectedUserTournaments, expectedVersion, expectedUserId)
+                    expectedUserTournaments, expectedVersion, expectedUserId),
+                unregisteredTeams: []
             };
 
             clashTeamsDbImpl.Team = {
