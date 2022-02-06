@@ -165,10 +165,15 @@ class ClashTeamsServiceImpl {
                     tournamentDay: tournamentDay
                 }], teamName)
                     .then((dbResponse) => {
-                        if (!dbResponse) {
+                        if (!dbResponse || !dbResponse.registeredTeam) {
                             resolve({error: 'Unable to find the Team requested to be persisted.'});
                         } else {
-                            resolve(this.mapTeamDbResponseToApiResponseV2(dbResponse));
+                            let registeredTeamResponse =
+                                this.mapTeamDbResponseToApiResponseV2(dbResponse.registeredTeam);
+                            const registrationApiResponsePayload = {
+                                registeredTeam: registeredTeamResponse
+                            };
+                            resolve(registrationApiResponsePayload);
                         }
                     }).catch(reject);
             }
