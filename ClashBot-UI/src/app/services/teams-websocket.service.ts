@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { webSocket } from "rxjs/webSocket";
+import {webSocket, WebSocketSubject} from "rxjs/webSocket";
 import {ClashTeam} from "../interfaces/clash-team";
 
 @Injectable({
@@ -7,8 +7,12 @@ import {ClashTeam} from "../interfaces/clash-team";
 })
 export class TeamsWebsocketService {
 
-  subject = webSocket<ClashTeam|string>("ws://localhost:80/ws");
+  private subject = webSocket<ClashTeam|string>("ws://localhost:80/ws");
 
   constructor() { }
+
+  getSubject() : WebSocketSubject<ClashTeam|string>{
+   return this.subject;
+  }
 
 }

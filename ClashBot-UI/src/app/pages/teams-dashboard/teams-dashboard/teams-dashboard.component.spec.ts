@@ -30,10 +30,12 @@ import {TournamentNameTransformerPipe} from "../../../tournament-name-transforme
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {KebabCasePipe} from "../../../shared/kebab-case.pipe";
+import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");
 jest.mock("../../../services/user-details.service");
+jest.mock("../../../services/teams-websocket.service");
 jest.mock("@angular/material/snack-bar");
 
 describe('TeamsDashboardComponent', () => {
@@ -42,6 +44,7 @@ describe('TeamsDashboardComponent', () => {
   let clashBotServiceMock: any;
   let userDetailsServiceMock: any;
   let applicationDetailsMock: any;
+  let teamsWebsocketServiceMock: any;
   let snackBarMock: any;
   let matDialogMock: any;
   let testScheduler: TestScheduler;
@@ -65,9 +68,11 @@ describe('TeamsDashboardComponent', () => {
         MatOptionModule,
         MatSelectModule,
         MatTableModule],
-      providers: [ClashBotService, UserDetailsService, ApplicationDetailsService, MatSnackBar, MatDialog],
+      providers: [ClashBotService, TeamsWebsocketService, UserDetailsService,
+        ApplicationDetailsService, MatSnackBar, MatDialog],
     }).compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
+    teamsWebsocketServiceMock = TestBed.inject(TeamsWebsocketService);
     snackBarMock = TestBed.inject(MatSnackBar);
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
@@ -119,11 +124,14 @@ describe('TeamsDashboardComponent', () => {
         let coldUserDetailsObs = cold('x|', {x: mockUserDetails});
         let coldClashTeamsObs = cold('x|', {x: mockClashTeams});
         let coldClashTentativeObs = cold('x|', {x: mockClashTentativeDetails});
+        let coldClashTeamsWebsocketObs = cold('x|', {x: {}});
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
         userDetailsServiceMock.getUserDetails.mockReturnValue(coldUserDetailsObs);
         clashBotServiceMock.getServerTentativeList.mockReturnValue(coldClashTentativeObs);
         clashBotServiceMock.getClashTeams.mockReturnValue(coldClashTeamsObs);
+        teamsWebsocketServiceMock.getSubject.mockReturnValue(coldClashTeamsWebsocketObs);
+
 
         component = fixture.componentInstance;
 
@@ -147,6 +155,8 @@ describe('TeamsDashboardComponent', () => {
         expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
         expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
         expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(teamsWebsocketServiceMock.getSubject).toHaveBeenCalledTimes(2);
+        expect(teamsWebsocketServiceMock.getSubject).toHaveBeenCalledTimes(2);
         expect(component.tentativeList).toEqual(mockClashTentativeDetails);
         if (component.formControl) {
           expect(component.formControl.value).toEqual(mockApplicationsDetails.defaultGuild);
