@@ -175,7 +175,11 @@ export class TeamsDashboardComponent implements OnInit {
       if (!foundTeam) {
         if (teamToBeUpdated.teamName) {
           let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
-          this.teams.push(...mappedTeam);
+          if (this.teams.length === 1 && this.teams.find(team => team.error)) {
+            this.teams = [...mappedTeam];
+          } else {
+            this.teams.push(...mappedTeam);
+          }
         }
       } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
         let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
