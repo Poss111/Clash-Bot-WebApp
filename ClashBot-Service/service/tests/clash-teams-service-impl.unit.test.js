@@ -1540,8 +1540,7 @@ function verifyRegisterPlayerIsInvokedV2(expectedPlayerId, expectedRole, expecte
             tournamentName: expectedTournamentName,
             tournamentDay: expectedTournamentDay,
             startTime: expectedStartTime
-        }],
-        true);
+        }]);
 }
 
 function verifyRetrievePlayerNamesIsInvoked(expectedPlayerIds) {
