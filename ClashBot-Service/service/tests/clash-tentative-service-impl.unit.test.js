@@ -124,14 +124,26 @@ describe('Clash Tentative Service', () => {
                     onTentative: false,
                     tentativeList: tentativeObject
                 });
-                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue({});
+                const expectedReturnedUnregisteredTeams = [{
+                    teamName: 'Team unregisteredFrom',
+                    serverName: expectedServerName,
+                    tournamentDetails: {
+                        tournamentName: expectedTournamentName,
+                        tournamentDay: expectedTournamentDay
+                    },
+                    playerDetails: []
+                }];
+                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue(expectedReturnedUnregisteredTeams);
                 let addTentativeDbResponse = deepCopy(tentativeObject);
                 addTentativeDbResponse.tentativePlayers.push(expectedPlayerId);
                 let idToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
                 const expectedApiResponse = {
-                    serverName: addTentativeDbResponse.serverName,
-                    tournamentDetails: addTentativeDbResponse.tournamentDetails,
-                    tentativePlayers: [idToPlayerNameMap[addTentativeDbResponse.tentativePlayers[0]]]
+                    tentativeDetails: {
+                        serverName: addTentativeDbResponse.serverName,
+                        tournamentDetails: addTentativeDbResponse.tournamentDetails,
+                        tentativePlayers: [idToPlayerNameMap[addTentativeDbResponse.tentativePlayers[0]]]
+                    },
+                    unregisteredTeams: expectedReturnedUnregisteredTeams
                 };
                 clashTentativeDbImpl.addToTentative.mockResolvedValue(addTentativeDbResponse);
                 return clashTentativeServiceImpl.handleTentativeRequestV2(expectedPlayerId,
@@ -174,14 +186,17 @@ describe('Clash Tentative Service', () => {
                 };
                 clashTentativeDbImpl.isTentative.mockResolvedValue({onTentative: true,
                     tentativeList: tentativeObject});
-                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue({});
+                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue([]);
                 let removeTentativeDbResponse = deepCopy(tentativeObject);
                 removeTentativeDbResponse.tentativePlayers.pop();
                 let idToPlayerNameMap = setupRetrievePlayerNames(expectedPlayerId, expectedUsername);
                 const expectedApiResponse = {
-                    serverName: removeTentativeDbResponse.serverName,
-                    tournamentDetails: removeTentativeDbResponse.tournamentDetails,
-                    tentativePlayers: [idToPlayerNameMap[removeTentativeDbResponse.tentativePlayers[0]]]
+                    tentativeDetails: {
+                        serverName: removeTentativeDbResponse.serverName,
+                        tournamentDetails: removeTentativeDbResponse.tournamentDetails,
+                        tentativePlayers: [idToPlayerNameMap[removeTentativeDbResponse.tentativePlayers[0]]]
+                    },
+                    unregisteredTeams: []
                 };
                 clashTentativeDbImpl.removeFromTentative.mockResolvedValue(removeTentativeDbResponse);
                 return clashTentativeServiceImpl.handleTentativeRequestV2(expectedPlayerIdTwo,
@@ -205,6 +220,7 @@ describe('Clash Tentative Service', () => {
         })
 
     })
+
     test('Error - isTentative fails - if the promise to isTentative fails, then it should be rejected successfully.', () => {
         const expectedPlayerIdTwo = '12321311';
         const expectedServerName = 'Goon Squad';

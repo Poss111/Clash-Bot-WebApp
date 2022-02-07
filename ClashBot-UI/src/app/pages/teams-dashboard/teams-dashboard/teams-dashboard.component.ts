@@ -107,6 +107,8 @@ export class TeamsDashboardComponent implements OnInit {
           .subscribe((data) => {
             data.forEach(tentativeRecord => tentativeRecord.isMember
               = tentativeRecord.tentativePlayers.includes(userDetails.username));
+            data = data.sort((itemOne, itemTwo) =>
+              itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));
             this.tentativeList = data;
             this.tentativeDataStatus = 'SUCCESSFUL';
           });
@@ -408,7 +410,8 @@ export class TeamsDashboardComponent implements OnInit {
     if (element.isMember) {
       actionMessage = 'removed from';
     }
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent,
+      {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});
     dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
       this.userDetailsService.getUserDetails()
         .pipe(take(1))
@@ -429,9 +432,6 @@ export class TeamsDashboardComponent implements OnInit {
               if (this.tentativeList) {
                 this.tentativeList[index] = response;
                 if (this.table) this.table.renderRows();
-              }
-              if (this.formControl) {
-                this.filterForTeamsByServer(this.formControl.value);
               }
             });
           }

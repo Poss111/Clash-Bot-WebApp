@@ -445,7 +445,10 @@ let startUpApp = async () => {
             } else {
                 clashTentativeServiceImpl.handleTentativeRequestV2(req.body.id, req.body.serverName,
                     req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
-                    .then(response => res.json(response))
+                    .then(response => {
+                        sendTeamUpdateThroughWs(response.unregisteredTeams, expressWs);
+                        res.json(response.tentativeDetails)
+                    })
                     .catch((err) => {
                         console.error(err);
                         errorHandler(res, 'Failed to update Tentative record.');

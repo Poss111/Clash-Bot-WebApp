@@ -2553,17 +2553,29 @@ describe('Clash Bot Service API Controller', () => {
             test('When a User calls to be added or removed to the tentative list ' +
                 'with the server name, tournament details and their id, they should ' +
                 'successfully be added. - v2', (done) => {
-                const expectedResponse = {
-                    tentativePlayers: ['Roidrage'],
+                const expectedReturnedUnregisteredTeams = [{
+                    teamName: 'Team unregisteredFrom',
                     serverName: 'Goon Squad',
-                    tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                    tournamentDetails: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    },
+                    playerDetails: []
+                }];
+                const expectedApiResponse = {
+                    tentativeDetails: {
+                        tentativePlayers: ['Roidrage'],
+                        serverName: 'Goon Squad',
+                        tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
+                    },
+                    unregisteredTeams: expectedReturnedUnregisteredTeams
                 };
                 const payload = {
                     id: '2',
                     serverName: 'Goon Squad',
                     tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
                 };
-                clashTentativeServiceImpl.handleTentativeRequestV2.mockResolvedValue(expectedResponse);
+                clashTentativeServiceImpl.handleTentativeRequestV2.mockResolvedValue(expectedApiResponse);
                 request(application)
                     .post('/api/v2/tentative')
                     .send(payload)
@@ -2571,10 +2583,13 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
                         if (err) return done(err);
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalled();
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith(expectedApiResponse.unregisteredTeams,
+                            expect.anything());
                         expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(1);
                         expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledWith(payload.id,
                             payload.serverName, payload.tournamentDetails.tournamentName, payload.tournamentDetails.tournamentDay);
-                        expect(res.body).toEqual(expectedResponse);
+                        expect(res.body).toEqual(expectedApiResponse.tentativeDetails);
                         done();
                     })
             })
@@ -2595,6 +2610,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(500, (err, res) => {
                         if (err) return done(err);
+                        expect(sendTeamUpdateThroughWs).not.toHaveBeenCalled();
                         expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledTimes(1);
                         expect(clashTentativeServiceImpl.handleTentativeRequestV2).toHaveBeenCalledWith(payload.id,
                             payload.serverName, payload.tournamentDetails.tournamentName,

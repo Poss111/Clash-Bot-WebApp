@@ -21,7 +21,6 @@
     "express-ws": "^5.0.2",
     "joi": "^17.4.2",
     "moment-timezone": "^0.5.33",
-    "supertest": "^6.1.5",
     "ws": "^8.4.2"
   },
   "devDependencies": {
@@ -31,6 +30,7 @@
     "nodemon": "^2.0.12",
     "stream-mock": "^2.0.5",
     "streamtest": "^2.0.0",
+    "supertest": "^6.1.5",
     "wait-on": "^6.0.0"
   }
 }
