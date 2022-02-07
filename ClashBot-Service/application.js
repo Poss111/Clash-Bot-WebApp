@@ -93,7 +93,8 @@ let startUpApp = async () => {
                     req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
                         if (!responsePayload.error) {
-                            sendTeamUpdateThroughWs([responsePayload.registeredTeam], expressWs);
+                            sendTeamUpdateThroughWs([...responsePayload.unregisteredTeams,
+                                responsePayload.registeredTeam], expressWs);
                         }
                         res.json(responsePayload);
                     })

@@ -158,20 +158,30 @@ export class TeamsDashboardComponent implements OnInit {
               this.syncTeamInformation(data, userDetails);
               if (this.$teamsSub) this.$teamsSub.unsubscribe();
               this.$teamsSub = this.teamsWebsocketService.subject.subscribe((msg) => {
-                    let teamToBeUpdated = <ClashTeam>msg;
-                    console.log('Update received from teams ws!' + JSON.stringify(teamToBeUpdated));
-                    let foundTeam = this.teams.find((team) => team.teamName === teamToBeUpdated.teamName);
-                    if (!foundTeam) {
-                        if (teamToBeUpdated.teamName) {
-                            let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
-                            this.teams.push(...mappedTeam);
-                        }
-                    } else if(teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
-                        let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
-                        foundTeam.playersDetails = mappedTeam[0].playersDetails;
-                    } else {
-                        this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);
-                    }
+                      let teamToBeUpdated = <ClashTeam>msg;
+                      let foundTeam = this.teams.find((team) => team.teamName === teamToBeUpdated.teamName);
+                      if (!foundTeam) {
+                          if (teamToBeUpdated.teamName) {
+                              let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
+                              this.teams.push(...mappedTeam);
+                          }
+                      } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
+                          let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
+                          if (foundTeam.playersDetails && mappedTeam[0].playersDetails) {
+                              for (let i = 0; i < 5; i++) {
+                                  let roleDetailsToUpdate = foundTeam.playersDetails[i];
+                                  if (roleDetailsToUpdate) {
+                                      let foundRecord = mappedTeam[0].playersDetails
+                                          .find(record => record.role === roleDetailsToUpdate.role);
+                                      if (foundRecord && roleDetailsToUpdate.name !== foundRecord.name) {
+                                          foundTeam.playersDetails[i] = foundRecord;
+                                      }
+                                  }
+                              }
+                          }
+                      } else {
+                          this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);
+                      }
                 }, error => console.error(error),
                 () => console.log('Connection closed to teams ws.'));
                 this.teamsWebsocketService.subject.next(valueToSearchFor);

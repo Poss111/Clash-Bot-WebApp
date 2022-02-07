@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ClashTeam} from "../../../interfaces/clash-team";
+import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
+import {Observable, Subject, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-team-card',
@@ -20,6 +21,7 @@ export class TeamCardComponent implements OnInit {
   @Output()
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
+  eventsSubject: any = {};
   imageUrl: string = '';
   dateFormat: string = 'MMM d, y h:mm a';
   timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -34,6 +36,9 @@ export class TeamCardComponent implements OnInit {
         tournamentDay: '1'
       };
     }
+    this.team.playersDetails?.forEach(playerDetail => {
+      this.eventsSubject[playerDetail.role] = new Subject<boolean>();
+    });
     if(this.team && this.team.teamName) {
       this.imageUrl = this.buildPokemonGifUrl(this.team.teamName.split(' ')[1]);
     }
@@ -54,6 +59,9 @@ export class TeamCardComponent implements OnInit {
             tournamentDay: this.team.tournamentDetails?.tournamentDay,
           }
         };
+        if (role) {
+          this.eventsSubject[role].next(result);
+        }
         this.registerUser.emit(clashBotUserRegister);
       }
     })
