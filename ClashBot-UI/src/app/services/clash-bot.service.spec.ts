@@ -201,8 +201,8 @@ describe('ClashBotService', () => {
   describe('POST Clash Create New Team', () => {
     test('When I request to create a new Team from localhost, I should use localhost with port 80 and be returned Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
-      const mockResponse: ClashTeam =
-        {
+      const mockResponse: ClashBotGenericResponse = {
+        registeredTeam: {
           teamName: 'Team Abra',
           serverName: 'Integration Server',
           tournamentDetails: {
@@ -229,8 +229,10 @@ describe('ClashBotService', () => {
               role: 'Jg'
             }
           ]
-        };
-      const teamRequest: ClashTeam = mockResponse;
+        },
+        unregisteredTeams: []
+      };
+      const teamRequest: ClashTeam = mockResponse.registeredTeam;
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',
@@ -257,8 +259,8 @@ describe('ClashBotService', () => {
 
     test('When I request to create a new Team, I should use the window host and be returned Observable<ClashTeam>', () => {
       stubLocation({hostname: "clashbot.ninja"});
-      const mockResponse: ClashTeam =
-        {
+      const mockResponse: ClashBotGenericResponse = {
+        registeredTeam: {
           teamName: 'Team Abra',
           serverName: 'Integration Server',
           tournamentDetails: {
@@ -285,8 +287,10 @@ describe('ClashBotService', () => {
               role: 'Jg'
             }
           ]
-        };
-      const teamRequest: ClashTeam = mockResponse;
+        },
+        unregisteredTeams: []
+      };
+      const teamRequest: ClashTeam = mockResponse.registeredTeam;
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',
@@ -315,8 +319,8 @@ describe('ClashBotService', () => {
   describe('POST Register to Clash Team', () => {
     test('When I request to register a player to a Clash Tournament from localhost, I should use localhost with port 80 and be returned a payload of Observable<ClashTeam>', () => {
       stubLocation({hostname: "localhost"});
-      const mockResponse: ClashTeam =
-        {
+      const mockResponse: ClashBotGenericResponse = {
+        registeredTeam: {
           teamName: 'Team Abra',
           serverName: 'Integration Server',
           tournamentDetails: {
@@ -343,14 +347,14 @@ describe('ClashBotService', () => {
               role: 'Jg'
             }
           ]
-        };
+        },
+        unregisteredTeams: []
+      };
       const expectedRole = 'Top';
       let teamRequest: ClashBotUserRegister = {
         teamName: 'Team Abra',
         role: expectedRole,
-        tournamentDetails: {
-
-        },
+        tournamentDetails: {},
         serverName: 'Integration Server'
       };
       const userDetail: UserDetails = {
@@ -378,42 +382,43 @@ describe('ClashBotService', () => {
 
     test('When I request to register a player to a Clash Tournament from a host that is not localhost, I should hit the service from the current host and be returned a payload of Observable<ClashTeam>', () => {
       stubLocation({hostname: "clash-bot"});
-      const mockResponse: ClashTeam =
-        {
-          teamName: 'Team Abra',
-          serverName: 'Integration Server',
-          tournamentDetails: {
-            tournamentDay: 'awesome_sauce',
-            tournamentName: '1',
+      const mockResponse: ClashBotGenericResponse = {
+          registeredTeam: {
+            teamName: 'Team Abra',
+            serverName: 'Integration Server',
+            tournamentDetails: {
+              tournamentDay: 'awesome_sauce',
+              tournamentName: '1',
+            },
+            playersDetails: [
+              {
+                id: 1,
+                name: 'Roïdräge',
+                champions: ['Volibear', 'Ornn', 'Sett'],
+                role: 'Top'
+              },
+              {
+                id: 2,
+                name: 'TheIncentive',
+                champions: ['Lucian'],
+                role: 'ADC'
+              },
+              {
+                id: 3,
+                name: 'Pepe Conrad',
+                champions: ['Lucian'],
+                role: 'Jg'
+              }
+            ]
           },
-          playersDetails: [
-            {
-              id: 1,
-              name: 'Roïdräge',
-              champions: ['Volibear', 'Ornn', 'Sett'],
-              role: 'Top'
-            },
-            {
-              id: 2,
-              name: 'TheIncentive',
-              champions: ['Lucian'],
-              role: 'ADC'
-            },
-            {
-              id: 3,
-              name: 'Pepe Conrad',
-              champions: ['Lucian'],
-              role: 'Jg'
-            }
-          ]
-        };
+          unregisteredTeams: []
+        }
+      ;
       const expectedRole = 'Top';
       let teamRequest: ClashBotUserRegister = {
         teamName: 'Team Abra',
         role: expectedRole,
-        tournamentDetails: {
-
-        },
+        tournamentDetails: {},
         serverName: 'Integration Server'
       };
       const userDetail: UserDetails = {
@@ -443,7 +448,6 @@ describe('ClashBotService', () => {
   describe('DELETE Unregister from Clash Team', () => {
     test('When I request to unregister form a Team and from localhost, I should make a call to the Clash Bot register controller localhost with port 80 with method DELETE and be returned Observable<ClashBotGenericResponse>', () => {
       stubLocation({hostname: "localhost"});
-      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team'};
       const teamRequest: ClashTeam =
         {
           teamName: 'Team Abra',
@@ -473,6 +477,10 @@ describe('ClashBotService', () => {
             }
           ]
         };
+      const mockResponse: ClashBotGenericResponse = {
+        registeredTeam: {},
+        unregisteredTeams: [teamRequest]
+      };
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',
@@ -497,7 +505,6 @@ describe('ClashBotService', () => {
 
     test('When I request to unregister form a Team, I should make a call to the Clash Bot register controller with method DELETE and be returned Observable<ClashBotGenericResponse>', () => {
       stubLocation({hostname: "clash-bot.ninja"});
-      const mockResponse: ClashBotGenericResponse = {message: 'Successfully unregister User from team'};
       const teamRequest: ClashTeam =
         {
           teamName: 'Team Abra',
@@ -527,6 +534,10 @@ describe('ClashBotService', () => {
             }
           ]
         };
+      const mockResponse: ClashBotGenericResponse = {
+        registeredTeam: {},
+        unregisteredTeams: [teamRequest]
+      };
       const userDetail: UserDetails = {
         id: 1234,
         username: 'Test User',

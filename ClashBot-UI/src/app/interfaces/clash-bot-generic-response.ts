@@ -1,3 +1,6 @@
+import {ClashTeam} from "./clash-team";
+
 export interface ClashBotGenericResponse {
-  message: string
+  registeredTeam: ClashTeam,
+  unregisteredTeams: ClashTeam[]
 }

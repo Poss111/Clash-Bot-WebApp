@@ -383,18 +383,6 @@ export class TeamsDashboardComponent implements OnInit {
               return throwError(err);
             }),
             take(1),
-            // finalize(() => {
-            //   if (serverName) {
-            //     this.showSpinner = true;
-            //     this.clashBotService.getClashTeams(serverName)
-            //       .pipe(
-            //         take(1),
-            //         timeout(this.MAX_TIMEOUT),
-            //         catchError((err) => this.handleClashTeamsError(this._snackBar, err)),
-            //         finalize(() => this.showSpinner = false))
-            //       .subscribe((updatedTeams) => this.syncTeamInformation(updatedTeams, userDetails))
-            //   }
-            // })
           ).subscribe(() => console.log('Successfully created new team.'));
         })
       this.creatingNewTeam = false;
