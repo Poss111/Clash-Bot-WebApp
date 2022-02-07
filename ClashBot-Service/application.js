@@ -233,10 +233,15 @@ let startUpApp = async () => {
                     req.body.serverName, req.body.tournamentName,
                     req.body.tournamentDay)
                     .then((data) => {
-                        let payload = {message: 'Successfully removed from Team.'};
+                        let payload = {};
                         if (data.error) {
                             res.statusCode = 400;
                             payload = {error: 'User not found on requested Team.'};
+                        } else {
+                            payload = {
+                                registeredTeam: {},
+                                unregisteredTeams: data
+                            }
                         }
                         sendTeamUpdateThroughWs(data, expressWs);
                         res.json(payload);

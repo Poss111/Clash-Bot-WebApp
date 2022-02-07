@@ -1482,16 +1482,28 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentName = "awesome_sauce";
                 let expectedUsername = 'Roidrage';
                 let expectedTournamentDay = "1";
-                let responseUnregistered = [{
+                let responseUnregistered = {
+                    registeredTeam: {},
+                    unregisteredTeams: [{
+                        tournamentDetails: {
+                            tournamentDay: expectedTournamentDay,
+                            tournamentName: expectedTournamentName,
+                        },
+                        serverName: expectedServer,
+                        teamName: expectedTeam,
+                        playersDetails: [{name: expectedUsername}]
+                    }]
+                };
+                let dbResponseUnregistered = [{
                     tournamentDetails: {
                         tournamentDay: expectedTournamentDay,
-                            tournamentName: expectedTournamentName,
+                        tournamentName: expectedTournamentName,
                     },
                     serverName: expectedServer,
-                        teamName: expectedTeam,
+                    teamName: expectedTeam,
                     playersDetails: [{name: expectedUsername}]
                 }];
-                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue(responseUnregistered);
+                clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue(dbResponseUnregistered);
                 request(application)
                     .delete('/api/v2/team/register')
                     .send(
@@ -1508,11 +1520,11 @@ describe('Clash Bot Service API Controller', () => {
                     .expect(200, (err, res) => {
                         if (err) return done(err);
                         expect(sendTeamUpdateThroughWs).toHaveBeenCalledTimes(1);
-                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith(responseUnregistered, expect.anything());
+                        expect(sendTeamUpdateThroughWs).toHaveBeenCalledWith(dbResponseUnregistered, expect.anything());
                         expect(clashTeamsServiceImpl.unregisterFromTeamV2)
                             .toBeCalledWith(expectedUserId, expectedServer,
                                 expectedTournamentName, expectedTournamentDay);
-                        expect(res.body).toEqual({message: 'Successfully removed from Team.'});
+                        expect(res.body).toEqual(responseUnregistered);
                         done();
                     })
             })
