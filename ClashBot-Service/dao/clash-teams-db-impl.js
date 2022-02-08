@@ -1,7 +1,7 @@
 const dynamodb = require('dynamodb');
 const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
-const names = require('../random-names');
+const { retrieveName } = require('../utility/naming-utils');
 
 class ClashTeamsDbImpl {
     Team;
@@ -121,7 +121,7 @@ class ClashTeamsDbImpl {
                         console.log(`Adding ${id} to first available team ${availableTeam.teamName}...`);
                         this.addUserToTeam(id, availableTeam, updateCallback);
                     } else {
-                        this.createNewTeam(id, serverName, tournamentToUse, teams.length + 1, updateCallback);
+                        this.createNewTeam(id, serverName, tournamentToUse, updateCallback);
                     }
                 }
             });
@@ -220,13 +220,9 @@ class ClashTeamsDbImpl {
                         }
                         // If user wants to createNew and no undefined Team to join
                         else {
-                            let nextTeamIndex = teamsToTournaments.length + 1;
-                            if (!teamsToTournaments || !Array.isArray(teamsToTournaments)) {
-                                nextTeamIndex = 0;
-                            }
                             if (unregisterPromise) {
                                 unregisterPromise.then(() => {
-                                    this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, (err, data) => {
+                                    this.createNewTeamV2(id, serverName, role, tournaments[0], (err, data) => {
                                         if (err) reject(err);
                                         else {
                                             console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);
@@ -236,7 +232,7 @@ class ClashTeamsDbImpl {
                                     })
                                 }).catch(err => reject(err));
                             } else {
-                                this.createNewTeamV2(id, serverName, role, tournaments[0], nextTeamIndex, (err, data) => {
+                                this.createNewTeamV2(id, serverName, role, tournaments[0], (err, data) => {
                                     if (err) reject(err);
                                     else {
                                         console.log(`V2 - Successfully registered player ('${id}') to Team ('${data.attrs.teamName}').`);
@@ -591,11 +587,10 @@ class ClashTeamsDbImpl {
         });
     }
 
-    createNewTeam(id, serverName, tournament, number, callback) {
+    createNewTeam(id, serverName, tournament, callback) {
         console.log(`Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
-        let name = names[number];
         let createTeam = {
-            teamName: `Team ${name}`,
+            teamName: `Team ${retrieveName()}`,
             serverName: serverName,
             players: [id],
             tournamentName: tournament.tournamentName,
@@ -606,13 +601,12 @@ class ClashTeamsDbImpl {
         this.Team.update(createTeam, (err, data) => callback(err, data));
     }
 
-    createNewTeamV2(id, serverName, role, tournament, number, callback) {
-        console.log(`V2 - Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
-        let name = names[number];
+    createNewTeamV2(id, serverName, role, tournament, callback) {
+        console.log(`V2 - Creating new team for ${id} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams...`);
         let playerWRoles = {};
         playerWRoles[role] = id;
         let createTeam = {
-            teamName: `Team ${name}`,
+            teamName: `Team ${retrieveName()}`,
             serverName: serverName,
             playersWRoles: playerWRoles,
             players: [id],

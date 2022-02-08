@@ -6,9 +6,11 @@ const randomNames = require('../../random-names');
 const each = require('jest-each').default;
 const Joi = require('joi');
 const {deepCopy} = require("../../utility/tests/test-utility.utility.test");
+const { retrieveName } = require("../../utility/naming-utils");
 
 jest.mock('dynamodb');
 jest.mock('../impl/dynamo-db-helper');
+jest.mock('../../utility/naming-utils');
 
 function buildMockReturnForRegister(streamData, teamToBeReturned, add, update, del) {
     const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([streamData]));
@@ -1062,6 +1064,7 @@ describe('Register Player', () => {
             buildMockReturnForRegister(value, mockTeam, true);
 
             let foundTeam = value.Items[0].attrs;
+            retrieveName.mockReturnValue('Absol');
             let key = clashTeamsDbImpl.getKey('Team Absol', foundTeam.serverName, 'msi2021', 'day_3');
             let expectedCreatedTeam = {
                 key: key,
@@ -1225,6 +1228,7 @@ describe('Register Player', () => {
                 {tournamentName: 'msi2021', tournamentDay: '3'},
                 {tournamentName: 'msi2021', tournamentDay: '4'}
             ];
+            retrieveName.mockReturnValue('Absol');
             let expectedTeamToPersist = {
                 key: "Team Absol#Sample Server#msi2021#3",
                 players: ["Player2"],
@@ -1272,6 +1276,7 @@ describe('Register Player', () => {
             const expectedTeamName = 'Team Abomasnow';
             const expectedUserTournaments = createMockListOfTournaments(2);
             const expectedVersion = 2;
+            retrieveName.mockReturnValue('Abomasnow');
             const expectedResults = {
                 registeredTeam: buildExpectedTeamV2(expectedTeamName, expectedUserServerName,
                     expectedUserTournaments, expectedVersion, expectedUserId),
@@ -1423,6 +1428,7 @@ describe('Register Player', () => {
             const expectedUserRole = 'Top';
             const expectedUserServerName = 'Goon Squad';
             const expectedTeamName = 'Team Abomasnow';
+            retrieveName.mockReturnValue('Abomasnow');
             const expectedUserTournaments = createMockListOfTournaments(2);
             const expectedRoleToPlayerMap = {Top: expectedUserId};
 
@@ -2986,7 +2992,7 @@ describe('Create New Team', () => {
                 tournamentName: 'msi2021',
                 tournamentDay: 'day_2'
             }
-            clashTeamsDbImpl.createNewTeam('Player1', 'Sample Server', tournament, 0, (err) => {
+            clashTeamsDbImpl.createNewTeam('Player1', 'Sample Server', tournament, (err) => {
                 expect(err).toBeTruthy();
             });
         })
@@ -3022,7 +3028,7 @@ describe('Create New Team', () => {
                 startTime: tournament.startTime,
                 key: clashTeamsDbImpl.getKey(teamName, serverName, tournament.tournamentName, tournament.tournamentDay)
             }
-            clashTeamsDbImpl.createNewTeam(playerName, serverName, tournament, 0, (err, data) => {
+            clashTeamsDbImpl.createNewTeam(playerName, serverName, tournament, (err, data) => {
                 expect(clashTeamsDbImpl.Team.update).toBeCalledWith(expectedBuiltTeam, expect.any(Function));
                 expect(data).toEqual(teamCreated)
             });
@@ -3041,7 +3047,7 @@ describe('Create New Team', () => {
                 tournamentName: 'msi2021',
                 tournamentDay: 'day_2'
             };
-            clashTeamsDbImpl.createNewTeamV2('Player1', 'Sample Server', 'Top', tournament, 0, (err) => {
+            clashTeamsDbImpl.createNewTeamV2('Player1', 'Sample Server', 'Top', tournament, (err) => {
                 expect(err).toBeTruthy();
             });
         })
@@ -3064,6 +3070,7 @@ describe('Create New Team', () => {
                 tournamentDay: 'day_2',
                 serverName: serverName
             }
+            retrieveName.mockReturnValue('Abomasnow');
             clashTeamsDbImpl.Team = jest.fn();
             clashTeamsDbImpl.Team = {
                 update: jest.fn().mockImplementation((key, callback) => {
@@ -3084,7 +3091,7 @@ describe('Create New Team', () => {
                 version: 2,
                 key: clashTeamsDbImpl.getKey(teamName, serverName, tournament.tournamentName, tournament.tournamentDay)
             }
-            clashTeamsDbImpl.createNewTeamV2(expectedPlayerId, serverName, 'Top', tournament, 0, (err, data) => {
+            clashTeamsDbImpl.createNewTeamV2(expectedPlayerId, serverName, 'Top', tournament, (err, data) => {
                 expect(clashTeamsDbImpl.Team.update).toBeCalledWith(expectedBuiltTeam, expect.any(Function));
                 expect(data).toEqual(teamCreated)
             });
