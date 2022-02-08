@@ -53,7 +53,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     createNewTeamRoleDropDown.click();
     cy.get('#clash-bot-teams-card-create-new-dropdown-top').click();
     cy.get('#clash-bot-team-card-no-data').should('not.exist');
-    cy.get('#clash-bot-teams-card-goon-squad-team-abomasnow').should('exist');
+    cy.get('app-team-card>#clash-bot-team-card').should('have.length', 1);
   })
 
   let navigateToTeamsPage = () => {

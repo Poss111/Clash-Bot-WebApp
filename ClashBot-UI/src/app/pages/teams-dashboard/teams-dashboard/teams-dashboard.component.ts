@@ -173,7 +173,9 @@ export class TeamsDashboardComponent implements OnInit {
         let teamToBeUpdated = <ClashTeam>message;
         if (teamToBeUpdated.teamName) {
             let foundTeam = this.teams.find((team) =>
-                team.teamName === teamToBeUpdated.teamName);
+                team.teamName === teamToBeUpdated.teamName
+            && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName
+            && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);
             if (!foundTeam) {
                 if (teamToBeUpdated.teamName) {
                     let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
