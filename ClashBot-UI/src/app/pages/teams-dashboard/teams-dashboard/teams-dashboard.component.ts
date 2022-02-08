@@ -206,7 +206,7 @@ export class TeamsDashboardComponent implements OnInit {
         }
     }
 
-    private updateTentativeListBasedOnTeam(mappedTeam: ClashTeam) {
+    updateTentativeListBasedOnTeam(mappedTeam: ClashTeam) {
         let playerNames: string[] = [];
         if (mappedTeam.playersDetails) {
             playerNames = mappedTeam.playersDetails?.map(details => details.name);

@@ -33,7 +33,7 @@ let startUpApp = async () => {
             console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
         })
 
-        app.ws('/ws', (ws, req) => {
+        app.ws(`${urlPrefix}/teams/ws`, (ws, req) => {
             let interval = setInterval(() => {
                 expressWs.getWss().clients.forEach(s => {
                     if (s.readyState === WebSocket.OPEN) {
