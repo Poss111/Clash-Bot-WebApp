@@ -37,7 +37,10 @@ export class WelcomeDashboardComponent implements OnInit {
     scope: 'identify guilds',
     showDebugInformation: true,
     oidc: false,
-    sessionChecksEnabled: true
+    sessionChecksEnabled: true,
+    customQueryParams: {
+      'prompt': 'none'
+    }
   }
 
   constructor(private oauthService: OAuthService,

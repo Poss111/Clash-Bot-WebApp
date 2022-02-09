@@ -13,11 +13,26 @@
             </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
-            <div *ngFor="let playerDetails of team.playersDetails">
-              <app-team-card-player-details [player]="playerDetails"
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[0]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
-            </div>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[1]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[2]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[3]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[4]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
         </mat-card-content>
     </div>
     <ng-template #elseBlock>

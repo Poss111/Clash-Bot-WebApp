@@ -30,11 +30,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-teams-header').should('have.text', 'Your available Servers to filter by');
     cy.get('#clash-bot-teams-lol-clashbotsupport').should('contain.text', 'LoL-ClashBotSupport');
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    cy.get('app-team-card>#clash-bot-team-card').should('have.length', 5);
+    cy.get('app-team-card>#clash-bot-team-card').should('have.length', 6);
     cy.get('#clash-bot-teams-card-create-new-team-card').should('exist');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-title').should('have.text', 'LoL-ClashBotSupport - Team Pikachu');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-subtitle-tournament').should('have.text', 'Awesome Sauce - Day 2');
-    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players>div').should('have.length', 5);
+    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players>app-team-card-player-details>div>div>div>div>h2').should('have.length', 5);
   })
 
   it('Check to see if User is able to create a new Team on a Server that does not have any Clash Teams', () => {
@@ -53,7 +53,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     createNewTeamRoleDropDown.click();
     cy.get('#clash-bot-teams-card-create-new-dropdown-top').click();
     cy.get('#clash-bot-team-card-no-data').should('not.exist');
-    cy.get('#clash-bot-teams-card-goon-squad-team-abomasnow').should('exist');
+    cy.get('app-team-card>#clash-bot-team-card').should('have.length', 1);
   })
 
   let navigateToTeamsPage = () => {

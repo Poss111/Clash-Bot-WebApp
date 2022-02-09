@@ -9,10 +9,14 @@ const clashTeamsServiceImpl = require('./service/clash-teams-service-impl');
 const clashTentativeServiceImpl = require('./service/clash-tentative-service-impl');
 const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
+const { sendTeamUpdateThroughWs } = require('./websocket-service-impl');
+const {WebSocket} = require('ws');
 const app = express();
+const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
 let startUpApp = async () => {
+
     try {
         await Promise.all([
             clashTeamsDbImpl.initialize(),
@@ -21,12 +25,35 @@ let startUpApp = async () => {
             clashTentativeDbImpl.initialize()]);
 
         app.use(express.json());
-        app.use(cors())
+        app.use(cors());
 
         app.use((req, res, next) => {
             console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
             next();
             console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
+        })
+
+        app.ws(`${urlPrefix}/teams/ws`, (ws, req) => {
+            let interval = setInterval(() => {
+                expressWs.getWss().clients.forEach(s => {
+                    if (s.readyState === WebSocket.OPEN) {
+                        s.isAlive = false;
+                        s.ping();
+                    }
+                }, 5000);
+            })
+            ws.on('message', (msg) => {
+                ws.topic = JSON.parse(msg);
+                ws.send(JSON.stringify({}));
+            });
+            ws.on('pong', (ws) => {
+                ws.isAlive = true;
+            })
+            ws.on('close', (msg) => {
+                console.log('Connection closed.', msg);
+                clearInterval(interval);
+            })
+            console.log('socket running');
         })
 
         app.post(`${urlPrefix}/team`, (req, res) => {
@@ -65,6 +92,10 @@ let startUpApp = async () => {
                 clashTeamsServiceImpl.createNewTeamV2(req.body.id, req.body.role, req.body.serverName,
                     req.body.tournamentName, req.body.tournamentDay, req.body.startTime)
                     .then((responsePayload) => {
+                        if (!responsePayload.error) {
+                            sendTeamUpdateThroughWs([...responsePayload.unregisteredTeams,
+                                responsePayload.registeredTeam], expressWs);
+                        }
                         res.json(responsePayload);
                     })
                     .catch(err => {
@@ -153,7 +184,12 @@ let startUpApp = async () => {
                 clashTeamsServiceImpl.registerWithTeamV2(req.body.id, req.body.role, teamName,
                     req.body.serverName, req.body.tournamentName, req.body.tournamentDay)
                     .then(data => {
-                        if (data.error) res.statusCode = 400
+                        if (data.error) {
+                            res.statusCode = 400
+                        } else {
+                            const wsPayloads = [...data.unregisteredTeams, data.registeredTeam]
+                            sendTeamUpdateThroughWs(wsPayloads, expressWs);
+                        }
                         res.json(data);
                     }).catch(err => {
                     console.error(err);
@@ -197,11 +233,17 @@ let startUpApp = async () => {
                     req.body.serverName, req.body.tournamentName,
                     req.body.tournamentDay)
                     .then((data) => {
-                        let payload = {message: 'Successfully removed from Team.'};
+                        let payload = {};
                         if (data.error) {
                             res.statusCode = 400;
                             payload = {error: 'User not found on requested Team.'};
+                        } else {
+                            payload = {
+                                registeredTeam: {},
+                                unregisteredTeams: data
+                            }
                         }
+                        sendTeamUpdateThroughWs(data, expressWs);
                         res.json(payload);
                     }).catch(err => {
                     console.error(err);
@@ -408,7 +450,10 @@ let startUpApp = async () => {
             } else {
                 clashTentativeServiceImpl.handleTentativeRequestV2(req.body.id, req.body.serverName,
                     req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
-                    .then(response => res.json(response))
+                    .then(response => {
+                        sendTeamUpdateThroughWs(response.unregisteredTeams, expressWs);
+                        res.json(response.tentativeDetails)
+                    })
                     .catch((err) => {
                         console.error(err);
                         errorHandler(res, 'Failed to update Tentative record.');

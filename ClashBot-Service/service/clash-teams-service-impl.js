@@ -40,15 +40,26 @@ class ClashTeamsServiceImpl {
                 {tournamentName: tournamentName, tournamentDay: tournamentDay})
                 .then(isTentativeResults => {
                     let registerPlayer = () => {
-                        clashTeamsDbImpl.registerPlayerV2(id, role, serverName, [{
+                        clashTeamsDbImpl.registerPlayerToNewTeamV2(id, role, serverName, [{
                             tournamentName: tournamentName,
                             tournamentDay: tournamentDay,
                             startTime: startTime,
-                        }], true).then((response) => {
-                            if (Array.isArray(response) && response[0].exist) {
+                        }]).then((dbResponse) => {
+                            if (Array.isArray(dbResponse) && dbResponse[0].exist) {
                                 resolve({error: 'Player is not eligible to create a new Team.'});
                             } else {
-                                resolve(this.mapTeamDbResponseToApiResponseV2(response));
+                                let playerIds = this.buildPlayerIdListFromTeamRegistrationResponse(dbResponse);
+
+                                clashSubscriptionDbImpl.retrieveAllUserDetails([...playerIds])
+                                    .then((idToPlayerMap) => {
+                                        const mappedUnregisteredTeams = dbResponse.unregisteredTeams.map(item =>
+                                            this.mapDbToDetailedApiResponseV2(item, idToPlayerMap));
+                                        const apiResponse = {
+                                            registeredTeam: this.mapDbToDetailedApiResponseV2(dbResponse.registeredTeam, idToPlayerMap),
+                                            unregisteredTeams: [...mappedUnregisteredTeams]
+                                        };
+                                        resolve(apiResponse);
+                                    });
                             }
                         }).catch(reject);
                     };
@@ -65,26 +76,26 @@ class ClashTeamsServiceImpl {
         });
     }
 
+    buildPlayerIdListFromTeamRegistrationResponse(dbResponse) {
+        let playerIds = new Set();
+        if (dbResponse.registeredTeam) {
+            dbResponse.registeredTeam.players.forEach(id => playerIds.add(id));
+        }
+        if (Array.isArray(dbResponse.unregisteredTeams)) {
+            let unregisteredUsers = dbResponse.unregisteredTeams
+                .map(data => data.players)
+                .flat()
+                .filter(id => id);
+            if (unregisteredUsers.length > 0) {
+                unregisteredUsers.forEach(id => playerIds.add(id));
+            }
+        }
+        return playerIds;
+    }
+
     async mapTeamDbResponseToApiResponse(response) {
         let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
         return this.mapDbToApiResponse(response, idToNameMap);
-    }
-
-    async mapTeamDbResponseToApiResponseV2(response) {
-        if (Array.isArray(response)) {
-            let responseArray = [];
-            let ids = response.map(id => id.players);
-            let idToNameMap = {};
-            if (ids.length > 0) {
-                idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames([...new Set(ids.flat())]);
-            }
-            response.forEach((record) =>
-                responseArray.push(this.mapDbToApiResponseV2(record, idToNameMap)));
-            return responseArray;
-        } else {
-            let idToNameMap = await clashSubscriptionDbImpl.retrievePlayerNames(response.players);
-            return this.mapDbToApiResponseV2(response, idToNameMap);
-        }
     }
 
     mapDbToApiResponse(response, idToNameMap) {
@@ -100,27 +111,6 @@ class ClashTeamsServiceImpl {
             },
             startTime: response.startTime,
         };
-    }
-
-    mapDbToApiResponseV2(response, idToNameMap) {
-        let mappedResponse = {
-            teamName: response.teamName,
-            serverName: response.serverName,
-            playersDetails: Array.isArray(response.players) ? response.players.map(data => {
-                return {name: !idToNameMap[data] ? data : idToNameMap[data], id: data}
-            }) : {},
-            tournamentDetails: {
-                tournamentName: response.tournamentName,
-                tournamentDay: response.tournamentDay
-            },
-            startTime: response.startTime,
-            playersRoleDetails: {}
-        };
-        let keys = Object.keys(response.playersWRoles);
-        for (let key in keys) {
-            mappedResponse.playersRoleDetails[keys[key]] = idToNameMap[response.playersWRoles[keys[key]]]
-        }
-        return mappedResponse;
     }
 
     registerWithTeam(id, teamName, serverName, tournamentName, tournamentDay) {
@@ -165,10 +155,22 @@ class ClashTeamsServiceImpl {
                     tournamentDay: tournamentDay
                 }], teamName)
                     .then((dbResponse) => {
-                        if (!dbResponse) {
+                        if (!dbResponse || !dbResponse.registeredTeam) {
                             resolve({error: 'Unable to find the Team requested to be persisted.'});
                         } else {
-                            resolve(this.mapTeamDbResponseToApiResponseV2(dbResponse));
+                            let playerIds = this.buildPlayerIdListFromTeamRegistrationResponse(dbResponse);
+
+                            clashSubscriptionDbImpl.retrieveAllUserDetails([...playerIds])
+                                .then((idToPlayerMap) => {
+                                    const mappedUnregisteredTeams = dbResponse.unregisteredTeams.map(item =>
+                                        this.mapDbToDetailedApiResponseV2(item, idToPlayerMap));
+                                    const registrationApiResponsePayload = {
+                                        registeredTeam:
+                                            this.mapDbToDetailedApiResponseV2(dbResponse.registeredTeam, idToPlayerMap),
+                                        unregisteredTeams: [...mappedUnregisteredTeams]
+                                    };
+                                    resolve(registrationApiResponsePayload);
+                                });
                         }
                     }).catch(reject);
             }
@@ -213,7 +215,11 @@ class ClashTeamsServiceImpl {
                 .then(dbResponse => {
                     if (!dbResponse) resolve({error: 'User not found on requested Team.'});
                     else {
-                        resolve(this.mapTeamDbResponseToApiResponseV2(dbResponse));
+                        let playerIds = this.buildPlayerIdListFromTeamRegistrationResponse({ unregisteredTeams: dbResponse });
+                        clashSubscriptionDbImpl.retrieveAllUserDetails([...playerIds])
+                            .then((idToPlayerMap) => {
+                                resolve(dbResponse.map(item => this.mapDbToDetailedApiResponseV2(item, idToPlayerMap)))
+                            });
                     }
                 }).catch(reject);
         });

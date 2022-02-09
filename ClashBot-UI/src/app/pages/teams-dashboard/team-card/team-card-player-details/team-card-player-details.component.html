@@ -1,30 +1,32 @@
 <div class="clash-bot-player-details-container">
   <div class="player-role-player-details-inner-container">
-    <ng-container *ngIf="!player.name; else elseBlock">
+    <ng-container *ngIf="!showPlayerDetails; else elseBlock">
       <div class="player-role-join-container">
         <button class="player-role-join-btn"
-                id="clash-bot-team-card-join-{{player.role | kebabcase}}-register-button"
-                (click)="registerToTeam(player.role)">
-          <h2 class="player-role-join-text">{{player.role}}</h2>
+                [ngClass]="button"
+                id="clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button"
+                (click)="registerToTeam(playerDetails.role)">
+          <h2 class="player-role-join-text">{{playerDetails.role}}</h2>
         </button>
       </div>
     </ng-container>
     <ng-template #elseBlock>
       <div class="player-details-player-container">
-        <div id="clash-bot-team-card-registered-player" class="player-details-player-inner-container">
-          <h2 id="clash-bot-team-card-registered-player-{{player.role | kebabcase}}"
-              class="player-details-text">{{player.role}} - {{player.name}}</h2>
-          <div id="clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list"
+        <div id="clash-bot-team-card-registered-player" class="player-details-player-inner-container"
+             [ngClass]="text">
+          <h2 id="clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}"
+              class="player-details-text">{{playerDetails.role}} - {{playerDetails.name}}</h2>
+          <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
                class="player-champion-list-container"
-               *ngIf="player.champions && player.champions.length > 0">
-            <h3>Champions: {{player.champions}}</h3>
+               *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
+            <h3>Champions: {{playerDetails.champions}}</h3>
           </div>
         </div>
-        <div *ngIf="player.isUser" class="clash-bot-role-button">
+        <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">
           <mat-card-content>
             <div class="clash-bot-button-container">
               <button mat-mini-fab color="warn"
-                      id="clash-bot-team-card-{{player.role | kebabcase}}-unregister-button"
+                      id="clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button"
                       (click)="unregisterFromTeam()"
                       aria-label="Unregister with this Team">
                 <mat-icon>remove</mat-icon>

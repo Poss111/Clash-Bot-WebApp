@@ -1,29 +1,88 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    OnDestroy,
+    Output,
+    ViewChild,
+    ElementRef,
+    OnChanges, SimpleChanges, ChangeDetectionStrategy
+} from '@angular/core';
 import {PlayerDetails} from "../../../../interfaces/clash-team";
+import {Observable, Subscription} from "rxjs";
 
 @Component({
-  selector: 'app-team-card-player-details',
-  templateUrl: './team-card-player-details.component.html',
-  styleUrls: ['./team-card-player-details.component.scss']
+    selector: 'app-team-card-player-details',
+    templateUrl: './team-card-player-details.component.html',
+    styleUrls: ['./team-card-player-details.component.scss']
 })
-export class TeamCardPlayerDetailsComponent {
+export class TeamCardPlayerDetailsComponent implements OnInit, OnChanges {
 
-  @Input()
-  player: PlayerDetails = { name: 'Hello', id: 1, role: 'Top', champions: []};
+    @Input()
+    player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};
 
-  @Output()
-  registerUserForRole: EventEmitter<string> = new EventEmitter<string>();
+    playerDetails: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};
 
-  @Output()
-  unregisterUserForRole: EventEmitter<string> = new EventEmitter<string>();
+    @Input()
+    event: Observable<boolean> = new Observable<boolean>();
 
-  constructor() { }
+    @Output()
+    registerUserForRole: EventEmitter<string> = new EventEmitter<string>();
 
-  registerToTeam(role: string) {
-    this.registerUserForRole.emit(role);
-  }
+    @Output()
+    unregisterUserForRole: EventEmitter<string> = new EventEmitter<string>();
 
-  unregisterFromTeam() {
-    this.unregisterUserForRole.emit();
-  }
+    showPlayerDetails: boolean = false;
+
+    button = {
+        disappear: false
+    }
+
+    text = {
+        disappear: false
+    }
+
+    constructor() {
+    }
+
+    ngOnInit(): void {
+        Object.assign(this.playerDetails, this.player);
+        this.showPlayerDetails = this.playerDetails.name !== '';
+        if (this.showPlayerDetails) {
+            this.text.disappear = false;
+            this.button.disappear = true;
+        } else {
+            this.text.disappear = true;
+            this.button.disappear = false;
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.player && !changes.player.isFirstChange()) {
+                if (changes.player.currentValue.name !== '') {
+                    this.button.disappear = true;
+                    setTimeout(() => {
+                        Object.assign(this.playerDetails, this.player);
+                        this.showPlayerDetails = true;
+                        this.text.disappear = false;
+                    }, 300);
+                } else {
+                    this.text.disappear = true;
+                    setTimeout(() => {
+                        Object.assign(this.playerDetails, this.player);
+                        this.showPlayerDetails = false;
+                        this.button.disappear = false;
+                    }, 300);
+                }
+        }
+    }
+
+    registerToTeam(role: string) {
+        this.registerUserForRole.emit(role);
+    }
+
+    unregisterFromTeam() {
+        this.unregisterUserForRole.emit();
+    }
 }

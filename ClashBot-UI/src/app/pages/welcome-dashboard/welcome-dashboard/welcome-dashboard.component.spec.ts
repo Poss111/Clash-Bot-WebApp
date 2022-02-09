@@ -69,8 +69,11 @@ describe('WelcomeDashboardComponent', () => {
     scope: 'identify guilds',
     showDebugInformation: true,
     oidc: false,
-    sessionChecksEnabled: true
-  }
+    sessionChecksEnabled: true,
+    customQueryParams: {
+      prompt: "none"
+    },
+  };
   let testScheduler: TestScheduler;
 
   beforeEach(async () => {
@@ -189,7 +192,7 @@ describe('WelcomeDashboardComponent', () => {
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
       expect(component.loggedIn).toEqual('LOGGED_IN');
-      expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ currentTournaments: mockTournaments });
+      expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({currentTournaments: mockTournaments});
     });
   })
 
@@ -250,7 +253,7 @@ describe('WelcomeDashboardComponent', () => {
   describe('Set User Details', () => {
     test('When setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details.', () => {
       testScheduler.run(helpers => {
-        const { cold, flush } = helpers;
+        const {cold, flush} = helpers;
 
         let mockUser = createMockUser();
         let mockClashBotUser: ClashBotUserDetails = createMockClashBotUser(mockUser);
@@ -278,7 +281,10 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({
+          defaultGuild: mockClashBotUser.serverName,
+          userGuilds: mockGuilds
+        });
         expect(clashBotMock.postUserDetails).not.toHaveBeenCalled();
         expect(component.loggedIn).toEqual('LOGGED_IN');
       })
@@ -286,17 +292,17 @@ describe('WelcomeDashboardComponent', () => {
 
     test('If username does not exist in Clash Bot Service when setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details and then subsequently push a new User record to the Clash Bot Service.', () => {
       testScheduler.run(helpers => {
-        const { cold, flush } = helpers;
+        const {cold, flush} = helpers;
 
         let mockUser = createMockUser();
-        let mockClashBotUser: any = { subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+        let mockClashBotUser: any = {subscriptions: {UpcomingClashTournamentDiscordDM: false}};
         let mockGuilds = mockDiscordGuilds();
         let mockReturnedClashBotUser: ClashBotUserDetails = {
           id: mockUser.id,
           username: mockUser.username,
           serverName: mockGuilds[0].name,
           preferredChampions: [],
-          subscriptions: { UpcomingClashTournamentDiscordDM: false }
+          subscriptions: {UpcomingClashTournamentDiscordDM: false}
         }
 
         let coldObservable = cold('x|', {x: mockUser});
@@ -322,26 +328,35 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockReturnedClashBotUser.serverName, userGuilds: mockGuilds });
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({
+          defaultGuild: mockReturnedClashBotUser.serverName,
+          userGuilds: mockGuilds
+        });
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), {'UpcomingClashTournamentDiscordDM': false}, mockUser.username);
         expect(component.loggedIn).toEqual('LOGGED_IN');
       })
     })
 
     test('If username does not match the username in Clash Bot Service for the id when setUserDetails is called, it should invoke the call to discord to get the user details then push that into the User Details service then make a call to retrieve the Clash Bot User Details and then subsequently push a new User record to the Clash Bot Service.', () => {
       testScheduler.run(helpers => {
-        const { cold, flush } = helpers;
+        const {cold, flush} = helpers;
 
         let mockUser = createMockUser();
         let mockGuilds = mockDiscordGuilds();
-        let mockClashBotUser: ClashBotUserDetails = { id: mockUser.id, username: 'Different', serverName: mockGuilds[0].name, preferredChampions: [], subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+        let mockClashBotUser: ClashBotUserDetails = {
+          id: mockUser.id,
+          username: 'Different',
+          serverName: mockGuilds[0].name,
+          preferredChampions: [],
+          subscriptions: {UpcomingClashTournamentDiscordDM: false}
+        };
         let mockReturnedClashBotUser: ClashBotUserDetails = {
           id: mockUser.id,
           username: mockUser.username,
           serverName: mockGuilds[0].name,
           preferredChampions: [],
-          subscriptions: { UpcomingClashTournamentDiscordDM: false }
+          subscriptions: {UpcomingClashTournamentDiscordDM: false}
         };
 
         let coldObservable = cold('x|', {x: mockUser});
@@ -367,20 +382,29 @@ describe('WelcomeDashboardComponent', () => {
         expect(userDetailsServiceMock.setUserDetails).toHaveBeenCalledWith(mockUser);
         expect(clashBotMock.getUserDetails).toHaveBeenCalledWith(mockUser.id);
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: mockClashBotUser.serverName, userGuilds: mockGuilds});
+        expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({
+          defaultGuild: mockClashBotUser.serverName,
+          userGuilds: mockGuilds
+        });
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), {'UpcomingClashTournamentDiscordDM': false}, mockUser.username);
         expect(component.loggedIn).toEqual('LOGGED_IN');
       })
     })
 
     test('ERROR - Failed to update user details - A generic error message should be displayed and the user should be failed to login.', () => {
       testScheduler.run(helpers => {
-        const { cold, flush } = helpers;
+        const {cold, flush} = helpers;
 
         let mockUser = createMockUser();
         let mockGuilds = mockDiscordGuilds();
-        let mockClashBotUser: ClashBotUserDetails = { id: mockUser.id, username: 'Different', serverName: mockGuilds[0].name, preferredChampions: [], subscriptions: { UpcomingClashTournamentDiscordDM: false }};
+        let mockClashBotUser: ClashBotUserDetails = {
+          id: mockUser.id,
+          username: 'Different',
+          serverName: mockGuilds[0].name,
+          preferredChampions: [],
+          subscriptions: {UpcomingClashTournamentDiscordDM: false}
+        };
 
         const expectedError =
           new HttpErrorResponse({
@@ -418,7 +442,7 @@ describe('WelcomeDashboardComponent', () => {
         expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
         expect(applicationDetailsServiceMock.setApplicationDetails).not.toHaveBeenCalled();
         expect(clashBotMock.postUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), { 'UpcomingClashTournamentDiscordDM': false }, mockUser.username);
+        expect(clashBotMock.postUserDetails).toHaveBeenCalledWith(mockUser.id, mockGuilds[0].name, new Set<string>(), {'UpcomingClashTournamentDiscordDM': false}, mockUser.username);
         expect(component.loggedIn).toEqual('NOT_LOGGED_IN');
       })
     })
