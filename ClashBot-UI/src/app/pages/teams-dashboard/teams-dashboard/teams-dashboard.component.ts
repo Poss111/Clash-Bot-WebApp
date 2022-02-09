@@ -162,7 +162,12 @@ export class TeamsDashboardComponent implements OnInit {
                             this.teamsWebsocketService.getSubject().next(valueToSearchFor);
                             this.$teamsSub = this.teamsWebsocketService.getSubject()
                                 .subscribe((msg) => this.handleIncomingTeamsWsEvent(msg, userDetails),
-                                    error => console.error(error),
+                                    () => {
+                                      this._snackBar.open('Oops! Failed to connect to server for Team updates, please try refreshing.',
+                                        'X',
+                                        {duration: 5 * 1000}),
+                                        this.teams = [{error: 'No data'}];
+                                    },
                                     () => console.log('Connection closed to teams ws.'));
                         })
                 }
