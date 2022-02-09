@@ -27,6 +27,7 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
 import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
+import { ImgFallbackDirective } from './directives/img-fallback.directive';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import {MatDialogModule} from "@angular/material/dialog";
     ClashTournamentCalendarComponent,
     ClashTournamentCalendarHeaderComponent,
     UpcomingTournamentDetailsCardComponent,
-    ReleaseNotificationDialogComponent
+    ReleaseNotificationDialogComponent,
+    ImgFallbackDirective
   ],
   imports: [
     BrowserModule,
