@@ -3019,6 +3019,7 @@ describe('Create New Team', () => {
                 })
             }
             let teamName = `Team Abomasnow`
+            retrieveName.mockReturnValue('Abomasnow');
             let expectedBuiltTeam = {
                 teamName: teamName,
                 serverName: serverName,
