@@ -28,23 +28,23 @@ import {SharedModule} from "../../../shared/shared.module";
         TeamCardComponent,
         TournamentNameTransformerPipe
     ],
-  imports: [
-    CommonModule,
-    TeamsRoutingModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatOptionModule,
-    MatSelectModule,
-    MatTableModule,
-    SharedModule
-  ]
+    imports: [
+        CommonModule,
+        TeamsRoutingModule,
+        MatChipsModule,
+        MatProgressSpinnerModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatOptionModule,
+        MatSelectModule,
+        MatTableModule,
+        SharedModule
+    ]
 })
 export class TeamsModule {
 }

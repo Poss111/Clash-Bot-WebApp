@@ -21,7 +21,7 @@ export class TeamCardComponent implements OnInit {
   @Output()
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
-  imageUrl: string = '';
+  pokemonName: string = '';
   dateFormat: string = 'MMM d, y h:mm a';
   timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -36,7 +36,7 @@ export class TeamCardComponent implements OnInit {
       };
     }
     if(this.team && this.team.teamName) {
-      this.imageUrl = this.buildPokemonGifUrl(this.team.teamName.split(' ')[1]);
+      this.pokemonName = this.team.teamName.split(' ')[1].toLowerCase();
     }
   }
 
@@ -70,8 +70,4 @@ export class TeamCardComponent implements OnInit {
     })
   }
 
-    buildPokemonGifUrl(pokemonName: string) {
-        let name = pokemonName.toLowerCase();
-        return `https://img.pokemondb.net/sprites/black-white/anim/normal/${name}.gif`;
-    }
 }
