@@ -10,7 +10,8 @@
     "preintegration-windows": "node integration/integration-setup.js",
     "integration-windows": "set INTEGRATION_TEST=true && node index.js",
     "preintegration": "node integration/integration-setup.js",
-    "test": "jest unit --silent"
+    "test": "jest unit --silent",
+    "local-test": "jest unit --silent | pino-pretty -t"
   },
   "author": "Daniel Poss",
   "license": "ISC",
