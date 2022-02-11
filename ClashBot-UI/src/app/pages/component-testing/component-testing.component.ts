@@ -11,7 +11,7 @@ import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notifica
 export class ComponentTestingComponent {
 
   sampleTeam: ClashTeam = {
-    teamName: 'Team Charizard',
+    teamName: 'Team Applin',
     playersDetails: [
       {
         name: 'Roidrage',
