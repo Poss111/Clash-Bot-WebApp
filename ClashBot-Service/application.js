@@ -12,6 +12,7 @@ const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const { sendTeamUpdateThroughWs } = require('./websocket-service-impl');
 const {WebSocket} = require('ws');
 const app = express();
+const pino  = require('pino-http')();
 const expressWs = require('express-ws')(app);
 const urlPrefix = '/api';
 
@@ -26,12 +27,7 @@ let startUpApp = async () => {
 
         app.use(express.json());
         app.use(cors());
-
-        app.use((req, res, next) => {
-            console.log(`Request Path ('${req.url}') Method ('${req.method}')`)
-            next();
-            console.log(`Response Path ('${req.url}') Status Code ('${res.statusCode}')`);
-        })
+        app.use(pino);
 
         app.ws(`${urlPrefix}/teams/ws`, (ws, req) => {
             let interval = setInterval(() => {
@@ -50,10 +46,10 @@ let startUpApp = async () => {
                 ws.isAlive = true;
             })
             ws.on('close', (msg) => {
-                console.log('Connection closed.', msg);
+                req.log.info('Connection closed.', msg);
                 clearInterval(interval);
             })
-            console.log('socket running');
+            req.log.info('socket running');
         })
 
         app.post(`${urlPrefix}/team`, (req, res) => {
@@ -71,7 +67,7 @@ let startUpApp = async () => {
                         res.json(responsePayload);
                     })
                     .catch(err => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to create new Team.');
                     });
             }
@@ -99,7 +95,7 @@ let startUpApp = async () => {
                         res.json(responsePayload);
                     })
                     .catch(err => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to create new Team.');
                     });
             }
@@ -107,38 +103,38 @@ let startUpApp = async () => {
 
         app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
             if (req.params.serverName) {
-                console.log(`Querying for server : ('${req.params.serverName}')...`);
+                req.log.info(`Querying for server : ('${req.params.serverName}')...`);
             } else {
-                console.log('Querying for all teams...');
+                req.log.info('Querying for all teams...');
             }
             clashTimeDbImpl.findTournament().then(activeTournaments => {
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.params.serverName, activeTournaments)
                     .then(payload => res.json(payload))
                     .catch(err => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to retrieve Teams.');
                     });
             }).catch(err => {
-                console.error(err);
+                req.log.error(err);
                 errorHandler(res, 'Failed to retrieve active Tournaments.');
             });
         })
 
         app.get(`${urlPrefix}/v2/teams/:serverName?`, (req, res) => {
             if (req.params.serverName) {
-                console.log(`Querying for server : ('${req.params.serverName}')...`);
+                req.log.info(`Querying for server : ('${req.params.serverName}')...`);
             } else {
-                console.log('Querying for all teams...');
+                req.log.info('Querying for all teams...');
             }
             clashTimeDbImpl.findTournament().then(activeTournaments => {
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(req.params.serverName, activeTournaments)
                     .then(payload => res.json(payload))
                     .catch(err => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to retrieve Teams.');
                     });
             }).catch(err => {
-                console.error(err);
+                req.log.error(err);
                 errorHandler(res, 'Failed to retrieve active Tournaments.');
             });
         })
@@ -153,7 +149,7 @@ let startUpApp = async () => {
             } else if (!req.body.tournamentName || !req.body.tournamentDay) {
                 badRequestHandler(res, 'Missing Tournament Details to persist with.');
             } else {
-                console.log(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
+                req.log.info(`Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
                 let teamName = req.body.teamName;
                 if (/\s/g.test(req.body.teamName)) {
                     teamName = req.body.teamName.split(' ')[1];
@@ -163,7 +159,7 @@ let startUpApp = async () => {
                         if (data.error) res.statusCode = 400
                         res.json(data);
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to persist User to Team.')
                 });
             }
@@ -176,7 +172,7 @@ let startUpApp = async () => {
             else if (!req.body.serverName) badRequestHandler(res, 'Missing Server to persist with.');
             else if (!req.body.tournamentName || !req.body.tournamentDay) badRequestHandler(res, 'Missing Tournament Details to persist with.');
             else {
-                console.log(`V2 - Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
+                req.log.info(`V2 - Received request to add User ('${req.body.id}') to Team ('${req.body.teamName}') with Server ('${req.body.serverName}') for Tournament ('${req.body.tournamentName}') and Day ('${req.body.tournamentDay}')`);
                 let teamName = req.body.teamName;
                 if (/\s/g.test(req.body.teamName)) {
                     teamName = req.body.teamName.split(' ')[1];
@@ -192,7 +188,7 @@ let startUpApp = async () => {
                         }
                         res.json(data);
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to persist User to Team.')
                 });
             }
@@ -215,7 +211,7 @@ let startUpApp = async () => {
                         }
                         res.json(payload);
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to unregister User from Team due.')
                 });
             }
@@ -246,7 +242,7 @@ let startUpApp = async () => {
                         sendTeamUpdateThroughWs(data, expressWs);
                         res.json(payload);
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to unregister User from Team due.')
                 });
             }
@@ -265,13 +261,13 @@ let startUpApp = async () => {
                 });
                 res.send(tournamentsPayload);
             }).catch(err => {
-                console.error(err);
+                req.log.error(err);
                 errorHandler(res, 'Failed to retrieve Clash Tournament times.');
             });
         })
 
         app.get(`${urlPrefix}/user`, (req, res) => {
-            console.log(req.query.id)
+            req.log.info(req.query.id)
             if (!req.query.id) {
                 badRequestHandler(res, 'Missing required query parameter.');
             } else {
@@ -287,7 +283,7 @@ let startUpApp = async () => {
                     };
                     res.json(payload);
                 }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to retrieve User.');
                 })
             }
@@ -332,7 +328,7 @@ let startUpApp = async () => {
                             res.json(payload);
                         }
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to retrieve User.');
                 })
             }
@@ -361,7 +357,7 @@ let startUpApp = async () => {
                         }
                         res.json(response);
                     }).catch(err => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to verify User.');
                 })
             }
@@ -371,7 +367,7 @@ let startUpApp = async () => {
             if (!req.query.serverName) {
                 badRequestHandler(res, 'Missing required query parameter.');
             } else {
-                console.log(req.query.serverName);
+                req.log.info(req.query.serverName);
                 clashTimeDbImpl.findTournament().then((tournaments) => {
                     let queries = [];
                     tournaments.forEach(tournament => queries.push(clashTentativeDbImpl.getTentative(req.query.serverName, tournament)));
@@ -415,11 +411,11 @@ let startUpApp = async () => {
                                 res.json(payload);
                             }
                         }).catch(err => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                     });
                 }).catch((err) => {
-                    console.error(err);
+                    req.log.error(err);
                     errorHandler(res, 'Failed to pull all Tentative players for current Tournaments.');
                 });
             }
@@ -435,7 +431,7 @@ let startUpApp = async () => {
                 clashTentativeServiceImpl.handleTentativeRequest(req.body.id, req.body.serverName, req.body.tournamentDetails.tournamentName, req.body.tournamentDetails.tournamentDay)
                     .then(response => res.json(response))
                     .catch((err) => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to update Tentative record.');
                     });
             }
@@ -455,7 +451,7 @@ let startUpApp = async () => {
                         res.json(response.tentativeDetails)
                     })
                     .catch((err) => {
-                        console.error(err);
+                        req.log.error(err);
                         errorHandler(res, 'Failed to update Tentative record.');
                     });
             }
@@ -468,7 +464,7 @@ let startUpApp = async () => {
         })
 
         app.use((req, res) => {
-            console.error(`Path not found ('${req.url}')`);
+            req.log.error(`Path not found ('${req.url}')`);
             res.statusCode = 404;
             res.json({error: 'Path not found.'})
         })

@@ -7,6 +7,7 @@ const clashTeamsData = require('./mock-data/clash-teams-sample-data');
 const clashSubscriptionData = require('./mock-data/clash-subscriptions-sample-data');
 const clashTentativeData = require('./mock-data/clash-tentative-sample-data');
 const templateBuilder = require('../utility/template-builder');
+const logger = require('pino')();
 
 process.env.INTEGRATION_TEST = true;
 
@@ -46,7 +47,7 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
         tournamentDayFour: '4',
         serverName: 'LoL-ClashBotSupport'
     };
-    console.log(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
+    logger.info(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
     let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
     let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);
     let clashSubscriptionDynamicData = templateBuilder.buildMessage(clashSubscriptionData, overrides);
@@ -67,10 +68,10 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
             for (const key of createdTables.keys()) {
                 keys.push(key);
             }
-            console.log(`Built: ${JSON.stringify(keys)}`);
+            logger.info(`Built: ${JSON.stringify(keys)}`);
             resolve(createdTables);
         }).catch(err => {
-        console.error('Failed to load table data.', err);
+        logger.error('Failed to load table data.', err);
         reject(err);
     });
 });
@@ -94,47 +95,47 @@ function persistSampleData(module, data) {
     return new Promise((resolve, reject) => {
         module.initialize().then(table => {
             cleanUpTable(module.tableName, table).then(() => {
-                console.log(`Creating table ('${module.tableName}')...`);
+                logger.info(`Creating table ('${module.tableName}')...`);
                 table.createTable((err) => {
                     if (err) {
-                        console.error(`Failed to create ${module.tableName}.`, err);
+                        logger.error(`Failed to create ${module.tableName}.`, err);
                         reject(err);
                     } else {
                         let successful = 0;
                         let failed = 0;
                         let dataPersisted = [];
-                        console.log(`Successfully created table ('${module.tableName}').`);
+                        logger.info(`Successfully created table ('${module.tableName}').`);
                         data.Items.forEach(recordToInsert => {
                             console.debug(`Inserting record into ('${module.tableName}')...`);
                             table.create(recordToInsert, (err) => {
                                 if (err) {
-                                    console.error(`Failed to load data`, err);
+                                    logger.error(`Failed to load data`, err);
                                     failed++;
                                 } else {
                                     dataPersisted.push(recordToInsert);
                                     successful++;
                                 }
                                 if (data.Items.length === (failed + successful)) {
-                                    console.log(`Loaded ('${successful}') records into ('${module.tableName}')`);
+                                    logger.info(`Loaded ('${successful}') records into ('${module.tableName}')`);
                                     resolve({tableName: module.tableName, table: table, data: dataPersisted});
                                 } else if (data.Items.length === failed) {
-                                    console.error(`Failed to load all data into table ('${module.tableName}')`);
+                                    logger.error(`Failed to load all data into table ('${module.tableName}')`);
                                     reject(new Error('Failed to load data'));
                                 }
                             });
                         })
                     }
                 })
-            }).catch(err => console.error(`Failed to delete table ('${module.tableName}')`, err));
-        }).catch(err => console.error(`Failed to load data for ('${module.tableName}').`, err));
+            }).catch(err => logger.error(`Failed to delete table ('${module.tableName}')`, err));
+        }).catch(err => logger.error(`Failed to load data for ('${module.tableName}').`, err));
     })
 }
 
 function cleanUpTable(tableName, table) {
     return new Promise((resolve) => {
-        console.log(`Attempting to delete table ('${tableName}')...`);
+        logger.info(`Attempting to delete table ('${tableName}')...`);
         table.deleteTable((err) => {
-            if (err) console.error('Table was unable to be deleted.', err);
+            if (err) logger.error('Table was unable to be deleted.', err);
             resolve(`Successfully deleted ${tableName}.`);
         })
     });
@@ -142,8 +143,8 @@ function cleanUpTable(tableName, table) {
 
 function clearAllTables() {
     createdTables.forEach((record, key) => cleanUpTable(key.tableName, record.table)
-        .then(data => console.log(data))
-        .catch(err => console.error(err)));
+        .then(data => logger.info(data))
+        .catch(err => logger.error(err)));
 }
 
 module.exports.loadAllTables = loadAllTables;

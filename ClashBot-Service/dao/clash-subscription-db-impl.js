@@ -1,6 +1,7 @@
 const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
 const moment = require('moment-timezone');
+const logger = require('pino')();
 
 class ClashSubscriptionDbImpl {
 
@@ -27,7 +28,7 @@ class ClashSubscriptionDbImpl {
                     type : 'global'
                 }]
             }).then((tableDef) => {
-                console.log(`Successfully setup table def for ('${this.tableName}')`);
+                logger.info(`Successfully setup table def for ('${this.tableName}')`);
                 this.clashSubscriptionTable = tableDef;
                 resolve(tableDef);
             }).catch(err => reject(err));
@@ -49,7 +50,7 @@ class ClashSubscriptionDbImpl {
         this.clashSubscriptionTable.create(subscription, (err, data) => {
             if (err) reject(err);
             else {
-                console.log(`Successfully saved subscription => ${JSON.stringify(data)}`);
+                logger.info(`Successfully saved subscription => ${JSON.stringify(data)}`);
                 resolve(subscription);
             }
         })
@@ -60,7 +61,7 @@ class ClashSubscriptionDbImpl {
             this.clashSubscriptionTable.update(userDetailsToUpdate, (err, data) => {
                 if (err) reject(err);
                 else {
-                    console.log(`Successfully updated User Details => ${JSON.stringify(data)}`);
+                    logger.info(`Successfully updated User Details => ${JSON.stringify(data)}`);
                     resolve(data.attrs);
                 }
             })
@@ -73,7 +74,7 @@ class ClashSubscriptionDbImpl {
                 (err, data) => {
                     if (err) reject(err);
                     else {
-                        console.log(`Successfully deleted subscription for ('${JSON.stringify(data)}').`);
+                        logger.info(`Successfully deleted subscription for ('${JSON.stringify(data)}').`);
                         resolve(data);
                     }
                 })
@@ -84,7 +85,7 @@ class ClashSubscriptionDbImpl {
         return new Promise((resolve, reject) => {
             this.retrieveUserDetails(id).then(userData => {
                 if (userData.key) {
-                    console.log(`Updating user preferences id ('${id}') champions ('${champion}')`);
+                    logger.info(`Updating user preferences id ('${id}') champions ('${champion}')`);
                     if (Array.isArray(userData.preferredChampions)
                         && userData.preferredChampions.length === 5) {
                         userData.error = 'User has maximum preferred Champions. Cannot add.';
@@ -102,13 +103,13 @@ class ClashSubscriptionDbImpl {
                         this.clashSubscriptionTable.update(userData, (err, data) => {
                             if (err) reject(err);
                             else {
-                                console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
+                                logger.info(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
                                 resolve(data.attrs);
                             }
                         });
                     }
                 } else {
-                    console.log(`Creating user preferences id ('${id}') champions ('${champion}')`);
+                    logger.info(`Creating user preferences id ('${id}') champions ('${champion}')`);
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const timeZone = 'America/Los_Angeles';
                     moment.tz.setDefault(timeZone);
@@ -123,7 +124,7 @@ class ClashSubscriptionDbImpl {
                     this.clashSubscriptionTable.create(subscription, (err, dataPersisted) => {
                         if (err) reject(err);
                         else {
-                            console.log(`Successfully persisted record ('${JSON.stringify(dataPersisted.attrs)}')`);
+                            logger.info(`Successfully persisted record ('${JSON.stringify(dataPersisted.attrs)}')`);
                             resolve(dataPersisted.attrs);
                         }
                     })
@@ -135,7 +136,7 @@ class ClashSubscriptionDbImpl {
 
     retrieveUserDetails(id) {
         return new Promise((resolve, reject) => {
-            console.log(`Retrieving User Details for id ('${id}')`);
+            logger.info(`Retrieving User Details for id ('${id}')`);
             this.clashSubscriptionTable.query(id).exec((err, data) => {
                 if (err) reject(err);
                 if (!data.Items[0]) {
@@ -169,7 +170,7 @@ class ClashSubscriptionDbImpl {
             if (!ids || ids.length < 1 || ids[0] === undefined) {
                 resolve({});
             } else {
-                console.log(`Retrieving names for ids ('${ids}')...`)
+                logger.info(`Retrieving names for ids ('${ids}')...`)
                 this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
                     if (err) reject(err);
                     resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {}));

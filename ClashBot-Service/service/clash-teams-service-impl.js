@@ -1,6 +1,7 @@
 const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const clashTentativeDbImpl = require('../dao/clash-tentative-db-impl');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const logger = require('pino')();
 
 class ClashTeamsServiceImpl {
     createNewTeam(id, serverName, tournamentName, tournamentDay, startTime) {
@@ -22,12 +23,12 @@ class ClashTeamsServiceImpl {
                         }).catch(reject);
                     };
                     if (isTentativeResults.onTentative) {
-                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        logger.info(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
                             .then(registerPlayer)
                             .catch(reject);
                     } else {
-                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        logger.info(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerPlayer();
                     }
                 }).catch(reject);
@@ -64,12 +65,12 @@ class ClashTeamsServiceImpl {
                         }).catch(reject);
                     };
                     if (isTentativeResults.onTentative) {
-                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        logger.info(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, isTentativeResults.tentativeList)
                             .then(registerPlayer)
                             .catch(reject);
                     } else {
-                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        logger.info(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerPlayer();
                     }
                 }).catch(reject);
@@ -134,12 +135,12 @@ class ClashTeamsServiceImpl {
             })
                 .then(tentativeResults => {
                     if (tentativeResults.onTentative) {
-                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        logger.info(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
                             .then(registerWithSpecificTeam)
                             .catch(reject);
                     } else {
-                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        logger.info(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerWithSpecificTeam();
                     }
                 })
@@ -180,12 +181,12 @@ class ClashTeamsServiceImpl {
             })
                 .then(tentativeResults => {
                     if (tentativeResults.onTentative) {
-                        console.log(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
+                        logger.info(`('${id}') found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), removing...`);
                         clashTentativeDbImpl.removeFromTentative(id, tentativeResults.tentativeList)
                             .then(registerWithSpecificTeamV2)
                             .catch(reject);
                     } else {
-                        console.log(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
+                        logger.info(`('${id}') not found on Tentative for Tournament ('${tournamentName}') ('${tournamentDay}'), skipping tentative removal...`);
                         registerWithSpecificTeamV2();
                     }
                 })
