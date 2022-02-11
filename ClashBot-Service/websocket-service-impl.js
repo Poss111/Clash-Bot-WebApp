@@ -1,7 +1,8 @@
 const { WebSocket } = require('ws');
+const logger = require('pino')();
 
 let sendTeamUpdateThroughWs = (data, expressWs) => {
-    console.log('WS notified to update clients...');
+    logger.info('WS notified to update clients...');
     try {
         let serverReducePayload = data.reduce((map, key) => {
             if (!map[key.serverName]) {
@@ -18,11 +19,11 @@ let sendTeamUpdateThroughWs = (data, expressWs) => {
                     serverReducePayload[client.topic].forEach((payload) => {
                         client.send(JSON.stringify(payload));
                     });
-                    console.log(`Posted '${serverReducePayload[client.topic].length}' message to subscribed client for '${client.topic}'.`);
+                    logger.info(`Posted '${serverReducePayload[client.topic].length}' message to subscribed client for '${client.topic}'.`);
                 }
             })
     } catch (err) {
-        console.error(`Failed to send update through ws for '${JSON.stringify(data)}'`, err);
+        logger.error(`Failed to send update through ws for '${JSON.stringify(data)}'`, err);
     }
 }
 
