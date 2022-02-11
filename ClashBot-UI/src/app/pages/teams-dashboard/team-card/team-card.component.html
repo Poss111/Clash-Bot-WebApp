@@ -1,8 +1,9 @@
 <mat-card id="clash-bot-team-card" class="example-card">
     <div *ngIf="!team.error; else elseBlock">
         <mat-card-header>
-            <div mat-card-avatar
-                 [ngStyle]="{'background-image': 'url(' + imageUrl + ')', 'background-size': 'cover'}"></div>
+            <img mat-card-avatar
+                 [src]="'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'"
+            appImageFallback/>
             <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.serverName}}
                 - {{team.teamName}}</mat-card-title>
             <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-tournament'"

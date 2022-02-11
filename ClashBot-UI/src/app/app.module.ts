@@ -29,38 +29,43 @@ import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    WelcomeDashboardComponent,
-    ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent,
-    UpcomingTournamentDetailsCardComponent,
-    ReleaseNotificationDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatMenuModule,
-    MatProgressBarModule,
-    MatListModule,
-    OAuthModule.forRoot(),
-    TeamsModule,
-    MarkdownModule.forRoot({
-      sanitize: SecurityContext.HTML
-    })
-  ],
-  providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        WelcomeDashboardComponent,
+        ClashTournamentCalendarComponent,
+        ClashTournamentCalendarHeaderComponent,
+        UpcomingTournamentDetailsCardComponent,
+        ReleaseNotificationDialogComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatMenuModule,
+        MatProgressBarModule,
+        MatListModule,
+        OAuthModule.forRoot(),
+        TeamsModule,
+        MarkdownModule.forRoot({
+            sanitize: SecurityContext.HTML
+        })
+    ],
+    providers: [ClashBotService, DiscordService, {
+        provide: HTTP_INTERCEPTORS,
+        useClass: DiscordInterceptor,
+        multi: true
+    }],
+    exports: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

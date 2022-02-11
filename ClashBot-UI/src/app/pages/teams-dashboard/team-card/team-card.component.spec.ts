@@ -51,7 +51,7 @@ describe('TeamCardComponent', () => {
     expect(component.team.tournamentDetails).toBeTruthy();
     expect(component.team.tournamentDetails?.tournamentName).toEqual('Placeholder');
     expect(component.team.tournamentDetails?.tournamentDay).toEqual('1');
-    expect(component.imageUrl).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/team.gif')
+    expect(component.pokemonName).toEqual('team')
   })
 
   test('Should not modify tournament Details if they are given', () => {
@@ -66,7 +66,7 @@ describe('TeamCardComponent', () => {
     component.team = JSON.parse(JSON.stringify(expectedTeam));
     fixture.detectChanges();
     expect(component.team.tournamentDetails).toEqual(expectedTeam.tournamentDetails);
-    expect(component.imageUrl).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/team.gif')
+    expect(component.pokemonName).toEqual('team')
   })
 
   describe('Emit registerToTeam Event', () => {
@@ -131,10 +131,4 @@ describe('TeamCardComponent', () => {
     })
   })
 
-  describe('Build team card poke image url', () => {
-    test('When a pokemon name is passed, a url should be returned reflecting the correct image url for it.', () => {
-      let exepectedName = 'Pikachu';
-      expect(component.buildPokemonGifUrl(exepectedName)).toEqual('https://img.pokemondb.net/sprites/black-white/anim/normal/pikachu.gif');
-    })
-  })
 });
