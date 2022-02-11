@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "local-start": "node index.js | pino-pretty",
+    "local-start": "node index.js | pino-pretty -t",
     "nodemon": "nodemon index.js",
     "preintegration-windows": "node integration/integration-setup.js",
     "integration-windows": "set INTEGRATION_TEST=true && node index.js",
