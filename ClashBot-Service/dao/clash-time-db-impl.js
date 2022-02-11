@@ -1,5 +1,6 @@
 const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
+const logger = require('pino')();
 
 class ClashTimeDbImpl {
 
@@ -21,7 +22,7 @@ class ClashTimeDbImpl {
                     }
                 })
                 .then((tableDef) => {
-                    console.log(`Successfully setup table def for ('${this.tableName}')`);
+                    logger.info(`Successfully setup table def for ('${this.tableName}')`);
                     this.clashTimesTable = tableDef;
                     resolve(tableDef);
                 }).catch(err => reject(err));

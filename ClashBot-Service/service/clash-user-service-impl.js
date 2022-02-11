@@ -1,4 +1,5 @@
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const logger = require('pino')();
 
 class ClashUserServiceImpl {
 
@@ -8,7 +9,7 @@ class ClashUserServiceImpl {
                 if (!userDetails || !userDetails.key) {
                     clashSubscriptionDbImpl.createUpdateUserDetails(id, serverName, username, [])
                         .then((createdUser) => {
-                            console.log(`Created a new User entry for ('${id}')`)
+                            logger.info(`Created a new User entry for ('${id}')`)
                             resolve(createdUser);
                         })
                 } else {

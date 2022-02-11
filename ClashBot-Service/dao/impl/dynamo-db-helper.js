@@ -1,4 +1,5 @@
 const dynamodb = require('dynamodb');
+const logger = require('pino')();
 
 class DynamoDbHelper {
 
@@ -8,11 +9,11 @@ class DynamoDbHelper {
         return new Promise((resolve) => {
             if (!this.setupConfig) {
                 if (process.env.INTEGRATION_TEST) {
-                    console.log('Loading credentials for Integration Test.');
+                    logger.info('Loading credentials for Integration Test.');
                     if (!process.env.HOST) {
                         process.env.HOST = 'localhost';
                     }
-                    console.log(`HOST : ${process.env.HOST}`);
+                    logger.info(`HOST : ${process.env.HOST}`);
                     dynamodb.AWS.config.update({
                         region: `${process.env.REGION}`,
                         endpoint: `http://${process.env.HOST}:8000`,
@@ -24,17 +25,17 @@ class DynamoDbHelper {
                         }
                     });
                 } else if (process.env.LOCAL) {
-                    console.log('Loading credentials for local.');
+                    logger.info('Loading credentials for local.');
                     dynamodb.AWS.config.loadFromPath('./credentials.json');
                 } else {
-                    console.log('Loading credentials for remote.');
+                    logger.info('Loading credentials for remote.');
                     dynamodb.AWS.config.update({
                         region: `${process.env.REGION}`
                     });
                 }
                 this.setupConfig = true;
             }
-            console.log(`Loaded table def ('${tableName}').`);
+            logger.info(`Loaded table def ('${tableName}').`);
             resolve(dynamodb.define(tableName, tableDef));
         })
     }

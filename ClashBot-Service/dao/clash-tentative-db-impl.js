@@ -1,5 +1,6 @@
 const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
+const logger = require('pino')();
 
 class ClashTentativeDbImpl {
     Tentative;
@@ -23,7 +24,7 @@ class ClashTentativeDbImpl {
                     })
                 }
             }).then(data => {
-                console.log(`Successfully setup table def for ('${this.tableName}')`);
+                logger.info(`Successfully setup table def for ('${this.tableName}')`);
                 this.Tentative = data;
                 resolve(data);
             }).catch((err) => reject(err));
