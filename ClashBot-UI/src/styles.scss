@@ -1,7 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+@import "~@angular/material/theming";
+
+@include mat.core();
 
 html, body {
-  min-height: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 /* SCSS HEX */
@@ -18,4 +24,29 @@ $st-patricks-blue: #2c2c66ff;
 .title {
   font-family: 'Kaushan Script', cursive;
   font-size: 1.75em;
+}
+
+$my-primary: mat.define-palette(mat.$indigo-palette, 500);
+$my-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$my-dark-primary: mat.define-palette(mat.$deep-purple-palette, A200, A100, A400);
+$my-dark-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+$my-theme: mat.define-light-theme((
+  color: (
+    primary: $my-primary,
+    accent: $my-accent,
+  )
+));
+
+$angular-dark-theme: mat.define-dark-theme(
+    (
+      color: (
+        primary: $my-dark-primary,
+        accent: $my-dark-accent,
+      ),
+    )
+);
+
+.darkMode {
+  @include mat.all-component-themes($angular-dark-theme);
 }

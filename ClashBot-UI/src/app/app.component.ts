@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
 import {UserDetailsService} from "./services/user-details.service";
 import {UserDetails} from "./interfaces/user-details";
@@ -6,6 +6,7 @@ import {Observable, Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
+import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'app-root',
@@ -20,12 +21,20 @@ export class AppComponent implements OnInit, OnDestroy{
   applicationDetailsSub$?: Subscription;
   username: string = '';
 
+  darkModeFormControl = new FormControl(false);
+
+  @HostBinding('class') className = '';
+
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
               private googleAnalyticsService: GoogleAnalyticsService) {}
 
   ngOnInit(): void {
+    this.darkModeFormControl.valueChanges.subscribe((value) => {
+      const darkModeClassName = 'darkMode';
+      this.className = value ? darkModeClassName : '';
+    });
     this.router.events.subscribe(event => {
       if(event instanceof NavigationEnd) {
         this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);

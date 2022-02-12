@@ -6,24 +6,25 @@
         This site is here to help you and your friends quickly group up
         through discord to compete in a
         League of Legends
-        Clash Tournament. We have a Discord Bot if you'd like to use it with your Server, you can add it to your Server
-        at <a
-          href="https://top.gg/bot/837629412328734740">Top.gg</a>.
+        Clash Tournament.
       </mat-card-content>
       <mat-card-content id="WelcomeMessage-LoginMessage" *ngIf="loggedIn === 'NOT_LOGGED_IN'">
         Please login to discord using the button below before continuing.
       </mat-card-content>
       <mat-card-header class="header" *ngIf="loggedIn === 'LOGGED_IN'">Site Usage</mat-card-header>
       <mat-card-content *ngIf="loggedIn === 'LOGGED_IN'">Please use the menu above to see the available content.</mat-card-content>
-      <button mat-menu-item id="WelcomeMessage-DiscordLogin-Btn" (click)="loginToDiscord()"
-              *ngIf="loggedIn === 'NOT_LOGGED_IN'">
-        <mat-icon>discord</mat-icon>
-        <span>Login to Discord</span>
-      </button>
-      <div *ngIf="loggedIn === 'LOGGING_IN'">
-        <h2>Logging in...</h2>
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      </div>
+      <mat-divider inset></mat-divider>
+      <mat-card-actions>
+        <button mat-raised-button id="WelcomeMessage-DiscordLogin-Btn" (click)="loginToDiscord()"
+                *ngIf="loggedIn === 'NOT_LOGGED_IN'" color="primary" align="end">
+          <mat-icon>discord</mat-icon>
+          <span>Login to Discord</span>
+        </button>
+        <a mat-raised-button href="https://top.gg/bot/837629412328734740" target="_blank">Add Discord bot to Server</a>
+      </mat-card-actions>
+      <mat-card-footer>
+        <mat-progress-bar  *ngIf="loggedIn === 'LOGGING_IN'" mode="indeterminate"></mat-progress-bar>
+      </mat-card-footer>
     </mat-card>
   </div>
   <app-upcoming-tournament-details-card class="upcoming-tournament-container" *ngIf="dataLoaded && tournaments" [tournaments]="tournaments"></app-upcoming-tournament-details-card>

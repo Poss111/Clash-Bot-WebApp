@@ -27,6 +27,8 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
 import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -53,6 +55,8 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatMenuModule,
     MatProgressBarModule,
     MatListModule,
+    MatSlideToggleModule,
+    ReactiveFormsModule,
     OAuthModule.forRoot(),
     TeamsModule,
     MarkdownModule.forRoot({
