@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {KebabCasePipe} from "./kebab-case.pipe";
 import {ImageFallbackDirective} from "./image-fallback.directive";
 
-
 @NgModule({
   declarations: [KebabCasePipe, ImageFallbackDirective],
   imports: [
