@@ -29,7 +29,7 @@ let startUpApp = async () => {
         app.use(cors());
         app.use(pino);
 
-        app.ws(`${urlPrefix}/teams/ws`, (ws, req) => {
+        app.ws(`${urlPrefix}/ws/teams`, (ws, req) => {
             let interval = setInterval(() => {
                 expressWs.getWss().clients.forEach(s => {
                     if (s.readyState === WebSocket.OPEN) {

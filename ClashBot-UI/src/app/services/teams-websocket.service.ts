@@ -7,7 +7,7 @@ import {ClashTeam} from "../interfaces/clash-team";
 })
 export class TeamsWebsocketService {
 
-  private subject = webSocket<ClashTeam|string>(`${this.buildHostUrl('/api/teams/ws')}`);
+  private subject = webSocket<ClashTeam|string>(`${this.buildHostUrl('/api/ws/teams')}`);
 
   constructor() { }
 
