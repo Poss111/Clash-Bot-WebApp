@@ -2,7 +2,8 @@
   <div class="player-role-player-details-inner-container">
     <ng-container *ngIf="!showPlayerDetails; else elseBlock">
       <div class="player-role-join-container">
-        <button class="player-role-join-btn"
+        <button mat-raised-button
+                class="player-role-join-btn"
                 [ngClass]="button"
                 id="clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button"
                 (click)="registerToTeam(playerDetails.role)">

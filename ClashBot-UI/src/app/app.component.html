@@ -1,44 +1,54 @@
-<div class="dashboard">
-  <div class="header">
+<div class="header">
     <mat-toolbar color="primary">
-      <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
-          <mat-icon>house</mat-icon>
-          <span>Welcome Page</span>
+        <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
+            <mat-icon>menu</mat-icon>
         </button>
-        <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item (click)="navigateToTeams()">
-          <mat-icon>groups</mat-icon>
-          <span>Clash Teams</span>
-        </button>
-        <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item
-                (click)="navigateToUserProfile()">
-          <mat-icon>settings</mat-icon>
-          <span>Settings</span>
-        </button>
-      </mat-menu>
-      <span class="title">Clash Bot</span>
-      <span class="clash-bot-spacer"></span>
-      <span *ngIf="userDetailsLoaded && applicationDetailsLoaded" id="clash-bot-discord-username">{{ username }}</span>
+        <mat-menu #menu="matMenu">
+            <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
+                <mat-icon>house</mat-icon>
+                <span>Welcome Page</span>
+            </button>
+            <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item
+                    (click)="navigateToTeams()">
+                <mat-icon>groups</mat-icon>
+                <span>Clash Teams</span>
+            </button>
+            <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                    mat-menu-item
+                    (click)="navigateToUserProfile()">
+                <mat-icon>settings</mat-icon>
+                <span>Settings</span>
+            </button>
+        </mat-menu>
+        <span class="title">Clash Bot</span>
+        <span class="clash-bot-spacer"></span>
+        <mat-slide-toggle [formControl]="darkModeFormControl">
+            <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
+            <ng-template #elseBlock>
+                <mat-icon>light_mode</mat-icon>
+            </ng-template>
+        </mat-slide-toggle>
+        <span *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+              id="clash-bot-discord-username"
+            class="clash-bot-discord-username">{{ username }}</span>
     </mat-toolbar>
-  </div>
-  <div class="main-page">
-    <router-outlet class="dashboard"></router-outlet>
-  </div>
-  <div class="footer">
-    <mat-card>
-      <div class="clash-bot-footer-details-container">
-        <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
-        <mat-card-content>Version: {{appVersion}}</mat-card-content>
-      </div>
-      <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the views
-        or opinions of
-        Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot
-        Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
-      </mat-card-content>
-    </mat-card>
-  </div>
+</div>
+<div class="main-page">
+    <router-outlet></router-outlet>
+    <div class="clash-bot-footer footer">
+        <mat-card>
+            <div class="clash-bot-footer-details-container">
+                <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
+                <mat-card-content>Version: {{appVersion}}</mat-card-content>
+            </div>
+            <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the
+                views
+                or opinions of
+                Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends
+                and Riot
+                Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+            </mat-card-content>
+        </mat-card>
+    </div>
 </div>
 

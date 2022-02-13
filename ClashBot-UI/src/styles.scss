@@ -1,8 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-
-html, body {
-  min-height: 100%;
-}
+@use '@angular/material' as mat;
+@use './theme.scss' as clash;
+@include mat.core();
 
 /* SCSS HEX */
 $harvest-gold: #e29400ff;
@@ -11,6 +10,18 @@ $midnight-blue: #000046ff;
 $midnight-blue-2: #171757ff;
 $st-patricks-blue: #2c2c66ff;
 
+html, body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  min-width: 420px;
+  min-height: 100vh !important;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
 .subtext {
   color: #707070;
 }
@@ -18,4 +29,11 @@ $st-patricks-blue: #2c2c66ff;
 .title {
   font-family: 'Kaushan Script', cursive;
   font-size: 1.75em;
+}
+
+@include clash.custom-theming(clash.$light-theme);
+
+.darkMode {
+  @include mat.all-component-themes(clash.$dark-theme);
+  @include clash.custom-theming(clash.$dark-theme);
 }

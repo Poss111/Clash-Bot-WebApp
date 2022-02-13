@@ -27,45 +27,44 @@ import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
 import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        WelcomeDashboardComponent,
-        ClashTournamentCalendarComponent,
-        ClashTournamentCalendarHeaderComponent,
-        UpcomingTournamentDetailsCardComponent,
-        ReleaseNotificationDialogComponent
-    ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatSnackBarModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatMenuModule,
-        MatProgressBarModule,
-        MatListModule,
-        OAuthModule.forRoot(),
-        TeamsModule,
-        MarkdownModule.forRoot({
-            sanitize: SecurityContext.HTML
-        })
-    ],
-    providers: [ClashBotService, DiscordService, {
-        provide: HTTP_INTERCEPTORS,
-        useClass: DiscordInterceptor,
-        multi: true
-    }],
-    exports: [],
-    bootstrap: [AppComponent]
+  declarations: [
+    AppComponent,
+    WelcomeDashboardComponent,
+    ClashTournamentCalendarComponent,
+    ClashTournamentCalendarHeaderComponent,
+    UpcomingTournamentDetailsCardComponent,
+    ReleaseNotificationDialogComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatMenuModule,
+    MatProgressBarModule,
+    MatListModule,
+    MatSlideToggleModule,
+    ReactiveFormsModule,
+    OAuthModule.forRoot(),
+    TeamsModule,
+    MarkdownModule.forRoot({
+      sanitize: SecurityContext.HTML
+    })
+  ],
+  providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
 }
