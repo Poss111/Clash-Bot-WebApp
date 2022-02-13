@@ -17,7 +17,7 @@ $dark-theme: mat.define-dark-theme((
   )
 ));
 
-@mixin hover-color($theme) {
+@mixin custom-theming($theme) {
   // Get the color config from the theme.
     $color-config: mat.get-color-config($theme);
 

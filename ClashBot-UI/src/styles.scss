@@ -31,9 +31,9 @@ body::-webkit-scrollbar {
   font-size: 1.75em;
 }
 
-@include clash.hover-color(clash.$light-theme);
+@include clash.custom-theming(clash.$light-theme);
 
 .darkMode {
   @include mat.all-component-themes(clash.$dark-theme);
-  @include clash.hover-color(clash.$dark-theme);
+  @include clash.custom-theming(clash.$dark-theme);
 }
