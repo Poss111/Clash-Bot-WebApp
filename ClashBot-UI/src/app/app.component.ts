@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, OnDestroy{
   applicationDetailsSub$?: Subscription;
   username: string = '';
 
-  darkModeFormControl = new FormControl(false);
+  darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
 
   @HostBinding('class') className = '';
 
@@ -31,10 +31,8 @@ export class AppComponent implements OnInit, OnDestroy{
               private googleAnalyticsService: GoogleAnalyticsService) {}
 
   ngOnInit(): void {
-    this.darkModeFormControl.valueChanges.subscribe((value) => {
-      const darkModeClassName = 'darkMode';
-      this.className = value ? darkModeClassName : '';
-    });
+    this.toggleDarkMode(this.darkModeFormControl.value);
+    this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
     this.router.events.subscribe(event => {
       if(event instanceof NavigationEnd) {
         this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
@@ -50,6 +48,12 @@ export class AppComponent implements OnInit, OnDestroy{
       if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
         this.applicationDetailsLoaded = true;
     })
+  }
+
+  toggleDarkMode(turnDarkModeOn: boolean) {
+    const darkModeClassName = 'darkMode';
+    this.className = turnDarkModeOn ? darkModeClassName : '';
+    localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
   }
 
   ngOnDestroy() {
