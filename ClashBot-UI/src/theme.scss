@@ -1,22 +1,36 @@
+@use 'sass:map';
 @use '@angular/material' as mat;
 @import '~@angular/material/theming';
 @include mat-core();
 
-
-$my-light-primary: mat.define-palette(mat.$indigo-palette);
-$my-light-accent: mat.define-palette(mat.$pink-palette);
 $light-theme: mat.define-light-theme((
   color: (
-    primary: $my-light-primary,
-    accent: $my-light-accent
+    primary: mat.define-palette(mat.$indigo-palette, 500, 300, 700),
+    accent: mat.define-palette(mat.$yellow-palette, A400)
   )
 ));
 
-$my-dark-primary: mat.define-palette(mat.$deep-purple-palette);
-$my-dark-accent: mat.define-palette(mat.$yellow-palette);
 $dark-theme: mat.define-dark-theme((
   color: (
-    primary: $my-dark-primary,
-    accent:$my-dark-accent
+    primary: mat.define-palette(mat.$indigo-palette, 800, 500, 900),
+    accent: mat.define-palette(mat.$yellow-palette, A700)
   )
-))
+));
+
+@mixin hover-color($theme) {
+  // Get the color config from the theme.
+    $color-config: mat.get-color-config($theme);
+
+  // Get the primary color palette from the color-config.
+    $primary-palette: map.get($color-config, 'primary');
+    $accent-palette: map.get($color-config, 'accent');
+
+  .player-role-join-btn:hover {
+    // Read the 500 hue from the primary color palette.
+    background-color: mat.get-color-from-palette($accent-palette);
+  }
+
+  .mat-calendar-body-cell.selected {
+    border: 3px solid mat.get-color-from-palette($accent-palette);
+  }
+}

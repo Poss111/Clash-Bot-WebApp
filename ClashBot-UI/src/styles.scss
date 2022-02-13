@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
-@import './theme.scss';
+@use './theme.scss' as clash;
 @include mat.core();
 
 /* SCSS HEX */
@@ -31,6 +31,9 @@ body::-webkit-scrollbar {
   font-size: 1.75em;
 }
 
+@include clash.hover-color(clash.$light-theme);
+
 .darkMode {
-  @include mat.all-component-themes($dark-theme);
+  @include mat.all-component-themes(clash.$dark-theme);
+  @include clash.hover-color(clash.$dark-theme);
 }
