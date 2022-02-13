@@ -1,19 +1,38 @@
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 700px) {
   .main-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
   }
 }
 
-@media only screen and (min-width: 601px) {
+@media only screen and (min-width: 701px) {
   .main-container {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-evenly;
     flex-wrap: wrap;
+    align-items: flex-start;
   }
+}
+
+.clash-bot-welcome-card {
+  max-width: 25em;
+  min-width: 25em;
+  min-height: 12em;
+  margin-bottom: 1em;
+}
+
+.upcoming-tournament-card {
+  min-width: 25em;
+  min-height: 15em;
+}
+
+.tournament-calendar-card {
+  min-width: 25em;
+  min-height: 15em;
+  margin-top: 1em;
 }
 
 #WelcomeMessage-PreseasonNotification {
@@ -28,9 +47,8 @@
   padding-bottom: 0.5em;
 }
 
-.tournament-calendar-container {
-  padding-top: 0.5em;
-  padding-bottom: 1em;
+.clash-bot-welcome-dashboard-buttons-container {
+  display: flex;
 }
 
 .demo-inline-calendar-card {

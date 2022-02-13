@@ -11,8 +11,11 @@ $midnight-blue-2: #171757ff;
 $st-patricks-blue: #2c2c66ff;
 
 html, body {
+  height: 100vh;
   margin: 0;
-  height: 100%;
+  padding: 0;
+  min-width: 420px;
+  min-height: 100vh !important;
 }
 
 body::-webkit-scrollbar {
