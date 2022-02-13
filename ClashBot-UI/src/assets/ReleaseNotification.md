@@ -1,3 +1,9 @@
+# Release v5.1.0
+- Darkmode is now available! Toggle it on from the top right, and you will be one with the night.
+- Team updates are now available in real time.
+    - We are integrated with websockets now. There may be a few issues with using it. Please make sure to use the issue reporting tool as much as you can. Thank you!
+- Team now has a fallback image if a pokemon gif cannot be found. Keep testing this out to see this feature :) 
+
 # Release v5.0.0
 - Preseason Notification Removed (Hello Season 12!)
 - Get your roles here!
