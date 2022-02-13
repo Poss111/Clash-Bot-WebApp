@@ -7,7 +7,7 @@ import {ClashTeam} from "../interfaces/clash-team";
 })
 export class TeamsWebsocketService {
 
-  private subject = webSocket<ClashTeam|string>(`ws://${this.buildHostUrl('/api/teams/ws')}`);
+  private subject = webSocket<ClashTeam|string>(`${this.buildHostUrl('/api/teams/ws')}`);
 
   constructor() { }
 
@@ -18,9 +18,9 @@ export class TeamsWebsocketService {
 
   buildHostUrl(url: string): string {
     if (window.location.hostname === 'localhost') {
-      return `${window.location.hostname}:80${url}`;
+      return `ws://${window.location.hostname}:80${url}`;
     }
-    return url;
+    return `wss://${url}`;
   }
 
 }
