@@ -7,18 +7,23 @@ import {ClashTeam} from "../interfaces/clash-team";
 })
 export class TeamsWebsocketService {
 
-  private subject = webSocket<ClashTeam|string>(`${this.buildHostUrl('/api/teams/ws')}`);
+  private readonly subject;
 
-  constructor() { }
+  constructor() {
+    if (window.location.hostname === 'localhost') {
+      this.subject = webSocket<ClashTeam|string>(`ws://${this.buildHostUrl('/api/ws/teams')}`);
+    } else {
+      this.subject = webSocket<ClashTeam|string>(`(wss|https)://${window.location.hostname}/api/ws/teams`);
+    }
+  }
 
   getSubject() : WebSocketSubject<ClashTeam|string>{
    return this.subject;
   }
 
-
   buildHostUrl(url: string): string {
     if (window.location.hostname === 'localhost') {
-      return `ws://${window.location.hostname}:80${url}`;
+      return `${window.location.hostname}:80${url}`;
     }
     return `wss://${url}`;
   }
