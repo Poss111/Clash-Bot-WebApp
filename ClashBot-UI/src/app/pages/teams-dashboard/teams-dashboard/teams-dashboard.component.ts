@@ -6,7 +6,7 @@ import {FormControl, FormGroup} from "@angular/forms";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, finalize, take, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, retryWhen, take, tap, timeout} from "rxjs/operators";
 import {MatChip} from "@angular/material/chips";
 import {HttpErrorResponse} from "@angular/common/http";
 import {UserDetailsService} from "../../../services/user-details.service";
@@ -161,12 +161,22 @@ export class TeamsDashboardComponent implements OnInit {
                             if (this.$teamsSub) this.$teamsSub.unsubscribe();
                             this.teamsWebsocketService.getSubject().next(valueToSearchFor);
                             this.$teamsSub = this.teamsWebsocketService.getSubject()
+                                .pipe(
+                                    retryWhen(errors =>
+                                        errors.pipe(
+                                            tap(err => {
+                                                console.error('Got error', err);
+                                            }),
+                                            delay(1000)
+                                        )
+                                    )
+                                )
                                 .subscribe((msg) => this.handleIncomingTeamsWsEvent(msg, userDetails),
                                     () => {
-                                      this._snackBar.open('Oops! Failed to connect to server for Team updates, please try refreshing.',
-                                        'X',
-                                        {duration: 5 * 1000}),
-                                        this.teams = [{error: 'No data'}];
+                                        this._snackBar.open('Oops! Failed to connect to server for Team updates, please try refreshing.',
+                                            'X',
+                                            {duration: 5 * 1000}),
+                                            this.teams = [{error: 'No data'}];
                                     },
                                     () => console.log('Connection closed to teams ws.'));
                         })
@@ -179,8 +189,8 @@ export class TeamsDashboardComponent implements OnInit {
         if (teamToBeUpdated.teamName) {
             let foundTeam = this.teams.find((team) =>
                 team.teamName === teamToBeUpdated.teamName
-            && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName
-            && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);
+                && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName
+                && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);
             if (!foundTeam) {
                 if (teamToBeUpdated.teamName) {
                     let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);
@@ -226,7 +236,7 @@ export class TeamsDashboardComponent implements OnInit {
                         this.tentativeList[i].tentativePlayers
                             .filter((name) => !playerNames.includes(name));
                     if (updatedTentative !== this.tentativeList[i].tentativePlayers
-                    && this.tentativeList[i].isMember) {
+                        && this.tentativeList[i].isMember) {
                         this.tentativeList[i].isMember = false;
                     }
                     this.tentativeList[i].tentativePlayers = updatedTentative;
