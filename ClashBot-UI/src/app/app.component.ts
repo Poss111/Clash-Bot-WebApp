@@ -25,6 +25,8 @@ export class AppComponent implements OnInit, OnDestroy{
 
   @HostBinding('class') className = '';
 
+  hidden: boolean = false;
+
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
@@ -71,5 +73,9 @@ export class AppComponent implements OnInit, OnDestroy{
 
   navigateToUserProfile() {
     this.router.navigate(['/user-profile']);
+  }
+
+  toggleBadgeVisibility() {
+    this.hidden = true;
   }
 }

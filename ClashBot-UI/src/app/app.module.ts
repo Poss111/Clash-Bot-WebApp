@@ -29,6 +29,7 @@ import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
+import {MatBadgeModule} from "@angular/material/badge";
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import {ReactiveFormsModule} from "@angular/forms";
     MatListModule,
     MatSlideToggleModule,
     ReactiveFormsModule,
+    MatBadgeModule,
     OAuthModule.forRoot(),
     TeamsModule,
     MarkdownModule.forRoot({

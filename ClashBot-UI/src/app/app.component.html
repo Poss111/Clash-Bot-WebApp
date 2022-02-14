@@ -22,15 +22,20 @@
         </mat-menu>
         <span class="title">Clash Bot</span>
         <span class="clash-bot-spacer"></span>
-        <mat-slide-toggle [formControl]="darkModeFormControl">
-            <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
-            <ng-template #elseBlock>
-                <mat-icon>light_mode</mat-icon>
-            </ng-template>
-        </mat-slide-toggle>
-        <span *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-              id="clash-bot-discord-username"
-            class="clash-bot-discord-username">{{ username }}</span>
+        <div class="clash-bot-user-panel">
+            <button mat-icon-button (click)="toggleBadgeVisibility()">
+                <mat-icon matBadge="3" matBadgePosition="after" matBadgeColor="accent" matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>
+            </button>
+            <mat-slide-toggle [formControl]="darkModeFormControl">
+                <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
+                <ng-template #elseBlock>
+                    <mat-icon>light_mode</mat-icon>
+                </ng-template>
+            </mat-slide-toggle>
+            <span *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                  id="clash-bot-discord-username"
+                  class="clash-bot-discord-username">{{ username }}</span>
+        </div>
     </mat-toolbar>
 </div>
 <div class="main-page">

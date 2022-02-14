@@ -17,6 +17,13 @@
   padding: 8px;
 }
 
+.clash-bot-user-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 13em;
+}
+
 @media only screen and (max-width: 500px) {
   :host {
     display: flex;
@@ -32,10 +39,6 @@
     height: 100%;
     justify-content: space-between;
   }
-}
-
-.clash-bot-discord-username {
-  margin-left: 1em;
 }
 
 .copyright-text {
