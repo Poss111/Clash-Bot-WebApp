@@ -29,6 +29,14 @@ services:
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local
+  clash-bot-notification-service:
+    image: "poss11111/clash-bot-notification-service:test"
+    container_name: clash-bot-notification-service
+    ports:
+      - "0.0.0.0:81:80"
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
   clash-bot-ui:
     image: "poss11111/clash-bot-ui:test"
     container_name: clash-bot-ui

@@ -1,27 +1,28 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const application = express();
+const app = express();
 const pino  = require('pino-http')();
 const urlPrefix = '/api/notifications';
 
 let startUpApp = async () => {
 
-    application.use(express.json());
-    application.use(cors());
-    application.use(pino);
+    app.use(express.json());
+    app.use(cors());
+    app.use(pino);
 
-    application.get(`${urlPrefix}/health`, (req, res) => {
+    app.get(`${urlPrefix}/health`, (req, res) => {
         res.json({
             status: 'Healthy'
         });
     })
 
-    application.use((req, res) => {
+    app.use((req, res) => {
         req.log.error(`Path not found ('${req.url}')`);
         res.statusCode = 404;
         res.json({error: 'Path not found.'})
     })
+    return app;
 };
 
 module.exports.startUpApp = startUpApp;
