@@ -1,4 +1,5 @@
 require('dotenv').config();
+const clashBotNotificationServiceImpl = require('./service/clash-bot-notification-service-impl');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -15,6 +16,17 @@ let startUpApp = async () => {
         res.json({
             status: 'Healthy'
         });
+    })
+
+    app.get(urlPrefix, (req, res) => {
+        if (!req.query.id) {
+            res.statusCode = 400;
+            res.json({ error: "Missing required parameter."})
+        } else {
+            clashBotNotificationServiceImpl.retrieveNotificationsForUser(req.query.id).then((userNotifications) => {
+                res.json(userNotifications);
+            });
+        }
     })
 
     app.use((req, res) => {
