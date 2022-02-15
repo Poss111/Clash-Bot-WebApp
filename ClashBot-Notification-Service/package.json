@@ -1,0 +1,39 @@
+{
+  "name": "clashbot-notification-service",
+  "version": "1.0.0",
+  "description": "Used to support the ClashBot UI as a notification service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "local-start": "node index.js | pino-pretty -t",
+    "nodemon": "nodemon index.js",
+    "preintegration-windows": "node integration/integration-setup.js",
+    "integration-windows": "set INTEGRATION_TEST=true && node index.js",
+    "preintegration": "node integration/integration-setup.js",
+    "test": "jest unit --silent",
+    "local-test": "jest unit --silent | pino-pretty -t"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "dynamodb": "^1.3.0",
+    "express": "^4.17.1",
+    "express-ws": "^5.0.2",
+    "joi": "^17.4.2",
+    "moment-timezone": "^0.5.33",
+    "pino": "^7.6.5",
+    "pino-http": "^6.6.0",
+    "ws": "^8.4.2"
+  },
+  "devDependencies": {
+    "forever": "^4.0.1",
+    "jest": "^27.0.6",
+    "jest-each": "^27.0.6",
+    "nodemon": "^2.0.12",
+    "pino-pretty": "^7.5.1",
+    "stream-mock": "^2.0.5",
+    "streamtest": "^2.0.0",
+    "supertest": "^6.1.5",
+    "wait-on": "^6.0.0"
+  }
+}
