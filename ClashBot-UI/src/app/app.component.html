@@ -23,9 +23,23 @@
         <span class="title">Clash Bot</span>
         <span class="clash-bot-spacer"></span>
         <div class="clash-bot-user-panel">
-            <button mat-icon-button (click)="toggleBadgeVisibility()">
-                <mat-icon matBadge="3" matBadgePosition="after" matBadgeColor="accent" matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>
+            <button mat-icon-button (click)="toggleBadgeVisibility()" [matMenuTriggerFor]="notificationMenu">
+                <mat-icon [matBadge]="notifications.length"
+                          matBadgePosition="after" matBadgeColor="accent"
+                          matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>
             </button>
+            <mat-menu #notificationMenu="matMenu" xPosition="before">
+                <div *ngFor="let notification of notifications" mat-menu-item class="clash-bot-notification-item">
+                    <container-element [ngSwitch]="notification.alertLevel">
+                        <mat-icon *ngSwitchCase="1">notifications</mat-icon>
+                        <mat-icon *ngSwitchCase="2">warning</mat-icon>
+                        <mat-icon *ngSwitchCase="3">error</mat-icon>
+                        <mat-icon *ngSwitchDefault>question_mark</mat-icon>
+                    </container-element>
+                    <span class="clash-bot-notification-message">{{notification.message}}</span>
+                    <span class="clash-bot-notification-time">{{notification.timeAdded}}</span>
+                </div>
+            </mat-menu>
             <mat-slide-toggle [formControl]="darkModeFormControl">
                 <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
                 <ng-template #elseBlock>

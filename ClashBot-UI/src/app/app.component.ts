@@ -7,6 +7,9 @@ import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
 import {FormControl} from "@angular/forms";
+import {ClashBotNotification} from "./interfaces/clash-bot-notification";
+import {take} from "rxjs/operators";
+import {ClashBotNotificationService} from "./services/clash-bot-notification.service";
 
 @Component({
   selector: 'app-root',
@@ -19,6 +22,7 @@ export class AppComponent implements OnInit, OnDestroy{
   applicationDetailsLoaded: boolean = false;
   userDetailsSub$?: Subscription;
   applicationDetailsSub$?: Subscription;
+  notifications: ClashBotNotification[] = [];
   username: string = '';
 
   darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
@@ -29,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy{
 
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
+              private clashBotNotificationService: ClashBotNotificationService,
               private applicationDetailsService: ApplicationDetailsService,
               private googleAnalyticsService: GoogleAnalyticsService) {}
 
@@ -44,6 +49,11 @@ export class AppComponent implements OnInit, OnDestroy{
       if (userDetails.username && userDetails.username != '') {
         this.username = userDetails.username;
         this.userDetailsLoaded = true;
+        this.clashBotNotificationService.retrieveClashNotificationsForUser(userDetails.id)
+            .pipe(take(1))
+            .subscribe((userNotifications) => {
+              this.notifications.push(...userNotifications);
+            });
       }
     })
     this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {
