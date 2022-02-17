@@ -10,6 +10,10 @@ import {FormControl} from "@angular/forms";
 import {ClashBotNotification} from "./interfaces/clash-bot-notification";
 import {take} from "rxjs/operators";
 import {ClashBotNotificationService} from "./services/clash-bot-notification.service";
+import {Overlay} from "@angular/cdk/overlay";
+import {NotificationsComponent} from "./shared/notifications/notifications.component";
+import {ComponentPortal} from "@angular/cdk/portal";
+import {NotificationOverlayService} from "./shared/notifications/notification-overlay.service";
 
 @Component({
   selector: 'app-root',
@@ -35,7 +39,8 @@ export class AppComponent implements OnInit, OnDestroy{
               private userDetailsService: UserDetailsService,
               private clashBotNotificationService: ClashBotNotificationService,
               private applicationDetailsService: ApplicationDetailsService,
-              private googleAnalyticsService: GoogleAnalyticsService) {}
+              private googleAnalyticsService: GoogleAnalyticsService,
+              private notificationOverlayService: NotificationOverlayService) {}
 
   ngOnInit(): void {
     this.toggleDarkMode(this.darkModeFormControl.value);
@@ -86,6 +91,7 @@ export class AppComponent implements OnInit, OnDestroy{
   }
 
   toggleBadgeVisibility() {
+    this.notificationOverlayService.open();
     this.hidden = true;
   }
 }

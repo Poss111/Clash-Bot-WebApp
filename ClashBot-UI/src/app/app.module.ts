@@ -30,6 +30,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 import {MatBadgeModule} from "@angular/material/badge";
+import {OverlayModule} from "@angular/cdk/overlay";
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import {MatBadgeModule} from "@angular/material/badge";
     MatBadgeModule,
     OAuthModule.forRoot(),
     TeamsModule,
+    OverlayModule,
     MarkdownModule.forRoot({
       sanitize: SecurityContext.HTML
     })
