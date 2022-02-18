@@ -1,4 +1,4 @@
-import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
 import {UserDetailsService} from "./services/user-details.service";
 import {UserDetails} from "./interfaces/user-details";
@@ -34,15 +34,19 @@ export class AppComponent implements OnInit, OnDestroy{
   @HostBinding('class') className = '';
 
   hidden: boolean = false;
+  notificationOverlayEvent?: EventEmitter<MouseEvent>;
+  overlayAttachedEvent?: EventEmitter<void>;
 
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
               private clashBotNotificationService: ClashBotNotificationService,
               private applicationDetailsService: ApplicationDetailsService,
-              private googleAnalyticsService: GoogleAnalyticsService,
-              private notificationOverlayService: NotificationOverlayService) {}
+              private googleAnalyticsService: GoogleAnalyticsService) {}
 
   ngOnInit(): void {
+    this.overlayAttachedEvent?.subscribe(() => {
+      this.notificationOverlayEvent?.subscribe((event) => console.log('Clicked outside.'))
+    });
     this.toggleDarkMode(this.darkModeFormControl.value);
     this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
     this.router.events.subscribe(event => {
@@ -91,7 +95,6 @@ export class AppComponent implements OnInit, OnDestroy{
   }
 
   toggleBadgeVisibility() {
-    this.notificationOverlayService.open();
-    this.hidden = true;
+    this.hidden = !this.hidden;
   }
 }

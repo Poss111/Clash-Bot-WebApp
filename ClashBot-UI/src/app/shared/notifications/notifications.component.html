@@ -1,16 +1,7 @@
-<div class="clash-notifications-container">
-  <div class="clash-notification-container">
-    <mat-icon>notifications</mat-icon>
-    <div class="clash-notification-text-container">
-      <span class="clash-notification-text">Notification 1</span>
-      <span class="clash-notification-time">Time</span>
-    </div>
-  </div>
-  <div class="clash-notification-container">
-    <mat-icon>notifications</mat-icon>
-    <div class="clash-notification-text-container">
-      <span class="clash-notification-text">Notification 2</span>
-      <span class="clash-notification-time">Time</span>
-    </div>
+<div class="clash-notification-container">
+  <mat-icon>notifications</mat-icon>
+  <div class="clash-notification-text-container">
+    <span class="clash-notification-text">{{notification?.message}}</span>
+    <span class="clash-notification-time">{{notification?.timeAdded | date:dateFormat:timezoneOffset }}</span>
   </div>
 </div>

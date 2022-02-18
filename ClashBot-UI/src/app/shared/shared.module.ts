@@ -13,7 +13,8 @@ import {MatIconModule} from "@angular/material/icon";
   ],
   exports: [
     KebabCasePipe,
-    ImageFallbackDirective
+    ImageFallbackDirective,
+    NotificationsComponent
   ]
 })
 export class SharedModule {

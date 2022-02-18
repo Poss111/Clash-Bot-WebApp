@@ -33,4 +33,9 @@ $dark-theme: mat.define-dark-theme((
   .mat-calendar-body-cell.selected {
     border: 3px solid mat.get-color-from-palette($accent-palette);
   }
+
+  .clash-notification-container {
+    background-color: mat.get-color-from-palette($accent-palette);
+  }
+
 }

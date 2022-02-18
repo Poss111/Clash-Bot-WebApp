@@ -1,78 +1,91 @@
 <div class="header">
-    <mat-toolbar color="primary">
-        <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
-            <mat-icon>menu</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
-                <mat-icon>house</mat-icon>
-                <span>Welcome Page</span>
-            </button>
-            <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item
-                    (click)="navigateToTeams()">
-                <mat-icon>groups</mat-icon>
-                <span>Clash Teams</span>
-            </button>
-            <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                    mat-menu-item
-                    (click)="navigateToUserProfile()">
-                <mat-icon>settings</mat-icon>
-                <span>Settings</span>
-            </button>
-        </mat-menu>
-        <span class="title">Clash Bot</span>
-        <span class="clash-bot-spacer"></span>
-        <div class="clash-bot-user-panel">
-            <button mat-icon-button (click)="toggleBadgeVisibility()">
-                <mat-icon [matBadge]="notifications.length"
-                          matBadgePosition="after" matBadgeColor="accent"
-                          matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>
-            </button>
-<!--          <button mat-icon-button (click)="toggleBadgeVisibility()" [matMenuTriggerFor]="notificationMenu">-->
-<!--                <mat-icon [matBadge]="notifications.length"-->
-<!--                          matBadgePosition="after" matBadgeColor="accent"-->
-<!--                          matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>-->
-<!--            </button>-->
-<!--            <mat-menu #notificationMenu="matMenu" xPosition="before">-->
-<!--                <div *ngFor="let notification of notifications" mat-menu-item class="clash-bot-notification-item">-->
-<!--                    <container-element [ngSwitch]="notification.alertLevel">-->
-<!--                        <mat-icon *ngSwitchCase="1">notifications</mat-icon>-->
-<!--                        <mat-icon *ngSwitchCase="2">warning</mat-icon>-->
-<!--                        <mat-icon *ngSwitchCase="3">error</mat-icon>-->
-<!--                        <mat-icon *ngSwitchDefault>question_mark</mat-icon>-->
-<!--                    </container-element>-->
-<!--                    <span class="clash-bot-notification-message">{{notification.message}}</span>-->
-<!--                    <span class="clash-bot-notification-time">{{notification.timeAdded}}</span>-->
-<!--                </div>-->
-<!--            </mat-menu>-->
-            <mat-slide-toggle [formControl]="darkModeFormControl">
-                <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
-                <ng-template #elseBlock>
-                    <mat-icon>light_mode</mat-icon>
-                </ng-template>
-            </mat-slide-toggle>
-            <span *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                  id="clash-bot-discord-username"
-                  class="clash-bot-discord-username">{{ username }}</span>
-        </div>
-    </mat-toolbar>
+  <mat-toolbar color="primary">
+    <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
+        <mat-icon>house</mat-icon>
+        <span>Welcome Page</span>
+      </button>
+      <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded" mat-menu-item
+              (click)="navigateToTeams()">
+        <mat-icon>groups</mat-icon>
+        <span>Clash Teams</span>
+      </button>
+      <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+              mat-menu-item
+              (click)="navigateToUserProfile()">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+    </mat-menu>
+    <span class="title">Clash Bot</span>
+    <span class="clash-bot-spacer"></span>
+    <div class="clash-bot-user-panel">
+      <button mat-icon-button (click)="toggleBadgeVisibility()">
+        <mat-icon [matBadge]="notifications.length"
+                  matBadgePosition="after" matBadgeColor="accent"
+                  matBadgeSize="small" [matBadgeHidden]="hidden"
+                  cdkOverlayOrigin #trigger="cdkOverlayOrigin">notifications
+        </mat-icon>
+      </button>
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="hidden"
+      >
+        <ul class="clash-notification-list">
+          <li *ngFor="let notification of notifications">
+            <app-notifications></app-notifications>
+          </li>
+        </ul>
+      </ng-template>
+      <!--          <button mat-icon-button (click)="toggleBadgeVisibility()" [matMenuTriggerFor]="notificationMenu">-->
+      <!--                <mat-icon [matBadge]="notifications.length"-->
+      <!--                          matBadgePosition="after" matBadgeColor="accent"-->
+      <!--                          matBadgeSize="small" [matBadgeHidden]="hidden">notifications</mat-icon>-->
+      <!--            </button>-->
+      <!--            <mat-menu #notificationMenu="matMenu" xPosition="before">-->
+      <!--                <div *ngFor="let notification of notifications" mat-menu-item class="clash-bot-notification-item">-->
+      <!--                    <container-element [ngSwitch]="notification.alertLevel">-->
+      <!--                        <mat-icon *ngSwitchCase="1">notifications</mat-icon>-->
+      <!--                        <mat-icon *ngSwitchCase="2">warning</mat-icon>-->
+      <!--                        <mat-icon *ngSwitchCase="3">error</mat-icon>-->
+      <!--                        <mat-icon *ngSwitchDefault>question_mark</mat-icon>-->
+      <!--                    </container-element>-->
+      <!--                    <span class="clash-bot-notification-message">{{notification.message}}</span>-->
+      <!--                    <span class="clash-bot-notification-time">{{notification.timeAdded}}</span>-->
+      <!--                </div>-->
+      <!--            </mat-menu>-->
+      <mat-slide-toggle [formControl]="darkModeFormControl">
+        <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
+        <ng-template #elseBlock>
+          <mat-icon>light_mode</mat-icon>
+        </ng-template>
+      </mat-slide-toggle>
+      <span *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+            id="clash-bot-discord-username"
+            class="clash-bot-discord-username">{{ username }}</span>
+    </div>
+  </mat-toolbar>
 </div>
 <div class="main-page">
-    <router-outlet></router-outlet>
-    <div class="clash-bot-footer footer">
-        <mat-card>
-            <div class="clash-bot-footer-details-container">
-                <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
-                <mat-card-content>Version: {{appVersion}}</mat-card-content>
-            </div>
-            <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the
-                views
-                or opinions of
-                Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends
-                and Riot
-                Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
-            </mat-card-content>
-        </mat-card>
-    </div>
+  <router-outlet></router-outlet>
+  <div class="clash-bot-footer footer">
+    <mat-card>
+      <div class="clash-bot-footer-details-container">
+        <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
+        <mat-card-content>Version: {{appVersion}}</mat-card-content>
+      </div>
+      <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not reflect the
+        views
+        or opinions of
+        Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends
+        and Riot
+        Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
 

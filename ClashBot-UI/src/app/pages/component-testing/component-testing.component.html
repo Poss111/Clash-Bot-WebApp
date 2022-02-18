@@ -2,3 +2,21 @@
     <app-team-card [team]="sampleTeam"></app-team-card>
 </div>
 <button (click)="openReleaseNotification()">Release!</button>
+<button mat-icon-button (click)="toggleBadgeVisibility()">
+  <mat-icon [matBadge]="notifications.length"
+            matBadgePosition="after" matBadgeColor="accent"
+            matBadgeSize="small" [matBadgeHidden]="hidden"
+            cdkOverlayOrigin #trigger="cdkOverlayOrigin">notifications
+  </mat-icon>
+</button>
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="hidden"
+>
+  <ul class="clash-notification-list">
+    <li *ngFor="let notification of notifications">
+      <app-notifications [notification]="notification"></app-notifications>
+    </li>
+  </ul>
+</ng-template>
