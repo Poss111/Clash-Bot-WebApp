@@ -40,11 +40,13 @@ export class ComponentTestingComponent {
 
   notifications: ClashBotNotification[] = [{
     alertLevel: 1,
+    from: 'Clash Bot',
     message: "The first notification",
     timeAdded: new Date()
   },
     {
       alertLevel: 1,
+      from: 'Clash-Bot',
       message: "The second notification",
       timeAdded: new Date()
     }];
