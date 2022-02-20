@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit} from '@angular/core';
 import {ClashBotNotification} from "../../../interfaces/clash-bot-notification";
 
 @Component({
@@ -19,4 +19,14 @@ export class NotificationIconComponent {
     this.badgeHidden = true;
     this.showNotificationPanel = !this.showNotificationPanel;
   }
+
+  dismissNotification(dismissedNotification: ClashBotNotification): void {
+    this.notifications.splice(this.notifications.findIndex(notification => {
+      return notification.from === dismissedNotification.from
+          && notification.message === dismissedNotification.message;
+    }), 1);
+    console.log(this.notifications);
+    console.log('Dismissed Notification.');
+  }
+
 }

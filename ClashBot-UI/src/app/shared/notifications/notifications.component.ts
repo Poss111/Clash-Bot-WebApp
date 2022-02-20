@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
 
 @Component({
@@ -12,10 +12,22 @@ export class NotificationsComponent implements OnInit {
   notification?: ClashBotNotification;
   dateFormat: string = 'MMM d, y h:mm a';
   timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  showClass: string = '';
+
+  @Output()
+  dismissEvent: EventEmitter<ClashBotNotification> = new EventEmitter<ClashBotNotification>();
 
   constructor() { }
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.showClass = 'show';
+    }, 200);
+  }
+
+  dismissNotification(): void {
+    this.showClass = '';
+    this.dismissEvent.emit(this.notification);
   }
 
 }

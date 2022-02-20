@@ -5,10 +5,12 @@
   border: 0.1em solid black;
   border-radius: 50%;
   box-shadow: 5px 1px 1px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s linear;
 }
 
-.clash-notification-dismiss-tooltip {
-
+.clash-notification-dismiss-container:hover {
+  opacity: 1;
 }
 
 .clash-notification-message-container {
@@ -17,11 +19,22 @@
   border-radius: 0.5em;
   padding: 0.5em;
   box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.5);
-  transition: margin-left 0.2s ease-out;
+  transform: scale(0.9, 0.9);
+  transition: all 0.2s ease-out;
+  opacity: 0;
+}
+
+.show {
+  opacity: 1;
+  transform: scale(1, 1);
 }
 
 .clash-notification-message-container:hover {
   margin-left: 0.5em;
+}
+
+.clash-notification-text-container:hover + .clash-notification-dismiss-container {
+  opacity: 1;
 }
 
 .clash-notification-text-container {

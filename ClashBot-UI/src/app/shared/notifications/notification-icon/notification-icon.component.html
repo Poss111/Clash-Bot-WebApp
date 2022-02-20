@@ -12,7 +12,8 @@
 >
     <ul class="clash-notification-list">
         <li *ngFor="let notification of notifications">
-            <app-notifications [notification]="notification"></app-notifications>
+            <app-notifications [notification]="notification"
+                               (dismissEvent)="dismissNotification($event)"></app-notifications>
         </li>
     </ul>
 </ng-template>
