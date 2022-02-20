@@ -8,6 +8,7 @@ class ClashBotNotificationServiceImpl {
                 resolve(dbResponse.map(messageRecord => {
                     return {
                         alertLevel: messageRecord.message.alertLevel,
+                        from: messageRecord.message.from,
                         message: messageRecord.message.message,
                         timeAdded: messageRecord.timeAdded
                     };

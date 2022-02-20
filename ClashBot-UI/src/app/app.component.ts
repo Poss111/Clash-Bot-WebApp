@@ -29,10 +29,6 @@ export class AppComponent implements OnInit, OnDestroy{
 
   @HostBinding('class') className = '';
 
-  hidden: boolean = false;
-  notificationOverlayEvent?: EventEmitter<MouseEvent>;
-  overlayAttachedEvent?: EventEmitter<void>;
-
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
               private clashBotNotificationService: ClashBotNotificationService,
@@ -40,9 +36,6 @@ export class AppComponent implements OnInit, OnDestroy{
               private googleAnalyticsService: GoogleAnalyticsService) {}
 
   ngOnInit(): void {
-    this.overlayAttachedEvent?.subscribe(() => {
-      this.notificationOverlayEvent?.subscribe((event) => console.log('Clicked outside.'))
-    });
     this.toggleDarkMode(this.darkModeFormControl.value);
     this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
     this.router.events.subscribe(event => {
@@ -90,7 +83,4 @@ export class AppComponent implements OnInit, OnDestroy{
     this.router.navigate(['/user-profile']);
   }
 
-  toggleBadgeVisibility() {
-    this.hidden = !this.hidden;
-  }
 }

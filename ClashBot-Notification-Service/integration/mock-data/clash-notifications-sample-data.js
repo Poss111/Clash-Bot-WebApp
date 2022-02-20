@@ -5,6 +5,7 @@ module.exports = {
             notificationSortKey: 'U#:serverName#:currentDateTime',
             message: {
                 alertLevel: 1,
+                from: 'Clash-Bot',
                 message: 'This is a low level alert'
             },
             timeAdded: ':currentDateTime'
@@ -14,6 +15,7 @@ module.exports = {
             notificationSortKey: 'U#:serverName#:earlierDateTime',
             message: {
                 alertLevel: 3,
+                from: 'Clash-Bot',
                 message: 'This is a high level alert'
             },
             timeAdded: ':earlierDateTime'
@@ -23,6 +25,7 @@ module.exports = {
             notificationSortKey: 'S#:earlierDateTime',
             message: {
                 alertLevel: 2,
+                from: 'Clash-Bot',
                 message: 'This is a medium level alert'
             },
             timeAdded: ':earlierDateTimes'
@@ -32,6 +35,7 @@ module.exports = {
             notificationSortKey: 'S#:currentDateTime',
             message: {
                 alertLevel: 1,
+                from: 'Clash-Bot',
                 message: 'This is a low level alert'
             },
             timeAdded: ':currentDateTime'

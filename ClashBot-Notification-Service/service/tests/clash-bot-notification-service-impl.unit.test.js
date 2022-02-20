@@ -3,6 +3,10 @@ const clashBotNotificationDbImpl = require('../../dao/clash-bot-notification-db-
 
 jest.mock('../../dao/clash-bot-notification-db-impl');
 
+beforeEach(() => {
+    jest.resetAllMocks();
+})
+
 describe('Clash Bot Notification Service Implementation', () => {
     describe('Retrieve Notifications for User', () => {
         test('When retrieve notifications for user is called with a user id and no notifications are found, an empty array should be returned.', () => {
@@ -22,6 +26,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                     "timeAdded": "2022-02-15T03:40:16.874Z",
                     "message": {
                         "alertLevel": 3,
+                        "from": "Clash-Bot",
                         "message": "This is a high level alert"
                     },
                     "key": "U#1"
@@ -32,6 +37,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                     "timeAdded": "2022-02-15T03:41:16.874Z",
                     "message": {
                         "alertLevel": 1,
+                        "from": "Clash-Bot",
                         "message": "This is a low level alert"
                     },
                     "key": "U#1"
@@ -40,6 +46,7 @@ describe('Clash Bot Notification Service Implementation', () => {
             const expectedApiResponse = expectedDbResponse.map((item) => {
                 return {
                     alertLevel: item.message.alertLevel,
+                    from: item.message.from,
                     message: item.message.message,
                     timeAdded: item.timeAdded
                 }

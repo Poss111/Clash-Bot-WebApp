@@ -18,6 +18,7 @@ class ClashBotNotificationDbImpl {
                     notificationSortKey: Joi.string(),
                     message: Joi.object({
                         alertLevel: Joi.number(),
+                        from: Joi.string(),
                         message: Joi.string()
                     }),
                     timeAdded: Joi.string()
