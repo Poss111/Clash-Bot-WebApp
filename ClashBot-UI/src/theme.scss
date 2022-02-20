@@ -35,11 +35,19 @@ $dark-theme: mat.define-dark-theme((
   }
 
   .clash-notification-message-container {
-    background-color: mat.get-color-from-palette($accent-palette, 300);
+    $background: map.get($color-config, background);
+    $foreground: map.get($color-config, foreground);
+
+    background-color: mat.get-color-from-palette($background, background);
+    color: mat.get-color-from-palette($foreground, text);
   }
 
-  .clash-notification-dismiss-container {
-    background-color: mat.get-color-from-palette($accent-palette, 300);
-  }
+  //.clash-notification-message-container {
+  //  background-color: mat.get-color-from-palette($accent-palette, 300);
+  //}
+  //
+  //.clash-notification-dismiss-container {
+  //  background-color: mat.get-color-from-palette($accent-palette, 300);
+  //}
 
 }

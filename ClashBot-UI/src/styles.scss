@@ -3,13 +3,6 @@
 @use './theme.scss' as clash;
 @include mat.core();
 
-/* SCSS HEX */
-$harvest-gold: #e29400ff;
-$wild-blue-yonder: #a6a6beff;
-$midnight-blue: #000046ff;
-$midnight-blue-2: #171757ff;
-$st-patricks-blue: #2c2c66ff;
-
 html, body {
   height: 100vh;
   margin: 0;

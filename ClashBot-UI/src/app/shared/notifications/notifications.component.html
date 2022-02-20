@@ -4,7 +4,7 @@
         <span class="clash-notification-text">{{notification?.message}}</span>
         <span class="clash-notification-time">{{notification?.timeAdded | date:dateFormat:timezoneOffset }}</span>
     </div>
-    <button class="clash-notification-dismiss-container"
+    <button class="clash-notification-dismiss-container darkMode"
             color="primary"
             (click)="dismissNotification()"
             matTooltip="Dismiss"
