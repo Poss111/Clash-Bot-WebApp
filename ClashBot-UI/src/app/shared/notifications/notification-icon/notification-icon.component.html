@@ -9,9 +9,8 @@
         cdkConnectedOverlay
         [cdkConnectedOverlayOrigin]="trigger"
         [cdkConnectedOverlayOpen]="showNotificationPanel"
-        cdkConnectedOverlayPanelClass="darkMode"
->
-    <ul class="clash-notification-list">
+        [cdkConnectedOverlayPositions]="connectedPosition">
+    <ul [ngClass]="classList" class="clash-notification-list">
         <li *ngFor="let notification of notifications">
             <app-notifications [notification]="notification"
                                (dismissEvent)="dismissNotification($event)"></app-notifications>

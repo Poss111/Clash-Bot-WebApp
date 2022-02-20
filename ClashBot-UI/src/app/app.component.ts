@@ -55,14 +55,18 @@ export class AppComponent implements OnInit, OnDestroy{
       }
     })
     this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {
+
       if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
         this.applicationDetailsLoaded = true;
     })
   }
 
   toggleDarkMode(turnDarkModeOn: boolean) {
+    let applicationDetails = this.applicationDetailsService.getApplicationDetails().value;
     const darkModeClassName = 'darkMode';
     this.className = turnDarkModeOn ? darkModeClassName : '';
+    applicationDetails.darkMode = turnDarkModeOn;
+    this.applicationDetailsService.setApplicationDetails(applicationDetails);
     localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
   }
 

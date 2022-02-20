@@ -16,7 +16,8 @@ module.exports = {
             message: {
                 alertLevel: 3,
                 from: 'Clash-Bot',
-                message: 'This is a high level alert'
+                message: 'This is a high level alert that has a lot of information available for it. I really do not know what kind of information exactly'
+                 + ' but it is quite a bit. I want to know what kind of information it is but I know one day I will find out.'
             },
             timeAdded: ':earlierDateTime'
         },

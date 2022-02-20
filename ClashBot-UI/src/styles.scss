@@ -26,6 +26,11 @@ body::-webkit-scrollbar {
 
 @include clash.custom-theming(clash.$light-theme);
 
+.lightMode {
+  @include mat.all-component-themes(clash.$light-theme);
+  @include clash.custom-theming(clash.$light-theme);
+}
+
 .darkMode {
   @include mat.all-component-themes(clash.$dark-theme);
   @include clash.custom-theming(clash.$dark-theme);

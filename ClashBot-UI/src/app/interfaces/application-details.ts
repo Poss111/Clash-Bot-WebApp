@@ -5,4 +5,5 @@ export interface ApplicationDetails {
   currentTournaments?: ClashTournaments[],
   defaultGuild?: string,
   userGuilds?: DiscordGuild[]
+  darkMode?: boolean
 }
