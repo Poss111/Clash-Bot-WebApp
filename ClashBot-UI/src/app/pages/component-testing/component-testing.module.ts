@@ -38,8 +38,6 @@ import {MatBadgeModule} from "@angular/material/badge";
     MatOptionModule,
     MatSelectModule,
     MatTableModule,
-    OverlayModule,
-    MatBadgeModule,
     TeamsModule,
     SharedModule
   ]

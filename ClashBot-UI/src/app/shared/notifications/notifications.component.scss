@@ -1,15 +1,38 @@
-.clash-notification-container {
-  display: flex;
+.clash-notification-dismiss-container {
+  position: absolute;
+  right: -0.75em;
+  top: -0.5em;
+  border: 0.1em solid black;
+  border-radius: 50%;
+  box-shadow: 5px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.clash-notification-dismiss-tooltip {
+
+}
+
+.clash-notification-message-container {
+  position: relative;
   width: 20em;
   border-radius: 0.5em;
-  padding-right: 0.5em;
+  padding: 0.5em;
+  box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.5);
+  transition: margin-left 0.2s ease-out;
+}
+
+.clash-notification-message-container:hover {
+  margin-left: 0.5em;
 }
 
 .clash-notification-text-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
   justify-content: space-between;
+}
+
+.clash-notification-from-text {
+  font-size: 1.5em;
 }
 
 .clash-notification-time {

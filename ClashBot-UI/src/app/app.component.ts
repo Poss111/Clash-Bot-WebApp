@@ -10,10 +10,6 @@ import {FormControl} from "@angular/forms";
 import {ClashBotNotification} from "./interfaces/clash-bot-notification";
 import {take} from "rxjs/operators";
 import {ClashBotNotificationService} from "./services/clash-bot-notification.service";
-import {Overlay} from "@angular/cdk/overlay";
-import {NotificationsComponent} from "./shared/notifications/notifications.component";
-import {ComponentPortal} from "@angular/cdk/portal";
-import {NotificationOverlayService} from "./shared/notifications/notification-overlay.service";
 
 @Component({
   selector: 'app-root',

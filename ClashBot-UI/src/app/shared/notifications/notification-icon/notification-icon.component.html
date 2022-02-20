@@ -1,0 +1,18 @@
+<button mat-icon-button (click)="toggleBadgeVisibility()">
+    <mat-icon [matBadge]="notifications.length"
+              matBadgePosition="after" matBadgeColor="accent"
+              matBadgeSize="small" [matBadgeHidden]="badgeHidden"
+              cdkOverlayOrigin #trigger="cdkOverlayOrigin">notifications
+    </mat-icon>
+</button>
+<ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="showNotificationPanel"
+>
+    <ul class="clash-notification-list">
+        <li *ngFor="let notification of notifications">
+            <app-notifications [notification]="notification"></app-notifications>
+        </li>
+    </ul>
+</ng-template>

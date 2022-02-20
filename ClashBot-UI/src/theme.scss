@@ -34,7 +34,11 @@ $dark-theme: mat.define-dark-theme((
     border: 3px solid mat.get-color-from-palette($accent-palette);
   }
 
-  .clash-notification-container {
+  .clash-notification-message-container {
+    background-color: mat.get-color-from-palette($accent-palette, 300);
+  }
+
+  .clash-notification-dismiss-container {
     background-color: mat.get-color-from-palette($accent-palette, 300);
   }
 
