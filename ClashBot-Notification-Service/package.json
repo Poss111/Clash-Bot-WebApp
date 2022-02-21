@@ -23,6 +23,7 @@
     "moment-timezone": "^0.5.33",
     "pino": "^7.6.5",
     "pino-http": "^6.6.0",
+    "uuid": "^8.3.2",
     "ws": "^8.4.2"
   },
   "devDependencies": {

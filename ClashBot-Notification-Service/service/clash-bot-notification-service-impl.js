@@ -16,6 +16,20 @@ class ClashBotNotificationServiceImpl {
             }));
     }
 
+    persistUserNotification(userId, from, serverName, message, alertLevel) {
+        return new Promise((resolve, reject) => {
+           clashBotNotificationDbImpl.persistNotification(userId, from, serverName, message, alertLevel)
+               .then((dbResponse) => {
+               resolve({
+                   alertLevel: dbResponse.message.alertLevel,
+                   from: dbResponse.message.from,
+                   message: dbResponse.message.message,
+                   timeAdded: dbResponse.timeAdded
+               })
+           })
+        });
+    }
+
 }
 
 module.exports = new ClashBotNotificationServiceImpl;

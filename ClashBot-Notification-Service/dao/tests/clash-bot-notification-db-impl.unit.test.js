@@ -20,6 +20,7 @@ describe('Clash Bot Notification Database Implementation', () => {
                         schema: {
                             key: Joi.string(),
                             notificationSortKey: Joi.string(),
+                            notificationUniqueId: Joi.string(),
                             message: expect.anything(),
                             timeAdded: Joi.string()
                         }
@@ -41,7 +42,8 @@ describe('Clash Bot Notification Database Implementation', () => {
                     {
                         attrs: {
                             "createdAt": "2022-02-15T03:41:17.173Z",
-                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z",
+                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z#abc12321321",
+                            "notificationUniqueId": "abc12321321",
                             "timeAdded": "2022-02-15T03:40:16.874Z",
                             "message": {
                                 "alertLevel": 3,
@@ -53,7 +55,8 @@ describe('Clash Bot Notification Database Implementation', () => {
                     {
                         attrs: {
                             "createdAt": "2022-02-15T03:41:17.165Z",
-                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z",
+                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            "notificationUniqueId": "abc12321321",
                             "timeAdded": "2022-02-15T03:41:16.874Z",
                             "message": {
                                 "alertLevel": 1,
@@ -79,6 +82,59 @@ describe('Clash Bot Notification Database Implementation', () => {
                 expect(clashBotNotificationDbImpl.clashBotNotificationTable.limit).toHaveBeenCalledWith(5);
                 expect(dbResponse).toEqual(data.Items.map(item => item.attrs));
             })
+        })
+    })
+
+    describe('Post Clash Bot Notification for a User', () => {
+
+        test('A notification for a single user should require a userId, from, serverName, the message, and alert level', () => {
+            const expectedUserIdNotificationFor = '1'
+            const whoNotificationFrom = 'Clash Bot';
+            const serverName = 'Goon Squad';
+            const message = 'Some message';
+            const alertLevel = 1;
+            const dateTime = new Date().toISOString();
+            let expectedPersistResponse = {
+                attrs: {
+                    notificationSortKey: `U#${serverName}#${dateTime}#abc12321321`,
+                    notificationUniqueId: "abc12321321",
+                    timeAdded: dateTime,
+                    message: {
+                        alertLevel: 1,
+                        from: whoNotificationFrom,
+                        message: message
+                    },
+                    key: "U#1"
+                }
+            };
+            clashBotNotificationDbImpl.clashBotNotificationTable = {
+                create: jest.fn().mockImplementation((data, callback) =>
+                    callback(undefined, expectedPersistResponse))
+            };
+            return clashBotNotificationDbImpl.persistNotification(expectedUserIdNotificationFor,
+                whoNotificationFrom,
+                serverName,
+                message,
+                alertLevel)
+                .then((notification) => {
+                    expect(clashBotNotificationDbImpl.clashBotNotificationTable.create).toHaveBeenCalledWith({
+                        notificationSortKey: expect.any(String),
+                        notificationUniqueId: expect.any(String),
+                        timeAdded: expect.any(String),
+                        message: {
+                            alertLevel: 1,
+                            from: whoNotificationFrom,
+                            message: message
+                        },
+                        key: `U#${expectedUserIdNotificationFor}`
+                    }, expect.any(Function));
+                    expect(notification.key).toEqual(`U#${expectedUserIdNotificationFor}`);
+                    expect(notification.message.from).toEqual(whoNotificationFrom);
+                    expect(notification.message.message).toEqual(message);
+                    expect(notification.message.alertLevel).toEqual(alertLevel);
+                    expect(notification.timeAdded).not.toBeNull();
+                    expect(notification.notificationSortKey).not.toBeNull();
+                })
         })
     })
 })

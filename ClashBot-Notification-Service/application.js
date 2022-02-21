@@ -34,6 +34,13 @@ let startUpApp = async () => {
             }
         })
 
+        app.post(urlPrefix, (req, res) => {
+            clashBotNotificationServiceImpl.persistUserNotification(req.body.id, req.body.from,
+                req.body.serverName, req.body.message, req.body.alertLevel).then(apiResponse => {
+                    res.json(apiResponse);
+            });
+        })
+
         app.use((req, res) => {
             req.log.error(`Path not found ('${req.url}')`);
             res.statusCode = 404;

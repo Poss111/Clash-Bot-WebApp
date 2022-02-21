@@ -50,6 +50,46 @@ describe('Clash Bot Service API Controller', () => {
         })
     })
 
+    describe('Post Notification', () => {
+        test('As a User, when I call POST /api/notifications I should be required to call with a user id, from, ' +
+            'serverName, message, and alertLevel to clashNotificationServiceImpl and be returned and api response.', (done) => {
+            const apiRequest = {
+                id: '1',
+                from: 'Clash Bot',
+                serverName: 'Goon Squad',
+                message: 'Expected sample message.',
+                alertLevel: 1
+            };
+            const expectedTimeAdded = new Date().toISOString();
+            clashBotNotificationServiceImpl.persistUserNotification.mockResolvedValue({
+                from: apiRequest.from,
+                message: apiRequest.message,
+                alertLevel: apiRequest.alertLevel,
+                timeAdded: expectedTimeAdded
+            });
+            request(application)
+                .post('/api/notifications')
+                .send(apiRequest)
+                .set('Content-Type', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200, (err, res) => {
+                    if (err) return done(err);
+                    expect(clashBotNotificationServiceImpl.persistUserNotification).toHaveBeenCalledTimes(1);
+                    expect(clashBotNotificationServiceImpl.persistUserNotification)
+                        .toHaveBeenCalledWith(apiRequest.id, apiRequest.from,
+                            apiRequest.serverName, apiRequest.message, apiRequest.alertLevel);
+                    expect(res.body).toEqual({
+                        from: apiRequest.from,
+                        message: apiRequest.message,
+                        alertLevel: apiRequest.alertLevel,
+                        timeAdded: expectedTimeAdded
+                    });
+                    done();
+                })
+
+        })
+    })
+
     describe('Health Check', () => {
         test('As a User, when I call /api/notifications/health I should be returned a simple json payload stating it is healthy.', (done) => {
             request(application)

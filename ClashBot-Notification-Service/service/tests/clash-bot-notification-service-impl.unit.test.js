@@ -59,4 +59,26 @@ describe('Clash Bot Notification Service Implementation', () => {
             })
         })
     })
+
+    describe('Persist Notification for User', () => {
+        test('Should persist notification for user with userId, from, serverName, ' +
+            'message, alertLevel and return the ' +
+            'response mapped to api details.', () => {
+            const expectedUserId = '1';
+            const from = 'Clash Bot';
+            const serverName = 'Goon Squad';
+            const message = 'Some Message';
+            const alertLevel = 1;
+            const timeAdded = new Date().toISOString();
+            return clashBotNotificationServiceImpl.persistUserNotification(expectedUserId, from, serverName, message, alertLevel)
+                .then((mappedApiResponse) => {
+                    expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledTimes(1);
+                    expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledWith(expectedUserId, from, serverName, message, alertLevel);
+                expect(mappedApiResponse).toEqual({message: message,
+                    from: from,
+                    alertLevel: alertLevel,
+                    timeAdded: timeAdded});
+            })
+        })
+    })
 })
