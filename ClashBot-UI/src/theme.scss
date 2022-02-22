@@ -41,13 +41,4 @@ $dark-theme: mat.define-dark-theme((
     background-color: mat.get-color-from-palette($background, background);
     color: mat.get-color-from-palette($foreground, text);
   }
-
-  //.clash-notification-message-container {
-  //  background-color: mat.get-color-from-palette($accent-palette, 300);
-  //}
-  //
-  //.clash-notification-dismiss-container {
-  //  background-color: mat.get-color-from-palette($accent-palette, 300);
-  //}
-
 }

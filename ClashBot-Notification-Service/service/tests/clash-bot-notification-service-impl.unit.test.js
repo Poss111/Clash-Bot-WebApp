@@ -70,10 +70,25 @@ describe('Clash Bot Notification Service Implementation', () => {
             const message = 'Some Message';
             const alertLevel = 1;
             const timeAdded = new Date().toISOString();
-            return clashBotNotificationServiceImpl.persistUserNotification(expectedUserId, from, serverName, message, alertLevel)
+            const expectedDbResponse =                 {
+                createdAt: "2022-02-15T03:41:17.165Z",
+                notificationSortKey: `U#${serverName}#2022-02-15T03:41:16.874Z#abcd123`,
+                notificationUniqueId: "abcd123",
+                timeAdded: timeAdded,
+                message: {
+                    alertLevel: alertLevel,
+                    from: from,
+                    message: message
+                },
+                key: `U#${expectedUserId}`
+            };
+            clashBotNotificationDbImpl.persistNotification.mockResolvedValue(expectedDbResponse)
+            return clashBotNotificationServiceImpl.persistUserNotification(expectedUserId, from, serverName,
+                message, alertLevel)
                 .then((mappedApiResponse) => {
                     expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledTimes(1);
-                    expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledWith(expectedUserId, from, serverName, message, alertLevel);
+                    expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledWith(expectedUserId,
+                        from, serverName, message, alertLevel);
                 expect(mappedApiResponse).toEqual({message: message,
                     from: from,
                     alertLevel: alertLevel,

@@ -48,7 +48,7 @@ let startUpApp = async () => {
         })
         return app;
     } catch (err) {
-        logger.error('Failed to start Notification Service due to error.', err);
+        throw new Error(err);
     }
 };
 

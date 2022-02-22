@@ -3,6 +3,7 @@ const clashBotNotificationServiceImpl = require('./service/clash-bot-notificatio
 const request = require('supertest');
 
 jest.mock('./service/clash-bot-notification-service-impl');
+jest.mock('./dao/clash-bot-notification-db-impl');
 
 describe('Clash Bot Service API Controller', () => {
     let application;
