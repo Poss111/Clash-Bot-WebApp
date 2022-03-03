@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  clash-bot-notification-ws:
+    command: "node index.js"
+    image: "poss11111/clash-bot-notification-ws:first"
+    container_name: clash-bot-notification-ws
+    ports:
+      - "0.0.0.0:82:82"
+    environment:
+      - REDIS_HOST=redis
+      - PORT=82
+  clash-bot-notification-ws-two:
+    command: "node index.js"
+    image: "poss11111/clash-bot-notification-ws:first"
+    container_name: clash-bot-notification-ws-two
+    ports:
+      - "0.0.0.0:83:83"
+    environment:
+      - REDIS_HOST=redis
+      - PORT=83
+  redis:
+    image: 'redis:latest'
+    container_name: redis-local
+    ports:
+      - "0.0.0.0:6379:6379"
