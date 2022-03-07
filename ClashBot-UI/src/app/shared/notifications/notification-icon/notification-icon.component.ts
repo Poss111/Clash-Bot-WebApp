@@ -1,8 +1,8 @@
-import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
 import {ClashBotNotification} from "../../../interfaces/clash-bot-notification";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {Subscription} from "rxjs";
-import {CdkOverlayOrigin, ConnectedPosition, FlexibleConnectedPositionStrategy, OverlayRef} from "@angular/cdk/overlay";
+import {ConnectedPosition} from "@angular/cdk/overlay";
 
 @Component({
   selector: 'app-notification-icon',
@@ -11,8 +11,18 @@ import {CdkOverlayOrigin, ConnectedPosition, FlexibleConnectedPositionStrategy, 
 })
 export class NotificationIconComponent implements AfterViewInit, OnDestroy {
 
+  private _notifications: ClashBotNotification[] = [];
+  badgeNumber: number = 0;
+
   @Input()
-  notifications: ClashBotNotification[] = [];
+  set notifications(array: ClashBotNotification[]) {
+    this._notifications = array.sort().reverse();
+    this.updateNumberOfAvailable();
+    this.badgeHidden = this.badgeNumber <= 0;
+  }
+  get notifications() {
+    return this._notifications;
+  }
 
   badgeHidden: boolean = false;
   showNotificationPanel: boolean = false;
@@ -22,16 +32,19 @@ export class NotificationIconComponent implements AfterViewInit, OnDestroy {
 
   constructor(private applicationDetailsService: ApplicationDetailsService) { }
 
+  updateNumberOfAvailable() {
+    this.badgeNumber = this._notifications.filter((notification) => !notification.dismissed).length;
+  }
+
   ngAfterViewInit(): void {
     this.connectedPosition.push({
       originX: 'center',
       originY: 'bottom',
       overlayX: 'center',
       overlayY: 'top'
-    })
+    });
     this.$applicationDetailsServiceSubscription = this.applicationDetailsService.getApplicationDetails()
         .subscribe((applicationDetails) => {
-          console.log(`Dark Mode updated... ${applicationDetails.darkMode}`);
       if (applicationDetails.darkMode) {
         this.classList.pop();
         this.classList.push('darkMode');
@@ -39,7 +52,6 @@ export class NotificationIconComponent implements AfterViewInit, OnDestroy {
         this.classList.pop();
         this.classList.push('lightMode');
       }
-      console.log(this.classList);
     });
   }
 
@@ -47,16 +59,14 @@ export class NotificationIconComponent implements AfterViewInit, OnDestroy {
     this.$applicationDetailsServiceSubscription?.unsubscribe();
   }
 
-  toggleBadgeVisibility() {
-    this.badgeHidden = true;
+  togglePanel() {
     this.showNotificationPanel = !this.showNotificationPanel;
   }
 
   dismissNotification(dismissedNotification: ClashBotNotification): void {
-    this.notifications.splice(this.notifications.findIndex(notification => {
-      return notification.from === dismissedNotification.from
-          && notification.message === dismissedNotification.message;
-    }), 1);
+    this.notifications.splice(this.notifications.findIndex(notification =>
+    notification.id.localeCompare(dismissedNotification.id)), 1);
+    this.updateNumberOfAvailable();
   }
 
 }

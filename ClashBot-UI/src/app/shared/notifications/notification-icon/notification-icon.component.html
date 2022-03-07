@@ -1,5 +1,5 @@
-<button mat-icon-button (click)="toggleBadgeVisibility()">
-    <mat-icon [matBadge]="notifications.length"
+<button mat-icon-button (click)="togglePanel()">
+    <mat-icon [matBadge]="badgeNumber"
               matBadgePosition="after" matBadgeColor="accent"
               matBadgeSize="small" [matBadgeHidden]="badgeHidden"
               cdkOverlayOrigin #trigger="cdkOverlayOrigin">notifications

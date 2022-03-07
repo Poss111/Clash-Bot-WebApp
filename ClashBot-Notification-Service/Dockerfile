@@ -4,4 +4,4 @@ COPY package*.json ./
 RUN npm install --production
 COPY . .
 EXPOSE 80
-CMD [ "node", "index.js" ]
+CMD [ "node", "index.ts" ]

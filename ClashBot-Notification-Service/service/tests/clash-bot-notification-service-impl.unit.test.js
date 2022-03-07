@@ -23,6 +23,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                 {
                     "createdAt": "2022-02-15T03:41:17.173Z",
                     "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z",
+                    "notificationUniqueId": "1",
                     "timeAdded": "2022-02-15T03:40:16.874Z",
                     "message": {
                         "alertLevel": 3,
@@ -34,6 +35,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                 {
                     "createdAt": "2022-02-15T03:41:17.165Z",
                     "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z",
+                    "notificationUniqueId": "2",
                     "timeAdded": "2022-02-15T03:41:16.874Z",
                     "message": {
                         "alertLevel": 1,
@@ -45,6 +47,7 @@ describe('Clash Bot Notification Service Implementation', () => {
             ];
             const expectedApiResponse = expectedDbResponse.map((item) => {
                 return {
+                    id: item.notificationUniqueId,
                     alertLevel: item.message.alertLevel,
                     from: item.message.from,
                     message: item.message.message,

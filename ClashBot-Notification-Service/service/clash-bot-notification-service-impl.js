@@ -7,6 +7,7 @@ class ClashBotNotificationServiceImpl {
             .then((dbResponse) => {
                 resolve(dbResponse.map(messageRecord => {
                     return {
+                        id: messageRecord.notificationUniqueId,
                         alertLevel: messageRecord.message.alertLevel,
                         from: messageRecord.message.from,
                         message: messageRecord.message.message,
