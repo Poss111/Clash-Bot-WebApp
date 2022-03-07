@@ -37,9 +37,12 @@ describe('ClashBotNotificationService', () => {
       const userId = 1;
       const mockResponse: ClashBotNotification[] = [
         {
+          id: '1',
           alertLevel: 1,
+          from: 'Me',
           message: "Sample message",
-          timeAdded: new Date("11-01-2022_11:11:11 EST")
+          timeAdded: new Date("11-01-2022_11:11:11 EST"),
+          dismissed: false
         }
       ];
       stubLocation({hostname: "localhost"});
