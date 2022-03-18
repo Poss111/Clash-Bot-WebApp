@@ -1,0 +1,322 @@
+{
+  "guilds": [
+    {
+      "id": "136278926191362058",
+      "name": "Garret's Discord",
+      "icon": "17ce03186d96453d4f2b341649b2b7cc",
+      "owner": false,
+      "permissions": 37215809,
+      "features": [
+        "ANIMATED_ICON",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "INVITE_SPLASH"
+      ],
+      "permissions_new": "1071631556161"
+    },
+    {
+      "id": "187652476080488449",
+      "name": "Riot Games Third Party Developer Community",
+      "icon": "19f6a30bb677e1e1c7316ec6f243b82a",
+      "owner": false,
+      "permissions": 36818496,
+      "features": [
+        "BANNER",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "MEMBER_PROFILES",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEW_THREAD_PERMISSIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ROLE_ICONS",
+        "ANIMATED_ICON",
+        "DISCOVERABLE",
+        "ANIMATED_BANNER",
+        "VANITY_URL",
+        "PRIVATE_THREADS",
+        "THREADS_ENABLED"
+      ],
+      "permissions_new": "934192205376"
+    },
+    {
+      "id": "214578707489226753",
+      "name": "Smizzniz",
+      "icon": null,
+      "owner": false,
+      "permissions": 104324673,
+      "features": [],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "257270392861884416",
+      "name": ";)",
+      "icon": "ff7ce8156f06829eee37b44c6ee2387a",
+      "owner": false,
+      "permissions": 104324673,
+      "features": [],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "260438885698502666",
+      "name": "Kingdom of Lame",
+      "icon": "86dcf0b65516fe8ec0acf1218eea606d",
+      "owner": false,
+      "permissions": 104324673,
+      "features": [],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "264445053596991498",
+      "name": "Top.gg",
+      "icon": "a_1e68cef3c8a122348d19fb2d3c88f60e",
+      "owner": false,
+      "permissions": 37080640,
+      "features": [
+        "BANNER",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "MEMBER_PROFILES",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEW_THREAD_PERMISSIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ENABLED_DISCOVERABLE_BEFORE",
+        "ROLE_ICONS",
+        "ANIMATED_ICON",
+        "DISCOVERABLE",
+        "ANIMATED_BANNER",
+        "VANITY_URL",
+        "PRIVATE_THREADS",
+        "THREADS_ENABLED"
+      ],
+      "permissions_new": "966404722240"
+    },
+    {
+      "id": "391410869785067560",
+      "name": "CornDogs",
+      "icon": null,
+      "owner": true,
+      "permissions": 2147483647,
+      "features": [],
+      "permissions_new": "2199023255551"
+    },
+    {
+      "id": "414496128839712768",
+      "name": "League of Extraordinary ...",
+      "icon": "69102537709598230d9585857fb1fd17",
+      "owner": false,
+      "permissions": 104324673,
+      "features": [],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "417825368062558219",
+      "name": "League of Legends",
+      "icon": "799f4a9ab5d5f86e4bbff7bfbea359cd",
+      "owner": false,
+      "permissions": 0,
+      "features": [
+        "BANNER",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "MEMBER_PROFILES",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "PARTNERED",
+        "VIP_REGIONS",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEW_THREAD_PERMISSIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "FEATURABLE",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "AUTO_MODERATION",
+        "ENABLED_DISCOVERABLE_BEFORE",
+        "ANIMATED_ICON",
+        "ROLE_ICONS",
+        "DISCOVERABLE",
+        "ANIMATED_BANNER",
+        "VANITY_URL",
+        "PRIVATE_THREADS",
+        "THREADS_ENABLED"
+      ],
+      "permissions_new": "968515125248"
+    },
+    {
+      "id": "434172219472609281",
+      "name": "The Other Other Guys",
+      "icon": "87580ac4ffcd87347a7e1d566e9285ce",
+      "owner": false,
+      "permissions": 104324673,
+      "features": [],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "460520499680641035",
+      "name": "Goon Squad",
+      "icon": "54d8b00023ca26be5c00a15f5ee9fe80",
+      "owner": true,
+      "permissions": 2147483647,
+      "features": [],
+      "permissions_new": "2199023255551"
+    },
+    {
+      "id": "584146161963761687",
+      "name": "Insights.gg",
+      "icon": "a_a58fb478870790239c1853114a55b90b",
+      "owner": false,
+      "permissions": 104188993,
+      "features": [
+        "BANNER",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "MEMBER_PROFILES",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEW_THREAD_PERMISSIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ENABLED_DISCOVERABLE_BEFORE",
+        "ROLE_ICONS",
+        "ANIMATED_ICON",
+        "ANIMATED_BANNER",
+        "VANITY_URL",
+        "PRIVATE_THREADS",
+        "THREADS_ENABLED"
+      ],
+      "permissions_new": "1002979052609"
+    },
+    {
+      "id": "592931250625576980",
+      "name": "The Tavern",
+      "icon": "b65d5cca351bdc788b5e16167379b22d",
+      "owner": false,
+      "permissions": 104324673,
+      "features": [
+        "EXPOSED_TO_ACTIVITIES_WTP_EXPERIMENT"
+      ],
+      "permissions_new": "1071698665025"
+    },
+    {
+      "id": "636569892895719464",
+      "name": "quiet souls",
+      "icon": "8e8292935f3e4744222fc62f29b4949b",
+      "owner": false,
+      "permissions": 2146959059,
+      "features": [
+        "INVITE_SPLASH",
+        "ANIMATED_ICON",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "EXPOSED_TO_ACTIVITIES_WTP_EXPERIMENT"
+      ],
+      "permissions_new": "1073741299411"
+    },
+    {
+      "id": "649358411246469135",
+      "name": "HellHades",
+      "icon": "f7c78534607ee62c0394edb10de89a7c",
+      "owner": false,
+      "permissions": 104189505,
+      "features": [
+        "BANNER",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "MEMBER_PROFILES",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEW_THREAD_PERMISSIONS",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ENABLED_DISCOVERABLE_BEFORE",
+        "ROLE_ICONS",
+        "ANIMATED_ICON",
+        "ANIMATED_BANNER",
+        "VANITY_URL",
+        "PRIVATE_THREADS",
+        "THREADS_ENABLED"
+      ],
+      "permissions_new": "1071698529857"
+    },
+    {
+      "id": "687213225225355296",
+      "name": "The Forge",
+      "icon": "a_f3df79fb521ab6814692d9989a7fdc56",
+      "owner": false,
+      "permissions": 104193601,
+      "features": [
+        "WELCOME_SCREEN_ENABLED",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ANIMATED_ICON",
+        "COMMUNITY",
+        "NEWS",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "THREADS_ENABLED",
+        "NEW_THREAD_PERMISSIONS"
+      ],
+      "permissions_new": "1071698533953"
+    },
+    {
+      "id": "767941072747626547",
+      "name": "Magnum Quest",
+      "icon": "ea93b51a9767fb1436b8df127ec53e45",
+      "owner": false,
+      "permissions": 104189761,
+      "features": [
+        "WELCOME_SCREEN_ENABLED",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "INVITE_SPLASH",
+        "PREVIEW_ENABLED",
+        "ENABLED_DISCOVERABLE_BEFORE",
+        "ANIMATED_ICON",
+        "DISCOVERABLE",
+        "COMMUNITY",
+        "NEWS",
+        "THREADS_ENABLED",
+        "NEW_THREAD_PERMISSIONS"
+      ],
+      "permissions_new": "1069551046465"
+    },
+    {
+      "id": "837685892885512202",
+      "name": "LoL-ClashBotSupport",
+      "icon": "7d5db36bbcc3b0554d6ebd9c71d066ac",
+      "owner": true,
+      "permissions": 2147483647,
+      "features": [],
+      "permissions_new": "2199023255551"
+    },
+    {
+      "id": "896963680837701662",
+      "name": "Meme City",
+      "icon": "a25e2a6b608f737d4dd196cb1005454c",
+      "owner": false,
+      "permissions": 104320576,
+      "features": [],
+      "permissions_new": "1071698660928"
+    }
+  ],
+  "@me": {
+    "id": "299370234228506627",
+    "username": "Ro\u00efdr\u00e4ge",
+    "avatar": "aea883d64584eb61df4e055d1256c294",
+    "discriminator": "2657",
+    "public_flags": 0,
+    "flags": 0,
+    "banner": null,
+    "banner_color": "#eb0000",
+    "accent_color": 15400960,
+    "locale": "en-US",
+    "mfa_enabled": false
+  }
+}

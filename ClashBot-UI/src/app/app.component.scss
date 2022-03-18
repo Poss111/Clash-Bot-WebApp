@@ -1,10 +1,25 @@
+.mobile-clash-container {
+  height: 100%;
+  z-index: 2;
+}
+
+.mobile-clash-sidenav {
+  z-index: 2;
+}
+
+.mobile-clash-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .clash-bot-card {
   max-width: 400px;
 }
 
 .main-page {
   padding: 1em;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

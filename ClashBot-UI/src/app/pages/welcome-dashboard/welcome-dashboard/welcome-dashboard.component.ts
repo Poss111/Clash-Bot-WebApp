@@ -84,6 +84,9 @@ export class WelcomeDashboardComponent implements OnInit {
             'X',
             {duration: 5 * 1000});
         });
+    } else if (!environment.production) {
+        this.loggedIn = 'LOGGED_IN';
+        this.setUserDetails();
     } else {
       if (this.oauthService.hasValidAccessToken()) {
         this.loggedIn = 'LOGGED_IN';

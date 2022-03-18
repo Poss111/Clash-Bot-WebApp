@@ -15,7 +15,7 @@
             </li>
         </ul>
     </mat-sidenav>
-    <mat-sidenav-content>
+    <mat-sidenav-content class="mobile-clash-content">
         <div class="header">
             <mat-toolbar color="primary">
                 <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
@@ -54,24 +54,24 @@
         </div>
         <div class="main-page">
             <router-outlet></router-outlet>
-            <div class="clash-bot-footer footer">
-                <mat-card>
-                    <div class="clash-bot-footer-details-container">
-                        <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
-                        <mat-card-content>Version: {{appVersion}}</mat-card-content>
-                    </div>
-                    <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not
-                        reflect the
-                        views
-                        or opinions of
-                        Riot Games or anyone officially involved in producing or managing League of Legends. League of
-                        Legends
-                        and Riot
-                        Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot
-                        Games, Inc.
-                    </mat-card-content>
-                </mat-card>
-            </div>
+        </div>
+        <div class="clash-bot-footer footer">
+            <mat-card>
+                <div class="clash-bot-footer-details-container">
+                    <mat-card-content class="copyright-text">Copyright 2021 - Poss11111</mat-card-content>
+                    <mat-card-content>Version: {{appVersion}}</mat-card-content>
+                </div>
+                <mat-card-content class="disclaimer-text">Clash-Bot is not endorsed by Riot Games and does not
+                    reflect the
+                    views
+                    or opinions of
+                    Riot Games or anyone officially involved in producing or managing League of Legends. League of
+                    Legends
+                    and Riot
+                    Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot
+                    Games, Inc.
+                </mat-card-content>
+            </mat-card>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
