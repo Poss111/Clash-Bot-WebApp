@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
+import {BreakpointObserver, Breakpoints, BreakpointState} from "@angular/cdk/layout";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-notifications',
@@ -17,7 +19,7 @@ export class NotificationsComponent implements OnInit {
   @Output()
   dismissEvent: EventEmitter<ClashBotNotification> = new EventEmitter<ClashBotNotification>();
 
-  constructor() { }
+  constructor(private breakpointObserver: BreakpointObserver) { }
 
   ngOnInit(): void {
     setTimeout(() => {

@@ -11,7 +11,6 @@ import {ClashBotNotification} from "./interfaces/clash-bot-notification";
 import {delay, retryWhen, take, tap} from "rxjs/operators";
 import {ClashBotNotificationService} from "./services/clash-bot-notification.service";
 import {NotificationsWsService} from "./services/notifications-ws.service";
-import {ClashTeam} from "./interfaces/clash-team";
 import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
@@ -25,6 +24,7 @@ export class AppComponent implements OnInit, OnDestroy{
   applicationDetailsLoaded: boolean = false;
   userDetailsSub$?: Subscription;
   applicationDetailsSub$?: Subscription;
+  notificationsSubscription$?: Subscription;
   notifications: ClashBotNotification[] = [];
   username: string = '';
 
@@ -39,6 +39,7 @@ export class AppComponent implements OnInit, OnDestroy{
               private clashBotNotificationWSService : NotificationsWsService,
               private applicationDetailsService: ApplicationDetailsService,
               private googleAnalyticsService: GoogleAnalyticsService,
+              public notificationsWsService: NotificationsWsService,
               private _snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
@@ -53,40 +54,7 @@ export class AppComponent implements OnInit, OnDestroy{
       if (userDetails.username && userDetails.username != '') {
         this.username = userDetails.username;
         this.userDetailsLoaded = true;
-        this.clashBotNotificationService.retrieveClashNotificationsForUser(userDetails.id)
-            .pipe(take(1))
-            .subscribe((userNotifications) => {
-              this.notifications = userNotifications;
-              this.$notificationSub = this.clashBotNotificationWSService.getSubject()
-                  .pipe(
-                      retryWhen(errors =>
-                          errors.pipe(
-                              tap(err => {
-                                  this._snackBar.open('Failed to connect to server for Notification updates, retrying...',
-                                      'X',
-                                      {duration: 5 * 1000});
-                              }),
-                              delay(1000)
-                          )
-                      )
-                  )
-                  .subscribe((msg) => {
-                        if (msg instanceof Number) {
-                            this._snackBar.open('Connected Successfully to server for Notification updates.',
-                                'X',
-                                {duration: 5 * 1000});
-                        } else {
-                          this.notifications.unshift(<ClashBotNotification>msg);
-                        }
-                      },
-                      () => {
-                        this._snackBar.open('Oops! Failed to connect to server for Notification updates, please try refreshing.',
-                            'X',
-                            {duration: 5 * 1000})
-                      },
-                      () => console.debug('Connection closed to notification ws.'));
-            });
-          this.clashBotNotificationWSService.getSubject().next(1);
+        this.clashBotNotificationWSService.connectToNotificationUpdates(1);
       }
     })
     this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {
@@ -108,6 +76,7 @@ export class AppComponent implements OnInit, OnDestroy{
     this.userDetailsSub$?.unsubscribe();
     this.applicationDetailsSub$?.unsubscribe();
     this.$notificationSub?.unsubscribe();
+    this.notificationsSubscription$?.unsubscribe();
   }
 
   navigateToWelcomePage() {

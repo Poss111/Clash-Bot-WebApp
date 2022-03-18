@@ -32,6 +32,10 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {MatBadgeModule} from "@angular/material/badge";
 import {OverlayModule} from "@angular/cdk/overlay";
 import {SharedModule} from "./shared/shared.module";
+import { ClashUserPanelComponent } from './clash-user-panel/clash-user-panel.component';
+import {LayoutModule} from "@angular/cdk/layout";
+import { UsernameNotificationsComponent } from './username-notifications/username-notifications.component';
+import {MatSidenavModule} from "@angular/material/sidenav";
 
 @NgModule({
   declarations: [
@@ -40,7 +44,9 @@ import {SharedModule} from "./shared/shared.module";
     ClashTournamentCalendarComponent,
     ClashTournamentCalendarHeaderComponent,
     UpcomingTournamentDetailsCardComponent,
-    ReleaseNotificationDialogComponent
+    ReleaseNotificationDialogComponent,
+    ClashUserPanelComponent,
+    UsernameNotificationsComponent
   ],
   imports: [
     BrowserModule,
@@ -65,6 +71,8 @@ import {SharedModule} from "./shared/shared.module";
     TeamsModule,
     OverlayModule,
     SharedModule,
+    LayoutModule,
+    MatSidenavModule,
     MarkdownModule.forRoot({
       sanitize: SecurityContext.HTML
     })

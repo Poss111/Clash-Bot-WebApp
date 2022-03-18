@@ -54,4 +54,14 @@ describe('ClashBotNotificationService', () => {
       req.flush(mockResponse);
     })
   })
+
+  describe('Dismiss Notification', () => {
+    test('When I dismiss a notification, I should pass the notification id.', () => {
+      const notificationId = '1';
+      stubLocation({hostname: "localhost"});
+      service.dismissNotification(notificationId)
+      const req = httpMock.expectOne(`http://localhost:81/api/notifications`);
+      req.flush({});
+    });
+  });
 });

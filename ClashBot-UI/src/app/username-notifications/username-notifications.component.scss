@@ -1,0 +1,27 @@
+.mobile-clash-container {
+  z-index: 2;
+}
+
+.mobile-clash-sidenav {
+  z-index: 2;
+}
+
+.mobile-clash-notification-header {
+  font-size: 2em;
+  padding-left: 10px;
+}
+
+.mobile-clash-notification-list {
+  padding-inline-start: 12px;
+  padding-inline-end: 12px;
+}
+
+.mobile-clash-notification-list > li {
+  list-style-type: none;
+  border-bottom: solid 1px #8b8b8b;
+  padding: 8px 0;
+}
+
+.mobile-clash-notification-list > li:last-child {
+  border-bottom: none;
+}

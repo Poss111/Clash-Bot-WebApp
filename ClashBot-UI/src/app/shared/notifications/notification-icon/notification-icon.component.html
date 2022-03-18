@@ -11,9 +11,9 @@
         [cdkConnectedOverlayOpen]="showNotificationPanel"
         [cdkConnectedOverlayPositions]="connectedPosition">
     <ul [ngClass]="classList" class="clash-notification-list">
-        <li *ngFor="let notification of notifications">
+        <li *ngFor="let notification of notificationsWsService.notifications | async">
             <app-notifications [notification]="notification"
-                               (dismissEvent)="dismissNotification($event)"></app-notifications>
+                               (dismissEvent)="notificationsWsService.dismissNotification($event.id)"></app-notifications>
         </li>
     </ul>
 </ng-template>

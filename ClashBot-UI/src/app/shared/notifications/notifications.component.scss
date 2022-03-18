@@ -13,30 +13,6 @@
   opacity: 1;
 }
 
-.clash-notification-message-container {
-  position: relative;
-  width: 20em;
-  border-radius: 0.5em;
-  padding: 0.5em;
-  box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.5);
-  transform: scale(0.9, 0.9);
-  transition: all 0.2s ease-out;
-  opacity: 0;
-}
-
-.show {
-  opacity: 1;
-  transform: scale(1, 1);
-}
-
-.clash-notification-message-container:hover {
-  margin-left: 0.5em;
-}
-
-.clash-notification-text-container:hover + .clash-notification-dismiss-container {
-  opacity: 1;
-}
-
 .clash-notification-text-container {
   display: flex;
   flex-direction: column;
@@ -44,13 +20,72 @@
   justify-content: space-between;
 }
 
-.clash-notification-from-text {
-  font-size: 1.5em;
-}
-
 .clash-notification-time {
   justify-self: flex-end;
   align-self: flex-end;
   line-height: 10px;
-  font-size: 0.8em;
+}
+
+@media only screen and (max-width: 959.98px) {
+  .clash-notification-message-container {
+    position: relative;
+    width: 10em;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9, 0.9);
+    transition: all 0.2s ease-out;
+    opacity: 0;
+  }
+
+  .clash-notification-text-container {
+    opacity: 1;
+  }
+
+  .clash-notification-text {
+    font-size: 0.7em;
+  }
+
+  .clash-notification-time {
+    font-size: 0.55em
+  }
+
+  .show {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+
+  .clash-notification-dismiss-container {
+    opacity: 1;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .clash-notification-text-container:hover + .clash-notification-dismiss-container {
+    opacity: 1;
+  }
+
+  .clash-notification-message-container {
+    position: relative;
+    width: 20em;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9, 0.9);
+    transition: all 0.2s ease-out;
+    opacity: 0;
+  }
+
+  .clash-notification-time {
+    font-size: 0.8em;
+  }
+
+  .show {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+
+  .clash-notification-message-container:hover {
+    margin-left: 0.5em;
+  }
 }
