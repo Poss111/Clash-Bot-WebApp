@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
 import {UserDetailsService} from "./services/user-details.service";
 import {UserDetails} from "./interfaces/user-details";
@@ -12,6 +12,7 @@ import {delay, retryWhen, take, tap} from "rxjs/operators";
 import {ClashBotNotificationService} from "./services/clash-bot-notification.service";
 import {NotificationsWsService} from "./services/notifications-ws.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatSidenav} from "@angular/material/sidenav";
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,8 @@ export class AppComponent implements OnInit, OnDestroy{
   username: string = '';
 
   darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
+
+  @ViewChild('menuSideNav') menuSideNav: MatSidenav | undefined;
 
   @HostBinding('class') className = '';
   private $notificationSub: Subscription | undefined;
@@ -81,14 +84,17 @@ export class AppComponent implements OnInit, OnDestroy{
 
   navigateToWelcomePage() {
     this.router.navigate(['/']);
+    this.menuSideNav?.close();
   }
 
   navigateToTeams() {
     this.router.navigate(['/teams']);
+    this.menuSideNav?.close();
   }
 
   navigateToUserProfile() {
     this.router.navigate(['/user-profile']);
+    this.menuSideNav?.close();
   }
 
 }

@@ -6,7 +6,7 @@
                  [disableClose]="false"
                  position="end">
         <mat-card>
-            <h2 class="mobile-clash-notification-header">Notifications</h2>
+            <h2 class="mobile-clash-sidenav-header">Notifications</h2>
         </mat-card>
         <ul class="mobile-clash-notification-list">
             <li *ngFor="let notification of (notificationsWsService.notifications | async)">
@@ -15,12 +15,40 @@
             </li>
         </ul>
     </mat-sidenav>
+    <mat-sidenav #menuSideNav
+                 class="mobile-clash-sidenav"
+                 mode="over"
+                 [fixedInViewport]="false"
+                 [disableClose]="false">
+        <mat-card>
+            <h2 class="mobile-clash-sidenav-header">Pages</h2>
+        </mat-card>
+        <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
+            <mat-icon>house</mat-icon>
+            <span>Welcome Page</span>
+        </button>
+        <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                mat-menu-item
+                (click)="navigateToTeams()">
+            <mat-icon>groups</mat-icon>
+            <span>Clash Teams</span>
+        </button>
+        <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                mat-menu-item
+                (click)="navigateToUserProfile()">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+        </button>
+    </mat-sidenav>
     <mat-sidenav-content class="mobile-clash-content">
         <div class="header">
             <mat-toolbar color="primary">
-                <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">
+                <button mat-icon-button (click)="menuSideNav.open()" aria-label="tabs">
                     <mat-icon>menu</mat-icon>
                 </button>
+<!--                <button id='clash-bot-menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="tabs">-->
+<!--                    <mat-icon>menu</mat-icon>-->
+<!--                </button>-->
                 <mat-menu #menu="matMenu">
                     <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
                         <mat-icon>house</mat-icon>

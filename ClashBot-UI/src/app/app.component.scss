@@ -35,18 +35,6 @@
   width: 13em;
 }
 
-.clash-bot-notification-item {
-
-}
-
-.clash-bot-notification-message {
-
-}
-
-.clash-bot-notification-time {
-
-}
-
 @media only screen and (max-width: 500px) {
   :host {
     display: flex;
@@ -87,7 +75,7 @@
   margin-top: 1em;
 }
 
-.mobile-clash-notification-header {
+.mobile-clash-sidenav-header {
   font-size: 2em;
   padding-left: 10px;
 }
