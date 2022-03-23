@@ -1,6 +1,14 @@
 {
-  "/api": {
+  "/api/teams": {
     "target": "http://127.0.0.1:80",
+    "secure": false
+  },
+  "/api/notifications": {
+    "target": "http://127.0.0.1:81",
+    "secure": false
+  },
+  "/api/notifications/ws": {
+    "target": "http://127.0.0.1:82",
     "secure": false
   }
 }

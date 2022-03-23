@@ -17,11 +17,16 @@ export class ClashBotService {
   }
 
   getClashTeams(server: string): Observable<ClashTeam[]> {
-    return this.httpClient.get<ClashTeam[]>(`/api/v2/teams/${server}`);
+    if (server) {
+      const opts = {params: new HttpParams({fromString: `serverName=${server}`})};
+      return this.httpClient.get<ClashTeam[]>(`/api/teams/v2`, opts);
+    } else {
+      return this.httpClient.get<ClashTeam[]>(`/api/teams/v2`);
+    }
   }
 
   getClashTournaments(): Observable<ClashTournaments[]> {
-    return this.httpClient.get<ClashTournaments[]>('/api/tournaments');
+    return this.httpClient.get<ClashTournaments[]>('/api/teams/tournaments');
   }
 
   registerUserForTeam(userDetail: UserDetails, teamRequest: ClashBotUserRegister): Observable<ClashBotGenericResponse> {
@@ -33,7 +38,7 @@ export class ClashBotService {
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     }
-    return this.httpClient.post<ClashBotGenericResponse>('/api/v2/team/register', payload);
+    return this.httpClient.post<ClashBotGenericResponse>('/api/teams/v2/register', payload);
   }
 
   unregisterUserFromTeam(userDetail: UserDetails, teamRequest: ClashTeam): Observable<ClashBotGenericResponse> {
@@ -44,11 +49,11 @@ export class ClashBotService {
       tournamentName: teamRequest.tournamentDetails?.tournamentName,
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay
     };
-    return this.httpClient.delete<ClashBotGenericResponse>('/api/v2/team/register', { body: payload});
+    return this.httpClient.delete<ClashBotGenericResponse>('/api/teams/v2/register', { body: payload});
   }
 
   getServerTentativeList(serverName: string): Observable<ClashBotTentativeDetails[]> {
-    return this.httpClient.get<ClashBotTentativeDetails[]>('/api/tentative', { params: new HttpParams({fromString: `serverName=${serverName}`}) });
+    return this.httpClient.get<ClashBotTentativeDetails[]>('/api/teams/tentative', { params: new HttpParams({fromString: `serverName=${serverName}`}) });
   }
 
   postTentativeList(userId: string, serverName: string, tournamentName: string, tournamentDay: string): Observable<ClashBotTentativeDetails> {
@@ -60,7 +65,7 @@ export class ClashBotService {
         tournamentDay: tournamentDay
       }
     };
-    return this.httpClient.post<ClashBotTentativeDetails>('/api/v2/tentative', payload);
+    return this.httpClient.post<ClashBotTentativeDetails>('/api/teams/v2/tentative', payload);
   }
 
   createNewTeam(userDetail: UserDetails, teamRequest: ClashTeam, role: string): Observable<ClashBotGenericResponse> {
@@ -73,12 +78,12 @@ export class ClashBotService {
       tournamentDay: teamRequest.tournamentDetails?.tournamentDay,
       startTime: teamRequest.startTime
     };
-    return this.httpClient.post<ClashBotGenericResponse>('/api/v2/team', payload);
+    return this.httpClient.post<ClashBotGenericResponse>('/api/teams/v2/team', payload);
   }
 
   getUserDetails(id: number): Observable<ClashBotUserDetails> {
     const opts = { params: new HttpParams({fromString: `id=${id}`}) };
-    return this.httpClient.get<ClashBotUserDetails>('/api/user', opts);
+    return this.httpClient.get<ClashBotUserDetails>('/api/teams/user', opts);
   }
 
   postUserDetails(id: number, serverName: string, preferredChampionList: Set<string>, subscriptions: any, playerName: string): Observable<ClashBotUserDetails> {
@@ -89,6 +94,6 @@ export class ClashBotService {
       preferredChampions: Array.from(preferredChampionList),
       subscriptions: subscriptions
     };
-    return this.httpClient.post<ClashBotUserDetails>('/api/user', payload);
+    return this.httpClient.post<ClashBotUserDetails>('/api/teams/user', payload);
   }
 }
