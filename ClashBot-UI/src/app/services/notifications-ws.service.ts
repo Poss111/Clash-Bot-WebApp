@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import {webSocket, WebSocketSubject} from "rxjs/webSocket";
-import {ClashTeam} from "../interfaces/clash-team";
+import {webSocket} from "rxjs/webSocket";
 import {ClashBotNotification} from "../interfaces/clash-bot-notification";
-import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {BehaviorSubject, Subscription} from "rxjs";
 import {ClashBotNotificationService} from "./clash-bot-notification.service";
 import {take} from "rxjs/operators";
 
@@ -22,7 +21,7 @@ export class NotificationsWsService {
           this.notifications.next(latestNotifications);
         });
     if (window.location.hostname === 'localhost') {
-      this.subject = webSocket<ClashBotNotification|number>('/api/notifications/ws');
+      this.subject = webSocket<ClashBotNotification|number>(`ws://${window.location.hostname}:82/api/notifications/ws`);
     } else {
       this.subject = webSocket<ClashBotNotification|number>(`wss://${window.location.hostname}/api/notifications/ws`);
     }
