@@ -185,7 +185,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments.mockResolvedValue(mockReturnedTeams);
                 request(application)
-                    .get(`/api/teams/${expectedServername}`)
+                    .get(`/api/teams?serverName=${expectedServername}`)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
@@ -250,7 +250,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments.mockRejectedValue(new Error('Failed to query for Teams'));
                 request(application)
-                    .get(`/api/teams/${expectedServername}`)
+                    .get(`/api/teams?serverName=${expectedServername}`)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(500, (err, res) => {
@@ -266,6 +266,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         describe('GET Teams - v2', () => {
+            const endpointUrl = '/api/teams/v2';
             test('As a User, I should be able to call /api/v2/teams with no filter and be ' +
                 'able to return all available teams. - v2', (done) => {
                 const mockReturnedClashTournaments = [
@@ -341,7 +342,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2
                     .mockResolvedValue(mockReturnedTeams);
                 request(application)
-                    .get('/api/v2/teams')
+                    .get(endpointUrl)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
@@ -431,7 +432,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2.mockResolvedValue(mockReturnedTeams);
                 request(application)
-                    .get(`/api/v2/teams/${expectedServername}`)
+                    .get(`${endpointUrl}?serverName=${expectedServername}`)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
@@ -452,7 +453,7 @@ describe('Clash Bot Service API Controller', () => {
                 'then I should see a generic response. - v2', (done) => {
                 clashTimeDbImpl.findTournament.mockRejectedValue(new Error('Querying failed.'));
                 request(application)
-                    .get('/api/v2/teams')
+                    .get(endpointUrl)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(500, (err, res) => {
@@ -502,7 +503,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2.mockRejectedValue(
                     new Error('Failed to query for Teams'));
                 request(application)
-                    .get(`/api/v2/teams/${expectedServername}`)
+                    .get(`${endpointUrl}?serverName=${expectedServername}`)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
                     .expect(500, (err, res) => {
@@ -521,6 +522,7 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('GET Clash Tournaments', () => {
+        const endpointUrl = '/api/teams/tournaments';
         test('As a User, I should be able to call /api/tournaments and retrieve a list of available Tournaments', (done) => {
             const mockReturnedClashTournaments = [
                 {
@@ -563,7 +565,7 @@ describe('Clash Bot Service API Controller', () => {
             });
             clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
             request(application)
-                .get('/api/tournaments')
+                .get(endpointUrl)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -576,7 +578,7 @@ describe('Clash Bot Service API Controller', () => {
         test('As a User, I should be able to call /api/tournaments and when an error occurs then a generic message should be returned.', (done) => {
             clashTimeDbImpl.findTournament.mockRejectedValue(new Error("Failed to query."));
             request(application)
-                .get('/api/tournaments')
+                .get(endpointUrl)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
@@ -589,6 +591,8 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('POST Clash Team Registration', () => {
         describe('POST Clash Team Registration', () => {
+            const endpointUrl = '/api/teams/register';
+
             test('As a User, I should be able to call /api/team/register to register with a specific team.', (done) => {
                 let expectedUserId = '123456';
                 let expectedUsername = 'Roidrage';
@@ -611,7 +615,7 @@ describe('Clash Bot Service API Controller', () => {
                     };
                 clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -653,7 +657,7 @@ describe('Clash Bot Service API Controller', () => {
                     };
                 clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -681,7 +685,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 clashTeamsServiceImpl.registerWithTeam.mockRejectedValue(new Error('Failed to persist User.'));
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -709,7 +713,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 clashTeamsServiceImpl.registerWithTeam.mockResolvedValue({error: 'Unable to find the Team requested to be persisted.'});
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -733,7 +737,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server'
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             username: 'Test User',
@@ -756,7 +760,7 @@ describe('Clash Bot Service API Controller', () => {
             test('Bad Request - missing team name - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
                 let expectedServer = 'Integration Server';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -779,7 +783,7 @@ describe('Clash Bot Service API Controller', () => {
             test('Bad Request - missing server name - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -803,7 +807,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -827,7 +831,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -849,6 +853,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         describe('POST Clash Team Registration - v2', () => {
+            const endpointUrl = '/api/teams/v2/register';
             test('As a User, I should be able to call /api/v2/team/register ' +
                 'to register with a specific team. - v2', (done) => {
 
@@ -883,7 +888,7 @@ describe('Clash Bot Service API Controller', () => {
                     };
                 clashTeamsServiceImpl.registerWithTeamV2.mockResolvedValue(mockReturnedTeam);
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -972,7 +977,7 @@ describe('Clash Bot Service API Controller', () => {
                     };
                 clashTeamsServiceImpl.registerWithTeamV2.mockResolvedValue(mockReturnedTeam);
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1005,6 +1010,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedUserId = '123456';
                 let expectedUsername = 'Roidrage';
                 let expectedServer = 'Integration Server'
+                let expectedRole = 'Top';
                 let expectedTeam = 'Abra';
                 let expectedTournamentName = "awesome_sauce";
                 let expectedTournamentDay = "1";
@@ -1024,14 +1030,15 @@ describe('Clash Bot Service API Controller', () => {
                     },
                     unregisteredTeams: []
                 };
-                clashTeamsServiceImpl.registerWithTeam.mockResolvedValue(mockReturnedTeam);
+                clashTeamsServiceImpl.registerWithTeamV2.mockResolvedValue(mockReturnedTeam);
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
                             teamName: expectedTeam,
                             serverName: expectedServer,
+                            role: expectedRole,
                             tournamentName: 'awesome_sauce',
                             tournamentDay: '1'
                         }
@@ -1040,7 +1047,7 @@ describe('Clash Bot Service API Controller', () => {
                     .expect('Content-Type', /json/)
                     .expect(200, (err, res) => {
                         if (err) return done(err);
-                        expect(clashTeamsServiceImpl.registerWithTeam).toBeCalledWith(expectedUserId, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
+                        expect(clashTeamsServiceImpl.registerWithTeamV2).toBeCalledWith(expectedUserId, expectedRole, 'Abra', expectedServer, expectedTournamentName, expectedTournamentDay);
                         expect(res.body).toEqual(mockReturnedTeam);
                         done();
                     })
@@ -1056,7 +1063,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 clashTeamsServiceImpl.registerWithTeamV2.mockRejectedValue(new Error('Failed to persist User.'));
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1091,7 +1098,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTeamsServiceImpl.registerWithTeamV2
                     .mockResolvedValue({error: 'Unable to find the Team requested to be persisted.'});
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1121,7 +1128,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTeam = 'Team Abra';
                 let expectedRole = 'Top';
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             role: expectedRole,
@@ -1148,7 +1155,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedRole = 'Top';
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1175,7 +1182,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTeam = 'Team Abra';
                 let expectedRole = 'Top';
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1203,7 +1210,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTeam = 'Team Abra';
                 let expectedRole = 'Top';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1231,7 +1238,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTeam = 'Team Abra';
                 let expectedRole = 'Top';
                 request(application)
-                    .post('/api/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1258,7 +1265,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .post('/api/v2/team/register')
+                    .post(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1284,6 +1291,7 @@ describe('Clash Bot Service API Controller', () => {
     describe('DELETE Clash Team Unregister', () => {
 
         describe('DELETE Clash Team Unregister', () => {
+            const endpointUrl = '/api/teams/register';
             test('As a User, I should be able to call /api/team/register with DELETE to unregister with a specific team.', (done) => {
                 let expectedUserId = '11234213';
                 let expectedServer = 'Integration Server'
@@ -1301,7 +1309,7 @@ describe('Clash Bot Service API Controller', () => {
                     playersDetails: [{name: expectedUsername}]
                 });
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1329,7 +1337,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 clashTeamsServiceImpl.unregisterFromTeam.mockRejectedValue(new Error('Failed to unregister User.'));
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1357,7 +1365,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedTournamentDay = "1";
                 clashTeamsServiceImpl.unregisterFromTeam.mockResolvedValue({error: 'User not found on requested Team.'});
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1381,7 +1389,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server'
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             username: 'Test User',
@@ -1404,7 +1412,7 @@ describe('Clash Bot Service API Controller', () => {
             test('Bad Request - missing server name - As a User, I should be able to call /api/team/register to register with a specific team and be required to pass all required values.', (done) => {
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1428,7 +1436,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1452,7 +1460,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1474,6 +1482,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         describe('DELETE Clash Team Unregister - v2', () => {
+            const endpointUrl = '/api/teams/v2/register';
             test('As a User, I should be able to call /api/v2/team/register with DELETE to ' +
                 'unregister with a specific team.', (done) => {
                 let expectedUserId = '11234213';
@@ -1505,7 +1514,7 @@ describe('Clash Bot Service API Controller', () => {
                 }];
                 clashTeamsServiceImpl.unregisterFromTeamV2.mockResolvedValue(dbResponseUnregistered);
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1540,7 +1549,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTeamsServiceImpl.unregisterFromTeamV2
                     .mockRejectedValue(new Error('Failed to unregister User.'));
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1574,7 +1583,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTeamsServiceImpl.unregisterFromTeamV2
                     .mockResolvedValue({error: 'User not found on requested Team.'});
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: expectedUserId,
@@ -1602,7 +1611,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server'
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             username: 'Test User',
@@ -1627,7 +1636,7 @@ describe('Clash Bot Service API Controller', () => {
                 'to pass all required values.', (done) => {
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1653,7 +1662,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1679,7 +1688,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedServer = 'Integration Server';
                 let expectedTeam = 'Team Abra';
                 request(application)
-                    .delete('/api/v2/team/register')
+                    .delete(endpointUrl)
                     .send(
                         {
                             id: '12312',
@@ -1703,6 +1712,7 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('POST Clash Create New Team', () => {
         describe('POST Clash Create New Team', () => {
+            const endpointUrl = '/api/teams/team';
             test('As a User, I should be able to create a new Team through /api/team POST.', (done) => {
                 const payload = {
                     id: '123',
@@ -1722,7 +1732,7 @@ describe('Clash Bot Service API Controller', () => {
                 };
                 clashTeamsServiceImpl.createNewTeam.mockResolvedValue(expectedNewTeam);
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1769,7 +1779,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedNewTeam = {error: 'Player is not eligible to create a new Team.'};
                 clashTeamsServiceImpl.createNewTeam.mockResolvedValue(expectedNewTeam);
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1794,7 +1804,7 @@ describe('Clash Bot Service API Controller', () => {
                 let error = new Error('Failed to create new team.');
                 clashTeamsServiceImpl.createNewTeam.mockRejectedValue(error);
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1822,7 +1832,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1848,7 +1858,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1873,7 +1883,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1897,7 +1907,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1921,7 +1931,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentName: expectedTournamentName
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -1935,6 +1945,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         describe('POST Clash Create New Team - v2', () => {
+            const endpointUrl = '/api/teams/v2/team';
             test('As a User, I should be able to create a new Team through /api/v2/team POST. - v2', (done) => {
                 const payload = {
                     id: '123',
@@ -1960,7 +1971,7 @@ describe('Clash Bot Service API Controller', () => {
                 expectedNewTeam[payload.role] = 'Roidrage';
                 clashTeamsServiceImpl.createNewTeamV2.mockResolvedValue(expectedNewTeam);
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2016,7 +2027,7 @@ describe('Clash Bot Service API Controller', () => {
                 let expectedNewTeam = {error: 'Player is not eligible to create a new Team. - v2'};
                 clashTeamsServiceImpl.createNewTeamV2.mockResolvedValue(expectedNewTeam);
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2045,7 +2056,7 @@ describe('Clash Bot Service API Controller', () => {
                 let error = new Error('Failed to create new team.');
                 clashTeamsServiceImpl.createNewTeamV2.mockRejectedValue(error);
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2077,7 +2088,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2106,7 +2117,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2134,7 +2145,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2161,7 +2172,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentDay: expectedTournamentDay
                     };
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2188,7 +2199,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentName: expectedTournamentName
                     };
                 request(application)
-                    .post('/api/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2213,7 +2224,7 @@ describe('Clash Bot Service API Controller', () => {
                         tournamentName: expectedTournamentName
                     };
                 request(application)
-                    .post('/api/v2/team')
+                    .post(endpointUrl)
                     .send(expectedPayload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2228,6 +2239,7 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('GET Tentative - /api/tentative', () => {
+        const endpointUrl = '/api/teams/tentative';
         test('When a request with a serverName is made for a tentative list, then a list of tournaments and tentative users should be returned.', (done) => {
             const expectedServerName = 'Goon Squad';
             const mockTentativeList = ['Roidrage'];
@@ -2237,7 +2249,7 @@ describe('Clash Bot Service API Controller', () => {
             clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'123456': mockTentativeList[0]});
             clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2270,7 +2282,7 @@ describe('Clash Bot Service API Controller', () => {
             });
             clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2304,7 +2316,7 @@ describe('Clash Bot Service API Controller', () => {
             });
             clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2325,7 +2337,7 @@ describe('Clash Bot Service API Controller', () => {
                 .forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
             clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2358,7 +2370,7 @@ describe('Clash Bot Service API Controller', () => {
             clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'123456': expectedTentativeList[0]});
             clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2386,7 +2398,7 @@ describe('Clash Bot Service API Controller', () => {
             clashTentativeDbImpl.getTentative.mockRejectedValueOnce(new Error('Failed to find record.'));
             clashTimeDbImpl.findTournament.mockResolvedValue(JSON.parse(JSON.stringify(mockReturnedClashTournaments)));
             request(application)
-                .get(`/api/tentative?serverName=${expectedServerName}`)
+                .get(`${endpointUrl}?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(500, (err, res) => {
@@ -2400,7 +2412,7 @@ describe('Clash Bot Service API Controller', () => {
 
         test('Bad Request - Missing Server Name - If the request does not have the server name, return bad request.', (done) => {
             request(application)
-                .get(`/api/tentative`)
+                .get(endpointUrl)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
@@ -2416,6 +2428,7 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('POST Tentative - /api/tentative', () => {
         describe('POST Tentative - /api/tentative', () => {
+            const endpointUrl = '/api/teams/tentative'
             test('When a User calls to be added or removed to the tentative list with the server name, tournament details and their id, they should successfully be added.', (done) => {
                 const expectedResponse = {
                     tentativePlayers: ['Roidrage'],
@@ -2429,7 +2442,7 @@ describe('Clash Bot Service API Controller', () => {
                 };
                 clashTentativeServiceImpl.handleTentativeRequest.mockResolvedValue(expectedResponse);
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2450,7 +2463,7 @@ describe('Clash Bot Service API Controller', () => {
                 }
                 clashTentativeServiceImpl.handleTentativeRequest.mockRejectedValue(new Error('Failed to persist tentative record.'));
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2469,7 +2482,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
                 }
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2488,7 +2501,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
                 }
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2507,7 +2520,7 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: 'Goon Squad',
                 }
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2527,7 +2540,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentDay: '2'}
                 }
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2547,7 +2560,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce'}
                 }
                 request(application)
-                    .post(`/api/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2562,6 +2575,7 @@ describe('Clash Bot Service API Controller', () => {
         })
 
         describe('POST Tentative - /api/v2/tentative - v2', () => {
+            const endpointUrl = '/api/teams/v2/tentative';
             test('When a User calls to be added or removed to the tentative list ' +
                 'with the server name, tournament details and their id, they should ' +
                 'successfully be added. - v2', (done) => {
@@ -2589,7 +2603,7 @@ describe('Clash Bot Service API Controller', () => {
                 };
                 clashTentativeServiceImpl.handleTentativeRequestV2.mockResolvedValue(expectedApiResponse);
                 request(application)
-                    .post('/api/v2/tentative')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2616,7 +2630,7 @@ describe('Clash Bot Service API Controller', () => {
                 clashTentativeServiceImpl.handleTentativeRequestV2.mockRejectedValue(
                     new Error('Failed to persist tentative record.'));
                 request(application)
-                    .post(`/api/v2/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2638,7 +2652,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
                 }
                 request(application)
-                    .post(`/api/v2/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2657,7 +2671,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'}
                 }
                 request(application)
-                    .post(`/api/v2/tentative`)
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2676,7 +2690,7 @@ describe('Clash Bot Service API Controller', () => {
                     serverName: 'Goon Squad',
                 }
                 request(application)
-                    .post('/api/v2/tentative')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2696,7 +2710,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentDay: '2'}
                 }
                 request(application)
-                    .post('/api/v2/tentative')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2716,7 +2730,7 @@ describe('Clash Bot Service API Controller', () => {
                     tournamentDetails: {tournamentName: 'awesome_sauce'}
                 }
                 request(application)
-                    .post('/api/v2/tentative')
+                    .post(endpointUrl)
                     .send(payload)
                     .set('Content-Type', 'application/json')
                     .expect('Content-Type', /json/)
@@ -2732,6 +2746,7 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('GET User', () => {
+        const endpointUrl = '/api/teams/user';
         test('When I ask to retrieve the User information based on the User Id with a GET on /api/user, and it should respond with a User Details payload.', (done) => {
             const userId = '12321312';
             const mockDbResponse = {
@@ -2751,7 +2766,7 @@ describe('Clash Bot Service API Controller', () => {
             }
             clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
-                .get(`/api/user?id=${userId}`)
+                .get(`${endpointUrl}?id=${userId}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2769,7 +2784,7 @@ describe('Clash Bot Service API Controller', () => {
             const mockResponseValue = {subscriptions: {'UpcomingClashTournamentDiscordDM': false}}
             clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
-                .get(`/api/user?id=${userId}`)
+                .get(`${endpointUrl}?id=${userId}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
@@ -2785,7 +2800,7 @@ describe('Clash Bot Service API Controller', () => {
             const userId = '12321312';
             clashSubscriptionDbImpl.retrieveUserDetails.mockRejectedValue(new Error('Failed to retrieve.'));
             request(application)
-                .get(`/api/user?id=${userId}`)
+                .get(`${endpointUrl}?id=${userId}`)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(500, (err) => {
@@ -2798,6 +2813,7 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('POST User - /api/user', () => {
+        const endpointUrl = '/api/teams/user';
         test('As a User, when I request to create my data, I can do it through post.', (done) => {
             let payload = {
                 id: '1234556778',
@@ -2823,7 +2839,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashSubscriptionDbImpl.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2859,7 +2875,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashSubscriptionDbImpl.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2884,7 +2900,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashSubscriptionDbImpl.createUpdateUserDetails.mockResolvedValue(mockDbResponse);
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2903,7 +2919,7 @@ describe('Clash Bot Service API Controller', () => {
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2922,7 +2938,7 @@ describe('Clash Bot Service API Controller', () => {
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2941,7 +2957,7 @@ describe('Clash Bot Service API Controller', () => {
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2960,7 +2976,7 @@ describe('Clash Bot Service API Controller', () => {
                 subscriptions: {'UpcomingClashTournamentDiscordDM': 'true'}
             };
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2979,7 +2995,7 @@ describe('Clash Bot Service API Controller', () => {
                 preferredChampions: []
             };
             request(application)
-                .post('/api/user')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -2992,7 +3008,7 @@ describe('Clash Bot Service API Controller', () => {
 
         test('Bad request - Missing User Id - If the request does not have the expected query parameter, return bad request.', (done) => {
             request(application)
-                .get(`/api/user`)
+                .get(endpointUrl)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400, (err, res) => {
@@ -3005,6 +3021,7 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('PUT User - /api/user', () => {
+        const endpointUrl = '/api/teams/user/verify';
         test('When I call this endpoint with an id, username, and server. I should be able to have a response with the a user object.', (done) => {
             const payload = {
                 id: '1234556778',
@@ -3025,7 +3042,7 @@ describe('Clash Bot Service API Controller', () => {
                 preferredChampions: []
             });
             request(application)
-                .post('/api/user/verify')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -3046,7 +3063,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             clashUserServiceImpl.checkIfIdExists.mockRejectedValue(new Error('Failed to find user.'));
             request(application)
-                .post('/api/user/verify')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -3066,7 +3083,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
-                .post('/api/user/verify')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -3085,7 +3102,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
-                .post('/api/user/verify')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -3104,7 +3121,7 @@ describe('Clash Bot Service API Controller', () => {
             };
             const expectedResponse = {error: 'Missing expected User Information'};
             request(application)
-                .post('/api/user/verify')
+                .post(endpointUrl)
                 .send(payload)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
@@ -3118,9 +3135,10 @@ describe('Clash Bot Service API Controller', () => {
     })
 
     describe('Health Check', () => {
+        const endpointUrl = '/api/teams/health';
         test('As a User, when I call /api/health I should be returned a simple json payload stating it is healthy.', (done) => {
             request(application)
-                .get('/api/health')
+                .get(endpointUrl)
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {

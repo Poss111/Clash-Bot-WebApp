@@ -14,7 +14,7 @@ const {WebSocket} = require('ws');
 const app = express();
 const pino  = require('pino-http')();
 const expressWs = require('express-ws')(app);
-const urlPrefix = '/api';
+const urlPrefix = '/api/teams';
 
 let startUpApp = async () => {
 
@@ -101,14 +101,14 @@ let startUpApp = async () => {
             }
         })
 
-        app.get(`${urlPrefix}/teams/:serverName?`, (req, res) => {
-            if (req.params.serverName) {
-                req.log.info(`Querying for server : ('${req.params.serverName}')...`);
+        app.get(`${urlPrefix}`, (req, res) => {
+            if (req.query.serverName) {
+                req.log.info(`Querying for server : ('${req.query.serverName}')...`);
             } else {
                 req.log.info('Querying for all teams...');
             }
             clashTimeDbImpl.findTournament().then(activeTournaments => {
-                clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.params.serverName, activeTournaments)
+                clashTeamsServiceImpl.retrieveTeamsByServerAndTournaments(req.query.serverName, activeTournaments)
                     .then(payload => res.json(payload))
                     .catch(err => {
                         req.log.error(err);
@@ -120,14 +120,14 @@ let startUpApp = async () => {
             });
         })
 
-        app.get(`${urlPrefix}/v2/teams/:serverName?`, (req, res) => {
-            if (req.params.serverName) {
-                req.log.info(`Querying for server : ('${req.params.serverName}')...`);
+        app.get(`${urlPrefix}/v2`, (req, res) => {
+            if (req.query.serverName) {
+                req.log.info(`Querying for server : ('${req.query.serverName}')...`);
             } else {
                 req.log.info('Querying for all teams...');
             }
             clashTimeDbImpl.findTournament().then(activeTournaments => {
-                clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(req.params.serverName, activeTournaments)
+                clashTeamsServiceImpl.retrieveTeamsByServerAndTournamentsV2(req.query.serverName, activeTournaments)
                     .then(payload => res.json(payload))
                     .catch(err => {
                         req.log.error(err);
@@ -139,7 +139,7 @@ let startUpApp = async () => {
             });
         })
 
-        app.post(`${urlPrefix}/team/register`, (req, res) => {
+        app.post(`${urlPrefix}/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to persist.');
             } else if (!req.body.teamName) {
@@ -165,7 +165,7 @@ let startUpApp = async () => {
             }
         })
 
-        app.post(`${urlPrefix}/v2/team/register`, (req, res) => {
+        app.post(`${urlPrefix}/v2/register`, (req, res) => {
             if (!req.body.id) badRequestHandler(res, 'Missing User to persist.');
             else if (!req.body.role) badRequestHandler(res, 'Missing Role to persist with.');
             else if (!req.body.teamName) badRequestHandler(res, 'Missing Team to persist with.');
@@ -194,7 +194,7 @@ let startUpApp = async () => {
             }
         })
 
-        app.delete(`${urlPrefix}/team/register`, (req, res) => {
+        app.delete(`${urlPrefix}/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
             } else if (!req.body.serverName) {
@@ -217,7 +217,7 @@ let startUpApp = async () => {
             }
         })
 
-        app.delete(`${urlPrefix}/v2/team/register`, (req, res) => {
+        app.delete(`${urlPrefix}/v2/register`, (req, res) => {
             if (!req.body.id) {
                 badRequestHandler(res, 'Missing User to unregister with.');
             } else if (!req.body.serverName) {
