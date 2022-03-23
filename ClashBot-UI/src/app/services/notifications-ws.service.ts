@@ -22,7 +22,7 @@ export class NotificationsWsService {
           this.notifications.next(latestNotifications);
         });
     if (window.location.hostname === 'localhost') {
-      this.subject = webSocket<ClashBotNotification|number>(`ws://${this.buildLocalhostUrl('/api/notifications/ws')}`);
+      this.subject = webSocket<ClashBotNotification|number>('/api/notifications/ws');
     } else {
       this.subject = webSocket<ClashBotNotification|number>(`wss://${window.location.hostname}/api/notifications/ws`);
     }
@@ -55,9 +55,4 @@ export class NotificationsWsService {
   destroy() {
     this.subjectSubscription$?.unsubscribe();
   }
-
-  buildLocalhostUrl(url: string): string {
-    return `${window.location.hostname}:82${url}`;
-  }
-
 }

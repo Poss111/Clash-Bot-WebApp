@@ -7,13 +7,6 @@ describe('DiscordService', () => {
     let service: DiscordService;
     let httpMock: HttpTestingController;
 
-    function stubLocation(location: any) {
-        jest.spyOn(window, "location", "get").mockReturnValue({
-            ...window.location,
-            ...location,
-        });
-    }
-
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],

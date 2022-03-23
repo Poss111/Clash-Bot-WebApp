@@ -8,13 +8,6 @@ describe('ClashBotNotificationService', () => {
   let service: ClashBotNotificationService;
   let httpMock: HttpTestingController;
 
-  function stubLocation(location: any) {
-    jest.spyOn(window, "location", "get").mockReturnValue({
-      ...window.location,
-      ...location,
-    });
-  }
-
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -45,12 +38,11 @@ describe('ClashBotNotificationService', () => {
           dismissed: false
         }
       ];
-      stubLocation({hostname: "localhost"});
       service.retrieveClashNotificationsForUser(userId).subscribe((data) => {
         expect(data).toEqual(mockResponse);
         done();
       });
-      const req = httpMock.expectOne(`http://localhost:81/api/notifications?id=${userId}`);
+      const req = httpMock.expectOne(`/api/notifications?id=${userId}`);
       req.flush(mockResponse);
     })
   })
@@ -58,9 +50,8 @@ describe('ClashBotNotificationService', () => {
   describe('Dismiss Notification', () => {
     test('When I dismiss a notification, I should pass the notification id.', () => {
       const notificationId = '1';
-      stubLocation({hostname: "localhost"});
       service.dismissNotification(notificationId)
-      const req = httpMock.expectOne(`http://localhost:81/api/notifications`);
+      const req = httpMock.expectOne(`/api/notifications`);
       req.flush({});
     });
   });
