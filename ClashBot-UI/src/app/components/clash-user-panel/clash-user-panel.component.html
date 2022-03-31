@@ -1,9 +1,2 @@
-<div class="clash-bot-user-panel" *ngIf="!(isSmallScreen$ | async)?.matches; else justUsername">
-    <app-notification-icon></app-notification-icon>
-    <span
-            id="clash-bot-discord-username"
-            class="clash-bot-discord-username">{{ username }}</span>
-</div>
-<ng-template #justUsername>
-<app-username-notifications [username]="username" (openNotifications)="openNotificationsPanel()"></app-username-notifications>
-</ng-template>
+<app-username-notifications [username]="username" (openNotifications)="openNotificationsPanel()">
+</app-username-notifications>
