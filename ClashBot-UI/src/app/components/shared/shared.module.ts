@@ -9,9 +9,10 @@ import {OverlayModule} from "@angular/cdk/overlay";
 import {MatBadgeModule} from "@angular/material/badge";
 import {MatButtonModule} from "@angular/material/button";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {TournamentNameTransformerPipe} from "./pipes/tournament-name-transformer.pipe";
 
 @NgModule({
-    declarations: [KebabCasePipe, ImageFallbackDirective, NotificationsComponent, NotificationIconComponent],
+    declarations: [KebabCasePipe, TournamentNameTransformerPipe, ImageFallbackDirective, NotificationsComponent, NotificationIconComponent],
     imports: [
         CommonModule,
         MatIconModule,
@@ -22,6 +23,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
     ],
     exports: [
         KebabCasePipe,
+        TournamentNameTransformerPipe,
         ImageFallbackDirective,
         NotificationsComponent,
         NotificationIconComponent

@@ -15,8 +15,7 @@ import {ComponentTestingComponent} from "./component-testing.component";
 import {ComponentTestingRoutingModule} from "./component-testing-routing.module";
 import {TeamsModule} from "../teams-dashboard/teams-module/teams.module";
 import {SharedModule} from "../../components/shared/shared.module";
-import {OverlayModule} from "@angular/cdk/overlay";
-import {MatBadgeModule} from "@angular/material/badge";
+import {ClashComponentsModule} from "../../components/clash-components.module";
 
 @NgModule({
   declarations: [ComponentTestingComponent],
@@ -39,7 +38,8 @@ import {MatBadgeModule} from "@angular/material/badge";
     MatSelectModule,
     MatTableModule,
     TeamsModule,
-    SharedModule
+    SharedModule,
+    ClashComponentsModule
   ]
 })
 export class ComponentTestingModule {

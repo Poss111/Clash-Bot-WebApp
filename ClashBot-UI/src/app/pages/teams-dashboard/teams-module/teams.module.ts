@@ -6,7 +6,6 @@ import {MatChipsModule} from "@angular/material/chips";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import {TeamCardComponent} from "../team-card/team-card.component";
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
@@ -16,18 +15,14 @@ import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {MatTableModule} from "@angular/material/table";
-import {TournamentNameTransformerPipe} from "../../../components/shared/pipes/tournament-name-transformer.pipe";
-import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
+import {TeamCardPlayerDetailsComponent} from "../../../components/team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../components/shared/shared.module";
+import {ClashComponentsModule} from "../../../components/clash-components.module";
 
 
 @NgModule({
-    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,
-        TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],
-    exports: [
-        TeamCardComponent,
-        TournamentNameTransformerPipe
-    ],
+    declarations: [TeamsDashboardComponent, ConfirmationDialogComponent,
+        TeamsDashboardHelpDialogComponent],
     imports: [
         CommonModule,
         TeamsRoutingModule,
@@ -43,7 +38,8 @@ import {SharedModule} from "../../../components/shared/shared.module";
         MatOptionModule,
         MatSelectModule,
         MatTableModule,
-        SharedModule
+        SharedModule,
+        ClashComponentsModule
     ]
 })
 export class TeamsModule {

@@ -9,7 +9,7 @@ import {
     ElementRef,
     OnChanges, SimpleChanges, ChangeDetectionStrategy
 } from '@angular/core';
-import {PlayerDetails} from "../../../../interfaces/clash-team";
+import {PlayerDetails} from "../../../interfaces/clash-team";
 import {Observable, Subscription} from "rxjs";
 
 @Component({
