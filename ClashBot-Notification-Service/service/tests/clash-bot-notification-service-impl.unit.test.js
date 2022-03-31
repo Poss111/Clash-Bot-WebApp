@@ -11,7 +11,7 @@ describe('Clash Bot Notification Service Implementation', () => {
     describe('Retrieve Notifications for User', () => {
         test('When retrieve notifications for user is called with a user id and no notifications are found, an empty array should be returned.', () => {
             clashBotNotificationDbImpl.retrieveNotificationsForUser.mockResolvedValue([]);
-            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1", 5).then((response) => {
+            return clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser("1", 5).then((response) => {
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1", 5);
                 expect(response).toEqual([]);
@@ -25,6 +25,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                     notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z",
                     notificationUniqueId: "1",
                     timeAdded: "2022-02-15T03:40:16.874Z",
+                    dismissed: false,
                     message: {
                         alertLevel: 3,
                         from: "Clash-Bot",
@@ -37,6 +38,7 @@ describe('Clash Bot Notification Service Implementation', () => {
                     notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z",
                     notificationUniqueId: "2",
                     timeAdded: "2022-02-15T03:41:16.874Z",
+                    dismissed: false,
                     message: {
                         alertLevel: 1,
                         from: "Clash-Bot",
@@ -55,7 +57,57 @@ describe('Clash Bot Notification Service Implementation', () => {
                 }
             });
             clashBotNotificationDbImpl.retrieveNotificationsForUser.mockResolvedValue(expectedDbResponse);
-            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1", 5).then((response) => {
+            return clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser("1", 5).then((response) => {
+                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
+                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1", 5);
+                expect(response).toEqual(expectedApiResponse);
+            })
+        })
+
+        test('When retrieve notifications for user is called with a user id and a list of notifications, a ' +
+            'promise should be returned with an array of messages that have not been dismissed.', () => {
+            const expectedDbResponse = [
+                {
+                    createdAt: "2022-02-15T03:41:17.173Z",
+                    notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z",
+                    notificationUniqueId: "1",
+                    timeAdded: "2022-02-15T03:40:16.874Z",
+                    dismissed: false,
+                    message: {
+                        alertLevel: 3,
+                        from: "Clash-Bot",
+                        message: "This is a high level alert"
+                    },
+                    key: "U#1"
+                },
+                {
+                    createdAt: "2022-02-15T03:41:17.165Z",
+                    notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z",
+                    notificationUniqueId: "2",
+                    timeAdded: "2022-02-15T03:41:16.874Z",
+                    dismissed: true,
+                    message: {
+                        alertLevel: 1,
+                        from: "Clash-Bot",
+                        message: "This is a low level alert"
+                    },
+                    key: "U#1"
+                }
+            ];
+
+            const expectedApiResponse = expectedDbResponse
+                .filter(a => !a.dismissed)
+                .map((item) => {
+                    return {
+                        id: item.notificationUniqueId,
+                        alertLevel: item.message.alertLevel,
+                        from: item.message.from,
+                        message: item.message.message,
+                        timeAdded: item.timeAdded
+                    }
+                });
+            clashBotNotificationDbImpl.retrieveNotificationsForUser.mockResolvedValue(expectedDbResponse);
+            return clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser("1", 5).then((response) => {
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1", 5);
                 expect(response).toEqual(expectedApiResponse);
@@ -73,7 +125,7 @@ describe('Clash Bot Notification Service Implementation', () => {
             const message = 'Some Message';
             const alertLevel = 1;
             const timeAdded = new Date().toISOString();
-            const expectedDbResponse =                 {
+            const expectedDbResponse = {
                 createdAt: "2022-02-15T03:41:17.165Z",
                 notificationSortKey: `U#${serverName}#2022-02-15T03:41:16.874Z#abcd123`,
                 notificationUniqueId: "abcd123",
@@ -92,11 +144,13 @@ describe('Clash Bot Notification Service Implementation', () => {
                     expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledTimes(1);
                     expect(clashBotNotificationDbImpl.persistNotification).toHaveBeenCalledWith(expectedUserId,
                         from, serverName, message, alertLevel);
-                expect(mappedApiResponse).toEqual({message: message,
-                    from: from,
-                    alertLevel: alertLevel,
-                    timeAdded: timeAdded});
-            })
+                    expect(mappedApiResponse).toEqual({
+                        message: message,
+                        from: from,
+                        alertLevel: alertLevel,
+                        timeAdded: timeAdded
+                    });
+                })
         })
     })
 })

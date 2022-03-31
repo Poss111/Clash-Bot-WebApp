@@ -42,7 +42,7 @@ let startUpApp = async () => {
                 res.statusCode = 400;
                 res.json({error: "Missing required parameter."})
             } else {
-                clashBotNotificationServiceImpl.retrieveNotificationsForUser(req.query.id).then((userNotifications) => {
+                clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser(req.query.id).then((userNotifications) => {
                     res.json(userNotifications);
                 });
             }

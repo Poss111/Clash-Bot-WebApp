@@ -1,4 +1,4 @@
-const {startUpApp, convertTeamDbToTeamPayload, convertTeamDbToTeamPayloadV2} = require('./application');
+const {startUpApp} = require('./application');
 const clashBotNotificationServiceImpl = require('./service/clash-bot-notification-service-impl');
 const request = require('supertest');
 
@@ -24,15 +24,15 @@ describe('Clash Bot Service API Controller', () => {
 
     describe('Get Notifications', () => {
         test('As a User, when I call /api/notifications with a user id I should be returned an empty array.', (done) => {
-            clashBotNotificationServiceImpl.retrieveNotificationsForUser.mockResolvedValue([]);
+            clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser.mockResolvedValue([]);
             request(application)
                 .get('/api/notifications?id=1')
                 .set('Content-Type', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200, (err, res) => {
                     if (err) return done(err);
-                    expect(clashBotNotificationServiceImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
-                    expect(clashBotNotificationServiceImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1");
+                    expect(clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser).toHaveBeenCalledTimes(1);
+                    expect(clashBotNotificationServiceImpl.retrieveNotDismissedNotificationsForUser).toHaveBeenCalledWith("1");
                     expect(res.body).toEqual([]);
                     done();
                 })
