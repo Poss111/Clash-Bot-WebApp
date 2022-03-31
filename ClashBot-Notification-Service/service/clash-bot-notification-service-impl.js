@@ -2,8 +2,8 @@ const clashBotNotificationDbImpl = require('../dao/clash-bot-notification-db-imp
 
 class ClashBotNotificationServiceImpl {
 
-    retrieveNotificationsForUser = (userId) => {
-        return new Promise((resolve) => clashBotNotificationDbImpl.retrieveNotificationsForUser(userId)
+    retrieveNotificationsForUser = (userId, limit) => {
+        return new Promise((resolve) => clashBotNotificationDbImpl.retrieveNotificationsForUser(userId, limit)
             .then((dbResponse) => {
                 resolve(dbResponse.map(messageRecord => {
                     return {

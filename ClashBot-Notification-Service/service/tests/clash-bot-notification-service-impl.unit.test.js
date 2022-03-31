@@ -11,9 +11,9 @@ describe('Clash Bot Notification Service Implementation', () => {
     describe('Retrieve Notifications for User', () => {
         test('When retrieve notifications for user is called with a user id and no notifications are found, an empty array should be returned.', () => {
             clashBotNotificationDbImpl.retrieveNotificationsForUser.mockResolvedValue([]);
-            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1").then((response) => {
+            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1", 5).then((response) => {
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
-                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1");
+                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1", 5);
                 expect(response).toEqual([]);
             })
         })
@@ -55,9 +55,9 @@ describe('Clash Bot Notification Service Implementation', () => {
                 }
             });
             clashBotNotificationDbImpl.retrieveNotificationsForUser.mockResolvedValue(expectedDbResponse);
-            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1").then((response) => {
+            return clashBotNotificationServiceImpl.retrieveNotificationsForUser("1", 5).then((response) => {
                 expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledTimes(1);
-                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1");
+                expect(clashBotNotificationDbImpl.retrieveNotificationsForUser).toHaveBeenCalledWith("1", 5);
                 expect(response).toEqual(expectedApiResponse);
             })
         })
