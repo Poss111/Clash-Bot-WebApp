@@ -189,10 +189,13 @@ describe('WelcomeDashboardComponent', () => {
 
       flush();
 
+      let expectedTournamentsList: ClashTournaments[] = JSON.parse(JSON.stringify(mockTournaments));
+      expectedTournamentsList.sort((a,b) => a.tournamentDay.localeCompare(b.tournamentDay));
+
       expect(component.tournamentDays).toHaveLength(2);
       expect(component.dataLoaded).toBeTruthy();
       expect(component.loggedIn).toEqual('LOGGED_IN');
-      expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({currentTournaments: mockTournaments});
+      expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith({currentTournaments: expectedTournamentsList});
     });
   })
 
@@ -482,15 +485,15 @@ function createMockTournaments() {
   return [
     {
       "tournamentName": "bandle_city",
-      "tournamentDay": "3",
-      "startTime": "August 21 2021 07:00 pm PDT",
-      "registrationTime": "August 21 2021 04:15 pm PDT"
-    },
-    {
-      "tournamentName": "bandle_city",
       "tournamentDay": "4",
       "startTime": "August 22 2021 07:00 pm PDT",
       "registrationTime": "August 22 2021 04:15 pm PDT"
+    },
+    {
+      "tournamentName": "bandle_city",
+      "tournamentDay": "3",
+      "startTime": "August 21 2021 07:00 pm PDT",
+      "registrationTime": "August 21 2021 04:15 pm PDT"
     }
   ];
 }
