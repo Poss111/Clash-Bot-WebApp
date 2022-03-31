@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "prelocal": "json-server --watch localMockData/local.json --routes localMockData/routes.json",
+    "local-server": "json-server --watch localMockData/local.json --routes localMockData/routes.json",
     "local": "ng serve",
     "build": "ng build",
     "build-int": "ng build --configuration=integration",
