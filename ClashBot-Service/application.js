@@ -259,6 +259,7 @@ let startUpApp = async () => {
                         registrationTime: tournament.registrationTime
                     });
                 });
+                tournamentsPayload.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
                 res.send(tournamentsPayload);
             }).catch(err => {
                 req.log.error(err);
