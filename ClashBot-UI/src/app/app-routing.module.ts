@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component";
+import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard.component";
 import {environment} from "../environments/environment";
 
 let routes: Routes = [
