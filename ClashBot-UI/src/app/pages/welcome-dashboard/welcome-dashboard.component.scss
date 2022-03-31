@@ -5,15 +5,42 @@
     align-items: center;
     flex-wrap: wrap;
   }
+
+  .tournament-calendar-card {
+    min-width: 25em;
+    min-height: 15em;
+    margin-top: 1em;
+  }
 }
 
-@media only screen and (min-width: 701px) {
+@media only screen and (min-width: 701px) and (max-width: 1270px) {
   .main-container {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     flex-wrap: wrap;
     align-items: flex-start;
+  }
+
+  .tournament-calendar-card {
+    min-width: 25em;
+    min-height: 15em;
+    margin-top: 1em;
+  }
+}
+
+@media only screen and (min-width: 1271px) {
+  .main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .tournament-calendar-card {
+    min-width: 25em;
+    min-height: 15em;
   }
 }
 
@@ -26,12 +53,6 @@
 
 .upcoming-tournament-card {
   min-width: 25em;
-}
-
-.tournament-calendar-card {
-  min-width: 25em;
-  min-height: 15em;
-  margin-top: 1em;
 }
 
 #WelcomeMessage-PreseasonNotification {
