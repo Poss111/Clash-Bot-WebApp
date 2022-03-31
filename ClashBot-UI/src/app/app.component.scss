@@ -49,6 +49,13 @@
     padding-top: 1em;
     padding-bottom: 1em;
   }
+
+  .clash-bot-username-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 16em;
+  }
 }
 
 @media only screen and (min-width: 501px) {
@@ -65,6 +72,12 @@
     display: flex;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+  }
+
+  .clash-bot-username-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }
 
@@ -105,7 +118,7 @@
 
 .mobile-clash-sidenav-header {
   font-size: 2em;
-  padding-left: 10px;
+  margin-bottom: 0;
 }
 
 .mobile-clash-notification-list {

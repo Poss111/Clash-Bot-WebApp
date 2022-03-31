@@ -6,15 +6,16 @@
                  [disableClose]="false"
                  position="end">
         <mat-card>
-            <h2 class="mobile-clash-sidenav-header">{{username}}</h2>
-            <mat-slide-toggle [formControl]="darkModeFormControl">
-                <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
-                <ng-template #elseBlock>
-                    <mat-icon>light_mode</mat-icon>
-                </ng-template>
-            </mat-slide-toggle>
+            <div class="clash-bot-username-panel">
+                <h2 class="mobile-clash-sidenav-header">{{username}}</h2>
+                <mat-slide-toggle [formControl]="darkModeFormControl">
+                    <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
+                    <ng-template #elseBlock>
+                        <mat-icon>light_mode</mat-icon>
+                    </ng-template>
+                </mat-slide-toggle>
+            </div>
         </mat-card>
-
         <ul class="mobile-clash-notification-list">
             <li *ngFor="let notification of (notificationsWsService.notifications | async)">
                 <app-notifications [notification]="notification"
