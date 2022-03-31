@@ -59,7 +59,8 @@ export class WelcomeDashboardComponent implements OnInit {
     this.clashBotService.getClashTournaments()
       .pipe(take(1))
       .subscribe((data) => {
-        this.tournaments = data;
+        this.tournaments = data.sort((a,b) =>
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
         data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
         this.dataLoaded = true;
         this.applicationDetailsService.getApplicationDetails()
