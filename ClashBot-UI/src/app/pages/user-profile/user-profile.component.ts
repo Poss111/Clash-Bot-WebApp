@@ -4,14 +4,14 @@ import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} 
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
 import {catchError, map, startWith, take, timeout} from "rxjs/operators";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
-import {ClashBotService} from "../../../services/clash-bot.service";
-import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
-import {RiotDdragonService} from "../../../services/riot-ddragon.service";
-import {UserDetailsService} from "../../../services/user-details.service";
-import {DiscordGuild} from "../../../interfaces/discord-guild";
-import {UserDetails} from "../../../interfaces/user-details";
+import {ClashBotService} from "../../services/clash-bot.service";
+import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
+import {RiotDdragonService} from "../../services/riot-ddragon.service";
+import {UserDetailsService} from "../../services/user-details.service";
+import {DiscordGuild} from "../../interfaces/discord-guild";
+import {UserDetails} from "../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {ApplicationDetailsService} from "../../../services/application-details.service";
+import {ApplicationDetailsService} from "../../services/application-details.service";
 
 @Component({
   selector: 'app-user-profile',

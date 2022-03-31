@@ -3,20 +3,20 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {UserProfileComponent} from './user-profile.component';
 import {UserProfileModule} from "./user-profile.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {ClashBotService} from "../../../services/clash-bot.service";
-import {ClashBotUserDetails} from "../../../interfaces/clash-bot-user-details";
-import {RiotDdragonService} from "../../../services/riot-ddragon.service";
-import {UserDetailsService} from "../../../services/user-details.service";
+import {ClashBotService} from "../../services/clash-bot.service";
+import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
+import {RiotDdragonService} from "../../services/riot-ddragon.service";
+import {UserDetailsService} from "../../services/user-details.service";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
-import {DiscordGuild} from "../../../interfaces/discord-guild";
-import {UserDetails} from "../../../interfaces/user-details";
+import {DiscordGuild} from "../../interfaces/discord-guild";
+import {UserDetails} from "../../interfaces/user-details";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {TestScheduler} from "rxjs/testing";
-import {ChampionData} from "../../../interfaces/championData";
+import {ChampionData} from "../../interfaces/championData";
 import Mock = jest.Mock;
 import {HttpErrorResponse} from "@angular/common/http";
-import {ApplicationDetailsService} from "../../../services/application-details.service";
-import {ApplicationDetails} from "../../../interfaces/application-details";
+import {ApplicationDetailsService} from "../../services/application-details.service";
+import {ApplicationDetails} from "../../interfaces/application-details";
 
 jest.mock('../../../services/clash-bot.service')
 jest.mock('../../../services/riot-ddragon.service')

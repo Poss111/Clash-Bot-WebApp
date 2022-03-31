@@ -6,7 +6,7 @@ import {environment} from "../environments/environment";
 let routes: Routes = [
   {path: '', component: WelcomeDashboardComponent},
   {path: 'teams', loadChildren: () => import('./pages/teams-dashboard/teams-module/teams.module').then(m => m.TeamsModule)},
-  {path: 'user-profile', loadChildren: () => import('./pages/user-profile/user-profile/user-profile.module').then(m => m.UserProfileModule)},
+  {path: 'user-profile', loadChildren: () => import('./pages/user-profile/user-profile.module').then(m => m.UserProfileModule)},
   {path: '**', redirectTo: ''}
 ];
 
