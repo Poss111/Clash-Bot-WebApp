@@ -18,6 +18,7 @@ class ClashBotNotificationDbImpl {
                     key: Joi.string(),
                     notificationSortKey: Joi.string(),
                     notificationUniqueId: Joi.string(),
+                    dismissed: Joi.boolean(),
                     message: Joi.object({
                         alertLevel: Joi.number(),
                         from: Joi.string(),
@@ -53,6 +54,7 @@ class ClashBotNotificationDbImpl {
                 key: `U#${userId}`,
                 notificationSortKey: `U#${serverName}#${dateCreated}#${messageUniqueId}`,
                 notificationUniqueId: messageUniqueId,
+                dismissed: false,
                 message: {
                     alertLevel: alertLevel,
                     from: from,

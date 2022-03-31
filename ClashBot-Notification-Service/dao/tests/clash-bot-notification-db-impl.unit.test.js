@@ -21,6 +21,7 @@ describe('Clash Bot Notification Database Implementation', () => {
                             key: Joi.string(),
                             notificationSortKey: Joi.string(),
                             notificationUniqueId: Joi.string(),
+                            dismissed: Joi.boolean(),
                             message: expect.anything(),
                             timeAdded: Joi.string()
                         }
@@ -41,33 +42,35 @@ describe('Clash Bot Notification Database Implementation', () => {
                 "Items": [
                     {
                         attrs: {
-                            "createdAt": "2022-02-15T03:41:17.173Z",
-                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z#abc12321321",
-                            "notificationUniqueId": "abc12321321",
-                            "timeAdded": "2022-02-15T03:40:16.874Z",
-                            "message": {
-                                "alertLevel": 3,
-                                "message": "This is a high level alert"
+                            createdAt: "2022-02-15T03:41:17.173Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:40:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 3,
+                                message: "This is a high level alert"
                             },
-                            "key": "U#1"
+                            key: "U#1"
                         }
                     },
                     {
                         attrs: {
-                            "createdAt": "2022-02-15T03:41:17.165Z",
-                            "notificationSortKey": "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
-                            "notificationUniqueId": "abc12321321",
-                            "timeAdded": "2022-02-15T03:41:16.874Z",
-                            "message": {
-                                "alertLevel": 1,
-                                "message": "This is a low level alert"
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
                             },
-                            "key": "U#1"
+                            key: "U#1"
                         }
                     }
                 ],
-                "Count": 2,
-                "ScannedCount": 2
+                Count: 2,
+                ScannedCount: 2
             };
             clashBotNotificationDbImpl.clashBotNotificationTable = {
                 query: jest.fn().mockReturnThis(),
@@ -99,6 +102,7 @@ describe('Clash Bot Notification Database Implementation', () => {
                     notificationSortKey: `U#${serverName}#${dateTime}#abc12321321`,
                     notificationUniqueId: "abc12321321",
                     timeAdded: dateTime,
+                    dismissed: false,
                     message: {
                         alertLevel: 1,
                         from: whoNotificationFrom,
@@ -121,6 +125,7 @@ describe('Clash Bot Notification Database Implementation', () => {
                         notificationSortKey: expect.any(String),
                         notificationUniqueId: expect.any(String),
                         timeAdded: expect.any(String),
+                        dismissed: expect.any(Boolean),
                         message: {
                             alertLevel: 1,
                             from: whoNotificationFrom,
