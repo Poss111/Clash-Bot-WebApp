@@ -23,24 +23,22 @@
         <mat-card>
             <h2 class="mobile-clash-sidenav-header">Pages</h2>
         </mat-card>
-        <mat-menu>
-            <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
-                <mat-icon>house</mat-icon>
-                <span>Welcome Page</span>
-            </button>
-            <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                    mat-menu-item
-                    (click)="navigateToTeams()">
-                <mat-icon>groups</mat-icon>
-                <span>Clash Teams</span>
-            </button>
-            <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                    mat-menu-item
-                    (click)="navigateToUserProfile()">
-                <mat-icon>settings</mat-icon>
-                <span>Settings</span>
-            </button>
-        </mat-menu>
+        <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
+            <mat-icon>house</mat-icon>
+            <span>Welcome Page</span>
+        </button>
+        <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                mat-menu-item
+                (click)="navigateToTeams()">
+            <mat-icon>groups</mat-icon>
+            <span>Clash Teams</span>
+        </button>
+        <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                mat-menu-item
+                (click)="navigateToUserProfile()">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+        </button>
     </mat-sidenav>
     <mat-sidenav-content class="mobile-clash-content">
         <div class="header">
