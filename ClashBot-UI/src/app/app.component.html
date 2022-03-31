@@ -23,22 +23,30 @@
         <mat-card>
             <h2 class="mobile-clash-sidenav-header">Pages</h2>
         </mat-card>
-        <button id='clash-bot-menu-welcome-page' mat-menu-item (click)="navigateToWelcomePage()">
-            <mat-icon>house</mat-icon>
-            <span>Welcome Page</span>
-        </button>
-        <button id='clash-bot-menu-teams-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                mat-menu-item
-                (click)="navigateToTeams()">
-            <mat-icon>groups</mat-icon>
-            <span>Clash Teams</span>
-        </button>
-        <button id='clash-bot-menu-user-profile-page' *ngIf="userDetailsLoaded && applicationDetailsLoaded"
-                mat-menu-item
-                (click)="navigateToUserProfile()">
-            <mat-icon>settings</mat-icon>
-            <span>Settings</span>
-        </button>
+        <ol class="clash-menu-list">
+            <li>
+                <button id='clash-bot-menu-welcome-page' mat-stroked-button (click)="navigateToWelcomePage()">
+                    <mat-icon class="clash-menu-list-icon">house</mat-icon>
+                    <span>Home</span>
+                </button>
+            </li>
+            <li>
+                <button id='clash-bot-menu-teams-page' mat-stroked-button
+                        *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                        (click)="navigateToTeams()">
+                    <mat-icon class="clash-menu-list-icon">groups</mat-icon>
+                    <span>Clash Teams</span>
+                </button>
+            </li>
+            <li>
+                <button id='clash-bot-menu-user-profile-page' mat-stroked-button
+                        *ngIf="userDetailsLoaded && applicationDetailsLoaded"
+                        (click)="navigateToUserProfile()">
+                    <mat-icon class="clash-menu-list-icon">settings</mat-icon>
+                    <span>Settings</span>
+                </button>
+            </li>
+        </ol>
     </mat-sidenav>
     <mat-sidenav-content class="mobile-clash-content">
         <div class="header">
