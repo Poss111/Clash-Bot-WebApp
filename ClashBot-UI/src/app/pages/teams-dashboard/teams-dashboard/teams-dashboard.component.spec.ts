@@ -29,7 +29,7 @@ import {MatTableModule} from "@angular/material/table";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
-import {KebabCasePipe} from "../../../shared/kebab-case.pipe";
+import {KebabCasePipe} from "../../../components/shared/kebab-case.pipe";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {Subject} from "rxjs";
 

@@ -13,7 +13,7 @@ import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {ClashTournaments} from "../../interfaces/clash-tournaments";
 import {MatDialog} from "@angular/material/dialog";
-import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
+import {ReleaseNotificationDialogComponent} from "../../components/dialogs/release-notification-dialog/release-notification-dialog.component";
 
 @Component({
   selector: 'app-welcome-dashboard',

@@ -1,9 +1,9 @@
 import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {ClashBotNotification} from "../../../interfaces/clash-bot-notification";
-import {ApplicationDetailsService} from "../../../services/application-details.service";
+import {ClashBotNotification} from "../../../../interfaces/clash-bot-notification";
+import {ApplicationDetailsService} from "../../../../services/application-details.service";
 import {Subscription} from "rxjs";
 import {ConnectedPosition} from "@angular/cdk/overlay";
-import {NotificationsWsService} from "../../../services/notifications-ws.service";
+import {NotificationsWsService} from "../../../../services/notifications-ws.service";
 
 @Component({
   selector: 'app-notification-icon',

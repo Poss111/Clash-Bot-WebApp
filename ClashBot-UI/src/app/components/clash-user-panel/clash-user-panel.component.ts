@@ -1,9 +1,9 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {ClashBotNotification} from "../interfaces/clash-bot-notification";
+import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
 import {BreakpointObserver, Breakpoints, BreakpointState} from "@angular/cdk/layout";
 import {Observable, Subject, Subscription} from "rxjs";
 import {takeUntil} from "rxjs/operators";
-import {NotificationsWsService} from "../services/notifications-ws.service";
+import {NotificationsWsService} from "../../services/notifications-ws.service";
 
 @Component({
   selector: 'app-clash-user-panel',

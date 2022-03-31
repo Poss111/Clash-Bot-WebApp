@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TeamCardPlayerDetailsComponent } from './team-card-player-details.component';
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
-import {SharedModule} from "../../../../shared/shared.module";
+import {SharedModule} from "../../../../components/shared/shared.module";
 import {SimpleChanges} from "@angular/core";
 
 describe('TeamCardPlayerDetailsComponent', () => {

@@ -17,7 +17,7 @@ import {MatOption} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
-import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {ConfirmationDialogComponent} from "../../../components/dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";

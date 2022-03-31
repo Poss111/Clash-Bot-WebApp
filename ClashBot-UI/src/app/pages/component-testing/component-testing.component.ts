@@ -3,7 +3,7 @@ import {ClashTeam} from "../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {
     ReleaseNotificationDialogComponent
-} from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
+} from "../../components/dialogs/release-notification-dialog/release-notification-dialog.component";
 import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
 
 @Component({

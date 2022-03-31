@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
-import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {ConfirmationDialogComponent} from "../../../components/dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {Observable, Subject, Subscription} from "rxjs";
 

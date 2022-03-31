@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {ClashTournaments} from "../interfaces/clash-tournaments";
+import {ClashTournaments} from "../../interfaces/clash-tournaments";
 
 @Component({
   selector: 'app-upcoming-tournament-details-card',

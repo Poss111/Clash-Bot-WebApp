@@ -15,26 +15,26 @@ import { WelcomeDashboardComponent } from './pages/welcome-dashboard/welcome-das
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule} from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";
-import { ClashTournamentCalendarComponent } from './clash-tournament-calendar/clash-tournament-calendar.component';
-import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calendar-header/clash-tournament-calendar-header.component';
+import { ClashTournamentCalendarComponent } from './components/clash-tournament-calendar/clash-tournament-calendar.component';
+import { ClashTournamentCalendarHeaderComponent } from './components/clash-tournament-calendar-header/clash-tournament-calendar-header.component';
 import {OAuthModule} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./services/discord-interceptor.service";
 import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
-import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card/upcoming-tournament-details-card.component';
+import { UpcomingTournamentDetailsCardComponent } from './components/upcoming-tournament-details-card/upcoming-tournament-details-card.component';
 import {MatListModule} from "@angular/material/list";
 import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
-import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
+import { ReleaseNotificationDialogComponent } from './components/dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 import {MatBadgeModule} from "@angular/material/badge";
 import {OverlayModule} from "@angular/cdk/overlay";
-import {SharedModule} from "./shared/shared.module";
-import { ClashUserPanelComponent } from './clash-user-panel/clash-user-panel.component';
+import {SharedModule} from "./components/shared/shared.module";
+import { ClashUserPanelComponent } from './components/clash-user-panel/clash-user-panel.component';
 import {LayoutModule} from "@angular/cdk/layout";
-import { UsernameNotificationsComponent } from './username-notifications/username-notifications.component';
+import { UsernameNotificationsComponent } from './components/username-notifications/username-notifications.component';
 import {MatSidenavModule} from "@angular/material/sidenav";
 
 @NgModule({

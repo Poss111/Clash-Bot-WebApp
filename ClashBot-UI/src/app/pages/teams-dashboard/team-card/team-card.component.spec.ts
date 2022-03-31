@@ -6,7 +6,7 @@ import {TestScheduler} from "rxjs/testing";
 import {MatIconModule} from "@angular/material/icon";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-card-player-details.component";
-import {SharedModule} from "../../../shared/shared.module";
+import {SharedModule} from "../../../components/shared/shared.module";
 
 jest.mock("@angular/material/dialog");
 

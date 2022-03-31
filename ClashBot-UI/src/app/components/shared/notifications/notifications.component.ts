@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
+import {ClashBotNotification} from "../../../interfaces/clash-bot-notification";
 import {BreakpointObserver, Breakpoints, BreakpointState} from "@angular/cdk/layout";
 import {Observable} from "rxjs";
 

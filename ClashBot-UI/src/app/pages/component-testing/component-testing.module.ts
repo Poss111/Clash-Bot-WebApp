@@ -14,7 +14,7 @@ import {MatTableModule} from "@angular/material/table";
 import {ComponentTestingComponent} from "./component-testing.component";
 import {ComponentTestingRoutingModule} from "./component-testing-routing.module";
 import {TeamsModule} from "../teams-dashboard/teams-module/teams.module";
-import {SharedModule} from "../../shared/shared.module";
+import {SharedModule} from "../../components/shared/shared.module";
 import {OverlayModule} from "@angular/cdk/overlay";
 import {MatBadgeModule} from "@angular/material/badge";
 

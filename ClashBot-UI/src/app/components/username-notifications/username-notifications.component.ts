@@ -9,9 +9,9 @@ import {
   ViewChild,
   ViewRef
 } from '@angular/core';
-import {ClashBotNotification} from "../interfaces/clash-bot-notification";
+import {ClashBotNotification} from "../../interfaces/clash-bot-notification";
 import {MatSidenav} from "@angular/material/sidenav";
-import {NotificationsWsService} from "../services/notifications-ws.service";
+import {NotificationsWsService} from "../../services/notifications-ws.service";
 import {Subscription} from "rxjs";
 
 @Component({

@@ -7,7 +7,7 @@ import {MatCardContent, MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDialogModule} from "@angular/material/dialog";
 import {TeamCardPlayerDetailsComponent} from "../teams-dashboard/team-card/team-card-player-details/team-card-player-details.component";
-import {SharedModule} from "../../shared/shared.module";
+import {SharedModule} from "../../components/shared/shared.module";
 
 describe('ComponentTestingComponent', () => {
   let component: ComponentTestingComponent;
