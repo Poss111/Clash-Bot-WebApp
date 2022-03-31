@@ -28,6 +28,7 @@ export class NotificationsWsService {
   }
 
   connectToNotificationUpdates(userId: number) : void {
+    this.subject.next(userId);
     this.subjectSubscription$ = this.subject.subscribe((newNotification) => {
       if (newNotification instanceof Number) {
         this.notifications

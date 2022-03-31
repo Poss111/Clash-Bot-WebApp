@@ -26,23 +26,6 @@ app.get(`${urlPrefix}/health`, (req, res) => {
 	});
 });
 
-// appWS.app.ws(`${urlPrefix}/ws/teams`, (ws, req) => {
-// 	const clashWs = ws as unknown as ClashBotNotificationWebsocket;
-// 	ws.on('message', (msg) => {
-// 		clashWs.channel = JSON.parse(msg.toString());
-// 		clashWs.send(JSON.stringify({}));
-// 	});
-// 	ws.on('pong', (ws) => {
-// 		const clashWs = ws as unknown  as ClashBotNotificationWebsocket;
-// 		clashWs.isAlive = true;
-// 	});
-// 	ws.on('close', (msg) => {
-// 		req.log.info('Connection closed.', msg);
-// 		clearInterval(interval);
-// 	});
-// 	req.log.info('socket running');
-// });
-
 const client = createClient({
 	url: 'redis://' + (process.env.REDIS_HOST || 'localhost') + ':6379',
 	socket: {
@@ -50,31 +33,9 @@ const client = createClient({
 	}
 });
 
-client.on('error', (err) => console.log('Redis Client Error', err));
+client.on('error', (err) => logger.error('Redis Client Connection Error', err));
 
-client.connect().then(() => {
-// const wss = new WebSocketServer({
-// 	port: +(process.env.PORT || 82),
-// 	perMessageDeflate: {
-// 		zlibDeflateOptions: {
-// 			// See zlib defaults.
-// 			chunkSize: 1024,
-// 			memLevel: 7,
-// 			level: 3
-// 		},
-// 		zlibInflateOptions: {
-// 			chunkSize: 10 * 1024
-// 		},
-// 		// Other options settable:
-// 		clientNoContextTakeover: true, // Defaults to negotiated value.
-// 		serverNoContextTakeover: true, // Defaults to negotiated value.
-// 		serverMaxWindowBits: 10, // Defaults to negotiated value.
-// 		// Below options specified as default values.
-// 		concurrencyLimit: 10, // Limits zlib concurrency for perf.
-// 		threshold: 1024 // Size (in bytes) below which messages
-// 		// should not be compressed if context takeover is disabled.
-// 	}
-});
+client.connect().then(() => logger.info('Redis connected.'));
 
 setInterval(() => {
 	appWS.getWss().clients.forEach(s => {
@@ -92,7 +53,7 @@ appWS.app.ws(urlPrefix, (ws) => {
 	logger.info('Starting up WebSocket Server...');
 	logger.info('Websocket open.');
 	logger.info('Started up WebSocket Server.');
-	const clashWs = ws as unknown  as ClashBotNotificationWebsocket;
+	const clashWs = ws as unknown as ClashBotNotificationWebsocket;
 	clashWs.isAlive = true;
 	clashWs.id = uuidv4();
 	clashWs.on('pong', () => {
@@ -124,8 +85,8 @@ appWS.app.ws(urlPrefix, (ws) => {
 		});
 	});
 });
+
 const portToStartOn = +(process.env.PORT || 80);
 app.listen(portToStartOn, () => {
 	logger.info('Started Notification WS Service on Port (\'' + portToStartOn + '\')');
 });
-// });
