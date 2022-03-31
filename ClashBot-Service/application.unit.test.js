@@ -524,32 +524,32 @@ describe('Clash Bot Service API Controller', () => {
         test('As a User, I should be able to call /api/tournaments and retrieve a list of available Tournaments', (done) => {
             const mockReturnedClashTournaments = [
                 {
-                    startTime: ":currentDate",
-                    tournamentDay: ":tournamentDayOne",
+                    startTime: "August 22 2021 07:00 pm PDT",
+                    registrationTime: "August 22 2021 04:15 pm PDT",
+                    tournamentDay: "1",
                     key: ":tournamentName#:tournamentDayOne",
-                    tournamentName: ":tournamentName",
-                    registrationTime: ":currentDate"
+                    tournamentName: "Tournament 1"
                 },
                 {
-                    startTime: ":datePlusOneDay",
-                    tournamentDay: ":tournamentDayTwo",
+                    startTime: "June 22 2021 07:00 pm PDT",
+                    registrationTime: "June 22 2021 04:15 pm PDT",
+                    tournamentDay: "1",
                     key: ":tournamentName#:tournamentDayTwo",
-                    tournamentName: ":tournamentName",
-                    registrationTime: ":datePlusOneDay"
+                    tournamentName: "Tournament 2"
                 },
                 {
-                    startTime: ":datePlusTwoDays",
-                    tournamentDay: ":tournamentDayThree",
-                    key: ":tournamentName#:tournamentDayThree",
-                    tournamentName: ":tournamentName",
-                    registrationTime: ":datePlusTwoDays"
-                },
-                {
-                    startTime: ":datePlusThreeDays",
-                    tournamentDay: ":tournamentDayFour",
+                    startTime: "August 23 2021 07:00 pm PDT",
+                    registrationTime: "August 23 2021 04:15 pm PDT",
+                    tournamentDay: "2",
                     key: ":tournamentName#:tournamentDayFour",
-                    tournamentName: ":tournamentName",
-                    registrationTime: ":datePlusThreeDays"
+                    tournamentName: "Tournament 1"
+                },
+                {
+                    startTime: "June 23 2021 07:00 pm PDT",
+                    registrationTime: "June 23 2021 04:15 pm PDT",
+                    tournamentDay: "2",
+                    key: ":tournamentName#:tournamentDayThree",
+                    tournamentName: "Tournament 2"
                 }
             ];
             let expectedPayload = [];
@@ -561,6 +561,7 @@ describe('Clash Bot Service API Controller', () => {
                     registrationTime: tournament.registrationTime
                 });
             });
+            expectedPayload.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
             clashTimeDbImpl.findTournament.mockResolvedValue(mockReturnedClashTournaments);
             request(application)
                 .get('/api/tournaments')
