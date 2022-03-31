@@ -16,7 +16,7 @@ import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {MatTableModule} from "@angular/material/table";
-import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../../../components/shared/pipes/tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../components/shared/shared.module";
 

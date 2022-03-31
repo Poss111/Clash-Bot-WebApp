@@ -4,7 +4,7 @@ import {UserDetailsService} from "./services/user-details.service";
 import {UserDetails} from "./interfaces/user-details";
 import {Observable, Subscription} from "rxjs";
 import {environment} from "../environments/environment";
-import {GoogleAnalyticsService} from "./google-analytics.service";
+import {GoogleAnalyticsService} from "./services/google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
 import {FormControl} from "@angular/forms";
 import {ClashBotNotification} from "./interfaces/clash-bot-notification";

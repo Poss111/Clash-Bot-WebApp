@@ -24,7 +24,7 @@ import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {HttpErrorResponse} from "@angular/common/http";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {UpcomingTournamentDetailsCardComponent} from "../../components/upcoming-tournament-details-card/upcoming-tournament-details-card.component";
-import {TournamentNameTransformerPipe} from "../../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../../components/shared/pipes/tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";

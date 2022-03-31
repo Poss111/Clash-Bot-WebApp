@@ -23,7 +23,7 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatSelectModule} from "@angular/material/select";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {environment} from "../environments/environment";
-import {GoogleAnalyticsService} from "./google-analytics.service";
+import {GoogleAnalyticsService} from "./services/google-analytics.service";
 import {TestScheduler} from "rxjs/testing";
 import {ApplicationDetails} from "./interfaces/application-details";
 import {ApplicationDetailsService} from "./services/application-details.service";

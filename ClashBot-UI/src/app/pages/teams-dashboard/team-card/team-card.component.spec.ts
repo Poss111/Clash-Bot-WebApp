@@ -4,7 +4,7 @@ import {MatCardModule} from "@angular/material/card";
 import {MatDialog} from "@angular/material/dialog";
 import {TestScheduler} from "rxjs/testing";
 import {MatIconModule} from "@angular/material/icon";
-import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../../../components/shared/pipes/tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../components/shared/shared.module";
 
