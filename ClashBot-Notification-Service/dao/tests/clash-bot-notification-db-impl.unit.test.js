@@ -79,10 +79,117 @@ describe('Clash Bot Notification Database Implementation', () => {
                 exec: jest.fn().mockImplementation(callback => callback(undefined, data)),
                 limit: jest.fn().mockReturnThis()
             };
-            return clashBotNotificationDbImpl.retrieveNotificationsForUser("1").then((dbResponse) => {
+            return clashBotNotificationDbImpl.retrieveNotificationsForUser("1", 5).then((dbResponse) => {
                 expect(clashBotNotificationDbImpl.clashBotNotificationTable.query).toHaveBeenCalledTimes(1);
                 expect(clashBotNotificationDbImpl.clashBotNotificationTable.limit).toHaveBeenCalledTimes(1);
                 expect(clashBotNotificationDbImpl.clashBotNotificationTable.limit).toHaveBeenCalledWith(5);
+                expect(dbResponse).toEqual(data.Items.map(item => item.attrs));
+            })
+        })
+    })
+
+    describe('Retrieve All Clash Bot Notifications per User', () => {
+        test('When a userId is passed to retrieve notifications for user, an array of all notifications should be returned.', () => {
+            data = {
+                "Items": [
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.173Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:40:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:40:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 3,
+                                message: "This is a high level alert"
+                            },
+                            key: "U#1"
+                        }
+                    },
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
+                            },
+                            key: "U#1"
+                        }
+                    },
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
+                            },
+                            key: "U#1"
+                        }
+                    },
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
+                            },
+                            key: "U#1"
+                        }
+                    },
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
+                            },
+                            key: "U#1"
+                        }
+                    },
+                    {
+                        attrs: {
+                            createdAt: "2022-02-15T03:41:17.165Z",
+                            notificationSortKey: "U#LoL-ClashBotSupport#2022-02-15T03:41:16.874Z#abc12321321",
+                            notificationUniqueId: "abc12321321",
+                            timeAdded: "2022-02-15T03:41:16.874Z",
+                            dismissed: false,
+                            message: {
+                                alertLevel: 1,
+                                message: "This is a low level alert"
+                            },
+                            key: "U#1"
+                        }
+                    }
+                ],
+                Count: 6,
+                ScannedCount: 6
+            };
+            clashBotNotificationDbImpl.clashBotNotificationTable = {
+                query: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
+                beginsWith: jest.fn().mockReturnThis(),
+                exec: jest.fn().mockImplementation(callback => callback(undefined, data)),
+                limit: jest.fn().mockReturnThis()
+            };
+            return clashBotNotificationDbImpl.retrieveNotificationsForUser("1").then((dbResponse) => {
+                expect(clashBotNotificationDbImpl.clashBotNotificationTable.query).toHaveBeenCalledTimes(1);
+                expect(clashBotNotificationDbImpl.clashBotNotificationTable.limit).not.toHaveBeenCalled();
                 expect(dbResponse).toEqual(data.Items.map(item => item.attrs));
             })
         })

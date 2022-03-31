@@ -34,12 +34,13 @@ class ClashBotNotificationDbImpl {
         });
     }
 
-    retrieveNotificationsForUser = (userId) => {
+    retrieveNotificationsForUser = (userId, limit) => {
         return new Promise(resolve => {
-            this.clashBotNotificationTable
-                .query(`U#${userId}`)
-                .limit(5)
-                .exec((err, data) => {
+            let query = this.clashBotNotificationTable.query(`U#${userId}`);
+                if (limit) {
+                    query = query.limit(limit);
+                }
+                query.exec((err, data) => {
                     logger.info(`Scanned Count ('${data.ScannedCount}') Total ('${data.Count}') for User Id ('${userId}')`);
                     resolve(data.Items.map(item => item.attrs));
                 });
