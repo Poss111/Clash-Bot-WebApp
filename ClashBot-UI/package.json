@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "local-server": "json-server --watch localMockData/local.json --routes localMockData/routes.json",
+    "local-server": "json-server --host 192.168.1.254 --watch localMockData/local.json --routes localMockData/routes.json",
     "build": "ng build",
     "build-int": "ng build --configuration=integration",
     "postbuild": "rm -rf ./dist/*-gzip && gzipper compress --output-file-format [filename].[ext] ./dist/Clash-Bot ./dist/Clash-Bot-gzip",
