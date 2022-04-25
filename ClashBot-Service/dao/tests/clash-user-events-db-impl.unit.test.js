@@ -39,9 +39,35 @@ describe('Clash User Events Clash Database Impl', () => {
         })
     })
 
-    describe('Add User Event', () => {
-        test('An event should be passed with event id, user id, and a base event detail.', () => {
+    describe('Persist User Event', () => {
+        test('An event should be passed with event id, user id, and a base event detail.', async () => {
+            const username = 'test-user';
+            const eventName = 'team-add';
+            const eventDetails = 'test-user has added themselves to test-team';
 
+            const dataToUpdate = {
+                key: `${username}#${eventName}#${new Date().toISOString()}`,
+                eventTime: new Date().toISOString(),
+                eventName: eventName,
+                eventDetails: eventDetails,
+                username: username
+            };
+            let calledWithObject = {};
+            clashUserEventsDbImpl.clashUserEventsTable = {
+                update: jest.fn().mockImplementation((dataToUpdate, callback) => {
+                    calledWithObject = dataToUpdate;
+                    callback(undefined, { attrs: dataToUpdate });
+                })
+            };
+            return clashUserEventsDbImpl.persistEvent(username, eventName, eventDetails).then((results) => {
+                expect(clashUserEventsDbImpl.clashUserEventsTable.update).toHaveBeenCalledTimes(1);
+                expect(calledWithObject.key).toBeTruthy();
+                expect(calledWithObject.eventTime).toBeTruthy();
+                expect(calledWithObject.eventName).toEqual(eventName);
+                expect(calledWithObject.eventDetails).toEqual(eventDetails);
+                expect(calledWithObject.username).toEqual(username);
+                expect(results.attrs).toEqual(dataToUpdate);
+            });
         })
     })
 })

@@ -29,6 +29,24 @@ class ClashUserEventsDbImpl {
         });
     }
 
+    persistEvent(username, eventName, eventDetails) {
+        return new Promise((resolve, reject) => {
+
+            const currentTime = new Date().toISOString();
+            const eventToPersist = {
+                key: `${username}#${eventName}#${currentTime}`,
+                eventTime: currentTime,
+                eventName: eventName,
+                eventDetails: eventDetails,
+                username: username
+            };
+            this.clashUserEventsTable.update(eventToPersist, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            })
+        });
+    }
+
 }
 
 module.exports = new ClashUserEventsDbImpl;
