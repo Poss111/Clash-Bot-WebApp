@@ -2,7 +2,6 @@
 import { Story, Meta } from '@storybook/angular/types-6-0';
 import {TeamCardComponent} from "./team-card.component";
 import { moduleMetadata } from '@storybook/angular';
-import Button from "../../../../stories/button.component";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatCardModule} from "@angular/material/card";
 import {SharedModule} from "../../../shared/shared.module";
@@ -12,7 +11,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 
 export default {
-    title: 'Example/TeamCard',
+    title: 'TeamCard/TeamCard',
     component: TeamCardComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {
