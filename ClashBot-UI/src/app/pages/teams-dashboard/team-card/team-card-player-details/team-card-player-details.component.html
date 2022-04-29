@@ -20,7 +20,22 @@
           <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
                class="player-champion-list-container"
                *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
-            <h3>Champions: {{playerDetails.champions}}</h3>
+            <mat-accordion class="example-headers-align" multi>
+              <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    Champions
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    <mat-icon>groups_3</mat-icon>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="champion-container" *ngFor="let champion of playerDetails.champions">
+                  <img class="champion-img" src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>
+                  <p class="champion-name" >{{champion}}</p>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
           </div>
         </div>
         <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">

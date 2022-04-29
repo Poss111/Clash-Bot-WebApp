@@ -842,39 +842,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4",
-            "file": "src/app/interfaces/clash-bot-tentative-details.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotTentativeDetails {\n  serverName: string,\n  tentativePlayers: string[],\n  tournamentDetails: TournamentDetails\n  isMember?: boolean\n}\n\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 11
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 10
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": []
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-1",
+            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c",
             "file": "src/app/interfaces/clash-bot-tentative-request.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -902,14 +870,11 @@
             ],
             "indexSignatures": [],
             "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
+            "methods": []
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-1",
             "file": "src/app/interfaces/clash-bot-user-register.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -933,6 +898,41 @@
                     "optional": true,
                     "description": "",
                     "line": 12
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4-2",
+            "file": "src/app/interfaces/clash-bot-tentative-details.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashBotTentativeDetails {\n  serverName: string,\n  tentativePlayers: string[],\n  tournamentDetails: TournamentDetails\n  isMember?: boolean\n}\n\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 11
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
                 }
             ],
             "indexSignatures": [],
@@ -2562,7 +2562,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".demo-inline-calendar-card {\n  max-width: 450px;\n}",
                     "styleUrl": "./clash-tournament-calendar.component.scss"
                 }
             ],
@@ -5602,11 +5602,31 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
                 "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<ClashTournamentCalendarComponent>",
+                "defaultValue": "(args: ClashTournamentCalendarComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -5695,6 +5715,28 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Function"
+                }
+            ],
+            "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<ClashTournamentCalendarComponent>",
+                    "defaultValue": "(args: ClashTournamentCalendarComponent) => ({\n    props: args,\n})"
                 }
             ],
             "src/app/pages/teams-dashboard/team-card/team-card.stories.ts": [
@@ -5833,6 +5875,26 @@
                 "name": "ClashTournamentCalendarComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

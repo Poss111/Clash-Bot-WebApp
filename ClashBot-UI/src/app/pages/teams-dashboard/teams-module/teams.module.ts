@@ -19,6 +19,8 @@ import {MatTableModule} from "@angular/material/table";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../shared/shared.module";
+import { MatExpansionModule } from '@angular/material/expansion';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 
 @NgModule({
@@ -43,6 +45,8 @@ import {SharedModule} from "../../../shared/shared.module";
         MatOptionModule,
         MatSelectModule,
         MatTableModule,
+        MatExpansionModule,
+        BrowserAnimationsModule,
         SharedModule
     ]
 })

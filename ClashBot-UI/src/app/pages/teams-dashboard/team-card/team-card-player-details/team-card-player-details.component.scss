@@ -62,3 +62,27 @@
 .player-role-text--update {
   opacity: 0;
 }
+
+.champion-container {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 0.5em;
+}
+
+.champion-container:last-child {
+  padding-bottom: 0;
+}
+
+.champion-img {
+  width: 50px;
+  height: auto;
+}
+
+.champion-img:nth-child {
+
+}
+
+.champion-name {
+  font-style: italic;
+}
+

@@ -9,6 +9,8 @@ import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-ca
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 export default {
     title: 'TeamCard/TeamCard',
@@ -20,7 +22,7 @@ export default {
     decorators: [
         moduleMetadata({
             declarations: [ TeamCardPlayerDetailsComponent, TournamentNameTransformerPipe],
-            imports: [MatDialogModule, MatCardModule, SharedModule, MatIconModule, MatButtonModule],
+            imports: [MatDialogModule, MatCardModule, SharedModule, MatIconModule, MatButtonModule, MatExpansionModule, BrowserAnimationsModule],
         })
     ]
 } as Meta;
