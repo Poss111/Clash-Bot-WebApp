@@ -874,42 +874,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-1",
-            "file": "src/app/interfaces/clash-bot-user-register.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotUserRegister {\n  teamName?: string,\n  role?: string,\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\ninterface TournamentDetails {\n  tournamentName?: string,\n  tournamentDay?: string\n}\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": true,
-                    "description": "",
-                    "line": 13
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": true,
-                    "description": "",
-                    "line": 12
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4-2",
+            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4-1",
             "file": "src/app/interfaces/clash-bot-tentative-details.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -933,6 +898,41 @@
                     "optional": false,
                     "description": "",
                     "line": 10
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
+            "file": "src/app/interfaces/clash-bot-user-register.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashBotUserRegister {\n  teamName?: string,\n  role?: string,\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\ninterface TournamentDetails {\n  tournamentName?: string,\n  tournamentDay?: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 12
                 }
             ],
             "indexSignatures": [],
@@ -3038,7 +3038,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".clash-bot-card {\n  max-width: 400px;\n}\n\n.clash-bot-button-container {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.player-champion-list-container {\n  margin-left: 1em;\n}\n\n.clash-bot-player-details-container {\n  display: flex;\n  justify-content: space-between;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n",
+                    "data": ".clash-bot-team-card {\n  max-width: 400px;\n}\n\n.clash-bot-button-container {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.player-champion-list-container {\n  margin-left: 1em;\n}\n\n.clash-bot-player-details-container {\n  display: flex;\n  justify-content: space-between;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n",
                     "styleUrl": "./team-card.component.scss"
                 }
             ],
@@ -3072,7 +3072,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<mat-card id=\"clash-bot-team-card\" class=\"example-card\">\n    <div *ngIf=\"!team.error; else elseBlock\">\n        <mat-card-header>\n            <img mat-card-avatar\n                 [src]=\"'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'\"\n            appImageFallback/>\n            <mat-card-title [id]=\"'clash-bot-team-card-' + team.id + '-title'\">{{team.serverName}}\n                - {{team.teamName}}</mat-card-title>\n            <mat-card-subtitle [id]=\"'clash-bot-team-card-' + team.id + '-subtitle-tournament'\"\n                               *ngIf=\"team.tournamentDetails\">{{ team.tournamentDetails.tournamentName | tournamentNameTransformer }} -\n                Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>\n            <mat-card-subtitle [id]=\"'clash-bot-team-card-' + team.id + '-subtitle-start'\">Start\n                Time: {{team.startTime | date:dateFormat:timezoneOffset }}\n            </mat-card-subtitle>\n        </mat-card-header>\n        <mat-card-content [id]=\"'clash-bot-team-card-' + team.id + '-players'\">\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[0]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[1]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[2]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[3]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[4]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n        </mat-card-content>\n    </div>\n    <ng-template #elseBlock>\n        <mat-card-content id=\"clash-bot-team-card-no-data\">\n            <h2>No Data :(</h2>\n        </mat-card-content>\n    </ng-template>\n</mat-card>\n"
+            "templateData": "<mat-card id=\"clash-bot-team-card\" class=\"clash-bot-team-card\">\n    <div *ngIf=\"!team.error; else elseBlock\">\n        <mat-card-header>\n            <img mat-card-avatar\n                 [src]=\"'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'\"\n            appImageFallback/>\n            <mat-card-title [id]=\"'clash-bot-team-card-' + team.id + '-title'\">{{team.serverName}}\n                - {{team.teamName}}</mat-card-title>\n            <mat-card-subtitle [id]=\"'clash-bot-team-card-' + team.id + '-subtitle-tournament'\"\n                               *ngIf=\"team.tournamentDetails\">{{ team.tournamentDetails.tournamentName | tournamentNameTransformer }} -\n                Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>\n            <mat-card-subtitle [id]=\"'clash-bot-team-card-' + team.id + '-subtitle-start'\">Start\n                Time: {{team.startTime | date:dateFormat:timezoneOffset }}\n            </mat-card-subtitle>\n        </mat-card-header>\n        <mat-card-content [id]=\"'clash-bot-team-card-' + team.id + '-players'\">\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[0]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[1]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[2]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[3]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n              <app-team-card-player-details *ngIf=\"team.playersDetails\"\n                                            [player]=\"team.playersDetails[4]\"\n              (registerUserForRole)=\"registerToTeam($event)\"\n              (unregisterUserForRole)=\"unregisterFromTeam()\"></app-team-card-player-details>\n        </mat-card-content>\n    </div>\n    <ng-template #elseBlock>\n        <mat-card-content id=\"clash-bot-team-card-no-data\">\n            <h2>No Data :(</h2>\n        </mat-card-content>\n    </ng-template>\n</mat-card>\n"
         },
         {
             "name": "TeamCardPlayerDetailsComponent",
@@ -3261,7 +3261,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "@use 'sass:map';\n@use '@angular/material' as mat;\n\n.clash-bot-player-details-container {\n  width: 100%;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n\n.player-role-player-details-inner-container {\n  width: 100%;\n}\n\n.player-role-join-container {\n  width: 100%;\n  display: flex;\n  flex-direction: row-reverse;\n  justify-content: center;\n}\n\n.player-details-player-inner-container {\n  transition: opacity 200ms 0s;\n  opacity: 100;\n}\n\n.player-role-join-text {\n  margin-top: 16px;\n}\n\n.player-role-join-btn {\n  border-radius: 11px;\n  box-shadow: 1px 1px 1px 1px black;\n  transition: width 200ms cubic-bezier(0.35, 0, 0.25, 1), background-color 300ms cubic-bezier(0.35, 0, 0.25, 1), opacity 200ms 0s;\n  opacity: 100;\n  width: 100%;\n}\n\n.player-role-join-btn:hover {\n  width: 90%;\n}\n\n.player-details-text {\n  margin-top: 16px;\n}\n\n.player-details-player-container {\n  display: flex;\n  justify-content: space-between;\n}\n\n.disappear {\n  opacity: 0;\n}\n\n.appear {\n  opacity: 100;\n}\n\n.player-role-text--update {\n  opacity: 0;\n}\n",
+                    "data": "@use 'sass:map';\n@use '@angular/material' as mat;\n\n.clash-bot-player-details-container {\n  width: 100%;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n\n.player-role-player-details-inner-container {\n  width: 100%;\n}\n\n.player-role-join-container {\n  width: 100%;\n  display: flex;\n  flex-direction: row-reverse;\n  justify-content: center;\n}\n\n.player-details-player-inner-container {\n  transition: opacity 200ms 0s;\n  opacity: 100;\n}\n\n.player-role-join-text {\n  margin-top: 16px;\n}\n\n.player-role-join-btn {\n  border-radius: 11px;\n  box-shadow: 1px 1px 1px 1px black;\n  transition: width 200ms cubic-bezier(0.35, 0, 0.25, 1), background-color 300ms cubic-bezier(0.35, 0, 0.25, 1), opacity 200ms 0s;\n  opacity: 100;\n  width: 100%;\n}\n\n.player-role-join-btn:hover {\n  width: 90%;\n}\n\n.player-details-text {\n  margin-top: 16px;\n}\n\n.player-details-player-container {\n  display: flex;\n  justify-content: space-between;\n}\n\n.disappear {\n  opacity: 0;\n}\n\n.appear {\n  opacity: 100;\n}\n\n.player-role-text--update {\n  opacity: 0;\n}\n\n.champion-container {\n  display: flex;\n  gap: 10px;\n  padding-bottom: 0.5em;\n}\n\n.champion-container:last-child {\n  padding-bottom: 0;\n}\n\n.champion-img {\n  width: 50px;\n  height: auto;\n}\n\n.champion-img:nth-child {\n\n}\n\n.champion-name {\n  font-style: italic;\n}\n\n",
                     "styleUrl": "./team-card-player-details.component.scss"
                 }
             ],
@@ -3278,7 +3278,7 @@
                 "OnInit",
                 "OnChanges"
             ],
-            "templateData": "<div class=\"clash-bot-player-details-container\">\n  <div class=\"player-role-player-details-inner-container\">\n    <ng-container *ngIf=\"!showPlayerDetails; else elseBlock\">\n      <div class=\"player-role-join-container\">\n        <button mat-raised-button\n                class=\"player-role-join-btn\"\n                [ngClass]=\"button\"\n                id=\"clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button\"\n                (click)=\"registerToTeam(playerDetails.role)\">\n          <h2 class=\"player-role-join-text\">{{playerDetails.role}}</h2>\n        </button>\n      </div>\n    </ng-container>\n    <ng-template #elseBlock>\n      <div class=\"player-details-player-container\">\n        <div id=\"clash-bot-team-card-registered-player\" class=\"player-details-player-inner-container\"\n             [ngClass]=\"text\">\n          <h2 id=\"clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}\"\n              class=\"player-details-text\">{{playerDetails.role}} - {{playerDetails.name}}</h2>\n          <div id=\"clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list\"\n               class=\"player-champion-list-container\"\n               *ngIf=\"playerDetails.champions && playerDetails.champions.length > 0\">\n            <h3>Champions: {{playerDetails.champions}}</h3>\n          </div>\n        </div>\n        <div *ngIf=\"playerDetails.isUser\" class=\"clash-bot-role-button\">\n          <mat-card-content>\n            <div class=\"clash-bot-button-container\">\n              <button mat-mini-fab color=\"warn\"\n                      id=\"clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button\"\n                      (click)=\"unregisterFromTeam()\"\n                      aria-label=\"Unregister with this Team\">\n                <mat-icon>remove</mat-icon>\n              </button>\n            </div>\n          </mat-card-content>\n        </div>\n      </div>\n    </ng-template>\n  </div>\n</div>\n"
+            "templateData": "<div class=\"clash-bot-player-details-container\">\n  <div class=\"player-role-player-details-inner-container\">\n    <ng-container *ngIf=\"!showPlayerDetails; else elseBlock\">\n      <div class=\"player-role-join-container\">\n        <button mat-raised-button\n                class=\"player-role-join-btn\"\n                [ngClass]=\"button\"\n                id=\"clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button\"\n                (click)=\"registerToTeam(playerDetails.role)\">\n          <h2 class=\"player-role-join-text\">{{playerDetails.role}}</h2>\n        </button>\n      </div>\n    </ng-container>\n    <ng-template #elseBlock>\n      <div class=\"player-details-player-container\">\n        <div id=\"clash-bot-team-card-registered-player\" class=\"player-details-player-inner-container\"\n             [ngClass]=\"text\">\n          <h2 id=\"clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}\"\n              class=\"player-details-text\">{{playerDetails.role}} - {{playerDetails.name}}</h2>\n          <div id=\"clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list\"\n               class=\"player-champion-list-container\"\n               *ngIf=\"playerDetails.champions && playerDetails.champions.length > 0\">\n            <mat-accordion class=\"example-headers-align\" multi>\n              <mat-expansion-panel [expanded]=\"true\">\n                <mat-expansion-panel-header>\n                  <mat-panel-title>\n                    Champions\n                  </mat-panel-title>\n                  <mat-panel-description>\n                    <mat-icon>groups_3</mat-icon>\n                  </mat-panel-description>\n                </mat-expansion-panel-header>\n                <div class=\"champion-container\" *ngFor=\"let champion of playerDetails.champions\">\n                  <img class=\"champion-img\" src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>\n                  <p class=\"champion-name\" >{{champion}}</p>\n                </div>\n              </mat-expansion-panel>\n            </mat-accordion>\n          </div>\n        </div>\n        <div *ngIf=\"playerDetails.isUser\" class=\"clash-bot-role-button\">\n          <mat-card-content>\n            <div class=\"clash-bot-button-container\">\n              <button mat-mini-fab color=\"warn\"\n                      id=\"clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button\"\n                      (click)=\"unregisterFromTeam()\"\n                      aria-label=\"Unregister with this Team\">\n                <mat-icon>remove</mat-icon>\n              </button>\n            </div>\n          </mat-card-content>\n        </div>\n      </div>\n    </ng-template>\n  </div>\n</div>\n"
         },
         {
             "name": "TeamsDashboardComponent",
@@ -5366,13 +5366,13 @@
         },
         {
             "name": "TeamsModule",
-            "id": "module-TeamsModule-11f504c088e0c647f644aa0f7dd05b3a6f56b6fb5c003e03dbf64ea9c8c132c7eb8e92d2170c8cbba72835845165a9b48bbfb2f77d8c96eaff3a634c100e6266",
+            "id": "module-TeamsModule-813f1a4d84f23268290ae87e1bbe4667cdb15d44a70d12afc77807429b66f371dfdd84a9d0d92e257fd9ce334c11b148952d175126e506195611fd05b763bfda",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/pages/teams-dashboard/teams-module/teams.module.ts",
             "methods": [],
-            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\n\n\n@NgModule({\n    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,\n        TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
+            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport { MatExpansionModule } from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\n\n\n@NgModule({\n    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,\n        TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        BrowserAnimationsModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -5560,6 +5560,16 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "Empty",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5599,7 +5609,7 @@
                 "type": "Function"
             },
             {
-                "name": "Primary",
+                "name": "NoDates",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
@@ -5613,6 +5623,26 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "PrimaryWithChampions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "PrimaryWithoutChampions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -5637,6 +5667,16 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamCardComponent>",
                 "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamCardPlayerDetailsComponent>",
+                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
             }
         ],
         "functions": [],
@@ -5670,6 +5710,48 @@
             }
         ],
         "groupedVariables": {
+            "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts": [
+                {
+                    "name": "Empty",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "PrimaryWithChampions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "PrimaryWithoutChampions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<TeamCardPlayerDetailsComponent>",
+                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
+                }
+            ],
             "src/environments/environment.int.ts": [
                 {
                     "name": "environment",
@@ -5719,7 +5801,7 @@
             ],
             "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts": [
                 {
-                    "name": "Primary",
+                    "name": "NoDates",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts",
@@ -5882,7 +5964,7 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "Primary",
+                "name": "NoDates",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -6121,6 +6203,46 @@
                 "name": "TeamCardPlayerDetailsComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/14",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Empty",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "PrimaryWithChampions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "PrimaryWithoutChampions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
