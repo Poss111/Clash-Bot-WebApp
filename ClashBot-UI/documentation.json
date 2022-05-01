@@ -842,39 +842,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c",
-            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 9
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 8
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": []
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4-1",
+            "id": "interface-TournamentDetails-33cbe4f16e68de1363660cc7e6c8cb745a77c29f9487fc9a069e9bdd9f06fd92f1dbc52bb4230642f0bb9162aca4aefca7eac37674f2778b9fe675e3c844c4d4",
             "file": "src/app/interfaces/clash-bot-tentative-details.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -902,19 +870,16 @@
             ],
             "indexSignatures": [],
             "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
+            "methods": []
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-2",
-            "file": "src/app/interfaces/clash-team.ts",
+            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-1",
+            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
             "properties": [
                 {
                     "name": "tournamentDay",
@@ -923,7 +888,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 9
                 },
                 {
                     "name": "tournamentName",
@@ -932,19 +897,19 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 8
                 }
             ],
             "indexSignatures": [],
             "kind": 165,
             "methods": [],
             "isDuplicate": true,
-            "duplicateId": 2,
-            "duplicateName": "TournamentDetails-2"
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-3",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
             "file": "src/app/interfaces/clash-bot-user-register.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -968,6 +933,41 @@
                     "optional": true,
                     "description": "",
                     "line": 12
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 2,
+            "duplicateName": "TournamentDetails-2"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-3",
+            "file": "src/app/interfaces/clash-team.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
                 }
             ],
             "indexSignatures": [],
@@ -2897,6 +2897,106 @@
             "templateData": "<h1 mat-dialog-title class=\"clash-bot-release-notification-header\">ClashBot - Release Notification</h1>\n<mat-dialog-content>\n    <div class=\"clash-bot-release-notification-list\">\n        <div class=\"clash-bot-release-notification-release\">\n            <markdown id=\"clash-bot-release-notification-markdown-container\" src=\"assets/ReleaseNotification.md\"></markdown>\n        </div>\n    </div>\n    <mat-dialog-actions align=\"end\">\n        <button mat-raised-button mat-dialog-close id=\"clash-bot-release-notification-button-dismiss\">Dismiss</button>\n    </mat-dialog-actions>\n</mat-dialog-content>"
         },
         {
+            "name": "SpinnerComponent",
+            "id": "component-SpinnerComponent-9f50d01b0034b22bb19e3af2881080a0ce2e21dd2e6f1b71332c4462a9e9f744c4d076e296426b8382f510f11f0482dcc76e382d8719c2c84262131f2f457d4a",
+            "file": "src/app/shared/spinner/spinner.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-spinner",
+            "styleUrls": [
+                "./spinner.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./spinner.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "color",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "any",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
+                },
+                {
+                    "name": "mode",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "any",
+                    "optional": false,
+                    "description": "",
+                    "line": 11
+                },
+                {
+                    "name": "showSpinner",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "value",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "any",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 17,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-spinner',\n  templateUrl: './spinner.component.html',\n  styleUrls: ['./spinner.component.scss']\n})\nexport class SpinnerComponent implements OnInit {\n\n  color: any;\n  mode: any;\n  value: any;\n  showSpinner: boolean = false;\n\n  constructor() { }\n\n  ngOnInit(): void {\n    this.color = 'primary';\n    this.mode = 'indeterminate';\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".progress-spinner {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.loading-text {\n  display: flex;\n\n  align-items: center;\n  flex-direction: column;\n}\n\n.loading-animation {\n  display: flex;\n}\n\n.animated-dot-one {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.5s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-two {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.75s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-three {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 1s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n@keyframes slidein {\n  from {\n    margin-left:40%;\n  }\n}",
+                    "styleUrl": "./spinner.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 13
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"progress-spinner\" *ngIf=\"showSpinner\">\n    <mat-progress-spinner\n            class=\"example-margin\"\n            [color]=\"color\"\n            [mode]=\"mode\"\n            [value]=\"value\"\n            aria-label=\"Loading Team Data...\">\n    </mat-progress-spinner>\n    <div class=\"loading-text\">\n        <h2>Loading your requested data</h2>\n        <div class=\"loading-animation\">\n            <h2 class=\"animated-dot-one\">.</h2>\n            <h2 class=\"animated-dot-two\">.</h2>\n            <h2 class=\"animated-dot-three\">.</h2>\n        </div>\n    </div>\n</div>"
+        },
+        {
             "name": "TeamCardComponent",
             "id": "component-TeamCardComponent-5a131d04f5059927a71d3770d015edda5dc80e046f9511ceb25c96f909f68479864093d802d154cc4fb28a52f40f891cfb3bfd329e2078bc8006e21012057c5a",
             "file": "src/app/pages/teams-dashboard/team-card/team-card.component.ts",
@@ -4299,7 +4399,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".upcoming-clash-tournament-card {\n  max-width: 275px;\n}\n\n.upcoming-tournament-name {\n  font-style: italic;\n  font-size: 150%;\n}",
                     "styleUrl": "./upcoming-tournament-details-card.component.scss"
                 }
             ],
@@ -4312,7 +4412,7 @@
                 "args": [],
                 "line": 15
             },
-            "templateData": "<mat-card>\n  <mat-card-title id=\"clash-bot-upcoming-tournaments-title\">Upcoming Tournaments</mat-card-title>\n  <mat-card-subtitle id=\"clash-bot-upcoming-tournaments-subtitle\">Here are the details for the upcoming League of Legends Clash Tournaments.</mat-card-subtitle>\n  <mat-list id=\"clash-bot-upcoming-tournaments-list\" role=\"list\">\n    <mat-list-item id=\"clash-bot-clash-bot-upcoming-tournament\" *ngFor=\"let tournament of tournaments\" role=\"listitem\">\n      <mat-icon mat-list-icon>emoji_events</mat-icon>\n      <div id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-name\" mat-line>{{tournament.tournamentName | tournamentNameTransformer}}</div>\n      <div id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-day\" mat-line>Day {{tournament.tournamentDay}}</div>\n      <div id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-time\" mat-line>{{tournament.startTime | date:dateFormat:timezoneOffset}}</div>\n    </mat-list-item>\n  </mat-list>\n  <mat-card-footer class=\"subtext\" align=\"end\">As of : {{currentDate | date:dateFormat:timezoneOffset}}</mat-card-footer>\n</mat-card>\n"
+            "templateData": "<mat-card class=\"upcoming-clash-tournament-card\">\n  <mat-card-title id=\"clash-bot-upcoming-tournaments-title\">Upcoming Tournaments</mat-card-title>\n  <mat-card-subtitle id=\"clash-bot-upcoming-tournaments-subtitle\">Here are the details for the upcoming League of Legends Clash Tournaments.</mat-card-subtitle>\n  <mat-list id=\"clash-bot-upcoming-tournaments-list\" role=\"list\">\n    <mat-list-item id=\"clash-bot-clash-bot-upcoming-tournament\" *ngFor=\"let tournament of tournaments\" role=\"listitem\">\n      <mat-icon mat-list-icon>emoji_events</mat-icon>\n      <div class=\"upcoming-tournament-name\" id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-name\" mat-line>{{tournament.tournamentName | tournamentNameTransformer}}</div>\n      <div id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-day\" mat-line>Day {{tournament.tournamentDay}}</div>\n      <div id=\"clash-bot-upcoming-tournaments-{{tournament.tournamentName}}-{{tournament.tournamentDay}}-time\" mat-line>{{tournament.startTime | date:dateFormat:timezoneOffset}}</div>\n    </mat-list-item>\n  </mat-list>\n  <mat-card-footer class=\"subtext\" align=\"end\">As of : {{currentDate | date:dateFormat:timezoneOffset}}</mat-card-footer>\n</mat-card>\n"
         },
         {
             "name": "UserProfileComponent",
@@ -5316,13 +5416,13 @@
         },
         {
             "name": "SharedModule",
-            "id": "module-SharedModule-50538a8986341c018f0f76b057fdb53e7d0d313f43ed63228e2564dd349d4cbf704674e87b9e6486eaecd99f17f8bfc8a29d74f8ac8df034d764a4137bf96a0d",
+            "id": "module-SharedModule-f9072cf20d53559485008dee20bd8462d0c1a1954f0cbc77879e4054025e5805fc054a1f03a4a8fd2726079f81ffa11cd032fad7b5528a88a5d3160f5aaced98",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/shared/shared.module.ts",
             "methods": [],
-            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {KebabCasePipe} from \"./kebab-case.pipe\";\nimport {ImageFallbackDirective} from \"./image-fallback.directive\";\n\n@NgModule({\n  declarations: [KebabCasePipe, ImageFallbackDirective],\n  imports: [\n    CommonModule\n  ],\n  exports: [\n    KebabCasePipe,\n    ImageFallbackDirective\n  ]\n})\nexport class SharedModule {\n}\n",
+            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {KebabCasePipe} from \"./kebab-case.pipe\";\nimport {ImageFallbackDirective} from \"./image-fallback.directive\";\nimport { SpinnerComponent } from './spinner/spinner.component';\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\n\n@NgModule({\n  declarations: [KebabCasePipe, ImageFallbackDirective, SpinnerComponent],\n  imports: [\n    MatProgressSpinnerModule,\n    CommonModule\n  ],\n  exports: [\n    KebabCasePipe,\n    ImageFallbackDirective\n  ]\n})\nexport class SharedModule {\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -5336,6 +5436,9 @@
                         },
                         {
                             "name": "KebabCasePipe"
+                        },
+                        {
+                            "name": "SpinnerComponent"
                         }
                     ]
                 },
@@ -5583,16 +5686,6 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.prod.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.int.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -5608,6 +5701,16 @@
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.prod.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
             },
             {
                 "name": "gtag",
@@ -5639,26 +5742,6 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "MockedError",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/app.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "",
-                "defaultValue": "PageTemplate.bind({})"
-            },
-            {
-                "name": "MockedSuccess",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/app.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "",
-                "defaultValue": "PageTemplate.bind({})"
-            },
-            {
                 "name": "NoDates",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5669,14 +5752,24 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "PageTemplate",
+                "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/app.stories.ts",
+                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story",
-                "defaultValue": "() => ({\n    props: {},\n})"
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/spinner/spinner.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
             },
             {
                 "name": "Primary",
@@ -5732,6 +5825,26 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<UpcomingTournamentDetailsCardComponent>",
+                "defaultValue": "(args: UpcomingTournamentDetailsCardComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/spinner/spinner.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<SpinnerComponent>",
+                "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -5747,16 +5860,6 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamCardPlayerDetailsComponent>",
                 "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "TestData",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/app.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{}"
             }
         ],
         "functions": [],
@@ -5894,18 +5997,6 @@
                     "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/environments/environment.prod.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.prod.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
-                }
-            ],
             "src/environments/environment.int.ts": [
                 {
                     "name": "environment",
@@ -5930,6 +6021,18 @@
                     "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
                 }
             ],
+            "src/environments/environment.prod.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.prod.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
+                }
+            ],
             "src/app/google-analytics.service.ts": [
                 {
                     "name": "gtag",
@@ -5939,48 +6042,6 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Function"
-                }
-            ],
-            "src/app/app.stories.ts": [
-                {
-                    "name": "MockedError",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/app.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "PageTemplate.bind({})"
-                },
-                {
-                    "name": "MockedSuccess",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/app.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "PageTemplate.bind({})"
-                },
-                {
-                    "name": "PageTemplate",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/app.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "() => ({\n    props: {},\n})"
-                },
-                {
-                    "name": "TestData",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/app.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{}"
                 }
             ],
             "src/app/clash-tournament-calendar/clash-tournament-calendar.stories.ts": [
@@ -6003,6 +6064,50 @@
                     "deprecationMessage": "",
                     "type": "Story<ClashTournamentCalendarComponent>",
                     "defaultValue": "(args: ClashTournamentCalendarComponent) => ({\n    props: args,\n})"
+                }
+            ],
+            "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<UpcomingTournamentDetailsCardComponent>",
+                    "defaultValue": "(args: UpcomingTournamentDetailsCardComponent) => ({\n    props: args,\n})"
+                }
+            ],
+            "src/app/shared/spinner/spinner.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/spinner/spinner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/spinner/spinner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<SpinnerComponent>",
+                    "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -6101,46 +6206,6 @@
                 "name": "AppComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/17",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/app.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "MockedError",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/app.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "MockedSuccess",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/app.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "PageTemplate",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/app.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "TestData",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
                 "status": "low"
             },
             {
@@ -6643,6 +6708,35 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/shared/spinner/spinner.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "SpinnerComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/spinner/spinner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/spinner/spinner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/tournament-name-transformer.pipe.ts",
                 "type": "pipe",
                 "linktype": "pipe",
@@ -6658,6 +6752,26 @@
                 "name": "UpcomingTournamentDetailsCardComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

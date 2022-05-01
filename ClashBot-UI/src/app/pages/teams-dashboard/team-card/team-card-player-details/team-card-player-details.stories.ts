@@ -14,7 +14,6 @@ export default {
     component: TeamCardPlayerDetailsComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {
-        player: { control: { type: null } },
     },
     decorators: [
         moduleMetadata({

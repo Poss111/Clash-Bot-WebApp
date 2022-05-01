@@ -12,9 +12,7 @@ export default {
     title: 'Cards/UpcomingTournamentDetailsCard',
     component: UpcomingTournamentDetailsCardComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
-    argTypes: {
-        tournaments: { control: { type: ClashTournaments } },
-    },
+    argTypes: {},
     decorators: [
         moduleMetadata({
             declarations: [TournamentNameTransformerPipe],

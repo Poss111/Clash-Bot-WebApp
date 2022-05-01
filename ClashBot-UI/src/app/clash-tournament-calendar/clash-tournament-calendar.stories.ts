@@ -15,9 +15,7 @@ export default {
     title: 'Cards/ClashTournamentCalendarCard',
     component: ClashTournamentCalendarComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
-    argTypes: {
-        daysSelected: { control: { type: Array } },
-    },
+    argTypes: {},
     decorators: [
         moduleMetadata({
             declarations: [ClashTournamentCalendarHeaderComponent],
