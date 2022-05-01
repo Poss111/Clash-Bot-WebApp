@@ -12,7 +12,7 @@ import {
 import {MatIconModule} from "@angular/material/icon";
 
 export default {
-    title: 'ClashTournament/ClashTournamentCalendarCard',
+    title: 'Cards/ClashTournamentCalendarCard',
     component: ClashTournamentCalendarComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {

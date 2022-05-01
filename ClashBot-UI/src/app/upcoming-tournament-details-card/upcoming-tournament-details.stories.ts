@@ -9,7 +9,7 @@ import {MatListModule} from "@angular/material/list";
 
 // @ts-ignore
 export default {
-    title: 'Dashboard/UpcomingTournamentDetailsCard',
+    title: 'Cards/UpcomingTournamentDetailsCard',
     component: UpcomingTournamentDetailsCardComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {

@@ -10,7 +10,7 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 export default {
-    title: 'TeamCard/PlayerDetails',
+    title: 'CardItems/PlayerDetails',
     component: TeamCardPlayerDetailsComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {

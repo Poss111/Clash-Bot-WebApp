@@ -13,7 +13,7 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 export default {
-    title: 'TeamCard/TeamCard',
+    title: 'Cards/TeamCard',
     component: TeamCardComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {
