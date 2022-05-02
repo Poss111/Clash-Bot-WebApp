@@ -2850,7 +2850,7 @@
         },
         {
             "name": "GuildFilterListComponent",
-            "id": "component-GuildFilterListComponent-44c5b6004c912653d9951646d23f3af250573e931d0bf33b5231ff1351c63b3932760e0d0fab02622353d1a0489e3d52a002c693acfc708edd3710b30979d159",
+            "id": "component-GuildFilterListComponent-82bef2fd528f60214d79c505e5443ba3452ca5510af1a25a1d8531c2c82271faccf85794287b7e9ebc76aa816149e9c5a19cc079ccb5993883310041a6ab8e3e",
             "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2872,7 +2872,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 17,
+                    "line": 16,
                     "type": "TeamFilter[]",
                     "decorators": []
                 }
@@ -2880,11 +2880,11 @@
             "outputsClass": [
                 {
                     "name": "selectedTeamEvent",
-                    "defaultValue": "new EventEmitter<TeamFilter>()",
+                    "defaultValue": "new EventEmitter<String>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 20,
-                    "type": "EventEmitter<TeamFilter>"
+                    "line": 19,
+                    "type": "EventEmitter<String>"
                 }
             ],
             "propertiesClass": [
@@ -2895,7 +2895,7 @@
                     "type": "FormControl",
                     "optional": true,
                     "description": "",
-                    "line": 14
+                    "line": 13
                 }
             ],
             "methodsClass": [
@@ -2912,7 +2912,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 24,
+                    "line": 23,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -2935,7 +2935,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {FormControl} from \"@angular/forms\";\nimport {ClashTeam} from \"../../../interfaces/clash-team\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {MatChip} from \"@angular/material/chips\";\n\n@Component({\n  selector: 'app-guild-filter-list',\n  templateUrl: './guild-filter-list.component.html',\n  styleUrls: ['./guild-filter-list.component.scss']\n})\nexport class GuildFilterListComponent {\n\n  formControl?: FormControl;\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Output()\n  selectedTeamEvent: EventEmitter<TeamFilter> = new EventEmitter<TeamFilter>();\n\n  constructor() { }\n\n  filterTeam(chip: MatChip) {chip.selected ? chip.deselect() : chip.selectViaInteraction();\n    if (this.formControl) {\n      this.selectedTeamEvent.emit(this.formControl.value.trimLeft());\n    }\n  }\n}\n",
+            "sourceCode": "import {Component, EventEmitter, Input, Output} from '@angular/core';\nimport {FormControl} from \"@angular/forms\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {MatChip} from \"@angular/material/chips\";\n\n@Component({\n  selector: 'app-guild-filter-list',\n  templateUrl: './guild-filter-list.component.html',\n  styleUrls: ['./guild-filter-list.component.scss']\n})\nexport class GuildFilterListComponent {\n\n  formControl?: FormControl;\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Output()\n  selectedTeamEvent: EventEmitter<String> = new EventEmitter<String>();\n\n  constructor() { }\n\n  filterTeam(chip: MatChip) {\n    chip.selected ? chip.deselect() : chip.selectViaInteraction();\n    if (this.formControl) {\n      this.selectedTeamEvent.emit(this.formControl.value.trimLeft());\n    }\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2950,7 +2950,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [],
-                "line": 20
+                "line": 19
             },
             "templateData": "<mat-chip-list\n        [formControl]=\"formControl\"\n        [multiple]=\"false\">\n    <mat-chip\n        #chip=\"matChip\"\n        *ngFor=\"let filter of teamFilters\"\n        id=\"clash-bot-teams-{{filter.id}}\"\n        [selected]=\"filter.state\"\n        [value]=\"filter.value\"\n        (click)=\"filterTeam(chip)\">\n        {{filter.value}}\n    </mat-chip>\n</mat-chip-list>"
         },
@@ -3523,7 +3523,7 @@
         },
         {
             "name": "TeamsDashboardComponent",
-            "id": "component-TeamsDashboardComponent-e52ac59ed90c8ec457e7d9af26b39e0578329edd2764c9d09f8a73d1076692e4f691ff0c528677e8d41b2e010baa4c03756c3a8200647837da7ebf420f4d63ce",
+            "id": "component-TeamsDashboardComponent-483226d124102ab83a513ca7320096f83565d550579a38fa1011b10ca0cb3e4fc367916962c7be2864137d60bd62fa412ca317f7391396ff8f1a36d43946b2ba",
             "file": "src/app/pages/teams-dashboard/teams-dashboard/teams-dashboard.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3549,7 +3549,7 @@
                     "type": "Subscription | undefined",
                     "optional": false,
                     "description": "",
-                    "line": 50
+                    "line": 49
                 },
                 {
                     "name": "color",
@@ -3558,7 +3558,7 @@
                     "type": "any",
                     "optional": false,
                     "description": "",
-                    "line": 35
+                    "line": 34
                 },
                 {
                     "name": "createNewTeamFormGroup",
@@ -3567,7 +3567,7 @@
                     "type": "FormGroup",
                     "optional": false,
                     "description": "",
-                    "line": 40
+                    "line": 39
                 },
                 {
                     "name": "creatingNewTeam",
@@ -3576,7 +3576,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 45
+                    "line": 44
                 },
                 {
                     "name": "displayedColumns",
@@ -3586,7 +3586,7 @@
                     "type": "string[]",
                     "optional": false,
                     "description": "",
-                    "line": 47
+                    "line": 46
                 },
                 {
                     "name": "eligibleTournaments",
@@ -3596,7 +3596,7 @@
                     "type": "ClashTournaments[]",
                     "optional": false,
                     "description": "",
-                    "line": 44
+                    "line": 43
                 },
                 {
                     "name": "formControl",
@@ -3605,7 +3605,7 @@
                     "type": "FormControl",
                     "optional": true,
                     "description": "",
-                    "line": 39
+                    "line": 38
                 },
                 {
                     "name": "MAX_TIMEOUT",
@@ -3615,7 +3615,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 43,
+                    "line": 42,
                     "modifierKind": [
                         121,
                         144
@@ -3628,7 +3628,7 @@
                     "type": "any",
                     "optional": false,
                     "description": "",
-                    "line": 36
+                    "line": 35
                 },
                 {
                     "name": "roleControl",
@@ -3638,7 +3638,7 @@
                     "type": "FormControl",
                     "optional": false,
                     "description": "",
-                    "line": 42
+                    "line": 41
                 },
                 {
                     "name": "roles",
@@ -3648,7 +3648,7 @@
                     "type": "any",
                     "optional": false,
                     "description": "",
-                    "line": 31
+                    "line": 30
                 },
                 {
                     "name": "rolesAsString",
@@ -3658,7 +3658,7 @@
                     "type": "string[]",
                     "optional": false,
                     "description": "",
-                    "line": 32
+                    "line": 31
                 },
                 {
                     "name": "showSpinner",
@@ -3667,7 +3667,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 38
+                    "line": 37
                 },
                 {
                     "name": "showTentative",
@@ -3677,7 +3677,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 48
+                    "line": 47
                 },
                 {
                     "name": "table",
@@ -3686,7 +3686,7 @@
                     "type": "MatTable<ClashBotTentativeDetails>",
                     "optional": true,
                     "description": "",
-                    "line": 52,
+                    "line": 51,
                     "decorators": [
                         {
                             "name": "ViewChild",
@@ -3702,7 +3702,7 @@
                     "type": "TeamFilter[]",
                     "optional": false,
                     "description": "",
-                    "line": 34
+                    "line": 33
                 },
                 {
                     "name": "teams",
@@ -3712,7 +3712,7 @@
                     "type": "ClashTeam[]",
                     "optional": false,
                     "description": "",
-                    "line": 33
+                    "line": 32
                 },
                 {
                     "name": "tentativeDataStatus",
@@ -3722,7 +3722,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 49
+                    "line": 48
                 },
                 {
                     "name": "tentativeList",
@@ -3731,7 +3731,7 @@
                     "type": "ClashBotTentativeDetails[]",
                     "optional": true,
                     "description": "",
-                    "line": 46
+                    "line": 45
                 },
                 {
                     "name": "tournamentControl",
@@ -3741,7 +3741,7 @@
                     "type": "FormControl",
                     "optional": false,
                     "description": "",
-                    "line": 41
+                    "line": 40
                 },
                 {
                     "name": "value",
@@ -3750,7 +3750,7 @@
                     "type": "any",
                     "optional": false,
                     "description": "",
-                    "line": 37
+                    "line": 36
                 }
             ],
             "methodsClass": [
@@ -3767,7 +3767,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 386,
+                    "line": 380,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3807,7 +3807,7 @@
                     "optional": false,
                     "returnType": "any",
                     "typeParameters": [],
-                    "line": 359,
+                    "line": 353,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3853,7 +3853,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 132,
+                    "line": 126,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -3875,8 +3875,8 @@
                     "name": "filterTeam",
                     "args": [
                         {
-                            "name": "chip",
-                            "type": "MatChip",
+                            "name": "filterValue",
+                            "type": "string",
                             "deprecated": false,
                             "deprecationMessage": ""
                         }
@@ -3884,13 +3884,13 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 118,
+                    "line": 117,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
                         {
-                            "name": "chip",
-                            "type": "MatChip",
+                            "name": "filterValue",
+                            "type": "string",
                             "deprecated": false,
                             "deprecationMessage": "",
                             "tagName": {
@@ -3918,7 +3918,7 @@
                     "optional": false,
                     "returnType": "any",
                     "typeParameters": [],
-                    "line": 377,
+                    "line": 371,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3961,7 +3961,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 187,
+                    "line": 181,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4004,7 +4004,7 @@
                     "optional": false,
                     "returnType": "any",
                     "typeParameters": [],
-                    "line": 275,
+                    "line": 269,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -4037,7 +4037,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 68,
+                    "line": 67,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -4054,7 +4054,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 300,
+                    "line": 294,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4075,7 +4075,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 433,
+                    "line": 427,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -4098,7 +4098,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 248,
+                    "line": 242,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4141,7 +4141,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 253,
+                    "line": 247,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -4187,7 +4187,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 437,
+                    "line": 431,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4224,7 +4224,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 329,
+                    "line": 323,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4252,7 +4252,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 92,
+                    "line": 91,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4280,7 +4280,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 226,
+                    "line": 220,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4303,7 +4303,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, OnInit, ViewChild} from '@angular/core';\nimport {ClashTeam, PlayerDetails} from \"../../../interfaces/clash-team\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {Subscription, throwError} from \"rxjs\";\nimport {FormControl, FormGroup} from \"@angular/forms\";\nimport {ClashBotService} from \"../../../services/clash-bot.service\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {FilterType} from \"../../../interfaces/filter-type\";\nimport {catchError, delay, finalize, retryWhen, take, tap, timeout} from \"rxjs/operators\";\nimport {MatChip} from \"@angular/material/chips\";\nimport {HttpErrorResponse} from \"@angular/common/http\";\nimport {UserDetailsService} from \"../../../services/user-details.service\";\nimport {UserDetails} from \"../../../interfaces/user-details\";\nimport {ClashTournaments} from \"../../../interfaces/clash-tournaments\";\nimport {ApplicationDetailsService} from \"../../../services/application-details.service\";\nimport {MatOption} from \"@angular/material/core\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {ClashBotTentativeDetails} from \"../../../interfaces/clash-bot-tentative-details\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatTable} from \"@angular/material/table\";\nimport {ClashBotUserRegister} from \"../../../interfaces/clash-bot-user-register\";\nimport {TeamsWebsocketService} from \"../../../services/teams-websocket.service\";\n\n@Component({\n    selector: 'app-teams-dashboard',\n    templateUrl: './teams-dashboard.component.html',\n    styleUrls: ['./teams-dashboard.component.scss']\n})\nexport class TeamsDashboardComponent implements OnInit {\n    roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};\n    rolesAsString: string[] = Object.keys(this.roles);\n    teams: ClashTeam[] = [];\n    teamFilters: TeamFilter[] = [];\n    color: any;\n    mode: any;\n    value: any;\n    showSpinner: boolean;\n    formControl?: FormControl;\n    createNewTeamFormGroup: FormGroup;\n    tournamentControl: FormControl = new FormControl('');\n    roleControl: FormControl = new FormControl('');\n    private readonly MAX_TIMEOUT = 4000;\n    eligibleTournaments: ClashTournaments[] = [];\n    creatingNewTeam: boolean;\n    tentativeList?: ClashBotTentativeDetails[];\n    displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];\n    showTentative: boolean = false;\n    tentativeDataStatus: string = 'NOT_LOADED';\n    $teamsSub: Subscription | undefined;\n\n    @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;\n\n    constructor(private clashBotService: ClashBotService,\n                private _snackBar: MatSnackBar,\n                private userDetailsService: UserDetailsService,\n                private applicationDetailsService: ApplicationDetailsService,\n                private dialog: MatDialog,\n                private teamsWebsocketService: TeamsWebsocketService) {\n        this.showSpinner = false;\n        this.creatingNewTeam = false;\n        this.createNewTeamFormGroup = new FormGroup({\n            tournament: this.tournamentControl,\n            role: this.roleControl\n        })\n    }\n\n    ngOnInit(): void {\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((appDetails) => {\n                if (appDetails.userGuilds) {\n                    appDetails.userGuilds.forEach((record: any) => {\n                        this.teamFilters.push({\n                            value: record.name,\n                            type: FilterType.SERVER,\n                            state: record.name === appDetails.defaultGuild,\n                            id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()\n                        });\n                    })\n\n                    this.formControl = new FormControl(appDetails.defaultGuild);\n                    if (appDetails.defaultGuild) {\n                        this.filterForTeamsByServer(appDetails.defaultGuild);\n                    }\n                }\n            })\n        this.color = 'primary';\n        this.mode = 'indeterminate';\n    }\n\n    updateTentativeList(guildName: string) {\n        this.tentativeDataStatus = 'LOADING';\n        this.userDetailsService.getUserDetails().pipe(take(1))\n            .subscribe((userDetails) => {\n                this.clashBotService.getServerTentativeList(guildName)\n                    .pipe(take(1),\n                        timeout(this.MAX_TIMEOUT),\n                        catchError((err: HttpErrorResponse) => {\n                            console.error(err);\n                            this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',\n                                'X',\n                                {duration: 5 * 1000});\n                            this.tentativeDataStatus = 'FAILED';\n                            return throwError(err);\n                        }))\n                    .subscribe((data) => {\n                        data.forEach(tentativeRecord => tentativeRecord.isMember\n                            = tentativeRecord.tentativePlayers.includes(userDetails.username));\n                        data = data.sort((itemOne, itemTwo) =>\n                            itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));\n                        this.tentativeList = data;\n                        this.tentativeDataStatus = 'SUCCESSFUL';\n                    });\n            });\n    }\n\n    filterTeam(chip: MatChip) {\n        chip.selected ? chip.deselect() : chip.selectViaInteraction();\n        if (this.$teamsSub) {\n            this.$teamsSub.unsubscribe();\n        }\n        this.showSpinner = true;\n        this.teams = [];\n        let valueToSearchFor = '';\n        if (this.formControl) {\n            valueToSearchFor = this.formControl.value.trimLeft();\n        }\n        this.filterForTeamsByServer(valueToSearchFor);\n    }\n\n    private filterForTeamsByServer(valueToSearchFor: string) {\n        this.updateTentativeList(valueToSearchFor);\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                    this.teams = [{error: 'No data'}];\n                    this.showSpinner = false;\n                } else {\n                    this.clashBotService\n                        .getClashTeams(valueToSearchFor)\n                        .pipe(\n                            take(1),\n                            timeout(7000),\n                            catchError((err: HttpErrorResponse) => {\n                                console.error(err);\n                                this._snackBar.open('Failed to retrieve Teams. Please try again later.',\n                                    'X',\n                                    {duration: 5 * 1000});\n                                this.teams.push({error: err.message});\n                                return throwError(err);\n                            }),\n                            finalize(() => this.showSpinner = false)\n                        )\n                        .subscribe((data: ClashTeam[]) => {\n                            this.syncTeamInformation(data, userDetails);\n                            if (this.$teamsSub) this.$teamsSub.unsubscribe();\n                            this.teamsWebsocketService.getSubject().next(valueToSearchFor);\n                            this.$teamsSub = this.teamsWebsocketService.getSubject()\n                                .pipe(\n                                    retryWhen(errors =>\n                                        errors.pipe(\n                                            tap(err => {\n                                                console.error('Got error', err);\n                                            }),\n                                            delay(1000)\n                                        )\n                                    )\n                                )\n                                .subscribe((msg) => this.handleIncomingTeamsWsEvent(msg, userDetails),\n                                    () => {\n                                        this._snackBar.open('Oops! Failed to connect to server for Team updates, please try refreshing.',\n                                            'X',\n                                            {duration: 5 * 1000}),\n                                            this.teams = [{error: 'No data'}];\n                                    },\n                                    () => console.log('Connection closed to teams ws.'));\n                        })\n                }\n            })\n    }\n\n    handleIncomingTeamsWsEvent(message: ClashTeam | String, userDetails: UserDetails) {\n        let teamToBeUpdated = <ClashTeam>message;\n        if (teamToBeUpdated.teamName) {\n            let foundTeam = this.teams.find((team) =>\n                team.teamName === teamToBeUpdated.teamName\n                && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName\n                && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);\n            if (!foundTeam) {\n                if (teamToBeUpdated.teamName) {\n                    let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);\n                    this.updateTentativeListBasedOnTeam(mappedTeam[0]);\n                    if (this.teams.length === 1 && this.teams.find(team => team.error)) {\n                        this.teams = [...mappedTeam];\n                    } else {\n                        this.teams.push(...mappedTeam);\n                    }\n                }\n            } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {\n                let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);\n                this.updateTentativeListBasedOnTeam(mappedTeam[0]);\n                if (foundTeam.playersDetails && mappedTeam[0].playersDetails) {\n                    for (let i = 0; i < 5; i++) {\n                        let roleDetailsToUpdate = foundTeam.playersDetails[i];\n                        if (roleDetailsToUpdate) {\n                            let foundRecord = mappedTeam[0].playersDetails\n                                .find(record => record.role === roleDetailsToUpdate.role);\n                            if (foundRecord && roleDetailsToUpdate.name !== foundRecord.name) {\n                                foundTeam.playersDetails[i] = foundRecord;\n                            }\n                        }\n                    }\n                }\n            } else {\n                this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);\n            }\n            this.syncTournaments(this.teams, userDetails);\n        }\n    }\n\n    updateTentativeListBasedOnTeam(mappedTeam: ClashTeam) {\n        let playerNames: string[] = [];\n        if (mappedTeam.playersDetails) {\n            playerNames = mappedTeam.playersDetails?.map(details => details.name);\n        }\n        if (this.tentativeList && playerNames.length > 0) {\n            for (let i = 0; i < this.tentativeList?.length; i++) {\n                if (this.tentativeList[i].tournamentDetails.tournamentName === mappedTeam.tournamentDetails?.tournamentName\n                    && this.tentativeList[i].tournamentDetails.tournamentDay === mappedTeam.tournamentDetails?.tournamentDay) {\n                    let updatedTentative =\n                        this.tentativeList[i].tentativePlayers\n                            .filter((name) => !playerNames.includes(name));\n                    if (updatedTentative !== this.tentativeList[i].tentativePlayers\n                        && this.tentativeList[i].isMember) {\n                        this.tentativeList[i].isMember = false;\n                    }\n                    this.tentativeList[i].tentativePlayers = updatedTentative;\n                }\n            }\n        }\n    }\n\n    syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {\n        this.teams = this.mapDynamicValues(data, userDetails);\n        this.syncTournaments(data, userDetails);\n    }\n\n    private syncTournaments(clashTeams: ClashTeam[], userDetails: UserDetails) {\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((applicationDetails) => {\n                if (applicationDetails && applicationDetails.currentTournaments) {\n                    if (clashTeams.length < 1) {\n                        this.teams = [{error: 'No data'}];\n                        this.eligibleTournaments = applicationDetails.currentTournaments;\n                    } else {\n                        let map = this.createUserToTournamentMap(userDetails.id, applicationDetails.currentTournaments, this.teams);\n                        let newEligibleTournaments: ClashTournaments[] = [];\n                        map.forEach((value, key) => {\n                            if (!value) {\n                                newEligibleTournaments.push(key);\n                            }\n                        });\n                        this.eligibleTournaments = newEligibleTournaments;\n                    }\n                }\n            });\n    }\n\n    private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {\n        return data.map(record => {\n            record.id = `${record.serverName}-${record.teamName}`\n                .replace(new RegExp(/ /, 'g'), '-').toLowerCase();\n            let rolesMissing: string[] = [...Object.keys(this.roles)];\n            if (record.playersDetails) {\n                record.playersDetails.map((record) => {\n                    record.isUser = record.id === userDetails.id;\n                    rolesMissing = rolesMissing.filter(role => role !== record.role);\n                    return record;\n                });\n            }\n            if (!Array.isArray(record.playersDetails)\n                || record.playersDetails.length === 0) {\n                record.playersDetails = [];\n            }\n            for (let role in rolesMissing) {\n                record.playersDetails.push({name: '', id: 0, isUser: false, role: rolesMissing[role]});\n            }\n            record.playersDetails.sort((a: PlayerDetails, b: PlayerDetails) =>\n                this.roles[a.role] - this.roles[b.role] || a.role.localeCompare(b.role));\n            return record;\n        });\n    }\n\n    registerForTeam($event: ClashBotUserRegister) {\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails || !userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                } else {\n                    this.clashBotService.registerUserForTeam(userDetails, $event)\n                        .pipe(\n                            timeout(7000),\n                            catchError((err) => {\n                                console.error(err);\n                                let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';\n                                if (err.name === 'TimeoutError') {\n                                    errorMessage = 'Oops! Your registration timed out, please try again!';\n                                }\n                                this._snackBar.open(errorMessage,\n                                    'X',\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            }),\n                            take(1)\n                        ).subscribe(() => console.log('Registered successfully.'));\n                }\n            })\n    }\n\n    unregisterFromTeam($event: ClashTeam) {\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails || !userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                    this.teams = [{error: 'No data'}];\n                } else {\n                    this.clashBotService.unregisterUserFromTeam(userDetails, $event)\n                        .pipe(\n                            timeout(7000),\n                            take(1),\n                            catchError((err) => {\n                                console.error(err);\n                                let errorMessage = 'Oops! Failed to unregister you from the Team.';\n                                if (err.name === 'TimeoutError') {\n                                    errorMessage = 'Oops! Your request timed out, please try again!';\n                                }\n                                this._snackBar.open(errorMessage,\n                                    'X',\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            })\n                        ).subscribe(() => console.log('Unregistered User successfully.'));\n                }\n            });\n    }\n\n    createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {\n        let tournamentToTeamUserMap = new Map<ClashTournaments, any>();\n        clashTournaments.forEach((tournament) =>\n            tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {\n                let reducedMap;\n                if (team.playersDetails) {\n                    reducedMap = new Set(team.playersDetails.map(object => object.id));\n                }\n                return team.tournamentDetails\n                    && team.tournamentDetails.tournamentName === tournament.tournamentName\n                    && team.tournamentDetails.tournamentDay === tournament.tournamentDay\n                    && reducedMap\n                    && reducedMap.size === 2\n                    && reducedMap.has(currentUserId)\n            })));\n        return tournamentToTeamUserMap;\n    }\n\n    handleClashTeamsError(snackBar: MatSnackBar, err: HttpErrorResponse) {\n        console.error(err);\n        snackBar.open('Failed to retrieve Teams. Please try again later.',\n            'X',\n            {duration: 5 * 1000});\n        this.teams = [{error: err.message}];\n        return throwError(err);\n    }\n\n    createNewTeam(element: MatOption) {\n        element.select();\n        let role = this.roleControl.value;\n        let tournamentName = '';\n        let tournamentDay = '';\n        let clashTournaments: ClashTournaments | undefined;\n        if (this.tournamentControl.value) {\n            let split = this.tournamentControl.value.split(' ');\n            tournamentName = split[0];\n            tournamentDay = split[1];\n            clashTournaments = this.eligibleTournaments.find(tournament =>\n                tournament.tournamentName === tournamentName\n                && tournament.tournamentDay === tournamentDay);\n        }\n        let serverName = '';\n        if (this.formControl) {\n            serverName = this.formControl.value.trimLeft().trimRight();\n        }\n        if (role && tournamentName && tournamentDay) {\n            element.deselect();\n            this.userDetailsService.getUserDetails()\n                .pipe(take(1))\n                .subscribe((userDetails) => {\n                    this.clashBotService.createNewTeam(userDetails, {\n                            serverName: serverName,\n                            tournamentDetails: {\n                                tournamentName: tournamentName,\n                                tournamentDay: tournamentDay\n                            },\n                            startTime: clashTournaments?.startTime\n                        },\n                        role).pipe(\n                        catchError((err) => {\n                            console.error(err);\n                            this._snackBar.open('You are not able to create a new Team. Please try again later.',\n                                'X',\n                                {duration: 5 * 1000});\n                            this.teams = [{error: err.message}];\n                            return throwError(err);\n                        }),\n                        take(1),\n                    ).subscribe(() => console.log('Successfully created new team.'));\n                })\n            this.creatingNewTeam = false;\n        }\n    }\n\n    showHelpDialog() {\n        this.dialog.open(TeamsDashboardHelpDialogComponent);\n    }\n\n    tentativeRegister(element: ClashBotTentativeDetails, index: number) {\n        let actionMessage = 'added to';\n        if (element.isMember) {\n            actionMessage = 'removed from';\n        }\n        let dialogRef = this.dialog.open(ConfirmationDialogComponent,\n            {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});\n        dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {\n            this.userDetailsService.getUserDetails()\n                .pipe(take(1))\n                .subscribe((userDetails) => {\n                    if (result) {\n                        this.clashBotService.postTentativeList(`${userDetails.id}`, element.serverName,\n                            element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)\n                            .pipe(take(1),\n                                catchError(err => {\n                                    console.error(err);\n                                    this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',\n                                        'X',\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                })\n                            ).subscribe((response) => {\n                            response.isMember = response.tentativePlayers\n                                && response.tentativePlayers.includes(userDetails.username);\n                            if (this.tentativeList) {\n                                this.tentativeList[index] = response;\n                                if (this.table) this.table.renderRows();\n                            }\n                        });\n                    }\n                })\n        })\n    }\n}\n",
+            "sourceCode": "import {Component, OnInit, ViewChild} from '@angular/core';\nimport {ClashTeam, PlayerDetails} from \"../../../interfaces/clash-team\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {Subscription, throwError} from \"rxjs\";\nimport {FormControl, FormGroup} from \"@angular/forms\";\nimport {ClashBotService} from \"../../../services/clash-bot.service\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {FilterType} from \"../../../interfaces/filter-type\";\nimport {catchError, delay, finalize, retryWhen, take, tap, timeout} from \"rxjs/operators\";\nimport {HttpErrorResponse} from \"@angular/common/http\";\nimport {UserDetailsService} from \"../../../services/user-details.service\";\nimport {UserDetails} from \"../../../interfaces/user-details\";\nimport {ClashTournaments} from \"../../../interfaces/clash-tournaments\";\nimport {ApplicationDetailsService} from \"../../../services/application-details.service\";\nimport {MatOption} from \"@angular/material/core\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {ClashBotTentativeDetails} from \"../../../interfaces/clash-bot-tentative-details\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatTable} from \"@angular/material/table\";\nimport {ClashBotUserRegister} from \"../../../interfaces/clash-bot-user-register\";\nimport {TeamsWebsocketService} from \"../../../services/teams-websocket.service\";\n\n@Component({\n    selector: 'app-teams-dashboard',\n    templateUrl: './teams-dashboard.component.html',\n    styleUrls: ['./teams-dashboard.component.scss']\n})\nexport class TeamsDashboardComponent implements OnInit {\n    roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};\n    rolesAsString: string[] = Object.keys(this.roles);\n    teams: ClashTeam[] = [];\n    teamFilters: TeamFilter[] = [];\n    color: any;\n    mode: any;\n    value: any;\n    showSpinner: boolean;\n    formControl?: FormControl;\n    createNewTeamFormGroup: FormGroup;\n    tournamentControl: FormControl = new FormControl('');\n    roleControl: FormControl = new FormControl('');\n    private readonly MAX_TIMEOUT = 4000;\n    eligibleTournaments: ClashTournaments[] = [];\n    creatingNewTeam: boolean;\n    tentativeList?: ClashBotTentativeDetails[];\n    displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];\n    showTentative: boolean = false;\n    tentativeDataStatus: string = 'NOT_LOADED';\n    $teamsSub: Subscription | undefined;\n\n    @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;\n\n    constructor(private clashBotService: ClashBotService,\n                private _snackBar: MatSnackBar,\n                private userDetailsService: UserDetailsService,\n                private applicationDetailsService: ApplicationDetailsService,\n                private dialog: MatDialog,\n                private teamsWebsocketService: TeamsWebsocketService) {\n        this.showSpinner = false;\n        this.creatingNewTeam = false;\n        this.createNewTeamFormGroup = new FormGroup({\n            tournament: this.tournamentControl,\n            role: this.roleControl\n        })\n    }\n\n    ngOnInit(): void {\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((appDetails) => {\n                if (appDetails.userGuilds) {\n                    appDetails.userGuilds.forEach((record: any) => {\n                        this.teamFilters.push({\n                            value: record.name,\n                            type: FilterType.SERVER,\n                            state: record.name === appDetails.defaultGuild,\n                            id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()\n                        });\n                    })\n\n                    this.formControl = new FormControl(appDetails.defaultGuild);\n                    if (appDetails.defaultGuild) {\n                        this.filterForTeamsByServer(appDetails.defaultGuild);\n                    }\n                }\n            })\n        this.color = 'primary';\n        this.mode = 'indeterminate';\n    }\n\n    updateTentativeList(guildName: string) {\n        this.tentativeDataStatus = 'LOADING';\n        this.userDetailsService.getUserDetails().pipe(take(1))\n            .subscribe((userDetails) => {\n                this.clashBotService.getServerTentativeList(guildName)\n                    .pipe(take(1),\n                        timeout(this.MAX_TIMEOUT),\n                        catchError((err: HttpErrorResponse) => {\n                            console.error(err);\n                            this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',\n                                'X',\n                                {duration: 5 * 1000});\n                            this.tentativeDataStatus = 'FAILED';\n                            return throwError(err);\n                        }))\n                    .subscribe((data) => {\n                        data.forEach(tentativeRecord => tentativeRecord.isMember\n                            = tentativeRecord.tentativePlayers.includes(userDetails.username));\n                        data = data.sort((itemOne, itemTwo) =>\n                            itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));\n                        this.tentativeList = data;\n                        this.tentativeDataStatus = 'SUCCESSFUL';\n                    });\n            });\n    }\n\n    filterTeam(filterValue: string) {\n        if (this.$teamsSub) {\n            this.$teamsSub.unsubscribe();\n        }\n        this.showSpinner = true;\n        this.teams = [];\n        this.filterForTeamsByServer(filterValue);\n    }\n\n    private filterForTeamsByServer(valueToSearchFor: string) {\n        this.updateTentativeList(valueToSearchFor);\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                    this.teams = [{error: 'No data'}];\n                    this.showSpinner = false;\n                } else {\n                    this.clashBotService\n                        .getClashTeams(valueToSearchFor)\n                        .pipe(\n                            take(1),\n                            timeout(7000),\n                            catchError((err: HttpErrorResponse) => {\n                                console.error(err);\n                                this._snackBar.open('Failed to retrieve Teams. Please try again later.',\n                                    'X',\n                                    {duration: 5 * 1000});\n                                this.teams.push({error: err.message});\n                                return throwError(err);\n                            }),\n                            finalize(() => this.showSpinner = false)\n                        )\n                        .subscribe((data: ClashTeam[]) => {\n                            this.syncTeamInformation(data, userDetails);\n                            if (this.$teamsSub) this.$teamsSub.unsubscribe();\n                            this.teamsWebsocketService.getSubject().next(valueToSearchFor);\n                            this.$teamsSub = this.teamsWebsocketService.getSubject()\n                                .pipe(\n                                    retryWhen(errors =>\n                                        errors.pipe(\n                                            tap(err => {\n                                                console.error('Got error', err);\n                                            }),\n                                            delay(1000)\n                                        )\n                                    )\n                                )\n                                .subscribe((msg) => this.handleIncomingTeamsWsEvent(msg, userDetails),\n                                    () => {\n                                        this._snackBar.open('Oops! Failed to connect to server for Team updates, please try refreshing.',\n                                            'X',\n                                            {duration: 5 * 1000}),\n                                            this.teams = [{error: 'No data'}];\n                                    },\n                                    () => console.log('Connection closed to teams ws.'));\n                        })\n                }\n            })\n    }\n\n    handleIncomingTeamsWsEvent(message: ClashTeam | String, userDetails: UserDetails) {\n        let teamToBeUpdated = <ClashTeam>message;\n        if (teamToBeUpdated.teamName) {\n            let foundTeam = this.teams.find((team) =>\n                team.teamName === teamToBeUpdated.teamName\n                && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName\n                && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);\n            if (!foundTeam) {\n                if (teamToBeUpdated.teamName) {\n                    let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);\n                    this.updateTentativeListBasedOnTeam(mappedTeam[0]);\n                    if (this.teams.length === 1 && this.teams.find(team => team.error)) {\n                        this.teams = [...mappedTeam];\n                    } else {\n                        this.teams.push(...mappedTeam);\n                    }\n                }\n            } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {\n                let mappedTeam = this.mapDynamicValues([teamToBeUpdated], userDetails);\n                this.updateTentativeListBasedOnTeam(mappedTeam[0]);\n                if (foundTeam.playersDetails && mappedTeam[0].playersDetails) {\n                    for (let i = 0; i < 5; i++) {\n                        let roleDetailsToUpdate = foundTeam.playersDetails[i];\n                        if (roleDetailsToUpdate) {\n                            let foundRecord = mappedTeam[0].playersDetails\n                                .find(record => record.role === roleDetailsToUpdate.role);\n                            if (foundRecord && roleDetailsToUpdate.name !== foundRecord.name) {\n                                foundTeam.playersDetails[i] = foundRecord;\n                            }\n                        }\n                    }\n                }\n            } else {\n                this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);\n            }\n            this.syncTournaments(this.teams, userDetails);\n        }\n    }\n\n    updateTentativeListBasedOnTeam(mappedTeam: ClashTeam) {\n        let playerNames: string[] = [];\n        if (mappedTeam.playersDetails) {\n            playerNames = mappedTeam.playersDetails?.map(details => details.name);\n        }\n        if (this.tentativeList && playerNames.length > 0) {\n            for (let i = 0; i < this.tentativeList?.length; i++) {\n                if (this.tentativeList[i].tournamentDetails.tournamentName === mappedTeam.tournamentDetails?.tournamentName\n                    && this.tentativeList[i].tournamentDetails.tournamentDay === mappedTeam.tournamentDetails?.tournamentDay) {\n                    let updatedTentative =\n                        this.tentativeList[i].tentativePlayers\n                            .filter((name) => !playerNames.includes(name));\n                    if (updatedTentative !== this.tentativeList[i].tentativePlayers\n                        && this.tentativeList[i].isMember) {\n                        this.tentativeList[i].isMember = false;\n                    }\n                    this.tentativeList[i].tentativePlayers = updatedTentative;\n                }\n            }\n        }\n    }\n\n    syncTeamInformation(data: ClashTeam[], userDetails: UserDetails) {\n        this.teams = this.mapDynamicValues(data, userDetails);\n        this.syncTournaments(data, userDetails);\n    }\n\n    private syncTournaments(clashTeams: ClashTeam[], userDetails: UserDetails) {\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((applicationDetails) => {\n                if (applicationDetails && applicationDetails.currentTournaments) {\n                    if (clashTeams.length < 1) {\n                        this.teams = [{error: 'No data'}];\n                        this.eligibleTournaments = applicationDetails.currentTournaments;\n                    } else {\n                        let map = this.createUserToTournamentMap(userDetails.id, applicationDetails.currentTournaments, this.teams);\n                        let newEligibleTournaments: ClashTournaments[] = [];\n                        map.forEach((value, key) => {\n                            if (!value) {\n                                newEligibleTournaments.push(key);\n                            }\n                        });\n                        this.eligibleTournaments = newEligibleTournaments;\n                    }\n                }\n            });\n    }\n\n    private mapDynamicValues(data: ClashTeam[], userDetails: UserDetails) {\n        return data.map(record => {\n            record.id = `${record.serverName}-${record.teamName}`\n                .replace(new RegExp(/ /, 'g'), '-').toLowerCase();\n            let rolesMissing: string[] = [...Object.keys(this.roles)];\n            if (record.playersDetails) {\n                record.playersDetails.map((record) => {\n                    record.isUser = record.id === userDetails.id;\n                    rolesMissing = rolesMissing.filter(role => role !== record.role);\n                    return record;\n                });\n            }\n            if (!Array.isArray(record.playersDetails)\n                || record.playersDetails.length === 0) {\n                record.playersDetails = [];\n            }\n            for (let role in rolesMissing) {\n                record.playersDetails.push({name: '', id: 0, isUser: false, role: rolesMissing[role]});\n            }\n            record.playersDetails.sort((a: PlayerDetails, b: PlayerDetails) =>\n                this.roles[a.role] - this.roles[b.role] || a.role.localeCompare(b.role));\n            return record;\n        });\n    }\n\n    registerForTeam($event: ClashBotUserRegister) {\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails || !userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                } else {\n                    this.clashBotService.registerUserForTeam(userDetails, $event)\n                        .pipe(\n                            timeout(7000),\n                            catchError((err) => {\n                                console.error(err);\n                                let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';\n                                if (err.name === 'TimeoutError') {\n                                    errorMessage = 'Oops! Your registration timed out, please try again!';\n                                }\n                                this._snackBar.open(errorMessage,\n                                    'X',\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            }),\n                            take(1)\n                        ).subscribe(() => console.log('Registered successfully.'));\n                }\n            })\n    }\n\n    unregisterFromTeam($event: ClashTeam) {\n        this.userDetailsService.getUserDetails()\n            .pipe(take(1))\n            .subscribe((userDetails) => {\n                if (!userDetails || !userDetails.username || userDetails.username === '') {\n                    this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',\n                        'X',\n                        {duration: 5 * 1000});\n                    this.teams = [{error: 'No data'}];\n                } else {\n                    this.clashBotService.unregisterUserFromTeam(userDetails, $event)\n                        .pipe(\n                            timeout(7000),\n                            take(1),\n                            catchError((err) => {\n                                console.error(err);\n                                let errorMessage = 'Oops! Failed to unregister you from the Team.';\n                                if (err.name === 'TimeoutError') {\n                                    errorMessage = 'Oops! Your request timed out, please try again!';\n                                }\n                                this._snackBar.open(errorMessage,\n                                    'X',\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            })\n                        ).subscribe(() => console.log('Unregistered User successfully.'));\n                }\n            });\n    }\n\n    createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {\n        let tournamentToTeamUserMap = new Map<ClashTournaments, any>();\n        clashTournaments.forEach((tournament) =>\n            tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {\n                let reducedMap;\n                if (team.playersDetails) {\n                    reducedMap = new Set(team.playersDetails.map(object => object.id));\n                }\n                return team.tournamentDetails\n                    && team.tournamentDetails.tournamentName === tournament.tournamentName\n                    && team.tournamentDetails.tournamentDay === tournament.tournamentDay\n                    && reducedMap\n                    && reducedMap.size === 2\n                    && reducedMap.has(currentUserId)\n            })));\n        return tournamentToTeamUserMap;\n    }\n\n    handleClashTeamsError(snackBar: MatSnackBar, err: HttpErrorResponse) {\n        console.error(err);\n        snackBar.open('Failed to retrieve Teams. Please try again later.',\n            'X',\n            {duration: 5 * 1000});\n        this.teams = [{error: err.message}];\n        return throwError(err);\n    }\n\n    createNewTeam(element: MatOption) {\n        element.select();\n        let role = this.roleControl.value;\n        let tournamentName = '';\n        let tournamentDay = '';\n        let clashTournaments: ClashTournaments | undefined;\n        if (this.tournamentControl.value) {\n            let split = this.tournamentControl.value.split(' ');\n            tournamentName = split[0];\n            tournamentDay = split[1];\n            clashTournaments = this.eligibleTournaments.find(tournament =>\n                tournament.tournamentName === tournamentName\n                && tournament.tournamentDay === tournamentDay);\n        }\n        let serverName = '';\n        if (this.formControl) {\n            serverName = this.formControl.value.trimLeft().trimRight();\n        }\n        if (role && tournamentName && tournamentDay) {\n            element.deselect();\n            this.userDetailsService.getUserDetails()\n                .pipe(take(1))\n                .subscribe((userDetails) => {\n                    this.clashBotService.createNewTeam(userDetails, {\n                            serverName: serverName,\n                            tournamentDetails: {\n                                tournamentName: tournamentName,\n                                tournamentDay: tournamentDay\n                            },\n                            startTime: clashTournaments?.startTime\n                        },\n                        role).pipe(\n                        catchError((err) => {\n                            console.error(err);\n                            this._snackBar.open('You are not able to create a new Team. Please try again later.',\n                                'X',\n                                {duration: 5 * 1000});\n                            this.teams = [{error: err.message}];\n                            return throwError(err);\n                        }),\n                        take(1),\n                    ).subscribe(() => console.log('Successfully created new team.'));\n                })\n            this.creatingNewTeam = false;\n        }\n    }\n\n    showHelpDialog() {\n        this.dialog.open(TeamsDashboardHelpDialogComponent);\n    }\n\n    tentativeRegister(element: ClashBotTentativeDetails, index: number) {\n        let actionMessage = 'added to';\n        if (element.isMember) {\n            actionMessage = 'removed from';\n        }\n        let dialogRef = this.dialog.open(ConfirmationDialogComponent,\n            {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});\n        dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {\n            this.userDetailsService.getUserDetails()\n                .pipe(take(1))\n                .subscribe((userDetails) => {\n                    if (result) {\n                        this.clashBotService.postTentativeList(`${userDetails.id}`, element.serverName,\n                            element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)\n                            .pipe(take(1),\n                                catchError(err => {\n                                    console.error(err);\n                                    this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',\n                                        'X',\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                })\n                            ).subscribe((response) => {\n                            response.isMember = response.tentativePlayers\n                                && response.tentativePlayers.includes(userDetails.username);\n                            if (this.tentativeList) {\n                                this.tentativeList[index] = response;\n                                if (this.table) this.table.renderRows();\n                            }\n                        });\n                    }\n                })\n        })\n    }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4355,7 +4355,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 52,
+                "line": 51,
                 "jsdoctags": [
                     {
                         "name": "clashBotService",
@@ -4416,7 +4416,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<app-spinner *ngIf=\"showSpinner\"></app-spinner>\n<div class=\"chips-list\" *ngIf=\"!showSpinner && formControl\">\n  <app-help-dialog></app-help-dialog>\n  <mat-chip-list\n    [formControl]=\"formControl\"\n    [multiple]=\"false\">\n    <mat-chip\n      #chip=\"matChip\"\n      *ngFor=\"let filter of teamFilters\"\n      id=\"clash-bot-teams-{{filter.id}}\"\n      [selected]=\"filter.state\"\n      [value]=\"filter.value\"\n      (click)=\"filterTeam(chip)\">\n      {{filter.value}}\n    </mat-chip>\n  </mat-chip-list>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'LOADING'\" class=\"show-tentative-button-container\">\n  <mat-icon>hourglass_empty</mat-icon>\n  <div>Loading Tournament Details...</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'FAILED'\" class=\"show-tentative-button-container\">\n  <mat-icon>error</mat-icon>\n  <div>Unable to load Tournament Details for Server.</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'SUCCESSFUL'\" class=\"show-tentative-button-container\">\n  <button id=\"clash-bot-teams-dashboard-show-tentative\" mat-icon-button\n          aria-label=\"Show Tentative List\" (click)=\"showTentative = !showTentative\">\n    <mat-icon>pending</mat-icon>\n  </button>\n  <div>click to toggle view of upcoming Clash Tournaments</div>\n</div>\n<mat-table *ngIf=\"showTentative && tentativeList && tentativeDataStatus === 'SUCCESSFUL'\" [dataSource]=\"tentativeList\"\n           class=\"mat-elevation-z8\">\n  <ng-container matColumnDef=\"tournamentName\">\n    <mat-header-cell *matHeaderCellDef> Tournament</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name\"\n      *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentName}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"tournamentDay\">\n    <mat-header-cell *matHeaderCellDef> Day</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day\"\n      *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentDay}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"tentativePlayers\">\n    <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players\"\n      *matCellDef=\"let element\"> {{element.tentativePlayers}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"action\" stickyEnd>\n    <th mat-header-cell *matHeaderCellDef>+/-</th>\n    <td mat-cell *matCellDef=\"let element; index as i\">\n      <div *ngIf=\"!element.isMember; else elseBlock\">\n        <button\n          id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add\"\n          mat-icon-button color=\"primary\"\n          aria-label=\"Add to Tentative\"\n          (click)=\"tentativeRegister(element, i)\">\n          <mat-icon>add</mat-icon>\n        </button>\n      </div>\n      <ng-template #elseBlock>\n        <button\n          id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove\"\n          mat-icon-button color=\"warn\"\n          aria-label=\"Remove from Tentative\"\n          (click)=\"tentativeRegister(element, i)\">\n          <mat-icon>remove</mat-icon>\n        </button>\n      </ng-template>\n    </td>\n  </ng-container>\n  <mat-header-row *matHeaderRowDef=\"displayedColumns\"></mat-header-row>\n  <mat-row *matRowDef=\"let row; columns: displayedColumns;\"></mat-row>\n</mat-table>\n<div class=\"team-cards\">\n  <app-team-card *ngFor=\"let team of teams; index as i;\" id=\"clash-bot-teams-card-{{team.id}}\" [team]=\"team\"\n                 class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                 (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n  <mat-card id=\"clash-bot-teams-card-create-new-team-card\"\n            *ngIf=\"eligibleTournaments.length > 0\">\n    <h2 *ngIf=\"!creatingNewTeam\">Create a new Team</h2>\n    <div class=\"clash-bot-teams-card-create-new-container\">\n      <button id=\"clash-bot-teams-card-create-new-button\" *ngIf=\"!creatingNewTeam\" mat-mini-fab color=\"primary\"\n              aria-label=\"Create a new Team\" (click)=\"creatingNewTeam = true\">\n        <mat-icon>add</mat-icon>\n      </button>\n      <form [formGroup]=\"createNewTeamFormGroup\" class=\"clash-bot-teams-card-create-new-forms\">\n        <mat-form-field *ngIf=\"creatingNewTeam\" appearance=\"fill\">\n          <mat-label>Choose a Tournament</mat-label>\n          <mat-select id=\"clash-bot-teams-card-create-new-tournament-dropdown\"\n                      [formControl]=\"tournamentControl\" required>\n            <mat-option\n              [id]=\"'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay\"\n              #option=\"matOption\" (click)=\"createNewTeam(option)\" *ngFor=\"let eligibleTournament of eligibleTournaments\"\n              value=\"{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}\">{{eligibleTournament.tournamentName}}\n              - Day {{eligibleTournament.tournamentDay}}</mat-option>\n          </mat-select>\n        </mat-form-field>\n        <mat-form-field *ngIf=\"creatingNewTeam\" appearance=\"fill\">\n          <mat-label>Choose a Role</mat-label>\n          <mat-select id=\"clash-bot-teams-card-create-new-role-dropdown\"\n                      [formControl]=\"roleControl\" required>\n            <mat-option\n              id=\"clash-bot-teams-card-create-new-dropdown-{{role | kebabcase}}\"\n              #option=\"matOption\" (click)=\"createNewTeam(option)\" *ngFor=\"let role of rolesAsString\"\n              value=\"{{role}}\">{{role}}\n            </mat-option>\n          </mat-select>\n        </mat-form-field>\n      </form>\n    </div>\n  </mat-card>\n</div>\n"
+            "templateData": "<app-spinner *ngIf=\"showSpinner\"></app-spinner>\n<div class=\"chips-list\" *ngIf=\"!showSpinner && formControl\">\n  <app-help-dialog></app-help-dialog>\n  <app-guild-filter-list (selectedTeamEvent)=\"filterTeam($event)\" )></app-guild-filter-list>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'LOADING'\" class=\"show-tentative-button-container\">\n  <mat-icon>hourglass_empty</mat-icon>\n  <div>Loading Tournament Details...</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'FAILED'\" class=\"show-tentative-button-container\">\n  <mat-icon>error</mat-icon>\n  <div>Unable to load Tournament Details for Server.</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'SUCCESSFUL'\" class=\"show-tentative-button-container\">\n  <button id=\"clash-bot-teams-dashboard-show-tentative\" mat-icon-button\n          aria-label=\"Show Tentative List\" (click)=\"showTentative = !showTentative\">\n    <mat-icon>pending</mat-icon>\n  </button>\n  <div>click to toggle view of upcoming Clash Tournaments</div>\n</div>\n<mat-table *ngIf=\"showTentative && tentativeList && tentativeDataStatus === 'SUCCESSFUL'\" [dataSource]=\"tentativeList\"\n           class=\"mat-elevation-z8\">\n  <ng-container matColumnDef=\"tournamentName\">\n    <mat-header-cell *matHeaderCellDef> Tournament</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name\"\n      *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentName}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"tournamentDay\">\n    <mat-header-cell *matHeaderCellDef> Day</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day\"\n      *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentDay}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"tentativePlayers\">\n    <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>\n    <mat-cell\n      id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players\"\n      *matCellDef=\"let element\"> {{element.tentativePlayers}} </mat-cell>\n  </ng-container>\n  <ng-container matColumnDef=\"action\" stickyEnd>\n    <th mat-header-cell *matHeaderCellDef>+/-</th>\n    <td mat-cell *matCellDef=\"let element; index as i\">\n      <div *ngIf=\"!element.isMember; else elseBlock\">\n        <button\n          id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add\"\n          mat-icon-button color=\"primary\"\n          aria-label=\"Add to Tentative\"\n          (click)=\"tentativeRegister(element, i)\">\n          <mat-icon>add</mat-icon>\n        </button>\n      </div>\n      <ng-template #elseBlock>\n        <button\n          id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove\"\n          mat-icon-button color=\"warn\"\n          aria-label=\"Remove from Tentative\"\n          (click)=\"tentativeRegister(element, i)\">\n          <mat-icon>remove</mat-icon>\n        </button>\n      </ng-template>\n    </td>\n  </ng-container>\n  <mat-header-row *matHeaderRowDef=\"displayedColumns\"></mat-header-row>\n  <mat-row *matRowDef=\"let row; columns: displayedColumns;\"></mat-row>\n</mat-table>\n<div class=\"team-cards\">\n  <app-team-card *ngFor=\"let team of teams; index as i;\" id=\"clash-bot-teams-card-{{team.id}}\" [team]=\"team\"\n                 class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                 (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n  <mat-card id=\"clash-bot-teams-card-create-new-team-card\"\n            *ngIf=\"eligibleTournaments.length > 0\">\n    <h2 *ngIf=\"!creatingNewTeam\">Create a new Team</h2>\n    <div class=\"clash-bot-teams-card-create-new-container\">\n      <button id=\"clash-bot-teams-card-create-new-button\" *ngIf=\"!creatingNewTeam\" mat-mini-fab color=\"primary\"\n              aria-label=\"Create a new Team\" (click)=\"creatingNewTeam = true\">\n        <mat-icon>add</mat-icon>\n      </button>\n      <form [formGroup]=\"createNewTeamFormGroup\" class=\"clash-bot-teams-card-create-new-forms\">\n        <mat-form-field *ngIf=\"creatingNewTeam\" appearance=\"fill\">\n          <mat-label>Choose a Tournament</mat-label>\n          <mat-select id=\"clash-bot-teams-card-create-new-tournament-dropdown\"\n                      [formControl]=\"tournamentControl\" required>\n            <mat-option\n              [id]=\"'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay\"\n              #option=\"matOption\" (click)=\"createNewTeam(option)\" *ngFor=\"let eligibleTournament of eligibleTournaments\"\n              value=\"{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}\">{{eligibleTournament.tournamentName}}\n              - Day {{eligibleTournament.tournamentDay}}</mat-option>\n          </mat-select>\n        </mat-form-field>\n        <mat-form-field *ngIf=\"creatingNewTeam\" appearance=\"fill\">\n          <mat-label>Choose a Role</mat-label>\n          <mat-select id=\"clash-bot-teams-card-create-new-role-dropdown\"\n                      [formControl]=\"roleControl\" required>\n            <mat-option\n              id=\"clash-bot-teams-card-create-new-dropdown-{{role | kebabcase}}\"\n              #option=\"matOption\" (click)=\"createNewTeam(option)\" *ngFor=\"let role of rolesAsString\"\n              value=\"{{role}}\">{{role}}\n            </mat-option>\n          </mat-select>\n        </mat-form-field>\n      </form>\n    </div>\n  </mat-card>\n</div>\n"
         },
         {
             "name": "TeamsDashboardHelpDialogComponent",
@@ -4465,6 +4465,138 @@
                 "line": 8
             },
             "templateData": "<div class=\"clash-bot-teams-dashboard-help-dialog-container\">\n  <h1 mat-dialog-title>Teams Dashboard Help Menu! Help is here!</h1>\n  <mat-dialog-content>\n    <div class=\"clash-bot-teams-dashboard-help-dialog-content\">\n      <div class=\"clash-bot-teams-dashboard-help-dialog-content-row\">\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-icon\">\n          <button class=\"clash-bot-teams-dashboard-help-dialog-player-role-join-btn\">\n            <h2 class=\"clash-bot-teams-dashboard-help-dialog-player-role-join-text\">Top</h2>\n          </button>\n        </div>\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-description\">\n          <p>To add yourself to a Team.</p>\n        </div>\n      </div>\n      <div class=\"clash-bot-teams-dashboard-help-dialog-content-row\">\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-icon\">\n          <button mat-mini-fab color=\"primary\">\n            <mat-icon>remove</mat-icon>\n          </button>\n        </div>\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-description\">\n          <p>To remove yourself from a Team.</p>\n        </div>\n      </div>\n      <div class=\"clash-bot-teams-dashboard-help-dialog-content-row\">\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-icon\">\n          <mat-chip>Goon Squad</mat-chip>\n        </div>\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-description\">\n          <p>To filter Teams based on the selected Server.</p>\n        </div>\n      </div>\n      <div class=\"clash-bot-teams-dashboard-help-dialog-content-row\">\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-icon\">\n          <mat-icon>warning</mat-icon>\n        </div>\n        <div class=\"clash-bot-teams-dashboard-help-dialog-content-description\">\n          <p style=\"font-weight: bolder\">DO NOT REFRESH ON THE TEAMS PAGE!</p>\n          <p> If you do, navigate back to the Welcome Page and then back to retrieve your User details again.\n            This app is still relatively new so you can help identify any issues! If you do face something that you do\n            not think is right, please use this <a href=\"https://forms.gle/wu4WBykZXZ7Jm5j26\">Google Form</a> to report\n            it. Thank you! :D</p>\n        </div>\n      </div>\n    </div>\n  </mat-dialog-content>\n  <mat-dialog-actions align=\"end\">\n    <button mat-raised-button mat-dialog-close color=\"primary\">Close</button>\n  </mat-dialog-actions>\n</div>\n"
+        },
+        {
+            "name": "TeamsTentativeTableComponent",
+            "id": "component-TeamsTentativeTableComponent-5ab991bd4c0d9059d99ed3b439ccc9e31932b226feb780a583008c243c58fceaa2dd84b68c8ef39e45398cfc214280834a4fd8519af19d088bce42ab868d9526",
+            "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-teams-tentative-table",
+            "styleUrls": [
+                "./teams-tentative-table.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./teams-tentative-table.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "displayedColumns",
+                    "defaultValue": "['tournamentName', 'tournamentDay', 'tentativePlayers', 'action']",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                },
+                {
+                    "name": "showTentative",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
+                },
+                {
+                    "name": "tentativeDataStatus",
+                    "defaultValue": "'NOT_LOADED'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "tentativeList",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ClashBotTentativeDetails[]",
+                    "optional": true,
+                    "description": "",
+                    "line": 11
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "tentativeRegister",
+                    "args": [
+                        {
+                            "name": "element",
+                            "type": "ClashBotTentativeDetails",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "index",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 18,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "element",
+                            "type": "ClashBotTentativeDetails",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "index",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, OnInit } from '@angular/core';\nimport {ClashBotTentativeDetails} from \"../../../interfaces/clash-bot-tentative-details\";\n\n@Component({\n  selector: 'app-teams-tentative-table',\n  templateUrl: './teams-tentative-table.component.html',\n  styleUrls: ['./teams-tentative-table.component.scss']\n})\nexport class TeamsTentativeTableComponent {\n\n  tentativeList?: ClashBotTentativeDetails[];\n  displayedColumns: string[] = ['tournamentName', 'tournamentDay', 'tentativePlayers', 'action'];\n  tentativeDataStatus: string = 'NOT_LOADED';\n  showTentative: boolean = false;\n\n  constructor() { }\n\n  tentativeRegister(element: ClashBotTentativeDetails, index: number) {\n\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./teams-tentative-table.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 14
+            },
+            "templateData": "<div *ngIf=\"tentativeDataStatus === 'LOADING'\" class=\"show-tentative-button-container\">\n    <mat-icon>hourglass_empty</mat-icon>\n    <div>Loading Tournament Details...</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'FAILED'\" class=\"show-tentative-button-container\">\n    <mat-icon>error</mat-icon>\n    <div>Unable to load Tournament Details for Server.</div>\n</div>\n<div *ngIf=\"tentativeDataStatus === 'SUCCESSFUL'\" class=\"show-tentative-button-container\">\n    <button id=\"clash-bot-teams-dashboard-show-tentative\" mat-icon-button\n            aria-label=\"Show Tentative List\" (click)=\"showTentative = !showTentative\">\n        <mat-icon>pending</mat-icon>\n    </button>\n    <div>click to toggle view of upcoming Clash Tournaments</div>\n</div>\n<mat-table *ngIf=\"showTentative && tentativeList && tentativeDataStatus === 'SUCCESSFUL'\" [dataSource]=\"tentativeList\"\n           class=\"mat-elevation-z8\">\n    <ng-container matColumnDef=\"tournamentName\">\n        <mat-header-cell *matHeaderCellDef> Tournament</mat-header-cell>\n        <mat-cell\n                id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-name\"\n                *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentName}} </mat-cell>\n    </ng-container>\n    <ng-container matColumnDef=\"tournamentDay\">\n        <mat-header-cell *matHeaderCellDef> Day</mat-header-cell>\n        <mat-cell\n                id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tournament-day\"\n                *matCellDef=\"let element\"> {{element.tournamentDetails.tournamentDay}} </mat-cell>\n    </ng-container>\n    <ng-container matColumnDef=\"tentativePlayers\">\n        <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>\n        <mat-cell\n                id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players\"\n                *matCellDef=\"let element\"> {{element.tentativePlayers}} </mat-cell>\n    </ng-container>\n    <ng-container matColumnDef=\"action\" stickyEnd>\n        <th mat-header-cell *matHeaderCellDef>+/-</th>\n        <td mat-cell *matCellDef=\"let element; index as i\">\n            <div *ngIf=\"!element.isMember; else elseBlock\">\n                <button\n                        id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-add\"\n                        mat-icon-button color=\"primary\"\n                        aria-label=\"Add to Tentative\"\n                        (click)=\"tentativeRegister(element, i)\">\n                    <mat-icon>add</mat-icon>\n                </button>\n            </div>\n            <ng-template #elseBlock>\n                <button\n                        id=\"clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-remove\"\n                        mat-icon-button color=\"warn\"\n                        aria-label=\"Remove from Tentative\"\n                        (click)=\"tentativeRegister(element, i)\">\n                    <mat-icon>remove</mat-icon>\n                </button>\n            </ng-template>\n        </td>\n    </ng-container>\n    <mat-header-row *matHeaderRowDef=\"displayedColumns\"></mat-header-row>\n    <mat-row *matRowDef=\"let row; columns: displayedColumns;\"></mat-row>\n</mat-table>"
         },
         {
             "name": "UpcomingTournamentDetailsCardComponent",
@@ -5613,13 +5745,13 @@
         },
         {
             "name": "TeamsModule",
-            "id": "module-TeamsModule-ebccdb7069da64793b0926953f0fd0b7b446b9b7fa4904aa6c3f6f2b22a0799178e9536a9bc785b5102c32955e686c93f3546639806116fe8c71e28473e48b0b",
+            "id": "module-TeamsModule-ef6bbe1bf62a8b98247cce55609d1697fcd6dd02cbe29db9e278edf0d22a0ef219ba2e4d1459a0321004e0f4693fc64f7c5cf39bdde0adfb249e131dbffe9e9e",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/pages/teams-dashboard/teams-module/teams.module.ts",
             "methods": [],
-            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport { MatExpansionModule } from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\n\n\n@NgModule({\n    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,\n        HelpDialogComponent, TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent,\n    GuildFilterListComponent],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        BrowserAnimationsModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
+            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport { MatExpansionModule } from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\nimport {TeamsTentativeTableComponent} from \"../teams-tentative-table/teams-tentative-table.component\";\n\n\n@NgModule({\n    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,\n        HelpDialogComponent, TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent,\n    GuildFilterListComponent, TeamsTentativeTableComponent],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        BrowserAnimationsModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -5648,6 +5780,9 @@
                         },
                         {
                             "name": "TeamsDashboardHelpDialogComponent"
+                        },
+                        {
+                            "name": "TeamsTentativeTableComponent"
                         },
                         {
                             "name": "TournamentNameTransformerPipe"
@@ -5846,21 +5981,21 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.prod.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
             },
             {
                 "name": "gtag",
@@ -5946,6 +6081,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6040,6 +6185,16 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamCardComponent>",
                 "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamsTentativeTableComponent>",
+                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6199,18 +6354,6 @@
                     "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
                 }
             ],
-            "src/environments/environment.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -6221,6 +6364,18 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
+                }
+            ],
+            "src/environments/environment.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
                 }
             ],
             "src/app/google-analytics.service.ts": [
@@ -6342,6 +6497,28 @@
                     "deprecationMessage": "",
                     "type": "Story<HelpDialogComponent>",
                     "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<TeamsTentativeTableComponent>",
+                    "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -6889,6 +7066,35 @@
                 "name": "TeamsDashboardComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/39",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TeamsTentativeTableComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

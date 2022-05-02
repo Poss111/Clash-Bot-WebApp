@@ -14,7 +14,6 @@ import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatOption} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
-import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {MatTable} from "@angular/material/table";
@@ -424,42 +423,30 @@ export class TeamsDashboardComponent implements OnInit {
         }
     }
 
-    showHelpDialog() {
-        this.dialog.open(TeamsDashboardHelpDialogComponent);
-    }
-
-    tentativeRegister(element: ClashBotTentativeDetails, index: number) {
-        let actionMessage = 'added to';
-        if (element.isMember) {
-            actionMessage = 'removed from';
-        }
-        let dialogRef = this.dialog.open(ConfirmationDialogComponent,
-            {data: {message: `Are you sure you want to be ${actionMessage} the Tentative list for this tournament?`}});
-        dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
-            this.userDetailsService.getUserDetails()
-                .pipe(take(1))
-                .subscribe((userDetails) => {
-                    if (result) {
-                        this.clashBotService.postTentativeList(`${userDetails.id}`, element.serverName,
-                            element.tournamentDetails.tournamentName, element.tournamentDetails.tournamentDay)
-                            .pipe(take(1),
-                                catchError(err => {
-                                    console.error(err);
-                                    this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
-                                        'X',
-                                        {duration: 5 * 1000});
-                                    return throwError(err);
-                                })
-                            ).subscribe((response) => {
-                            response.isMember = response.tentativePlayers
-                                && response.tentativePlayers.includes(userDetails.username);
-                            if (this.tentativeList) {
-                                this.tentativeList[index] = response;
-                                if (this.table) this.table.renderRows();
-                            }
-                        });
-                    }
-                })
-        })
+    tentativeRegister(tentativeUserDetails: ClashBotTentativeDetails) {
+        this.userDetailsService.getUserDetails()
+            .pipe(take(1))
+            .subscribe((userDetails) => {
+                    this.clashBotService.postTentativeList(`${userDetails.id}`,
+                        tentativeUserDetails.serverName,
+                        tentativeUserDetails.tournamentDetails.tournamentName,
+                        tentativeUserDetails.tournamentDetails.tournamentDay)
+                        .pipe(take(1),
+                            catchError(err => {
+                                console.error(err);
+                                this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
+                                    'X',
+                                    {duration: 5 * 1000});
+                                return throwError(err);
+                            })
+                        ).subscribe((response) => {
+                        response.isMember = response.tentativePlayers
+                            && response.tentativePlayers.includes(userDetails.username);
+                        if (this.tentativeList && tentativeUserDetails.index) {
+                            this.tentativeList[tentativeUserDetails.index] = response;
+                            if (this.table) this.table.renderRows();
+                        }
+                    });
+            });
     }
 }

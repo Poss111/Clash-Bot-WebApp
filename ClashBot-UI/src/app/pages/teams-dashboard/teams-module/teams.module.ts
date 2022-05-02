@@ -19,16 +19,25 @@ import {MatTableModule} from "@angular/material/table";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../shared/shared.module";
-import { MatExpansionModule } from '@angular/material/expansion';
+import {MatExpansionModule} from '@angular/material/expansion';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HelpDialogComponent} from "../help-dialog/help-dialog.component";
 import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.component";
+import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tentative-table.component";
 
 
 @NgModule({
-    declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,
-        HelpDialogComponent, TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent,
-    GuildFilterListComponent],
+    declarations: [
+        TeamsDashboardComponent,
+        TeamCardComponent,
+        ConfirmationDialogComponent,
+        HelpDialogComponent,
+        TeamsDashboardHelpDialogComponent,
+        TournamentNameTransformerPipe,
+        TeamCardPlayerDetailsComponent,
+        GuildFilterListComponent,
+        TeamsTentativeTableComponent
+    ],
     exports: [
         TeamCardComponent,
         TournamentNameTransformerPipe
