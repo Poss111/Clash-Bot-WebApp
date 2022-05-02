@@ -24,6 +24,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HelpDialogComponent} from "../help-dialog/help-dialog.component";
 import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.component";
 import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tentative-table.component";
+import {NewTeamCardComponent} from "../new-team-card/new-team-card.component";
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tenta
         TournamentNameTransformerPipe,
         TeamCardPlayerDetailsComponent,
         GuildFilterListComponent,
-        TeamsTentativeTableComponent
+        TeamsTentativeTableComponent,
+        NewTeamCardComponent
     ],
     exports: [
         TeamCardComponent,

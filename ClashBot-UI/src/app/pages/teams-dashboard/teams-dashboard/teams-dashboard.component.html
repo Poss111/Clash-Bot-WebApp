@@ -1,45 +1,19 @@
 <app-spinner *ngIf="showSpinner"></app-spinner>
 <div class="chips-list" *ngIf="!showSpinner && formControl">
   <app-help-dialog></app-help-dialog>
-  <app-guild-filter-list (selectedTeamEvent)="filterTeam($event)" )></app-guild-filter-list>
+  <app-guild-filter-list (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
 </div>
-<app-teams-tentative-table [tentativeList]="tentativeList" (register)="tentativeRegister($event)"></app-teams-tentative-table>
+<app-teams-tentative-table [tentativeList]="tentativeList"
+                           [tentativeDataStatus]="tentativeDataStatus"
+                           (register)="tentativeRegister($event)"></app-teams-tentative-table>
 <div class="team-cards">
-  <app-team-card *ngFor="let team of teams; index as i;" id="clash-bot-teams-card-{{team.id}}" [team]="team"
+  <app-team-card *ngFor="let team of teams; index as i;"
+                 id="clash-bot-teams-card-{{team.id}}"
+                 [team]="team"
                  class="team-card" (registerUser)="registerForTeam($event)"
                  (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-  <mat-card id="clash-bot-teams-card-create-new-team-card"
-            *ngIf="eligibleTournaments.length > 0">
-    <h2 *ngIf="!creatingNewTeam">Create a new Team</h2>
-    <div class="clash-bot-teams-card-create-new-container">
-      <button id="clash-bot-teams-card-create-new-button" *ngIf="!creatingNewTeam" mat-mini-fab color="primary"
-              aria-label="Create a new Team" (click)="creatingNewTeam = true">
-        <mat-icon>add</mat-icon>
-      </button>
-      <form [formGroup]="createNewTeamFormGroup" class="clash-bot-teams-card-create-new-forms">
-        <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
-          <mat-label>Choose a Tournament</mat-label>
-          <mat-select id="clash-bot-teams-card-create-new-tournament-dropdown"
-                      [formControl]="tournamentControl" required>
-            <mat-option
-              [id]="'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay"
-              #option="matOption" (click)="createNewTeam(option)" *ngFor="let eligibleTournament of eligibleTournaments"
-              value="{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}">{{eligibleTournament.tournamentName}}
-              - Day {{eligibleTournament.tournamentDay}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
-          <mat-label>Choose a Role</mat-label>
-          <mat-select id="clash-bot-teams-card-create-new-role-dropdown"
-                      [formControl]="roleControl" required>
-            <mat-option
-              id="clash-bot-teams-card-create-new-dropdown-{{role | kebabcase}}"
-              #option="matOption" (click)="createNewTeam(option)" *ngFor="let role of rolesAsString"
-              value="{{role}}">{{role}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </form>
-    </div>
-  </mat-card>
+  <app-new-team-card
+          *ngIf="canCreateNewTeam"
+          [eligibleTournaments]="eligibleTournaments"
+                     (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
 </div>

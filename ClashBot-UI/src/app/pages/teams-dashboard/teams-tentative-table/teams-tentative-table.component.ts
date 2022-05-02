@@ -12,12 +12,13 @@ import {MatDialog} from "@angular/material/dialog";
 })
 export class TeamsTentativeTableComponent {
 
-    tentativeDataStatus: string = 'NOT_LOADED';
-
     showTentative: boolean = false;
 
     @Input()
     tentativeList?: ClashBotTentativeDetails[] = [];
+
+    @Input()
+    tentativeDataStatus: string = 'NOT_LOADED';
 
     @Output()
     register: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
