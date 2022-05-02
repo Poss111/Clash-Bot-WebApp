@@ -2898,7 +2898,7 @@
         },
         {
             "name": "SpinnerComponent",
-            "id": "component-SpinnerComponent-9f50d01b0034b22bb19e3af2881080a0ce2e21dd2e6f1b71332c4462a9e9f744c4d076e296426b8382f510f11f0482dcc76e382d8719c2c84262131f2f457d4a",
+            "id": "component-SpinnerComponent-b268bdaa9ae1800f2094e196860fd5032d72b8ad37d5e803abe6948bea8e50e094b1b5884578c10de896e11f04b7da1b6d840e06857b5f787372fb9d3e1aa1da",
             "file": "src/app/shared/spinner/spinner.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2914,59 +2914,20 @@
                 "./spinner.component.html"
             ],
             "viewProviders": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "color",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "any",
-                    "optional": false,
-                    "description": "",
-                    "line": 10
-                },
-                {
-                    "name": "mode",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "any",
-                    "optional": false,
-                    "description": "",
-                    "line": 11
-                },
+            "inputsClass": [
                 {
                     "name": "showSpinner",
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
+                    "line": 11,
                     "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 13
-                },
-                {
-                    "name": "value",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "any",
-                    "optional": false,
-                    "description": "",
-                    "line": 12
+                    "decorators": []
                 }
             ],
-            "methodsClass": [
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 17,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -2974,7 +2935,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-spinner',\n  templateUrl: './spinner.component.html',\n  styleUrls: ['./spinner.component.scss']\n})\nexport class SpinnerComponent implements OnInit {\n\n  color: any;\n  mode: any;\n  value: any;\n  showSpinner: boolean = false;\n\n  constructor() { }\n\n  ngOnInit(): void {\n    this.color = 'primary';\n    this.mode = 'indeterminate';\n  }\n\n}\n",
+            "sourceCode": "import {Component, Input, OnInit} from '@angular/core';\n\n@Component({\n  selector: 'app-spinner',\n  templateUrl: './spinner.component.html',\n  styleUrls: ['./spinner.component.scss']\n})\nexport class SpinnerComponent {\n\n  @Input()\n  showSpinner: boolean = false;\n\n  constructor() { }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2989,12 +2950,9 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [],
-                "line": 13
+                "line": 11
             },
-            "implements": [
-                "OnInit"
-            ],
-            "templateData": "<div class=\"progress-spinner\" *ngIf=\"showSpinner\">\n    <mat-progress-spinner\n            class=\"example-margin\"\n            [color]=\"color\"\n            [mode]=\"mode\"\n            [value]=\"value\"\n            aria-label=\"Loading Team Data...\">\n    </mat-progress-spinner>\n    <div class=\"loading-text\">\n        <h2>Loading your requested data</h2>\n        <div class=\"loading-animation\">\n            <h2 class=\"animated-dot-one\">.</h2>\n            <h2 class=\"animated-dot-two\">.</h2>\n            <h2 class=\"animated-dot-three\">.</h2>\n        </div>\n    </div>\n</div>"
+            "templateData": "<div class=\"progress-spinner\" *ngIf=\"showSpinner\">\n    <mat-progress-spinner\n            class=\"example-margin\"\n            color=\"primary\"\n            mode=\"indeterminate\"\n            aria-label=\"Loading Team Data...\">\n    </mat-progress-spinner>\n    <div class=\"loading-text\">\n        <h2>Loading your requested data</h2>\n        <div class=\"loading-animation\">\n            <h2 class=\"animated-dot-one\">.</h2>\n            <h2 class=\"animated-dot-two\">.</h2>\n            <h2 class=\"animated-dot-three\">.</h2>\n        </div>\n    </div>\n</div>"
         },
         {
             "name": "TeamCardComponent",
@@ -4166,7 +4124,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.clash-bot-teams-dashboard-header {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n}\n.clash-bot-teams-dashboard-header > h2 {\n  margin: 0;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.chips-list {\n  width: 100%;\n}\n\n.progress-spinner {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n\n.loading-text {\n  display: flex;\n\n  align-items: center;\n  flex-direction: column;\n}\n\n.animated-dot-one {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.5s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-two {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.75s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-three {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 1s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.loading-animation {\n  display: flex;\n}\n\n@keyframes slidein {\n  from {\n    margin-left:40%;\n  }\n}\n",
+                    "data": ".team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.clash-bot-teams-dashboard-header {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n}\n.clash-bot-teams-dashboard-header > h2 {\n  margin: 0;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.chips-list {\n  width: 100%;\n}\n\n.progress-spinner {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n\n.loading-text {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.animated-dot-one {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.5s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-two {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 0.75s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.animated-dot-three {\n  animation-duration: 3s;\n  animation-name: slidein;\n  animation-delay: 1s;\n  animation-iteration-count: 3;\n  animation-direction: alternate;\n}\n\n.loading-animation {\n  display: flex;\n}\n\n@keyframes slidein {\n  from {\n    margin-left:40%;\n  }\n}\n",
                     "styleUrl": "./teams-dashboard.component.scss"
                 }
             ],
@@ -5752,10 +5710,20 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "Primary",
+                "name": "Off",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                "file": "src/app/shared/spinner/spinner.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "On",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/spinner/spinner.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -5765,7 +5733,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/shared/spinner/spinner.stories.ts",
+                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6066,6 +6034,38 @@
                     "defaultValue": "(args: ClashTournamentCalendarComponent) => ({\n    props: args,\n})"
                 }
             ],
+            "src/app/shared/spinner/spinner.stories.ts": [
+                {
+                    "name": "Off",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/spinner/spinner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "On",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/spinner/spinner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/spinner/spinner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<SpinnerComponent>",
+                    "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
+                }
+            ],
             "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts": [
                 {
                     "name": "Primary",
@@ -6086,28 +6086,6 @@
                     "deprecationMessage": "",
                     "type": "Story<UpcomingTournamentDetailsCardComponent>",
                     "defaultValue": "(args: UpcomingTournamentDetailsCardComponent) => ({\n    props: args,\n})"
-                }
-            ],
-            "src/app/shared/spinner/spinner.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/shared/spinner/spinner.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/shared/spinner/spinner.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<SpinnerComponent>",
-                    "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -6713,7 +6691,7 @@
                 "linktype": "component",
                 "name": "SpinnerComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/3",
                 "status": "low"
             },
             {
@@ -6721,7 +6699,17 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "Primary",
+                "name": "Off",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/spinner/spinner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "On",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
