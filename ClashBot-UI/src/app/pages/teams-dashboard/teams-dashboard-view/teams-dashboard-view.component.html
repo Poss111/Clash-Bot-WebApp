@@ -1,0 +1,22 @@
+<app-spinner *ngIf="showSpinner"></app-spinner>
+<div class="chips-list" *ngIf="!showSpinner">
+    <app-help-dialog></app-help-dialog>
+    <app-guild-filter-list
+            [teamFilters]="teamFilters"
+            [defaultSelection]="defaultServer"
+            (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
+</div>
+<app-teams-tentative-table [tentativeList]="tentativeList"
+                           [tentativeDataStatus]="tentativeDataStatus"
+                           (register)="tentativeRegister($event)"></app-teams-tentative-table>
+<div class="team-cards">
+    <app-team-card *ngFor="let team of teams; index as i;"
+                   id="clash-bot-teams-card-{{team.id}}"
+                   [team]="team"
+                   class="team-card" (registerUser)="registerForTeam($event)"
+                   (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
+    <app-new-team-card
+            *ngIf="canCreateNewTeam"
+            [eligibleTournaments]="eligibleTournaments"
+            (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
+</div>

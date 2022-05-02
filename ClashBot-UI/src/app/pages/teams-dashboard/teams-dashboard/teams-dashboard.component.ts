@@ -33,7 +33,6 @@ export class TeamsDashboardComponent implements OnInit {
     mode: any;
     value: any;
     showSpinner: boolean;
-    formControl?: FormControl;
     createNewTeamFormGroup: FormGroup;
     tournamentControl: FormControl = new FormControl('');
     roleControl: FormControl = new FormControl('');
@@ -43,6 +42,7 @@ export class TeamsDashboardComponent implements OnInit {
     $teamsSub: Subscription | undefined;
     tentativeDataStatus: string = 'NOT_LOADED';
     canCreateNewTeam: boolean = false;
+    defaultServer?: string;
 
     @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
@@ -73,8 +73,8 @@ export class TeamsDashboardComponent implements OnInit {
                         });
                     })
 
-                    this.formControl = new FormControl(appDetails.defaultGuild);
                     if (appDetails.defaultGuild) {
+                        this.defaultServer = appDetails.defaultGuild;
                         this.filterForTeamsByServer(appDetails.defaultGuild);
                     }
                 }

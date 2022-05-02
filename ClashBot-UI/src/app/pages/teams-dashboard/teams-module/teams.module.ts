@@ -25,6 +25,7 @@ import {HelpDialogComponent} from "../help-dialog/help-dialog.component";
 import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.component";
 import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tentative-table.component";
 import {NewTeamCardComponent} from "../new-team-card/new-team-card.component";
+import {TeamsDashboardViewComponent} from "../teams-dashboard-view/teams-dashboard-view.component";
 
 
 @NgModule({
@@ -38,7 +39,8 @@ import {NewTeamCardComponent} from "../new-team-card/new-team-card.component";
         TeamCardPlayerDetailsComponent,
         GuildFilterListComponent,
         TeamsTentativeTableComponent,
-        NewTeamCardComponent
+        NewTeamCardComponent,
+        TeamsDashboardViewComponent
     ],
     exports: [
         TeamCardComponent,

@@ -1,7 +1,10 @@
 <app-spinner *ngIf="showSpinner"></app-spinner>
-<div class="chips-list" *ngIf="!showSpinner && formControl">
+<div class="chips-list" *ngIf="!showSpinner">
   <app-help-dialog></app-help-dialog>
-  <app-guild-filter-list (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
+  <app-guild-filter-list
+          [teamFilters]="teamFilters"
+          [defaultSelection]="defaultServer"
+          (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
 </div>
 <app-teams-tentative-table [tentativeList]="tentativeList"
                            [tentativeDataStatus]="tentativeDataStatus"
