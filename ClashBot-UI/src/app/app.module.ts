@@ -31,40 +31,44 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    WelcomeDashboardComponent,
-    ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent,
-    UpcomingTournamentDetailsCardComponent,
-    ReleaseNotificationDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatMenuModule,
-    MatProgressBarModule,
-    MatListModule,
-    MatSlideToggleModule,
-    ReactiveFormsModule,
-    OAuthModule.forRoot(),
-    TeamsModule,
-    MarkdownModule.forRoot({
-      sanitize: SecurityContext.HTML
-    })
-  ],
-  providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        WelcomeDashboardComponent,
+        ClashTournamentCalendarComponent,
+        ClashTournamentCalendarHeaderComponent,
+        UpcomingTournamentDetailsCardComponent,
+        ReleaseNotificationDialogComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatMenuModule,
+        MatProgressBarModule,
+        MatListModule,
+        MatSlideToggleModule,
+        ReactiveFormsModule,
+        OAuthModule.forRoot(),
+        TeamsModule,
+        MarkdownModule.forRoot({
+            sanitize: SecurityContext.HTML
+        })
+    ],
+    providers: [ClashBotService, DiscordService, {
+        provide: HTTP_INTERCEPTORS,
+        useClass: DiscordInterceptor,
+        multi: true
+    }],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

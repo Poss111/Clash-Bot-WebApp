@@ -1,27 +1,6 @@
-<div class="progress-spinner" *ngIf="showSpinner">
-  <mat-progress-spinner
-    class="example-margin"
-    [color]="color"
-    [mode]="mode"
-    [value]="value"
-    aria-label="Loading Team Data...">
-  </mat-progress-spinner>
-  <div class="loading-text">
-    <h2>Loading your requested data</h2>
-    <div class="loading-animation">
-      <h2 class="animated-dot-one">.</h2>
-      <h2 class="animated-dot-two">.</h2>
-      <h2 class="animated-dot-three">.</h2>
-    </div>
-  </div>
-</div>
+<app-spinner *ngIf="showSpinner"></app-spinner>
 <div class="chips-list" *ngIf="!showSpinner && formControl">
-  <div class="clash-bot-teams-dashboard-header">
-    <h2 id="clash-bot-teams-header">Your available Servers to filter by</h2>
-    <button aria-label="Help Me!" mat-icon-button (click)="showHelpDialog()">
-      <mat-icon>help_outline</mat-icon>
-    </button>
-  </div>
+  <app-help-dialog></app-help-dialog>
   <mat-chip-list
     [formControl]="formControl"
     [multiple]="false">

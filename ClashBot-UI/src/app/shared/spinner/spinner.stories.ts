@@ -18,12 +18,7 @@ const Template: Story<SpinnerComponent> = (args: SpinnerComponent) => ({
     props: args,
 });
 
-export const On = Template.bind({});
-On.args = {
+export const Primary = Template.bind({});
+Primary.args = {
     showSpinner: true
-};
-
-export const Off = Template.bind({});
-Off.args = {
-    showSpinner: false
 };
