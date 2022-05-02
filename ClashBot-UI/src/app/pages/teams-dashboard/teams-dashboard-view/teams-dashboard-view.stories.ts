@@ -23,6 +23,9 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
+import {HttpClientModule} from "@angular/common/http";
+import {AppModule} from "../../../app.module";
+import {MatIconRegisteryModule} from "../teams-module/mat-icon-registery.module";
 
 export default {
     title: 'Pages/TeamsDashboard',
@@ -52,7 +55,8 @@ export default {
                 MatProgressSpinnerModule,
                 MatChipsModule,
                 MatExpansionModule,
-                BrowserAnimationsModule
+                BrowserAnimationsModule,
+                MatIconRegisteryModule
             ],
         })
     ]

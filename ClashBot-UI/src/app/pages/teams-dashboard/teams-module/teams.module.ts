@@ -8,7 +8,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {TeamCardComponent} from "../team-card/team-card.component";
 import {MatCardModule} from '@angular/material/card';
-import {MatIconModule} from "@angular/material/icon";
+import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDialogModule} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
@@ -26,6 +26,7 @@ import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.c
 import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tentative-table.component";
 import {NewTeamCardComponent} from "../new-team-card/new-team-card.component";
 import {TeamsDashboardViewComponent} from "../teams-dashboard-view/teams-dashboard-view.component";
+import {HttpClientModule} from "@angular/common/http";
 
 
 @NgModule({

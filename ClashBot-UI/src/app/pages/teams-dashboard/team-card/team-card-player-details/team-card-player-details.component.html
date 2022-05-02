@@ -7,49 +7,45 @@
                 [ngClass]="button"
                 id="clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button"
                 (click)="registerToTeam(playerDetails.role)">
-          <h2 class="player-role-join-text">{{playerDetails.role}}</h2>
+          <div class="player-join-button-inner-container">
+            {{playerDetails.role}}
+            <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
+          </div>
         </button>
       </div>
     </ng-container>
     <ng-template #elseBlock>
       <div class="player-details-player-container">
-        <div id="clash-bot-team-card-registered-player" class="player-details-player-inner-container"
-             [ngClass]="text">
-          <h2 id="clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}"
-              class="player-details-text">{{playerDetails.role}} - {{playerDetails.name}}</h2>
-          <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
-               class="player-champion-list-container"
-               *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
-            <mat-accordion class="example-headers-align" multi>
-              <mat-expansion-panel [expanded]="true">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    Champions
-                  </mat-panel-title>
-                  <mat-panel-description>
-                    <mat-icon>groups_3</mat-icon>
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                <div class="champion-container" *ngFor="let champion of playerDetails.champions">
-                  <img class="champion-img" src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>
-                  <p class="champion-name" >{{champion}}</p>
-                </div>
-              </mat-expansion-panel>
-            </mat-accordion>
-          </div>
-        </div>
-        <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">
-          <mat-card-content>
-            <div class="clash-bot-button-container">
-              <button mat-mini-fab color="warn"
-                      id="clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button"
-                      (click)="unregisterFromTeam()"
-                      aria-label="Unregister with this Team">
-                <mat-icon>remove</mat-icon>
-              </button>
+        <mat-accordion class="player-detail-accordion-container">
+          <mat-expansion-panel id="clash-bot-team-card-registered-player" class="player-details-player-inner-container"
+                               [ngClass]="text">
+            <mat-expansion-panel-header id="clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}">
+              <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">
+                  <div class="clash-bot-button-container">
+                    <button mat-icon-button
+                            id="clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button"
+                            (click)="unregisterFromTeam()"
+                            aria-label="Unregister with this Team">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                  </div>
+              </div>
+              <mat-panel-title>{{playerDetails.role}}</mat-panel-title>
+              <mat-panel-description>{{playerDetails.name}}
+                <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
+                 class="player-champion-list-container"
+                 *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
+              <div class="champion-container" *ngFor="let champion of playerDetails.champions">
+                <img class="champion-img"
+                     src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>
+                <p class="champion-name">{{champion}}</p>
+              </div>
             </div>
-          </mat-card-content>
-        </div>
+          </mat-expansion-panel>
+        </mat-accordion>
       </div>
     </ng-template>
   </div>

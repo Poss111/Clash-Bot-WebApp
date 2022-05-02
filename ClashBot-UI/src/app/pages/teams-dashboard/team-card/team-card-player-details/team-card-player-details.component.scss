@@ -26,6 +26,20 @@
   opacity: 100;
 }
 
+.player-detail-accordion-container .mat-expansion-panel-header-title,
+.player-detail-accordion-container .mat-expansion-panel-header-description {
+  flex-basis: 0;
+}
+
+.player-detail-accordion-container .mat-expansion-panel-header-title {
+  align-items: center;
+}
+
+.player-detail-accordion-container .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
 .player-role-join-text {
   margin-top: 16px;
 }
@@ -42,13 +56,13 @@
   width: 90%;
 }
 
-.player-details-text {
-  margin-top: 16px;
-}
-
-.player-details-player-container {
+.player-join-button-inner-container {
+  padding: 1em 2em 1em 2em;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: space-evenly;
+  font-weight: bold;
+  font-size: large;
 }
 
 .disappear {

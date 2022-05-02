@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import {PlayerDetails} from "../../../../interfaces/clash-team";
 import {Observable, Subscription} from "rxjs";
+import {MatIconRegistry} from "@angular/material/icon";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
     selector: 'app-team-card-player-details',
@@ -43,8 +45,7 @@ export class TeamCardPlayerDetailsComponent implements OnInit, OnChanges {
         disappear: false
     }
 
-    constructor() {
-    }
+    constructor() {}
 
     ngOnInit(): void {
         Object.assign(this.playerDetails, this.player);
