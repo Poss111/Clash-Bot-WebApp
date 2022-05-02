@@ -7,7 +7,6 @@ import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
 import {catchError, delay, finalize, retryWhen, take, tap, timeout} from "rxjs/operators";
-import {MatChip} from "@angular/material/chips";
 import {HttpErrorResponse} from "@angular/common/http";
 import {UserDetailsService} from "../../../services/user-details.service";
 import {UserDetails} from "../../../interfaces/user-details";
@@ -115,18 +114,13 @@ export class TeamsDashboardComponent implements OnInit {
             });
     }
 
-    filterTeam(chip: MatChip) {
-        chip.selected ? chip.deselect() : chip.selectViaInteraction();
+    filterTeam(filterValue: string) {
         if (this.$teamsSub) {
             this.$teamsSub.unsubscribe();
         }
         this.showSpinner = true;
         this.teams = [];
-        let valueToSearchFor = '';
-        if (this.formControl) {
-            valueToSearchFor = this.formControl.value.trimLeft();
-        }
-        this.filterForTeamsByServer(valueToSearchFor);
+        this.filterForTeamsByServer(filterValue);
     }
 
     private filterForTeamsByServer(valueToSearchFor: string) {

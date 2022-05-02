@@ -22,11 +22,13 @@ import {SharedModule} from "../../../shared/shared.module";
 import { MatExpansionModule } from '@angular/material/expansion';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HelpDialogComponent} from "../help-dialog/help-dialog.component";
+import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.component";
 
 
 @NgModule({
     declarations: [TeamsDashboardComponent, TeamCardComponent, ConfirmationDialogComponent,
-        HelpDialogComponent, TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],
+        HelpDialogComponent, TeamsDashboardHelpDialogComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent,
+    GuildFilterListComponent],
     exports: [
         TeamCardComponent,
         TournamentNameTransformerPipe

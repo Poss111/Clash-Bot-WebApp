@@ -1,19 +1,7 @@
 <app-spinner *ngIf="showSpinner"></app-spinner>
 <div class="chips-list" *ngIf="!showSpinner && formControl">
   <app-help-dialog></app-help-dialog>
-  <mat-chip-list
-    [formControl]="formControl"
-    [multiple]="false">
-    <mat-chip
-      #chip="matChip"
-      *ngFor="let filter of teamFilters"
-      id="clash-bot-teams-{{filter.id}}"
-      [selected]="filter.state"
-      [value]="filter.value"
-      (click)="filterTeam(chip)">
-      {{filter.value}}
-    </mat-chip>
-  </mat-chip-list>
+  <app-guild-filter-list (selectedTeamEvent)="filterTeam($event)" )></app-guild-filter-list>
 </div>
 <div *ngIf="tentativeDataStatus === 'LOADING'" class="show-tentative-button-container">
   <mat-icon>hourglass_empty</mat-icon>
