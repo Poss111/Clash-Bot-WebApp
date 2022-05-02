@@ -1,52 +1,56 @@
 <div class="clash-bot-player-details-container">
-  <div class="player-role-player-details-inner-container">
-    <ng-container *ngIf="!showPlayerDetails; else elseBlock">
-      <div class="player-role-join-container">
-        <button mat-raised-button
-                class="player-role-join-btn"
-                [ngClass]="button"
-                id="clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button"
-                (click)="registerToTeam(playerDetails.role)">
-          <div class="player-join-button-inner-container">
-            {{playerDetails.role}}
-            <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
-          </div>
-        </button>
-      </div>
-    </ng-container>
-    <ng-template #elseBlock>
-      <div class="player-details-player-container">
-        <mat-accordion class="player-detail-accordion-container">
-          <mat-expansion-panel id="clash-bot-team-card-registered-player" class="player-details-player-inner-container"
-                               [ngClass]="text">
-            <mat-expansion-panel-header id="clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}">
-              <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">
-                  <div class="clash-bot-button-container">
-                    <button mat-icon-button
-                            id="clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button"
-                            (click)="unregisterFromTeam()"
-                            aria-label="Unregister with this Team">
-                      <mat-icon>remove</mat-icon>
-                    </button>
-                  </div>
-              </div>
-              <mat-panel-title>{{playerDetails.role}}</mat-panel-title>
-              <mat-panel-description>{{playerDetails.name}}
-                <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
-                 class="player-champion-list-container"
-                 *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
-              <div class="champion-container" *ngFor="let champion of playerDetails.champions">
-                <img class="champion-img"
-                     src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>
-                <p class="champion-name">{{champion}}</p>
-              </div>
+    <div class="player-role-player-details-inner-container">
+        <ng-container *ngIf="!showPlayerDetails; else elseBlock">
+            <div class="player-role-join-container">
+                <button mat-raised-button
+                        class="player-role-join-btn"
+                        [ngClass]="button"
+                        id="clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button"
+                        (click)="registerToTeam(playerDetails.role)">
+                    <div class="player-join-button-inner-container">
+                        {{playerDetails.role}}
+                        <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
+                    </div>
+                </button>
             </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </div>
-    </ng-template>
-  </div>
+        </ng-container>
+        <ng-template #elseBlock>
+            <div class="player-details-player-container">
+                <div *ngIf="playerDetails.isUser" class="clash-bot-role-button">
+                    <div class="clash-bot-button-container">
+                        <button mat-icon-button
+                                color="warn"
+                                id="clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button"
+                                (click)="unregisterFromTeam()"
+                                aria-label="Unregister with this Team">
+                            <mat-icon>remove</mat-icon>
+                        </button>
+                    </div>
+                </div>
+                <mat-accordion class="player-detail-accordion-container">
+                    <mat-expansion-panel id="clash-bot-team-card-registered-player"
+                                         class="player-details-player-inner-container"
+                                         [ngClass]="text">
+                        <mat-expansion-panel-header
+                                id="clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}">
+                            <mat-panel-title>{{playerDetails.name}}</mat-panel-title>
+                            <mat-panel-description>{{playerDetails.role}}
+                                <mat-icon svgIcon="league-{{playerDetails.role | lowercase}}"></mat-icon>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <div id="clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list"
+                             class="player-champion-list-container"
+                             *ngIf="playerDetails.champions && playerDetails.champions.length > 0">
+                            <h4>Preferred Champions</h4>
+                            <div class="champion-container" *ngFor="let champion of playerDetails.champions">
+                                <img class="champion-img"
+                                     src='https://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>
+                                <p class="champion-name">{{champion}}</p>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </ng-template>
+    </div>
 </div>

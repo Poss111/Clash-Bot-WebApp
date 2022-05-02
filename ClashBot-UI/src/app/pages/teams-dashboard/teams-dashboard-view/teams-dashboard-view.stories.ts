@@ -188,7 +188,7 @@ Primary.args = {
                 {
                     name: '',
                     id: 0,
-                    role: 'jg',
+                    role: 'Jg',
                     isUser: false
                 },
                 {
@@ -286,7 +286,7 @@ Primary.args = {
                     id: 2,
                     role: 'Bot',
                     champions: ['Xayah', 'Tristana', 'Draven'],
-                    isUser: true
+                    isUser: false
                 },
                 {
                     name: '',

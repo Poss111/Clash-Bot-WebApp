@@ -3,16 +3,11 @@ import {
     EventEmitter,
     Input,
     OnInit,
-    OnDestroy,
     Output,
-    ViewChild,
-    ElementRef,
-    OnChanges, SimpleChanges, ChangeDetectionStrategy
+    OnChanges, SimpleChanges
 } from '@angular/core';
 import {PlayerDetails} from "../../../../interfaces/clash-team";
-import {Observable, Subscription} from "rxjs";
-import {MatIconRegistry} from "@angular/material/icon";
-import {DomSanitizer} from "@angular/platform-browser";
+import {Observable} from "rxjs";
 
 @Component({
     selector: 'app-team-card-player-details',

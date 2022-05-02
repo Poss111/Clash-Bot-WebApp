@@ -3772,7 +3772,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "@use 'sass:map';\n@use '@angular/material' as mat;\n\n.clash-bot-player-details-container {\n  width: 100%;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n\n.player-role-player-details-inner-container {\n  width: 100%;\n}\n\n.player-role-join-container {\n  width: 100%;\n  display: flex;\n  flex-direction: row-reverse;\n  justify-content: center;\n}\n\n.player-details-player-inner-container {\n  transition: opacity 200ms 0s;\n  opacity: 100;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-title,\n.player-detail-accordion-container .mat-expansion-panel-header-description {\n  flex-basis: 0;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-title {\n  align-items: center;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-description {\n  justify-content: space-between;\n  align-items: center;\n}\n\n.player-role-join-text {\n  margin-top: 16px;\n}\n\n.player-role-join-btn {\n  border-radius: 11px;\n  box-shadow: 1px 1px 1px 1px black;\n  transition: width 200ms cubic-bezier(0.35, 0, 0.25, 1), background-color 300ms cubic-bezier(0.35, 0, 0.25, 1), opacity 200ms 0s;\n  opacity: 100;\n  width: 100%;\n}\n\n.player-role-join-btn:hover {\n  width: 90%;\n}\n\n.disappear {\n  opacity: 0;\n}\n\n.appear {\n  opacity: 100;\n}\n\n.player-role-text--update {\n  opacity: 0;\n}\n\n.champion-container {\n  display: flex;\n  gap: 10px;\n  padding-bottom: 0.5em;\n}\n\n.champion-container:last-child {\n  padding-bottom: 0;\n}\n\n.champion-img {\n  width: 50px;\n  height: auto;\n}\n\n.champion-img:nth-child {\n\n}\n\n.champion-name {\n  font-style: italic;\n}\n\n",
+                    "data": "@use 'sass:map';\n@use '@angular/material' as mat;\n\n.clash-bot-player-details-container {\n  width: 100%;\n}\n\n.clash-bot-role-button {\n  display: flex;\n  align-items: center;\n}\n\n.player-role-player-details-inner-container {\n  width: 100%;\n}\n\n.player-role-join-container {\n  width: 100%;\n  display: flex;\n  flex-direction: row-reverse;\n  justify-content: center;\n}\n\n.player-details-player-inner-container {\n  transition: opacity 200ms 0s;\n  opacity: 100;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-title,\n.player-detail-accordion-container .mat-expansion-panel-header-description {\n  flex-basis: 0;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-title {\n  align-items: center;\n}\n\n.player-detail-accordion-container .mat-expansion-panel-header-description {\n  justify-content: space-between;\n  align-items: center;\n}\n\n.player-role-join-text {\n  margin-top: 16px;\n}\n\n.player-role-join-btn {\n  border-radius: 11px;\n  box-shadow: 1px 1px 1px 1px black;\n  transition: width 200ms cubic-bezier(0.35, 0, 0.25, 1), background-color 300ms cubic-bezier(0.35, 0, 0.25, 1), opacity 200ms 0s;\n  opacity: 100;\n  width: 100%;\n}\n\n.player-role-join-btn:hover {\n  width: 90%;\n}\n\n.player-join-button-inner-container {\n  padding: 1em 2em 1em 2em;\n  display: flex;\n  align-items: center;\n  justify-content: space-evenly;\n  font-weight: bold;\n  font-size: large;\n}\n\n.disappear {\n  opacity: 0;\n}\n\n.appear {\n  opacity: 100;\n}\n\n.player-role-text--update {\n  opacity: 0;\n}\n\n.champion-container {\n  display: flex;\n  gap: 10px;\n  padding-bottom: 0.5em;\n}\n\n.champion-container:last-child {\n  padding-bottom: 0;\n}\n\n.champion-img {\n  width: 50px;\n  height: auto;\n}\n\n.champion-img:nth-child {\n\n}\n\n.champion-name {\n  font-style: italic;\n}\n\n",
                     "styleUrl": "./team-card-player-details.component.scss"
                 }
             ],
@@ -3789,7 +3789,7 @@
                 "OnInit",
                 "OnChanges"
             ],
-            "templateData": "<div class=\"clash-bot-player-details-container\">\n  <div class=\"player-role-player-details-inner-container\">\n    <ng-container *ngIf=\"!showPlayerDetails; else elseBlock\">\n      <div class=\"player-role-join-container\">\n        <button mat-raised-button\n                class=\"player-role-join-btn\"\n                [ngClass]=\"button\"\n                id=\"clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button\"\n                (click)=\"registerToTeam(playerDetails.role)\">\n          <h2 class=\"player-role-join-text\"><mat-icon svgIcon=\"league-{{playerDetails.role | lowercase}}\"></mat-icon>{{playerDetails.role}}</h2>\n        </button>\n      </div>\n    </ng-container>\n    <ng-template #elseBlock>\n      <div class=\"player-details-player-container\">\n        <mat-accordion class=\"player-detail-accordion-container\">\n          <mat-expansion-panel id=\"clash-bot-team-card-registered-player\" class=\"player-details-player-inner-container\"\n                               [ngClass]=\"text\">\n            <mat-expansion-panel-header id=\"clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}\">\n              <mat-panel-title>{{playerDetails.role}}</mat-panel-title>\n              <mat-panel-description>{{playerDetails.name}}\n                <mat-icon svgIcon=\"league-{{playerDetails.role | lowercase}}\"></mat-icon>\n              </mat-panel-description>\n            </mat-expansion-panel-header>\n            <div id=\"clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list\"\n                 class=\"player-champion-list-container\"\n                 *ngIf=\"playerDetails.champions && playerDetails.champions.length > 0\">\n              <div class=\"champion-container\" *ngFor=\"let champion of playerDetails.champions\">\n                <img class=\"champion-img\"\n                     src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>\n                <p class=\"champion-name\">{{champion}}</p>\n              </div>\n            </div>\n            <div *ngIf=\"playerDetails.isUser\" class=\"clash-bot-role-button\">\n              <mat-card-content>\n                <div class=\"clash-bot-button-container\">\n                  <button mat-mini-fab color=\"warn\"\n                          id=\"clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button\"\n                          (click)=\"unregisterFromTeam()\"\n                          aria-label=\"Unregister with this Team\">\n                    <mat-icon>remove</mat-icon>\n                  </button>\n                </div>\n              </mat-card-content>\n            </div>\n          </mat-expansion-panel>\n        </mat-accordion>\n      </div>\n    </ng-template>\n  </div>\n</div>\n"
+            "templateData": "<div class=\"clash-bot-player-details-container\">\n  <div class=\"player-role-player-details-inner-container\">\n    <ng-container *ngIf=\"!showPlayerDetails; else elseBlock\">\n      <div class=\"player-role-join-container\">\n        <button mat-raised-button\n                class=\"player-role-join-btn\"\n                [ngClass]=\"button\"\n                id=\"clash-bot-team-card-join-{{playerDetails.role | kebabcase}}-register-button\"\n                (click)=\"registerToTeam(playerDetails.role)\">\n          <div class=\"player-join-button-inner-container\">\n            {{playerDetails.role}}\n            <mat-icon svgIcon=\"league-{{playerDetails.role | lowercase}}\"></mat-icon>\n          </div>\n        </button>\n      </div>\n    </ng-container>\n    <ng-template #elseBlock>\n      <div class=\"player-details-player-container\">\n        <mat-accordion class=\"player-detail-accordion-container\">\n          <mat-expansion-panel id=\"clash-bot-team-card-registered-player\" class=\"player-details-player-inner-container\"\n                               [ngClass]=\"text\">\n            <mat-expansion-panel-header id=\"clash-bot-team-card-registered-player-{{playerDetails.role | kebabcase}}\">\n              <div *ngIf=\"playerDetails.isUser\" class=\"clash-bot-role-button\">\n                  <div class=\"clash-bot-button-container\">\n                    <button mat-icon-button\n                            id=\"clash-bot-team-card-{{playerDetails.role | kebabcase}}-unregister-button\"\n                            (click)=\"unregisterFromTeam()\"\n                            aria-label=\"Unregister with this Team\">\n                      <mat-icon>remove</mat-icon>\n                    </button>\n                  </div>\n              </div>\n              <mat-panel-title>{{playerDetails.role}}</mat-panel-title>\n              <mat-panel-description>{{playerDetails.name}}\n                <mat-icon svgIcon=\"league-{{playerDetails.role | lowercase}}\"></mat-icon>\n              </mat-panel-description>\n            </mat-expansion-panel-header>\n            <div id=\"clash-bott-team-card-registered-player-{{playerDetails.role | kebabcase}}-champion-list\"\n                 class=\"player-champion-list-container\"\n                 *ngIf=\"playerDetails.champions && playerDetails.champions.length > 0\">\n              <div class=\"champion-container\" *ngFor=\"let champion of playerDetails.champions\">\n                <img class=\"champion-img\"\n                     src='http://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>\n                <p class=\"champion-name\">{{champion}}</p>\n              </div>\n            </div>\n          </mat-expansion-panel>\n        </mat-accordion>\n      </div>\n    </ng-template>\n  </div>\n</div>\n"
         },
         {
             "name": "TeamsDashboardComponent",
@@ -6265,6 +6265,42 @@
             ]
         },
         {
+            "name": "MatIconRegisteryModule",
+            "id": "module-MatIconRegisteryModule-728292888e727fdbb2a683e2225db1df08fb8799832be9c96753cc00e74133161ec0236413487c5f5fdf5eb1180be1b6c84710edf2b08b562fecd0c72d5569ee",
+            "description": "",
+            "deprecationMessage": "",
+            "deprecated": false,
+            "file": "src/app/pages/teams-dashboard/teams-module/mat-icon-registery.module.ts",
+            "methods": [],
+            "sourceCode": "import {HttpClientModule} from \"@angular/common/http\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\nimport {NgModule} from \"@angular/core\";\n\n@NgModule({\n  imports: [\n    HttpClientModule\n  ]\n})\nexport class MatIconRegisteryModule {\n  constructor(private matIconRegistry: MatIconRegistry,\n              private sanitizer: DomSanitizer) {\n    this.matIconRegistry.addSvgIcon('league-top',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));\n    this.matIconRegistry.addSvgIcon('league-mid',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));\n    this.matIconRegistry.addSvgIcon('league-jg',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));\n    this.matIconRegistry.addSvgIcon('league-bot',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));\n    this.matIconRegistry.addSvgIcon('league-supp',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));\n  }\n\n}\n",
+            "children": [
+                {
+                    "type": "providers",
+                    "elements": []
+                },
+                {
+                    "type": "declarations",
+                    "elements": []
+                },
+                {
+                    "type": "imports",
+                    "elements": []
+                },
+                {
+                    "type": "exports",
+                    "elements": []
+                },
+                {
+                    "type": "bootstrap",
+                    "elements": []
+                },
+                {
+                    "type": "classes",
+                    "elements": []
+                }
+            ]
+        },
+        {
             "name": "SharedModule",
             "id": "module-SharedModule-0ef7c37c204982a2e27194d9847a08bd02c4cf5f3089096b78411a39e5e8fc44c197d1461887b8b9130eadc106137ac4723b2df814a52f6248d397d8855a8f7c",
             "description": "",
@@ -6551,6 +6587,16 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "CurrentPlayerWithChampions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "DefaultGiven",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -6614,21 +6660,21 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.prod.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.int.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.prod.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
             },
             {
                 "name": "environment",
@@ -7065,6 +7111,16 @@
                     "defaultValue": "Template.bind({})"
                 },
                 {
+                    "name": "CurrentPlayerWithChampions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
                     "name": "EmptyBot",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -7217,18 +7273,6 @@
                     "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/environments/environment.prod.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.prod.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
-                }
-            ],
             "src/environments/environment.int.ts": [
                 {
                     "name": "environment",
@@ -7239,6 +7283,18 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
+                }
+            ],
+            "src/environments/environment.prod.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.prod.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
                 }
             ],
             "src/environments/environment.ts": [
@@ -7922,6 +7978,16 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "BotWithDetails",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "CurrentPlayerWithChampions",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
