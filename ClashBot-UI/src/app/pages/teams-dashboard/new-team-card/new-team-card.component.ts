@@ -20,7 +20,6 @@ export class NewTeamCardComponent {
   tournamentControl: FormControl = new FormControl('', Validators.required);
   roleControl: FormControl = new FormControl('', Validators.required);
   creatingNewTeam: boolean = false;
-  roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
   rolesAsString: string[] = ['Top', 'Mid', 'Jg', 'Bot', 'Supp'];
 
   constructor() {}

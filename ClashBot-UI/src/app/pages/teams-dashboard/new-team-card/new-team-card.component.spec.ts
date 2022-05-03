@@ -44,13 +44,6 @@ describe('NewTeamCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('On Init', () => {
-    test('A form group should be created successfully on init of the component.', () => {
-      component.ngOnInit()
-      expect(component.createNewTeamFormGroup?.controls).toBeTruthy();
-    })
-  })
-
   describe('Create New Team', () => {
     test ('When createNewTeam is called, it should select the matOption given and should emit only if Tournament and Role are populated.', () => {
       const mockMatOption : any = {
