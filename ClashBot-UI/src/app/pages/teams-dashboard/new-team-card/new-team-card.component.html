@@ -5,7 +5,7 @@
                 aria-label="Create a new Team" (click)="creatingNewTeam = true">
             <mat-icon>add</mat-icon>
         </button>
-        <form [formGroup]="createNewTeamFormGroup" class="clash-bot-teams-card-create-new-forms">
+        <form *ngIf="createNewTeamFormGroup" [formGroup]="createNewTeamFormGroup" class="clash-bot-teams-card-create-new-forms">
             <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
                 <mat-label>Choose a Tournament</mat-label>
                 <mat-select id="clash-bot-teams-card-create-new-tournament-dropdown"

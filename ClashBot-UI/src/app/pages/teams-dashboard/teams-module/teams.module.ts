@@ -63,7 +63,6 @@ import {HttpClientModule} from "@angular/common/http";
         MatSelectModule,
         MatTableModule,
         MatExpansionModule,
-        BrowserAnimationsModule,
         SharedModule
     ]
 })

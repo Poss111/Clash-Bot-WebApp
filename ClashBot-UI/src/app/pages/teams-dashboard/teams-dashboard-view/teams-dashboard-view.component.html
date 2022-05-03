@@ -1,5 +1,4 @@
-<app-spinner *ngIf="showSpinner"></app-spinner>
-<div class="chips-list" *ngIf="!showSpinner">
+<div class="chips-list">
     <app-help-dialog></app-help-dialog>
     <app-guild-filter-list
             [teamFilters]="teamFilters"
@@ -9,7 +8,7 @@
 <app-teams-tentative-table [tentativeList]="tentativeList"
                            [tentativeDataStatus]="tentativeDataStatus"
                            (register)="tentativeRegister($event)"></app-teams-tentative-table>
-<div class="team-cards">
+<div class="team-cards" *ngIf="!showSpinner; else elseBlock">
     <app-team-card *ngFor="let team of teams; index as i;"
                    id="clash-bot-teams-card-{{team.id}}"
                    [team]="team"
@@ -20,3 +19,6 @@
             [eligibleTournaments]="eligibleTournaments"
             (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
 </div>
+<ng-template #elseBlock>
+    <app-spinner></app-spinner>
+</ng-template>

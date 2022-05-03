@@ -11,7 +11,7 @@ import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details"
   templateUrl: './teams-dashboard-view.component.html',
   styleUrls: ['./teams-dashboard-view.component.scss']
 })
-export class TeamsDashboardViewComponent implements OnInit {
+export class TeamsDashboardViewComponent {
 
   @Input()
   eligibleTournaments: ClashTournaments[] = [];
@@ -20,13 +20,22 @@ export class TeamsDashboardViewComponent implements OnInit {
   teams: ClashTeam[] = [];
 
   @Input()
-  tentativeList: ClashBotTentativeDetails[] = [];
+  tentativeList?: ClashBotTentativeDetails[] = [];
 
   @Input()
   teamFilters: TeamFilter[] = [];
 
   @Input()
   defaultServer?: string;
+
+  @Input()
+  tentativeDataStatus: string = 'NOT_LOADED';
+
+  @Input()
+  showSpinner?: boolean;
+
+  @Input()
+  canCreateNewTeam?: boolean;
 
   @Output()
   createTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();
@@ -35,7 +44,7 @@ export class TeamsDashboardViewComponent implements OnInit {
   unregisterFromTeamEvent: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
   @Output()
-  registerForTeamEvent: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+  registerForTeamEvent: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
 
   @Output()
   tentativeRegisterEvent: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
@@ -43,32 +52,25 @@ export class TeamsDashboardViewComponent implements OnInit {
   @Output()
   filterTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
-  canCreateNewTeam: boolean = false;
-  tentativeDataStatus: string = 'NOT_LOADED';
-  showSpinner: boolean = false;
-
   constructor() { }
 
-  ngOnInit(): void {
-  }
-
-  createNewTeam($event: any) {
-    
+  createNewTeam($event: CreateNewTeamDetails) {
+    this.createTeamEvent.emit($event);
   }
 
   unregisterFromTeam($event: ClashTeam) {
-    
+    this.unregisterFromTeamEvent.emit($event);
   }
 
   registerForTeam($event: ClashBotUserRegister) {
-    
+    this.registerForTeamEvent.emit($event);
   }
 
-  tentativeRegister($event: any) {
-    
+  tentativeRegister($event: ClashBotTentativeDetails) {
+    this.tentativeRegisterEvent.emit($event)
   }
 
-  filterTeam($event: any) {
-
+  filterTeam($event: string) {
+    this.filterTeamEvent.emit($event);
   }
 }

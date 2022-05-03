@@ -3,8 +3,7 @@ import {
     EventEmitter,
     Input,
     OnInit,
-    Output,
-    OnChanges, SimpleChanges
+    Output
 } from '@angular/core';
 import {PlayerDetails} from "../../../../interfaces/clash-team";
 import {Observable} from "rxjs";
@@ -14,12 +13,10 @@ import {Observable} from "rxjs";
     templateUrl: './team-card-player-details.component.html',
     styleUrls: ['./team-card-player-details.component.scss']
 })
-export class TeamCardPlayerDetailsComponent implements OnInit, OnChanges {
+export class TeamCardPlayerDetailsComponent implements OnInit {
 
     @Input()
     player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};
-
-    playerDetails: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};
 
     @Input()
     event: Observable<boolean> = new Observable<boolean>();
@@ -32,45 +29,12 @@ export class TeamCardPlayerDetailsComponent implements OnInit, OnChanges {
 
     showPlayerDetails: boolean = false;
 
-    button = {
-        disappear: false
+    constructor() {
     }
 
-    text = {
-        disappear: false
-    }
-
-    constructor() {}
-
-    ngOnInit(): void {
-        Object.assign(this.playerDetails, this.player);
-        this.showPlayerDetails = this.playerDetails.name !== '';
-        if (this.showPlayerDetails) {
-            this.text.disappear = false;
-            this.button.disappear = true;
-        } else {
-            this.text.disappear = true;
-            this.button.disappear = false;
-        }
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.player && !changes.player.isFirstChange()) {
-                if (changes.player.currentValue.name !== '') {
-                    this.button.disappear = true;
-                    setTimeout(() => {
-                        Object.assign(this.playerDetails, this.player);
-                        this.showPlayerDetails = true;
-                        this.text.disappear = false;
-                    }, 300);
-                } else {
-                    this.text.disappear = true;
-                    setTimeout(() => {
-                        Object.assign(this.playerDetails, this.player);
-                        this.showPlayerDetails = false;
-                        this.button.disappear = false;
-                    }, 300);
-                }
+    ngOnInit() {
+        if (!this.player.champions) {
+            this.player.champions=[];
         }
     }
 

@@ -66,7 +66,7 @@ export class AppComponent implements OnInit, OnDestroy{
   }
 
   toggleDarkMode(turnDarkModeOn: boolean) {
-    const darkModeClassName = 'darkMode';
+    const darkModeClassName = 'dark';
     this.className = turnDarkModeOn ? darkModeClassName : '';
     localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
   }

@@ -6,6 +6,8 @@ import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {GuildFilterListComponent} from "./guild-filter-list.component";
 import {MatChipsModule} from "@angular/material/chips";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 export default {
     title: 'Shared/GuildFilterList',
@@ -14,7 +16,14 @@ export default {
     decorators: [
         moduleMetadata({
             declarations: [GuildFilterListComponent],
-            imports: [MatChipsModule, MatButtonModule, MatIconModule, BrowserAnimationsModule],
+            imports: [
+                MatChipsModule,
+                MatButtonModule,
+                MatIconModule,
+                BrowserAnimationsModule,
+                FormsModule,
+                ReactiveFormsModule
+            ],
         })
     ]
 } as Meta;

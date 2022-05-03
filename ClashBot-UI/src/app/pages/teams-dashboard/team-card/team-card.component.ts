@@ -3,7 +3,6 @@ import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
-import {Observable, Subject, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-team-card',

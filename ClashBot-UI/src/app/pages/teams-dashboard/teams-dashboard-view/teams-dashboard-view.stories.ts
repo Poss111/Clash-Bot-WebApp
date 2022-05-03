@@ -26,6 +26,7 @@ import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
 import {HttpClientModule} from "@angular/common/http";
 import {AppModule} from "../../../app.module";
 import {MatIconRegisteryModule} from "../teams-module/mat-icon-registery.module";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 export default {
     title: 'Pages/TeamsDashboard',
@@ -56,7 +57,9 @@ export default {
                 MatChipsModule,
                 MatExpansionModule,
                 BrowserAnimationsModule,
-                MatIconRegisteryModule
+                MatIconRegisteryModule,
+                FormsModule,
+                ReactiveFormsModule
             ],
         })
     ]
@@ -304,9 +307,4 @@ Primary.args = {
             id: '4'
         }
     ]
-};
-
-export const Loading = Template.bind({});
-Loading.args = {
-    showSpinner: true
 };

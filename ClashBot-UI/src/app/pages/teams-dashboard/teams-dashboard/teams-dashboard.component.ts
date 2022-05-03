@@ -1,8 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {Subscription, throwError} from "rxjs";
-import {FormControl, FormGroup} from "@angular/forms";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
@@ -14,7 +13,6 @@ import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
-import {MatTable} from "@angular/material/table";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
@@ -29,13 +27,6 @@ export class TeamsDashboardComponent implements OnInit {
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
     teams: ClashTeam[] = [];
     teamFilters: TeamFilter[] = [];
-    color: any;
-    mode: any;
-    value: any;
-    showSpinner: boolean;
-    createNewTeamFormGroup: FormGroup;
-    tournamentControl: FormControl = new FormControl('');
-    roleControl: FormControl = new FormControl('');
     private readonly MAX_TIMEOUT = 4000;
     eligibleTournaments: ClashTournaments[] = [];
     tentativeList?: ClashBotTentativeDetails[];
@@ -43,8 +34,8 @@ export class TeamsDashboardComponent implements OnInit {
     tentativeDataStatus: string = 'NOT_LOADED';
     canCreateNewTeam: boolean = false;
     defaultServer?: string;
-
-    @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
+    showSpinner: boolean;
+    showInnerSpinner: boolean = false;
 
     constructor(private clashBotService: ClashBotService,
                 private _snackBar: MatSnackBar,
@@ -53,10 +44,6 @@ export class TeamsDashboardComponent implements OnInit {
                 private dialog: MatDialog,
                 private teamsWebsocketService: TeamsWebsocketService) {
         this.showSpinner = false;
-        this.createNewTeamFormGroup = new FormGroup({
-            tournament: this.tournamentControl,
-            role: this.roleControl
-        })
     }
 
     ngOnInit(): void {
@@ -79,8 +66,6 @@ export class TeamsDashboardComponent implements OnInit {
                     }
                 }
             })
-        this.color = 'primary';
-        this.mode = 'indeterminate';
     }
 
     updateTentativeList(guildName: string) {
@@ -111,16 +96,17 @@ export class TeamsDashboardComponent implements OnInit {
 
     filterTeam(filterValue: string) {
         this.currentSelectedGuild = filterValue;
+        this.showInnerSpinner = true;
         if (this.$teamsSub) {
             this.$teamsSub.unsubscribe();
         }
-        this.showSpinner = true;
         this.teams = [];
         this.filterForTeamsByServer(filterValue);
     }
 
     private filterForTeamsByServer(valueToSearchFor: string) {
         this.updateTentativeList(valueToSearchFor);
+        this.showInnerSpinner = true;
         this.userDetailsService.getUserDetails()
             .pipe(take(1))
             .subscribe((userDetails) => {
@@ -144,7 +130,7 @@ export class TeamsDashboardComponent implements OnInit {
                                 this.teams.push({error: err.message});
                                 return throwError(err);
                             }),
-                            finalize(() => this.showSpinner = false)
+                            finalize(() => this.showInnerSpinner = false)
                         )
                         .subscribe((data: ClashTeam[]) => {
                             this.syncTeamInformation(data, userDetails);
@@ -367,7 +353,6 @@ export class TeamsDashboardComponent implements OnInit {
     }
 
     handleClashTeamsError(snackBar: MatSnackBar, err: HttpErrorResponse) {
-        console.error(err);
         snackBar.open('Failed to retrieve Teams. Please try again later.',
             'X',
             {duration: 5 * 1000});
@@ -422,9 +407,9 @@ export class TeamsDashboardComponent implements OnInit {
                     ).subscribe((response) => {
                     response.isMember = response.tentativePlayers
                         && response.tentativePlayers.includes(userDetails.username);
-                    if (this.tentativeList && tentativeUserDetails.index) {
+                    if (this.tentativeList && tentativeUserDetails.index !== undefined) {
                         this.tentativeList[tentativeUserDetails.index] = response;
-                        if (this.table) this.table.renderRows();
+                        this.tentativeList = JSON.parse(JSON.stringify(this.tentativeList));
                     }
                 });
             });

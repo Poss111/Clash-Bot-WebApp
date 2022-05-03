@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {MatTable} from "@angular/material/table";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
@@ -10,7 +10,7 @@ import {MatDialog} from "@angular/material/dialog";
     templateUrl: './teams-tentative-table.component.html',
     styleUrls: ['./teams-tentative-table.component.scss']
 })
-export class TeamsTentativeTableComponent {
+export class TeamsTentativeTableComponent implements OnChanges {
 
     showTentative: boolean = false;
 
@@ -45,6 +45,10 @@ export class TeamsTentativeTableComponent {
                 this.register.emit(element)
             }
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        this.table?.renderRows();
     }
 
 }

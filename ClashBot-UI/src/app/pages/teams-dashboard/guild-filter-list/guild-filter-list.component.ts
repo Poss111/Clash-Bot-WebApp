@@ -10,7 +10,7 @@ import {MatChip} from "@angular/material/chips";
 })
 export class GuildFilterListComponent implements OnInit {
 
-  formControl?: FormControl;
+  formControl: FormControl;
 
   @Input()
   teamFilters: TeamFilter[] = [];
@@ -19,12 +19,15 @@ export class GuildFilterListComponent implements OnInit {
   defaultSelection?: string;
 
   @Output()
-  selectedTeamEvent: EventEmitter<String> = new EventEmitter<String>();
+  selectedTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
-  constructor() { }
+  constructor() {
+    this.formControl = new FormControl();
+  }
 
   ngOnInit() {
     if (this.defaultSelection) {
+      this.formControl.setValue(this.defaultSelection);
       let teamFilter = this.teamFilters.find(team => team.value === this.defaultSelection);
       if (teamFilter) {
         teamFilter.state = true;
