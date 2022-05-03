@@ -1,25 +1,126 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { GuildFilterListComponent } from './guild-filter-list.component';
+import {GuildFilterListComponent} from './guild-filter-list.component';
+import {TeamFilter} from "../../../interfaces/team-filter";
+import {FilterType} from "../../../interfaces/filter-type";
+import {MatChip, MatChipsModule} from "@angular/material/chips";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatChipHarness, MatChipListboxHarness, MatChipListHarness} from "@angular/material/chips/testing";
+import {TestbedHarnessEnvironment} from "@angular/cdk/testing/testbed";
+import {HarnessLoader} from "@angular/cdk/testing";
+
+function mockTeamFilters() {
+    return [
+        {
+            value: 'Feli',
+            type: FilterType.SERVER,
+            state: true,
+            id: '0'
+        },
+        {
+            value: 'Goon Squad',
+            type: FilterType.SERVER,
+            state: true,
+            id: '1'
+        },
+        {
+            value: 'Navid',
+            type: FilterType.SERVER,
+            state: true,
+            id: '2'
+        }
+    ];
+}
 
 describe('GuildFilterListComponent', () => {
-  let component: GuildFilterListComponent;
-  let fixture: ComponentFixture<GuildFilterListComponent>;
+    let component: GuildFilterListComponent;
+    let fixture: ComponentFixture<GuildFilterListComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ GuildFilterListComponent ]
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            declarations: [GuildFilterListComponent],
+            imports: [
+                MatChipsModule,
+                FormsModule,
+                ReactiveFormsModule
+            ]
+        })
+            .compileComponents();
+    });
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(GuildFilterListComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    test('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    describe('On Init', () => {
+        test('If no default guild given, the form control should remain empty.', () => {
+            component.teamFilters = mockTeamFilters();
+            component.defaultSelection = 'Goon Squad';
+
+            expect(component.formControl.value).toBeFalsy();
+
+            component.ngOnInit();
+
+            expect(component.formControl.value).toBeFalsy();
+        })
+
+        test('If there is a default guild given, it should update the form control to it.', () => {
+            component.teamFilters = mockTeamFilters();
+            component.defaultSelection = 'Goon Squad';
+
+            expect(component.formControl.value).toBeFalsy();
+
+            component.ngOnInit();
+
+            expect(component.formControl.value).toEqual('Goon Squad');
+        })
     })
-    .compileComponents();
-  });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(GuildFilterListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    describe('Filter for Team', () => {
+        test('If a Server is selected, it should emit an event with the selected Team while deselecting all other chips.',  (done) => {
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+            component.teamFilters = mockTeamFilters();
+
+            let mockMatChip: any = {
+                selected: true,
+                deselect: jest.fn().mockImplementation(),
+                selectViaInteraction: jest.fn().mockImplementation()
+            };
+            const expectedServer = 'Goon Squad';
+            component.formControl.setValue(expectedServer);
+
+            component.selectedTeamEvent.subscribe((event) => {
+                expect(event).toEqual(expectedServer);
+                expect(mockMatChip.deselect).toHaveBeenCalledTimes(1);
+                done();
+            })
+            component.filterTeam(mockMatChip);
+        })
+    })
+
+    test('If a Server is not selected, it should emit an event with the selected Team while selecting the chip.',  (done) => {
+
+        component.teamFilters = mockTeamFilters();
+
+        let mockMatChip: any = {
+            selected: false,
+            deselect: jest.fn().mockImplementation(),
+            selectViaInteraction: jest.fn().mockImplementation()
+        };
+        const expectedServer = 'Goon Squad';
+        component.formControl.setValue(expectedServer);
+
+        component.selectedTeamEvent.subscribe((event) => {
+            expect(event).toEqual(expectedServer);
+            expect(mockMatChip.selectViaInteraction).toHaveBeenCalledTimes(1);
+            done();
+        })
+        component.filterTeam(mockMatChip);
+    })
 });

@@ -6,7 +6,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {GuildFilterListComponent} from "./guild-filter-list.component";
 import {MatChipsModule} from "@angular/material/chips";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 
 export default {
@@ -34,6 +34,7 @@ const Template: Story<GuildFilterListComponent> = (args: GuildFilterListComponen
 
 export const Primary = Template.bind({});
 Primary.args = {
+    formControl: new FormControl(),
     teamFilters: [
         {
             value: 'Goon Squad',
@@ -88,6 +89,7 @@ Primary.args = {
 
 export const DefaultGiven = Template.bind({});
 DefaultGiven.args = {
+    formControl: new FormControl(),
     defaultSelection: 'Clash Bot',
     teamFilters: [
         {

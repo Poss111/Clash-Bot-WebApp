@@ -5,7 +5,6 @@
         #chip="matChip"
         *ngFor="let filter of teamFilters"
         id="clash-bot-teams-{{filter.id}}"
-        [selected]="filter.state"
         [value]="filter.value"
         (click)="filterTeam(chip)">
         {{filter.value}}
