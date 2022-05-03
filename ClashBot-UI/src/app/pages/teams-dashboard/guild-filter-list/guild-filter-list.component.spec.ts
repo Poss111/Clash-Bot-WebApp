@@ -61,7 +61,7 @@ describe('GuildFilterListComponent', () => {
     describe('On Init', () => {
         test('If no default guild given, the form control should remain empty.', () => {
             component.teamFilters = mockTeamFilters();
-            component.defaultSelection = 'Goon Squad';
+            component.defaultSelection = undefined;
 
             expect(component.formControl.value).toBeFalsy();
 
@@ -88,8 +88,6 @@ describe('GuildFilterListComponent', () => {
             component.teamFilters = mockTeamFilters();
 
             let mockMatChip: any = {
-                selected: true,
-                deselect: jest.fn().mockImplementation(),
                 selectViaInteraction: jest.fn().mockImplementation()
             };
             const expectedServer = 'Goon Squad';
@@ -97,30 +95,10 @@ describe('GuildFilterListComponent', () => {
 
             component.selectedTeamEvent.subscribe((event) => {
                 expect(event).toEqual(expectedServer);
-                expect(mockMatChip.deselect).toHaveBeenCalledTimes(1);
+                expect(mockMatChip.selectViaInteraction).toHaveBeenCalledTimes(1);
                 done();
             })
             component.filterTeam(mockMatChip);
         })
-    })
-
-    test('If a Server is not selected, it should emit an event with the selected Team while selecting the chip.',  (done) => {
-
-        component.teamFilters = mockTeamFilters();
-
-        let mockMatChip: any = {
-            selected: false,
-            deselect: jest.fn().mockImplementation(),
-            selectViaInteraction: jest.fn().mockImplementation()
-        };
-        const expectedServer = 'Goon Squad';
-        component.formControl.setValue(expectedServer);
-
-        component.selectedTeamEvent.subscribe((event) => {
-            expect(event).toEqual(expectedServer);
-            expect(mockMatChip.selectViaInteraction).toHaveBeenCalledTimes(1);
-            done();
-        })
-        component.filterTeam(mockMatChip);
     })
 });

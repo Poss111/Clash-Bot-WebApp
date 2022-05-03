@@ -4392,7 +4392,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.chips-list {\n  width: 100%;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n",
+                    "data": "",
                     "styleUrl": "./teams-dashboard.component.scss"
                 }
             ],
@@ -4836,7 +4836,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.chips-list {\n  width: 100%;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n",
+                    "data": ".team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n",
                     "styleUrl": "./teams-dashboard-view.component.scss"
                 }
             ],
@@ -6137,13 +6137,13 @@
         },
         {
             "name": "MatIconRegisteryModule",
-            "id": "module-MatIconRegisteryModule-d36d4093db727c9d163b63060537123944c3486bb76b4f09a3ef773c58505983656abfa0e40e7ec4fe8ef46042f179324204af55f36f794b4bbf5c3d97e68ca3",
+            "id": "module-MatIconRegisteryModule-728292888e727fdbb2a683e2225db1df08fb8799832be9c96753cc00e74133161ec0236413487c5f5fdf5eb1180be1b6c84710edf2b08b562fecd0c72d5569ee",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/pages/teams-dashboard/teams-module/mat-icon-registery.module.ts",
             "methods": [],
-            "sourceCode": "import {HttpClientModule} from \"@angular/common/http\";\r\nimport {MatIconRegistry} from \"@angular/material/icon\";\r\nimport {DomSanitizer} from \"@angular/platform-browser\";\r\nimport {NgModule} from \"@angular/core\";\r\n\r\n@NgModule({\r\n  imports: [\r\n    HttpClientModule\r\n  ]\r\n})\r\nexport class MatIconRegisteryModule {\r\n  constructor(private matIconRegistry: MatIconRegistry,\r\n              private sanitizer: DomSanitizer) {\r\n    this.matIconRegistry.addSvgIcon('league-top',\r\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));\r\n    this.matIconRegistry.addSvgIcon('league-mid',\r\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));\r\n    this.matIconRegistry.addSvgIcon('league-jg',\r\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));\r\n    this.matIconRegistry.addSvgIcon('league-bot',\r\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));\r\n    this.matIconRegistry.addSvgIcon('league-supp',\r\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));\r\n  }\r\n\r\n}\r\n",
+            "sourceCode": "import {HttpClientModule} from \"@angular/common/http\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\nimport {NgModule} from \"@angular/core\";\n\n@NgModule({\n  imports: [\n    HttpClientModule\n  ]\n})\nexport class MatIconRegisteryModule {\n  constructor(private matIconRegistry: MatIconRegistry,\n              private sanitizer: DomSanitizer) {\n    this.matIconRegistry.addSvgIcon('league-top',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));\n    this.matIconRegistry.addSvgIcon('league-mid',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));\n    this.matIconRegistry.addSvgIcon('league-jg',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));\n    this.matIconRegistry.addSvgIcon('league-bot',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));\n    this.matIconRegistry.addSvgIcon('league-supp',\n      this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));\n  }\n\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -6229,13 +6229,13 @@
         },
         {
             "name": "TeamsModule",
-            "id": "module-TeamsModule-9b584a7da810ff4c5206c5b09c2864eab6b11597c379686c0a34c8f1f8204f175f0647d101b212589b8afd184bfef56a8fc85a8c374530307b1e64aea4c4187a",
+            "id": "module-TeamsModule-9aa23bab701b33918516b98b5a79d5dd853c84d4fde4608d460c3cfdd8419d07bf67f5146b1cbbf43d37de5e831ac860a7b840506642aa2ee0ab2bb28a8dff79",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/pages/teams-dashboard/teams-module/teams.module.ts",
             "methods": [],
-            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule, MatIconRegistry} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport {MatExpansionModule} from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\nimport {TeamsTentativeTableComponent} from \"../teams-tentative-table/teams-tentative-table.component\";\nimport {NewTeamCardComponent} from \"../new-team-card/new-team-card.component\";\nimport {TeamsDashboardViewComponent} from \"../teams-dashboard-view/teams-dashboard-view.component\";\nimport {HttpClientModule} from \"@angular/common/http\";\nimport {MatProgressBarModule} from \"@angular/material/progress-bar\";\n\n\n@NgModule({\n    declarations: [\n        TeamsDashboardComponent,\n        TeamCardComponent,\n        ConfirmationDialogComponent,\n        HelpDialogComponent,\n        TeamsDashboardHelpDialogComponent,\n        TournamentNameTransformerPipe,\n        TeamCardPlayerDetailsComponent,\n        GuildFilterListComponent,\n        TeamsTentativeTableComponent,\n        NewTeamCardComponent,\n        TeamsDashboardViewComponent\n    ],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        MatProgressBarModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
+            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport {MatExpansionModule} from '@angular/material/expansion';\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\nimport {TeamsTentativeTableComponent} from \"../teams-tentative-table/teams-tentative-table.component\";\nimport {NewTeamCardComponent} from \"../new-team-card/new-team-card.component\";\nimport {TeamsDashboardViewComponent} from \"../teams-dashboard-view/teams-dashboard-view.component\";\nimport {MatProgressBarModule} from \"@angular/material/progress-bar\";\n\n\n@NgModule({\n    declarations: [\n        TeamsDashboardComponent,\n        TeamCardComponent,\n        ConfirmationDialogComponent,\n        HelpDialogComponent,\n        TeamsDashboardHelpDialogComponent,\n        TournamentNameTransformerPipe,\n        TeamCardPlayerDetailsComponent,\n        GuildFilterListComponent,\n        TeamsTentativeTableComponent,\n        NewTeamCardComponent,\n        TeamsDashboardViewComponent\n    ],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        SharedModule,\n        MatProgressBarModule\n    ]\n})\nexport class TeamsModule {\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -6541,16 +6541,6 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.int.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.prod.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6566,6 +6556,16 @@
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.int.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
             },
             {
                 "name": "Failed",
@@ -6690,7 +6690,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6710,7 +6710,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6820,11 +6820,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<GuildFilterListComponent>",
-                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
+                "type": "Story<TeamCardComponent>",
+                "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6840,11 +6840,21 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<TeamCardComponent>",
-                "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
+                "type": "Story<TeamsTentativeTableComponent>",
+                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<GuildFilterListComponent>",
+                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6855,16 +6865,6 @@
                 "deprecationMessage": "",
                 "type": "Story<NewTeamCardComponent>",
                 "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<TeamsTentativeTableComponent>",
-                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7216,18 +7216,6 @@
                     "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
                 }
             ],
-            "src/environments/environment.int.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.int.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -7250,6 +7238,18 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
+                }
+            ],
+            "src/environments/environment.int.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.int.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
                 }
             ],
             "src/app/pages/teams-dashboard/teams-tentative-table/teams-tentative-table.stories.ts": [

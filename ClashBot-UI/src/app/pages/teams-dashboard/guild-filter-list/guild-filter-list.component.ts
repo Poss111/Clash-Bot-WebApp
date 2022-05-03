@@ -30,9 +30,7 @@ export class GuildFilterListComponent implements OnInit {
   }
 
   filterTeam(chip: MatChip) {
-    chip.selected ? chip.deselect() : chip.selectViaInteraction();
-    if (this.formControl) {
-      this.selectedTeamEvent.emit(this.formControl.value.trimLeft());
-    }
+    chip.selectViaInteraction();
+    this.selectedTeamEvent.emit(this.formControl.value.trimLeft());
   }
 }
