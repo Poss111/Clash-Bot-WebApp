@@ -10,7 +10,7 @@ import {MatChip} from "@angular/material/chips";
 })
 export class GuildFilterListComponent implements OnInit {
 
-  formControl: FormControl = new FormControl([]);
+  formControl: FormControl = new FormControl('');
 
   @Input()
   teamFilters: TeamFilter[] = [];

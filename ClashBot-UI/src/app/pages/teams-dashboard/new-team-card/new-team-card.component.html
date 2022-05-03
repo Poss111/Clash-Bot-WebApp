@@ -5,8 +5,8 @@
                 aria-label="Create a new Team" (click)="creatingNewTeam = true">
             <mat-icon>add</mat-icon>
         </button>
-        <form *ngIf="createNewTeamFormGroup" [formGroup]="createNewTeamFormGroup" class="clash-bot-teams-card-create-new-forms">
-            <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
+        <form *ngIf="creatingNewTeam" class="clash-bot-teams-card-create-new-forms">
+            <mat-form-field appearance="fill">
                 <mat-label>Choose a Tournament</mat-label>
                 <mat-select id="clash-bot-teams-card-create-new-tournament-dropdown"
                             [formControl]="tournamentControl" required>
@@ -17,14 +17,14 @@
                         - Day {{eligibleTournament.tournamentDay}}</mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field *ngIf="creatingNewTeam" appearance="fill">
+            <mat-form-field appearance="fill">
                 <mat-label>Choose a Role</mat-label>
                 <mat-select id="clash-bot-teams-card-create-new-role-dropdown"
                             [formControl]="roleControl" required>
                     <mat-option
-                            id="clash-bot-teams-card-create-new-dropdown-{{role | kebabcase}}"
-                            #option="matOption" (click)="createNewTeam(option)" *ngFor="let role of rolesAsString"
-                            value="{{role}}">{{role}}
+                            id="clash-bot-teams-card-create-new-dropdown-{{roleString | kebabcase}}"
+                            #option="matOption" (click)="createNewTeam(option)" *ngFor="let roleString of rolesAsString"
+                            value="{{roleString}}">{{roleString}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>

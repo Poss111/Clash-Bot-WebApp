@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormControl, FormGroup} from "@angular/forms";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatOption} from "@angular/material/core";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
@@ -9,7 +9,7 @@ import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details"
   templateUrl: './new-team-card.component.html',
   styleUrls: ['./new-team-card.component.scss']
 })
-export class NewTeamCardComponent implements OnInit {
+export class NewTeamCardComponent {
 
   @Input()
   eligibleTournaments: ClashTournaments[] = [];
@@ -17,34 +17,25 @@ export class NewTeamCardComponent implements OnInit {
   @Output()
   createNewTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();
 
-  createNewTeamFormGroup?: FormGroup;
-  tournamentControl: FormControl = new FormControl('');
-  roleControl: FormControl = new FormControl('');
+  tournamentControl: FormControl = new FormControl('', Validators.required);
+  roleControl: FormControl = new FormControl('', Validators.required);
   creatingNewTeam: boolean = false;
   roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
-  rolesAsString: string[] = Object.keys(this.roles);
+  rolesAsString: string[] = ['Top', 'Mid', 'Jg', 'Bot', 'Supp'];
 
-  constructor() { }
-
-  ngOnInit(): void {
-    this.createNewTeamFormGroup = new FormGroup({
-      tournament: this.tournamentControl,
-      role: this.roleControl
-    });
-  }
+  constructor() {}
 
   createNewTeam(option: MatOption) {
     option.select();
     let role = this.roleControl.value;
     let tournamentName = '';
     let tournamentDay = '';
-    let clashTournaments: ClashTournaments | undefined;
     if (this.tournamentControl.value) {
       let split = this.tournamentControl.value.split(' ');
       tournamentName = split[0];
       tournamentDay = split[1];
     }
-    if (clashTournaments && role) {
+    if (tournamentName && tournamentDay && role) {
       option.deselect();
       const newTeamDetails: CreateNewTeamDetails = {
         tournamentName: tournamentName,
@@ -52,6 +43,9 @@ export class NewTeamCardComponent implements OnInit {
         role: role
       };
       this.createNewTeamEvent.emit(newTeamDetails);
+      this.tournamentControl.reset();
+      this.roleControl.reset();
+      this.creatingNewTeam = false;
     }
   }
 }

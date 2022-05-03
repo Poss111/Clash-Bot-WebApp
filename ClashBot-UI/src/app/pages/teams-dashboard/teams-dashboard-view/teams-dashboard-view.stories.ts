@@ -27,6 +27,13 @@ import {HttpClientModule} from "@angular/common/http";
 import {AppModule} from "../../../app.module";
 import {MatIconRegisteryModule} from "../teams-module/mat-icon-registery.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {EventEmitter, Output} from "@angular/core";
+import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
+import {ClashTeam} from "../../../interfaces/clash-team";
+import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
+import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
+import {action} from "@storybook/addon-actions";
+import {MatSelectModule} from "@angular/material/select";
 
 export default {
     title: 'Pages/TeamsDashboard',
@@ -56,6 +63,7 @@ export default {
                 MatProgressSpinnerModule,
                 MatChipsModule,
                 MatExpansionModule,
+                MatSelectModule,
                 BrowserAnimationsModule,
                 MatIconRegisteryModule,
                 FormsModule,
@@ -66,7 +74,14 @@ export default {
 } as Meta;
 
 const Template: Story<TeamsDashboardViewComponent> = (args: TeamsDashboardViewComponent) => ({
-    props: args,
+    props: {
+      ...args,
+      createTeamEvent: action('createTeamEvent'),
+      unregisterFromTeamEvent: action('unregisterFromTeamEvent'),
+      registerForTeamEvent: action('registerForTeamEvent'),
+      tentativeRegisterEvent: action('tentativeRegisterEvent'),
+      filterTeamEvent: action('filterTeamEvent'),
+    },
 });
 
 export const Primary = Template.bind({});
@@ -307,4 +322,200 @@ Primary.args = {
             id: '4'
         }
     ]
+};
+
+export const CreateNewTeam = Template.bind({});
+CreateNewTeam.args = {
+  eligibleTournaments: [
+    {
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '1',
+      startTime: new Date().toISOString(),
+      registrationTime: new Date().toISOString()
+    },
+    {
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '2',
+      startTime: new Date().toISOString(),
+      registrationTime: new Date().toISOString()
+    },
+    {
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '3',
+      startTime: new Date().toISOString(),
+      registrationTime: new Date().toISOString()
+    },
+    {
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '4',
+      startTime: new Date().toISOString(),
+      registrationTime: new Date().toISOString()
+    }
+  ],
+  defaultServer: 'Clash Bot',
+  tentativeDataStatus: 'SUCCESSFUL',
+  canCreateNewTeam: true,
+  tentativeList: [
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '2'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '3'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '4'
+      }
+    }
+  ],
+  teamFilters: [
+    {
+      value: 'Goon Squad',
+      type: FilterType.SERVER,
+      state: false,
+      id: '1'
+    },
+    {
+      value: 'Clash Bot',
+      type: FilterType.SERVER,
+      state: false,
+      id: '2'
+    },
+    {
+      value: 'Extro',
+      type: FilterType.SERVER,
+      state: false,
+      id: '3'
+    }
+  ],
+  teams: [
+    {
+      teamName: 'Team Abra',
+      playersDetails: [
+        {
+          name: 'Roidrage',
+          id: 1,
+          role: 'Top',
+          champions: ['Sett'],
+          isUser: true
+        },
+        {
+          name: '',
+          id: 0,
+          role: 'Mid',
+          isUser: false
+        },
+        {
+          name: '',
+          id: 0,
+          role: 'Jg',
+          isUser: false
+        },
+        {
+          name: '',
+          id: 0,
+          role: 'Bot',
+          isUser: false
+        },
+        {
+          name: '',
+          id: 0,
+          role: 'Supp',
+          isUser: false
+        },
+      ],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1'
+      },
+      serverName: 'Clash Bot',
+      startTime: new Date().toISOString(),
+      id: '1'
+    }
+  ]
+};
+
+export const NoData = Template.bind({});
+NoData.args = {
+  eligibleTournaments: [],
+  defaultServer: 'Clash Bot',
+  tentativeDataStatus: 'SUCCESSFUL',
+  tentativeList: [
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '2'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '3'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '4'
+      }
+    }
+  ],
+  teamFilters: [
+    {
+      value: 'Goon Squad',
+      type: FilterType.SERVER,
+      state: false,
+      id: '1'
+    },
+    {
+      value: 'Clash Bot',
+      type: FilterType.SERVER,
+      state: false,
+      id: '2'
+    },
+    {
+      value: 'Extro',
+      type: FilterType.SERVER,
+      state: false,
+      id: '3'
+    }
+  ],
+  teams: [{
+    error: 'Failed to load'
+  }]
 };

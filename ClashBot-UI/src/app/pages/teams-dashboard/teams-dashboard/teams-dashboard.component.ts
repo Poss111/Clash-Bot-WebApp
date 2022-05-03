@@ -62,6 +62,7 @@ export class TeamsDashboardComponent implements OnInit {
 
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
+                        this.currentSelectedGuild = appDetails.defaultGuild;
                         this.filterForTeamsByServer(appDetails.defaultGuild);
                     }
                 }
@@ -364,8 +365,11 @@ export class TeamsDashboardComponent implements OnInit {
         this.userDetailsService.getUserDetails()
             .pipe(take(1))
             .subscribe((userDetails) => {
+              const clashTournament = this.eligibleTournaments.find(item => item.tournamentName === createNewTeamEvent.tournamentName
+                && item.tournamentDay === createNewTeamEvent.tournamentDay);
                 const newTeamRequest: ClashTeam = {
                     serverName: this.currentSelectedGuild,
+                    startTime: clashTournament?.startTime,
                     tournamentDetails: {
                         tournamentName: createNewTeamEvent.tournamentName,
                         tournamentDay: createNewTeamEvent.tournamentDay

@@ -9,6 +9,11 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {KebabCasePipe} from "../../../shared/kebab-case.pipe";
+import {FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {EventEmitter} from "@angular/core";
+import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
+import {CommonModule} from "@angular/common";
+import {action} from "@storybook/addon-actions";
 
 export default {
     title: 'Cards/NewTeamCard',
@@ -18,10 +23,13 @@ export default {
         moduleMetadata({
             declarations: [ KebabCasePipe ],
             imports: [
+                CommonModule,
                 MatCardModule,
                 MatButtonModule,
                 MatIconModule,
                 MatFormFieldModule,
+                FormsModule,
+                ReactiveFormsModule,
                 MatSelectModule,
                 BrowserAnimationsModule
             ],
@@ -30,7 +38,13 @@ export default {
 } as Meta;
 
 const Template: Story<NewTeamCardComponent> = (args: NewTeamCardComponent) => ({
-    props: args,
+    props: {
+      eligibleTournaments: args.eligibleTournaments,
+      tournamentControl: new FormControl('', Validators.required),
+      roleControl: new FormControl('', Validators.required),
+      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],
+      createNewTeamEvent: action('createNewTeamEvent')
+    },
 });
 
 export const Primary = Template.bind({});

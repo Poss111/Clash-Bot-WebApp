@@ -9,6 +9,7 @@ import {SharedModule} from "../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatIconRegisteryModule} from "../../teams-module/mat-icon-registery.module";
+import {action} from "@storybook/addon-actions";
 
 export default {
     title: 'CardItems/PlayerDetails',
@@ -31,7 +32,11 @@ export default {
 } as Meta;
 
 const Template: Story<TeamCardPlayerDetailsComponent> = (args: TeamCardPlayerDetailsComponent) => ({
-    props: args,
+    props: {
+      ...args,
+      registerUserForRole: action('registerUserForRole'),
+      unregisterUserForRole: action('unregisterUserForRole')
+    },
 });
 
 export const PrimaryWithChampions = Template.bind({});
@@ -84,30 +89,30 @@ SuppWithDetails.args = {
 
 export const EmptyTop = Template.bind({});
 EmptyTop.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Top', champions: []},
+    player: {name: '', id: 1, role: 'Top', champions: []},
     showPlayerDetails: false
 };
 
 export const EmptyMid = Template.bind({});
 EmptyMid.args = {
-  player: {name: 'Roidrage', id: 1, role: 'Mid', champions: []},
+  player: {name: '', id: 1, role: 'Mid', champions: []},
   showPlayerDetails: false
 };
 
 export const EmptyJg= Template.bind({});
 EmptyJg.args = {
-  player: {name: 'Roidrage', id: 1, role: 'JG', champions: []},
+  player: {name: '', id: 1, role: 'JG', champions: []},
   showPlayerDetails: false
 };
 
 export const EmptyBot = Template.bind({});
 EmptyBot.args = {
-  player: {name: 'Roidrage', id: 1, role: 'Bot', champions: []},
+  player: {name: '', id: 1, role: 'Bot', champions: []},
   showPlayerDetails: false
 };
 
 export const EmptySupp = Template.bind({});
 EmptySupp.args = {
-  player: {name: 'Roidrage', id: 1, role: 'Supp', champions: []},
+  player: {name: '', id: 1, role: 'Supp', champions: []},
   showPlayerDetails: false
 };

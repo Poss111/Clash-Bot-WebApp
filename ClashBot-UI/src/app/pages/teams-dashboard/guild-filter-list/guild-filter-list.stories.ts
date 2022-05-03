@@ -8,11 +8,14 @@ import {GuildFilterListComponent} from "./guild-filter-list.component";
 import {MatChipsModule} from "@angular/material/chips";
 import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {action} from "@storybook/addon-actions";
 
 export default {
     title: 'Shared/GuildFilterList',
     component: GuildFilterListComponent,
-    argTypes: {},
+    argTypes: {
+      selectedTeamEvent: { action: 'clicked'}
+    },
     decorators: [
         moduleMetadata({
             declarations: [GuildFilterListComponent],
@@ -29,12 +32,15 @@ export default {
 } as Meta;
 
 const Template: Story<GuildFilterListComponent> = (args: GuildFilterListComponent) => ({
-    props: args,
+    props: {
+      ...args,
+      formControl: new FormControl(args.defaultSelection),
+      selectedTeamEvent: action('selectedTeamEvent')
+    },
 });
 
 export const Primary = Template.bind({});
 Primary.args = {
-    formControl: new FormControl(),
     teamFilters: [
         {
             value: 'Goon Squad',
@@ -89,7 +95,6 @@ Primary.args = {
 
 export const DefaultGiven = Template.bind({});
 DefaultGiven.args = {
-    formControl: new FormControl(),
     defaultSelection: 'Clash Bot',
     teamFilters: [
         {
