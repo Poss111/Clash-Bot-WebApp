@@ -892,39 +892,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-bffe0d5ac11b9f44c1770c473a0c5c7fccd67960825703a4d1ac4ab81cf00ff98665df602498a4a3ed6b3946f80e93ba0d0792aa258e39d704e5dd40cbafb579",
-            "file": "src/app/interfaces/clash-bot-tentative-details.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotTentativeDetails {\n  serverName: string,\n  tentativePlayers: string[],\n  tournamentDetails: TournamentDetails\n  isMember?: boolean,\n  index?: number\n}\n\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 12
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 11
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": []
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-1",
+            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c",
             "file": "src/app/interfaces/clash-bot-tentative-request.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -952,19 +920,16 @@
             ],
             "indexSignatures": [],
             "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
+            "methods": []
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-2",
-            "file": "src/app/interfaces/clash-team.ts",
+            "id": "interface-TournamentDetails-bffe0d5ac11b9f44c1770c473a0c5c7fccd67960825703a4d1ac4ab81cf00ff98665df602498a4a3ed6b3946f80e93ba0d0792aa258e39d704e5dd40cbafb579-1",
+            "file": "src/app/interfaces/clash-bot-tentative-details.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "sourceCode": "export interface ClashBotTentativeDetails {\n  serverName: string,\n  tentativePlayers: string[],\n  tournamentDetails: TournamentDetails\n  isMember?: boolean,\n  index?: number\n}\n\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
             "properties": [
                 {
                     "name": "tournamentDay",
@@ -973,7 +938,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 12
                 },
                 {
                     "name": "tournamentName",
@@ -982,19 +947,19 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 11
                 }
             ],
             "indexSignatures": [],
             "kind": 165,
             "methods": [],
             "isDuplicate": true,
-            "duplicateId": 2,
-            "duplicateName": "TournamentDetails-2"
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-3",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
             "file": "src/app/interfaces/clash-bot-user-register.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -1018,6 +983,41 @@
                     "optional": true,
                     "description": "",
                     "line": 12
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 2,
+            "duplicateName": "TournamentDetails-2"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-3",
+            "file": "src/app/interfaces/clash-team.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
                 }
             ],
             "indexSignatures": [],
@@ -2930,7 +2930,7 @@
         },
         {
             "name": "GuildFilterListComponent",
-            "id": "component-GuildFilterListComponent-e9e0cae0ad934c5552080c72e77cb16e5164d237fdc2c155ecca8a434320cc024b93de543b7fffbcefdbeae6fc80b8201bd65902f24faf3c4d2052adf00d7cb1",
+            "id": "component-GuildFilterListComponent-1d62f23693c255ef2081694e8c2ff17d0df8630afd3fe4ab5d533d470c668bbecee8fd8377001af9fc3f0c3662fc2dd37600136cb313d14354263b879e6643f5",
             "file": "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3001,7 +3001,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 33,
+                    "line": 32,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3034,7 +3034,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {FormControl} from \"@angular/forms\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {MatChip} from \"@angular/material/chips\";\n\n@Component({\n  selector: 'app-guild-filter-list',\n  templateUrl: './guild-filter-list.component.html',\n  styleUrls: ['./guild-filter-list.component.scss']\n})\nexport class GuildFilterListComponent implements OnInit {\n\n  formControl: FormControl = new FormControl('');\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Input()\n  defaultSelection?: string;\n\n  @Output()\n  selectedTeamEvent: EventEmitter<string> = new EventEmitter<string>();\n\n  constructor() {}\n\n  ngOnInit() {\n    if (this.defaultSelection) {\n      console.log('Hi')\n      this.formControl.setValue(this.defaultSelection);\n    }\n  }\n\n  filterTeam(chip: MatChip) {\n    chip.selected ? chip.deselect() : chip.selectViaInteraction();\n    if (this.formControl) {\n      this.selectedTeamEvent.emit(this.formControl.value.trimLeft());\n    }\n  }\n}\n",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {FormControl} from \"@angular/forms\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {MatChip} from \"@angular/material/chips\";\n\n@Component({\n  selector: 'app-guild-filter-list',\n  templateUrl: './guild-filter-list.component.html',\n  styleUrls: ['./guild-filter-list.component.scss']\n})\nexport class GuildFilterListComponent implements OnInit {\n\n  formControl: FormControl = new FormControl('');\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Input()\n  defaultSelection?: string;\n\n  @Output()\n  selectedTeamEvent: EventEmitter<string> = new EventEmitter<string>();\n\n  constructor() {}\n\n  ngOnInit() {\n    if (this.defaultSelection) {\n      this.formControl.setValue(this.defaultSelection);\n    }\n  }\n\n  filterTeam(chip: MatChip) {\n    chip.selected ? chip.deselect() : chip.selectViaInteraction();\n    if (this.formControl) {\n      this.selectedTeamEvent.emit(this.formControl.value.trimLeft());\n    }\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4849,7 +4849,7 @@
                 "args": [],
                 "line": 53
             },
-            "templateData": "<div class=\"chips-list\">\n    <app-help-dialog></app-help-dialog>\n    <app-guild-filter-list\n            [teamFilters]=\"teamFilters\"\n            [defaultSelection]=\"defaultServer\"\n            (selectedTeamEvent)=\"filterTeam($event)\"></app-guild-filter-list>\n</div>\n<app-teams-tentative-table [tentativeList]=\"tentativeList\"\n                           [tentativeDataStatus]=\"tentativeDataStatus\"\n                           (register)=\"tentativeRegister($event)\"></app-teams-tentative-table>\n<div class=\"team-cards\" *ngIf=\"!showSpinner; else elseBlock\">\n    <app-team-card *ngFor=\"let team of teams; index as i;\"\n                   id=\"clash-bot-teams-card-{{team.id}}\"\n                   [team]=\"team\"\n                   class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                   (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n    <app-new-team-card\n            *ngIf=\"canCreateNewTeam\"\n            [eligibleTournaments]=\"eligibleTournaments\"\n            (createNewTeamEvent)=\"createNewTeam($event)\"></app-new-team-card>\n</div>\n<ng-template #elseBlock>\n    <app-spinner></app-spinner>\n</ng-template>\n"
+            "templateData": "<div class=\"chips-list\">\n    <app-help-dialog></app-help-dialog>\n    <app-guild-filter-list\n            [teamFilters]=\"teamFilters\"\n            [defaultSelection]=\"defaultServer\"\n            (selectedTeamEvent)=\"filterTeam($event)\"></app-guild-filter-list>\n</div>\n<app-teams-tentative-table [tentativeList]=\"tentativeList\"\n                           [tentativeDataStatus]=\"tentativeDataStatus\"\n                           (register)=\"tentativeRegister($event)\"></app-teams-tentative-table>\n<div class=\"team-cards\" *ngIf=\"!showSpinner; else elseBlock\">\n    <app-team-card *ngFor=\"let team of teams; index as i;\"\n                   id=\"clash-bot-teams-card-{{team.id}}\"\n                   [team]=\"team\"\n                   class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                   (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n    <app-new-team-card\n            *ngIf=\"canCreateNewTeam\"\n            [eligibleTournaments]=\"eligibleTournaments\"\n            (createNewTeamEvent)=\"createNewTeam($event)\"></app-new-team-card>\n</div>\n<ng-template #elseBlock>\n  <mat-progress-bar mode=\"query\"></mat-progress-bar>\n</ng-template>\n"
         },
         {
             "name": "TeamsTentativeTableComponent",
@@ -6229,13 +6229,13 @@
         },
         {
             "name": "TeamsModule",
-            "id": "module-TeamsModule-5034acf91d2a08abd145014a442817f3448a0ee156788c997b7084c176d233e10a66d75ecb7abb17d5c77a37fe9cdcfd99c94fbcb907cffba07bbdf7e0d21957",
+            "id": "module-TeamsModule-9b584a7da810ff4c5206c5b09c2864eab6b11597c379686c0a34c8f1f8204f175f0647d101b212589b8afd184bfef56a8fc85a8c374530307b1e64aea4c4187a",
             "description": "",
             "deprecationMessage": "",
             "deprecated": false,
             "file": "src/app/pages/teams-dashboard/teams-module/teams.module.ts",
             "methods": [],
-            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule, MatIconRegistry} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport {MatExpansionModule} from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\nimport {TeamsTentativeTableComponent} from \"../teams-tentative-table/teams-tentative-table.component\";\nimport {NewTeamCardComponent} from \"../new-team-card/new-team-card.component\";\nimport {TeamsDashboardViewComponent} from \"../teams-dashboard-view/teams-dashboard-view.component\";\nimport {HttpClientModule} from \"@angular/common/http\";\n\n\n@NgModule({\n    declarations: [\n        TeamsDashboardComponent,\n        TeamCardComponent,\n        ConfirmationDialogComponent,\n        HelpDialogComponent,\n        TeamsDashboardHelpDialogComponent,\n        TournamentNameTransformerPipe,\n        TeamCardPlayerDetailsComponent,\n        GuildFilterListComponent,\n        TeamsTentativeTableComponent,\n        NewTeamCardComponent,\n        TeamsDashboardViewComponent\n    ],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
+            "sourceCode": "import {NgModule} from '@angular/core';\nimport {CommonModule} from '@angular/common';\nimport {TeamsRoutingModule} from \"./teams-routing.module\";\nimport {TeamsDashboardComponent} from \"../teams-dashboard/teams-dashboard.component\";\nimport {MatChipsModule} from \"@angular/material/chips\";\nimport {MatProgressSpinnerModule} from \"@angular/material/progress-spinner\";\nimport {FormsModule, ReactiveFormsModule} from \"@angular/forms\";\nimport {MatFormFieldModule} from \"@angular/material/form-field\";\nimport {TeamCardComponent} from \"../team-card/team-card.component\";\nimport {MatCardModule} from '@angular/material/card';\nimport {MatIconModule, MatIconRegistry} from \"@angular/material/icon\";\nimport {MatButtonModule} from \"@angular/material/button\";\nimport {MatDialogModule} from \"@angular/material/dialog\";\nimport {ConfirmationDialogComponent} from \"../../../dialogs/confirmation-dialog/confirmation-dialog.component\";\nimport {MatOptionModule} from \"@angular/material/core\";\nimport {MatSelectModule} from \"@angular/material/select\";\nimport {TeamsDashboardHelpDialogComponent} from \"../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component\";\nimport {MatTableModule} from \"@angular/material/table\";\nimport {TournamentNameTransformerPipe} from \"../../../tournament-name-transformer.pipe\";\nimport {TeamCardPlayerDetailsComponent} from \"../team-card/team-card-player-details/team-card-player-details.component\";\nimport {SharedModule} from \"../../../shared/shared.module\";\nimport {MatExpansionModule} from '@angular/material/expansion';\nimport {BrowserAnimationsModule} from \"@angular/platform-browser/animations\";\nimport {HelpDialogComponent} from \"../help-dialog/help-dialog.component\";\nimport {GuildFilterListComponent} from \"../guild-filter-list/guild-filter-list.component\";\nimport {TeamsTentativeTableComponent} from \"../teams-tentative-table/teams-tentative-table.component\";\nimport {NewTeamCardComponent} from \"../new-team-card/new-team-card.component\";\nimport {TeamsDashboardViewComponent} from \"../teams-dashboard-view/teams-dashboard-view.component\";\nimport {HttpClientModule} from \"@angular/common/http\";\nimport {MatProgressBarModule} from \"@angular/material/progress-bar\";\n\n\n@NgModule({\n    declarations: [\n        TeamsDashboardComponent,\n        TeamCardComponent,\n        ConfirmationDialogComponent,\n        HelpDialogComponent,\n        TeamsDashboardHelpDialogComponent,\n        TournamentNameTransformerPipe,\n        TeamCardPlayerDetailsComponent,\n        GuildFilterListComponent,\n        TeamsTentativeTableComponent,\n        NewTeamCardComponent,\n        TeamsDashboardViewComponent\n    ],\n    exports: [\n        TeamCardComponent,\n        TournamentNameTransformerPipe\n    ],\n    imports: [\n        CommonModule,\n        TeamsRoutingModule,\n        MatChipsModule,\n        MatProgressSpinnerModule,\n        FormsModule,\n        ReactiveFormsModule,\n        MatFormFieldModule,\n        MatCardModule,\n        MatIconModule,\n        MatButtonModule,\n        MatDialogModule,\n        MatOptionModule,\n        MatSelectModule,\n        MatTableModule,\n        MatExpansionModule,\n        MatProgressBarModule,\n        SharedModule\n    ]\n})\nexport class TeamsModule {\n}\n",
             "children": [
                 {
                     "type": "providers",
@@ -6458,6 +6458,16 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "CreateNewTeam",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "CurrentPlayerWithChampions",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -6607,6 +6617,16 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "Loading",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "Mid",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -6621,6 +6641,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "NoData",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6680,7 +6710,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/new-team-card/new-team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6690,7 +6720,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/new-team-card/new-team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6794,7 +6824,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<GuildFilterListComponent>",
-                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      teamFilters: args.teamFilters,\n      defaultSelection: args.defaultSelection,\n      formControl: new FormControl(args.defaultSelection)\n    },\n})"
+                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6810,16 +6840,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/new-team-card/new-team-card.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<NewTeamCardComponent>",
-                "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp']\n    },\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6830,11 +6850,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "file": "src/app/pages/teams-dashboard/new-team-card/new-team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<TeamsDashboardViewComponent>",
-                "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: args,\n})"
+                "type": "Story<NewTeamCardComponent>",
+                "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6850,11 +6870,21 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamsDashboardViewComponent>",
+                "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: {\n      ...args,\n      createTeamEvent: action('createTeamEvent'),\n      unregisterFromTeamEvent: action('unregisterFromTeamEvent'),\n      registerForTeamEvent: action('registerForTeamEvent'),\n      tentativeRegisterEvent: action('tentativeRegisterEvent'),\n      filterTeamEvent: action('filterTeamEvent'),\n    },\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/team-card/team-card-player-details/team-card-player-details.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<TeamCardPlayerDetailsComponent>",
-                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
+                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
             },
             {
                 "name": "TopWithDetails",
@@ -7089,7 +7119,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<TeamCardPlayerDetailsComponent>",
-                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: args,\n})"
+                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
                 },
                 {
                     "name": "TopWithDetails",
@@ -7100,6 +7130,58 @@
                     "deprecationMessage": "",
                     "type": "",
                     "defaultValue": "Template.bind({})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts": [
+                {
+                    "name": "CreateNewTeam",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Loading",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "NoData",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<TeamsDashboardViewComponent>",
+                    "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: {\n      ...args,\n      createTeamEvent: action('createTeamEvent'),\n      unregisterFromTeamEvent: action('unregisterFromTeamEvent'),\n      registerForTeamEvent: action('registerForTeamEvent'),\n      tentativeRegisterEvent: action('tentativeRegisterEvent'),\n      filterTeamEvent: action('filterTeamEvent'),\n    },\n})"
                 }
             ],
             "src/app/pages/teams-dashboard/guild-filter-list/guild-filter-list.stories.ts": [
@@ -7131,7 +7213,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<GuildFilterListComponent>",
-                    "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      teamFilters: args.teamFilters,\n      defaultSelection: args.defaultSelection,\n      formControl: new FormControl(args.defaultSelection)\n    },\n})"
+                    "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
                 }
             ],
             "src/environments/environment.int.ts": [
@@ -7330,29 +7412,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<NewTeamCardComponent>",
-                    "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp']\n    },\n})"
-                }
-            ],
-            "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<TeamsDashboardViewComponent>",
-                    "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: args,\n})"
+                    "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
                 }
             ]
         },
@@ -8048,6 +8108,36 @@
                 "name": "TeamsDashboardViewComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/20",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "CreateNewTeam",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Loading",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/pages/teams-dashboard/teams-dashboard-view/teams-dashboard-view.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "NoData",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

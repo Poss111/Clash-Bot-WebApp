@@ -8,7 +8,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {TeamCardComponent} from "../team-card/team-card.component";
 import {MatCardModule} from '@angular/material/card';
-import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
+import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDialogModule} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
@@ -20,13 +20,12 @@ import {TournamentNameTransformerPipe} from "../../../tournament-name-transforme
 import {TeamCardPlayerDetailsComponent} from "../team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../shared/shared.module";
 import {MatExpansionModule} from '@angular/material/expansion';
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HelpDialogComponent} from "../help-dialog/help-dialog.component";
 import {GuildFilterListComponent} from "../guild-filter-list/guild-filter-list.component";
 import {TeamsTentativeTableComponent} from "../teams-tentative-table/teams-tentative-table.component";
 import {NewTeamCardComponent} from "../new-team-card/new-team-card.component";
 import {TeamsDashboardViewComponent} from "../teams-dashboard-view/teams-dashboard-view.component";
-import {HttpClientModule} from "@angular/common/http";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 
 @NgModule({
@@ -63,7 +62,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatSelectModule,
         MatTableModule,
         MatExpansionModule,
-        SharedModule
+        SharedModule,
+        MatProgressBarModule
     ]
 })
 export class TeamsModule {

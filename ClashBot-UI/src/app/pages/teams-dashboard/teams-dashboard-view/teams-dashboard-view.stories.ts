@@ -23,17 +23,11 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ConfirmationDialogComponent} from "../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
-import {HttpClientModule} from "@angular/common/http";
-import {AppModule} from "../../../app.module";
 import {MatIconRegisteryModule} from "../teams-module/mat-icon-registery.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {EventEmitter, Output} from "@angular/core";
-import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
-import {ClashTeam} from "../../../interfaces/clash-team";
-import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
-import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {action} from "@storybook/addon-actions";
 import {MatSelectModule} from "@angular/material/select";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 export default {
     title: 'Pages/TeamsDashboard',
@@ -67,7 +61,8 @@ export default {
                 BrowserAnimationsModule,
                 MatIconRegisteryModule,
                 FormsModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                MatProgressBarModule
             ],
         })
     ]
@@ -461,6 +456,71 @@ NoData.args = {
   eligibleTournaments: [],
   defaultServer: 'Clash Bot',
   tentativeDataStatus: 'SUCCESSFUL',
+  tentativeList: [
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '2'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '3'
+      }
+    },
+    {
+      serverName: 'Clash Bot',
+      tentativePlayers: [],
+      tournamentDetails: {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '4'
+      }
+    }
+  ],
+  teamFilters: [
+    {
+      value: 'Goon Squad',
+      type: FilterType.SERVER,
+      state: false,
+      id: '1'
+    },
+    {
+      value: 'Clash Bot',
+      type: FilterType.SERVER,
+      state: false,
+      id: '2'
+    },
+    {
+      value: 'Extro',
+      type: FilterType.SERVER,
+      state: false,
+      id: '3'
+    }
+  ],
+  teams: [{
+    error: 'Failed to load'
+  }]
+};
+
+export const Loading = Template.bind({});
+Loading.args = {
+  eligibleTournaments: [],
+  defaultServer: 'Clash Bot',
+  tentativeDataStatus: 'SUCCESSFUL',
+  showSpinner: true,
   tentativeList: [
     {
       serverName: 'Clash Bot',
