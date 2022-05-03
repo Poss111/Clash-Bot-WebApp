@@ -7,6 +7,8 @@ import {MatIconModule} from "@angular/material/icon";
 import {TournamentNameTransformerPipe} from "../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../shared/shared.module";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 jest.mock("@angular/material/dialog");
 
@@ -23,7 +25,13 @@ describe('TeamCardComponent', () => {
     });
     await TestBed.configureTestingModule({
       declarations: [TeamCardComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],
-      imports: [MatCardModule, MatIconModule, SharedModule],
+      imports: [
+          MatCardModule,
+          MatIconModule,
+          SharedModule,
+          MatExpansionModule,
+          BrowserAnimationsModule
+      ],
       providers: [MatDialog]
     })
       .compileComponents();
