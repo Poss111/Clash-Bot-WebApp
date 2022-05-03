@@ -25,7 +25,7 @@ export class TeamCardPlayerDetailsComponent implements OnInit {
     registerUserForRole: EventEmitter<string> = new EventEmitter<string>();
 
     @Output()
-    unregisterUserForRole: EventEmitter<string> = new EventEmitter<string>();
+    unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();
 
     showPlayerDetails: boolean = false;
 

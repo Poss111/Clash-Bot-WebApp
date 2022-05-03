@@ -4,7 +4,8 @@ import { TeamCardPlayerDetailsComponent } from './team-card-player-details.compo
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {SharedModule} from "../../../../shared/shared.module";
-import {SimpleChanges} from "@angular/core";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 describe('TeamCardPlayerDetailsComponent', () => {
   let component: TeamCardPlayerDetailsComponent;
@@ -13,7 +14,13 @@ describe('TeamCardPlayerDetailsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TeamCardPlayerDetailsComponent ],
-      imports: [MatCardModule, MatIconModule, SharedModule]
+      imports: [
+          MatCardModule,
+          MatIconModule,
+          SharedModule,
+          MatExpansionModule,
+          BrowserAnimationsModule
+      ]
     })
     .compileComponents();
   });
@@ -24,99 +31,38 @@ describe('TeamCardPlayerDetailsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  test('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('Should create with playerDetails given.', () => {
-    fixture = TestBed.createComponent(TeamCardPlayerDetailsComponent);
-    component = fixture.componentInstance;
-    component.player =  { name: 'New User', id: 2, role: 'Top', champions: [] };
-    fixture.detectChanges();
-    expect(component.playerDetails).toEqual(component.player);
-    expect(component.showPlayerDetails).toBeTruthy();
-    expect(component.text.disappear).toBeFalsy();
-    expect(component.button.disappear).toBeTruthy();
-  });
+  describe("OnInit", () => {
+    test("If the player champion array is empty, then it should populate with an empty array.", () => {
+      component.player = { name: 'Hi', id: 2, role: 'Mid'}
 
-  it('Should create without playerDetails given.', () => {
-    fixture = TestBed.createComponent(TeamCardPlayerDetailsComponent);
-    component = fixture.componentInstance;
-    component.player =  { name: '', id: 2, role: 'Top', champions: [] };
-    fixture.detectChanges();
-    expect(component.playerDetails).toEqual(component.player);
-    expect(component.showPlayerDetails).toBeFalsy();
-    expect(component.text.disappear).toBeTruthy();
-    expect(component.button.disappear).toBeFalsy();
-  });
+      component.ngOnInit();
 
-  describe('OnChanges', () => {
-    it('If change is from player attribute, is not the first change and the update includes a name then the' +
-        'button attribute with disappear should be set to true.', (done) => {
-      const simpleChangesMock: SimpleChanges = {
-        player: {
-          currentValue: {
-            id: 1,
-            name: 'Someone',
-            role: 'Top',
-            champions: []
-          },
-          previousValue: {
-
-          },
-          isFirstChange: () => { return false; },
-          firstChange: false
-        }
-      };
-      component.player = {
-        id: 1,
-        name: 'Someone',
-        role: 'Top',
-        champions: []
-      };
-      component.ngOnChanges(simpleChangesMock);
-      expect(component.button.disappear).toBeTruthy();
-      setTimeout(() => {
-        expect(component.playerDetails).toEqual(component.player);
-        expect(component.showPlayerDetails).toBeTruthy();
-        expect(component.text.disappear).toBeFalsy();
-        done();
-      }, 350)
-    })
-
-
-    it('If change is from player attribute, is not the first change and the update does not include a name then the' +
-        'button attribute with disappear should be set to false.', (done) => {
-      const simpleChangesMock: SimpleChanges = {
-        player: {
-          currentValue: {
-            id: 1,
-            name: '',
-            role: 'Top',
-            champions: []
-          },
-          previousValue: {
-
-          },
-          isFirstChange: () => { return false; },
-          firstChange: false
-        }
-      };
-      component.player = {
-        id: 1,
-        name: '',
-        role: 'Top',
-        champions: []
-      };
-      component.ngOnChanges(simpleChangesMock);
-      expect(component.text.disappear).toBeTruthy();
-      setTimeout(() => {
-        expect(component.playerDetails).toEqual(component.player);
-        expect(component.showPlayerDetails).toBeFalsy();
-        expect(component.button.disappear).toBeFalsy();
-        done();
-      }, 350)
+      expect(component.player.champions).toHaveLength(0)
     })
   })
 
+  describe("Register Team", () => {
+    test("When registerToTeam is called, it should be emitted with the player role.", (done) => {
+      component.registerUserForRole.subscribe((value) => {
+        expect(value).toEqual('Top');
+        done();
+      })
+      component.registerToTeam('Top');
+    })
+  })
+
+  describe("Unregister Team", () => {
+    test("When unregisterFromTeam is called, it should be emitted with the player role.", () => {
+      const unregisterUserForRoleMock : any = {
+        emit: jest.fn().mockImplementation()
+      };
+      component.unregisterUserForRole = unregisterUserForRoleMock
+      component.unregisterFromTeam();
+      expect(component.unregisterUserForRole.emit).toHaveBeenCalledTimes(1);
+    })
+  })
 });
