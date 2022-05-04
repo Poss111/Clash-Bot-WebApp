@@ -46,6 +46,7 @@
                                     <p class="champion-name">{{champion}}</p>
                                 </div>
                             </ng-container>
+                            <p *ngIf="player.champions.length === 0">None set</p>
                         </div>
                     </mat-expansion-panel>
                 </mat-accordion>
