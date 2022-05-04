@@ -892,39 +892,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c",
-            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 9
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 8
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": []
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-bffe0d5ac11b9f44c1770c473a0c5c7fccd67960825703a4d1ac4ab81cf00ff98665df602498a4a3ed6b3946f80e93ba0d0792aa258e39d704e5dd40cbafb579-1",
+            "id": "interface-TournamentDetails-bffe0d5ac11b9f44c1770c473a0c5c7fccd67960825703a4d1ac4ab81cf00ff98665df602498a4a3ed6b3946f80e93ba0d0792aa258e39d704e5dd40cbafb579",
             "file": "src/app/interfaces/clash-bot-tentative-details.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -952,19 +920,16 @@
             ],
             "indexSignatures": [],
             "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
+            "methods": []
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-2",
-            "file": "src/app/interfaces/clash-team.ts",
+            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-1",
+            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
             "properties": [
                 {
                     "name": "tournamentDay",
@@ -973,7 +938,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 9
                 },
                 {
                     "name": "tournamentName",
@@ -982,19 +947,19 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 8
                 }
             ],
             "indexSignatures": [],
             "kind": 165,
             "methods": [],
             "isDuplicate": true,
-            "duplicateId": 2,
-            "duplicateName": "TournamentDetails-2"
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-3",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
             "file": "src/app/interfaces/clash-bot-user-register.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -1018,6 +983,41 @@
                     "optional": true,
                     "description": "",
                     "line": 12
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 2,
+            "duplicateName": "TournamentDetails-2"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-3",
+            "file": "src/app/interfaces/clash-team.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashTeam {\n  teamName?: string,\n  playersDetails?: PlayerDetails[]\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\nexport interface PlayerDetails {\n  name: string,\n  id: number,\n  role: string,\n  champions?: string[],\n  isUser?: boolean\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
                 }
             ],
             "indexSignatures": [],
@@ -3477,7 +3477,7 @@
         },
         {
             "name": "TeamCardPlayerDetailsComponent",
-            "id": "component-TeamCardPlayerDetailsComponent-e28d936cb5f5fb59d6ab1b984385fd303d9afcca1e57c02735da5addfa7f65b22a06c5056e589bc3a278715567b550f98d9c27505eb2413e141713d9126f334a",
+            "id": "component-TeamCardPlayerDetailsComponent-eef2f489b83507a13f184afa0cd5915fe78495c0a0f9ef902d4424634b41aae54de2bf4aed4f84ae1e453b547b37763978d5fc7dd15cc70034088a29197b2835",
             "file": "src/app/pages/teams-dashboard/component/team-card/team-card-player-details/team-card-player-details.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3499,7 +3499,7 @@
                     "defaultValue": "new Observable<boolean>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 23,
+                    "line": 22,
                     "type": "Observable<boolean>",
                     "decorators": []
                 },
@@ -3508,7 +3508,7 @@
                     "defaultValue": "{name: 'Hello', id: 1, role: 'Top', champions: []}",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 20,
+                    "line": 19,
                     "type": "PlayerDetails",
                     "decorators": []
                 }
@@ -3519,7 +3519,7 @@
                     "defaultValue": "new EventEmitter<string>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 26,
+                    "line": 25,
                     "type": "EventEmitter<string>"
                 },
                 {
@@ -3527,21 +3527,11 @@
                     "defaultValue": "new EventEmitter<void>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 29,
+                    "line": 28,
                     "type": "EventEmitter<void>"
                 }
             ],
             "propertiesClass": [
-                {
-                    "name": "baseUrl",
-                    "defaultValue": "'https://ddragon.leagueoflegends.com/cdn/12.8.1'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 32
-                },
                 {
                     "name": "showPlayerDetails",
                     "defaultValue": "false",
@@ -3550,7 +3540,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 31
+                    "line": 30
                 }
             ],
             "methodsClass": [
@@ -3560,7 +3550,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 36,
+                    "line": 35,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -3577,7 +3567,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 45,
+                    "line": 41,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3598,7 +3588,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 49,
+                    "line": 45,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -3610,7 +3600,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {\n    Component,\n    EventEmitter,\n    Input,\n    OnInit,\n    Output\n} from '@angular/core';\nimport {PlayerDetails} from \"../../../../../interfaces/clash-team\";\nimport {Observable} from \"rxjs\";\nimport {RiotDdragonService} from \"../../../../../services/riot-ddragon.service\";\n\n@Component({\n    selector: 'app-team-card-player-details',\n    templateUrl: './team-card-player-details.component.html',\n    styleUrls: ['./team-card-player-details.component.scss']\n})\nexport class TeamCardPlayerDetailsComponent implements OnInit {\n\n    @Input()\n    player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};\n\n    @Input()\n    event: Observable<boolean> = new Observable<boolean>();\n\n    @Output()\n    registerUserForRole: EventEmitter<string> = new EventEmitter<string>();\n\n    @Output()\n    unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();\n\n    showPlayerDetails: boolean = false;\n    baseUrl: string = 'https://ddragon.leagueoflegends.com/cdn/12.8.1';\n\n    constructor(private riotDdragonService: RiotDdragonService) {}\n\n    ngOnInit() {\n        if (this.riotDdragonService.host) {\n            this.baseUrl = this.riotDdragonService.host\n        }\n        if (!this.player.champions) {\n            this.player.champions=[];\n        }\n    }\n\n    registerToTeam(role: string) {\n        this.registerUserForRole.emit(role);\n    }\n\n    unregisterFromTeam() {\n        this.unregisterUserForRole.emit();\n    }\n}\n",
+            "sourceCode": "import {\n    Component,\n    EventEmitter,\n    Input,\n    OnInit,\n    Output\n} from '@angular/core';\nimport {PlayerDetails} from \"../../../../../interfaces/clash-team\";\nimport {Observable} from \"rxjs\";\n\n@Component({\n    selector: 'app-team-card-player-details',\n    templateUrl: './team-card-player-details.component.html',\n    styleUrls: ['./team-card-player-details.component.scss']\n})\nexport class TeamCardPlayerDetailsComponent implements OnInit {\n\n    @Input()\n    player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};\n\n    @Input()\n    event: Observable<boolean> = new Observable<boolean>();\n\n    @Output()\n    registerUserForRole: EventEmitter<string> = new EventEmitter<string>();\n\n    @Output()\n    unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();\n\n    showPlayerDetails: boolean = false;\n\n    constructor() {\n    }\n\n    ngOnInit() {\n        if (!this.player.champions) {\n            this.player.champions=[];\n        }\n    }\n\n    registerToTeam(role: string) {\n        this.registerUserForRole.emit(role);\n    }\n\n    unregisterFromTeam() {\n        this.unregisterUserForRole.emit();\n    }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -3624,31 +3614,13 @@
                 "description": "",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "riotDdragonService",
-                        "type": "RiotDdragonService",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 32,
-                "jsdoctags": [
-                    {
-                        "name": "riotDdragonService",
-                        "type": "RiotDdragonService",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
+                "args": [],
+                "line": 30
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<div class=\"clash-bot-player-details-container\">\n    <div class=\"player-role-player-details-inner-container\">\n        <ng-container *ngIf=\"player.name === '' || player.name === null; else elseBlock\">\n            <div class=\"player-role-join-container\">\n                <button mat-raised-button\n                        class=\"player-role-join-btn\"\n                        id=\"clash-bot-team-card-join-{{player.role | kebabcase}}-register-button\"\n                        (click)=\"registerToTeam(player.role)\">\n                    <div class=\"player-join-button-inner-container\">\n                        {{player.role}}\n                        <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                    </div>\n                </button>\n            </div>\n        </ng-container>\n        <ng-template #elseBlock>\n            <div class=\"player-details-player-container\">\n                <div *ngIf=\"player.isUser\" class=\"clash-bot-role-button\">\n                    <div class=\"clash-bot-button-container\">\n                        <button mat-icon-button\n                                color=\"warn\"\n                                id=\"clash-bot-team-card-{{player.role | kebabcase}}-unregister-button\"\n                                (click)=\"unregisterFromTeam()\"\n                                aria-label=\"Unregister with this Team\">\n                            <mat-icon>remove</mat-icon>\n                        </button>\n                    </div>\n                </div>\n                <mat-accordion class=\"player-detail-accordion-container\">\n                    <mat-expansion-panel id=\"clash-bot-team-card-registered-player\"\n                                         class=\"player-details-player-inner-container\">\n                        <mat-expansion-panel-header\n                                id=\"clash-bot-team-card-registered-player-{{player.role | kebabcase}}\">\n                            <mat-panel-title>{{player.name}}</mat-panel-title>\n                            <mat-panel-description>{{player.role}}\n                                <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                            </mat-panel-description>\n                        </mat-expansion-panel-header>\n                        <div id=\"clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list\"\n                             class=\"player-champion-list-container\">\n                            <h4>Preferred Champions</h4>\n                            <ng-container *ngIf=\"player.champions && player.champions.length > 0\">\n                                <div class=\"champion-container\" *ngFor=\"let champion of player.champions\">\n                                    <img class=\"champion-img\"\n                                         src='{{baseUrl}}/img/champion/{{champion}}.png'/>\n                                    <p class=\"champion-name\">{{champion}}</p>\n                                </div>\n                            </ng-container>\n                            <p *ngIf=\"player.champions.length === 0\">None set</p>\n                        </div>\n                    </mat-expansion-panel>\n                </mat-accordion>\n            </div>\n        </ng-template>\n    </div>\n</div>\n"
+            "templateData": "<div class=\"clash-bot-player-details-container\">\n    <div class=\"player-role-player-details-inner-container\">\n        <ng-container *ngIf=\"player.name === '' || player.name === null; else elseBlock\">\n            <div class=\"player-role-join-container\">\n                <button mat-raised-button\n                        class=\"player-role-join-btn\"\n                        id=\"clash-bot-team-card-join-{{player.role | kebabcase}}-register-button\"\n                        (click)=\"registerToTeam(player.role)\">\n                    <div class=\"player-join-button-inner-container\">\n                        {{player.role}}\n                        <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                    </div>\n                </button>\n            </div>\n        </ng-container>\n        <ng-template #elseBlock>\n            <div class=\"player-details-player-container\">\n                <div *ngIf=\"player.isUser\" class=\"clash-bot-role-button\">\n                    <div class=\"clash-bot-button-container\">\n                        <button mat-icon-button\n                                color=\"warn\"\n                                id=\"clash-bot-team-card-{{player.role | kebabcase}}-unregister-button\"\n                                (click)=\"unregisterFromTeam()\"\n                                aria-label=\"Unregister with this Team\">\n                            <mat-icon>remove</mat-icon>\n                        </button>\n                    </div>\n                </div>\n                <mat-accordion class=\"player-detail-accordion-container\">\n                    <mat-expansion-panel id=\"clash-bot-team-card-registered-player\"\n                                         class=\"player-details-player-inner-container\">\n                        <mat-expansion-panel-header\n                                id=\"clash-bot-team-card-registered-player-{{player.role | kebabcase}}\">\n                            <mat-panel-title>{{player.name}}</mat-panel-title>\n                            <mat-panel-description>{{player.role}}\n                                <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                            </mat-panel-description>\n                        </mat-expansion-panel-header>\n                        <div id=\"clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list\"\n                             class=\"player-champion-list-container\">\n                            <h4>Preferred Champions</h4>\n                            <ng-container *ngIf=\"player.champions && player.champions.length > 0\">\n                                <div class=\"champion-container\" *ngFor=\"let champion of player.champions\">\n                                    <img class=\"champion-img\"\n                                         src='https://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>\n                                    <p class=\"champion-name\">{{champion}}</p>\n                                </div>\n                            </ng-container>\n                            <p *ngIf=\"player.champions.length === 0\">None set</p>\n                        </div>\n                    </mat-expansion-panel>\n                </mat-accordion>\n            </div>\n        </ng-template>\n    </div>\n</div>\n"
         },
         {
             "name": "TeamsDashboardComponent",
@@ -6545,16 +6517,6 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "Primary",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6565,7 +6527,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6575,7 +6537,17 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6675,16 +6647,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<HelpDialogComponent>",
-                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6695,21 +6657,31 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<TeamCardComponent>",
-                "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<NewTeamCardComponent>",
                 "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<HelpDialogComponent>",
+                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamCardComponent>",
+                "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6739,7 +6711,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<TeamCardPlayerDetailsComponent>",
-                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n        ...args,\n        registerUserForRole: action('registerUserForRole'),\n        unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
+                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
             },
             {
                 "name": "TopWithDetails",
@@ -6974,7 +6946,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<TeamCardPlayerDetailsComponent>",
-                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n        ...args,\n        registerUserForRole: action('registerUserForRole'),\n        unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
+                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
                 },
                 {
                     "name": "TopWithDetails",
@@ -7226,28 +7198,6 @@
                     "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<HelpDialogComponent>",
-                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
-                }
-            ],
             "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts": [
                 {
                     "name": "Primary",
@@ -7268,6 +7218,28 @@
                     "deprecationMessage": "",
                     "type": "Story<NewTeamCardComponent>",
                     "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<HelpDialogComponent>",
+                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -7738,7 +7710,7 @@
                 "linktype": "component",
                 "name": "TeamCardPlayerDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/11",
+                "coverageCount": "0/10",
                 "status": "low"
             },
             {
