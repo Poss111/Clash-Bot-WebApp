@@ -924,7 +924,42 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-1",
+            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-1",
+            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 1,
+            "duplicateName": "TournamentDetails-1"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
             "file": "src/app/interfaces/clash-bot-user-register.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -954,12 +989,12 @@
             "kind": 165,
             "methods": [],
             "isDuplicate": true,
-            "duplicateId": 1,
-            "duplicateName": "TournamentDetails-1"
+            "duplicateId": 2,
+            "duplicateName": "TournamentDetails-2"
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-2",
+            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-3",
             "file": "src/app/interfaces/clash-team.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -983,41 +1018,6 @@
                     "optional": false,
                     "description": "",
                     "line": 20
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 2,
-            "duplicateName": "TournamentDetails-2"
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-7f5ffa9cb7344e51b46dd19dabe96b233d145a72c605f5f746f9c6227917f1304e60c231091ae99f6bfeab038d5c6d9ea6ec1bfff897fdb84a6cb5a8536e8e5c-3",
-            "file": "src/app/interfaces/clash-bot-tentative-request.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotTentativeRequest {\n  id: string,\n  serverName: string,\n  tournamentDetails: TournamentDetails\n}\n\ninterface TournamentDetails {\n  tournamentName: string,\n  tournamentDay: string\n}\n\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 9
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 8
                 }
             ],
             "indexSignatures": [],
@@ -1853,18 +1853,27 @@
         },
         {
             "name": "RiotDdragonService",
-            "id": "injectable-RiotDdragonService-aea9395c39bc4cacdcce1ad4167571804c80521ae32221a8547e177daa87035d6cf8cc7887f45d7819ab9970ec5da67571c383dae4ab15b3ebc4603f480333c9",
+            "id": "injectable-RiotDdragonService-0805fa186745c0a5b47667ebe6974cdc96a94be9be9eb9353e382dce26a7b556729a33e7c14afde6f2f873e3364754c896df96bf8ef1019f022effea5328c596",
             "file": "src/app/services/riot-ddragon.service.ts",
             "properties": [
                 {
-                    "name": "host",
-                    "defaultValue": "'https://ddragon.leagueoflegends.com/cdn/12.2.1/data/en_US'",
+                    "name": "baseHost",
+                    "defaultValue": "'https://ddragon.leagueoflegends.com'",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 11
+                    "line": 12
+                },
+                {
+                    "name": "host",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 13
                 }
             ],
             "methods": [
@@ -1874,7 +1883,7 @@
                     "optional": false,
                     "returnType": "Observable<ChampionData>",
                     "typeParameters": [],
-                    "line": 15,
+                    "line": 25,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -1883,7 +1892,7 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {HttpClient} from \"@angular/common/http\";\nimport {Observable} from \"rxjs\";\nimport {ChampionData} from \"../interfaces/championData\";\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class RiotDdragonService {\n\n  host: string = 'https://ddragon.leagueoflegends.com/cdn/12.2.1/data/en_US';\n\n  constructor(private httpClient: HttpClient) { }\n\n  getListOfChampions(): Observable<ChampionData> {\n      return this.httpClient.get<ChampionData>(`${this.host}/champion.json`);\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {HttpClient} from \"@angular/common/http\";\nimport {Observable} from \"rxjs\";\nimport {ChampionData} from \"../interfaces/championData\";\nimport {take} from \"rxjs/operators\";\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class RiotDdragonService {\n\n  baseHost: string = 'https://ddragon.leagueoflegends.com'\n  host?: string;\n\n  constructor(private httpClient: HttpClient) {\n      if (!this.host) {\n        this.httpClient.get<string[]>(`${this.baseHost}/api/versions.json`)\n          .pipe(take(1))\n          .subscribe((versions) => {\n              this.host = `${this.baseHost}/cdn/${versions.sort().pop()}`\n          });\n      }\n  }\n\n  getListOfChampions(): Observable<ChampionData> {\n      return this.httpClient.get<ChampionData>(`${this.host}/data/en_US/champion.json`);\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1897,7 +1906,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 11,
+                "line": 13,
                 "jsdoctags": [
                     {
                         "name": "httpClient",
@@ -6369,21 +6378,21 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.prod.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
             },
             {
                 "name": "Failed",
@@ -6428,7 +6437,7 @@
                 "name": "Loading",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6438,7 +6447,7 @@
                 "name": "Loading",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6508,7 +6517,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6528,7 +6537,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6538,7 +6547,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6638,11 +6647,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<HelpDialogComponent>",
-                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+                "type": "Story<GuildFilterListComponent>",
+                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6658,6 +6667,16 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<HelpDialogComponent>",
+                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6668,11 +6687,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<GuildFilterListComponent>",
-                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
+                "type": "Story<TeamsTentativeTableComponent>",
+                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6683,16 +6702,6 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamsDashboardViewComponent>",
                 "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: {\n      ...args,\n      createTeamEvent: action('createTeamEvent'),\n      unregisterFromTeamEvent: action('unregisterFromTeamEvent'),\n      registerForTeamEvent: action('registerForTeamEvent'),\n      tentativeRegisterEvent: action('tentativeRegisterEvent'),\n      filterTeamEvent: action('filterTeamEvent'),\n    },\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<TeamsTentativeTableComponent>",
-                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7046,18 +7055,6 @@
                     "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: undefined\n}"
                 }
             ],
-            "src/environments/environment.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -7068,6 +7065,18 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: true,\n  discordClientId: '837629412328734740',\n  gTag: 'G-3V8T97537S',\n  version: '--APP-VERSION--'\n}"
+                }
+            ],
+            "src/environments/environment.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false,\n  discordClientId: '839586949748228156',\n  version: 'v4.0.1',\n  gTag: false\n}"
                 }
             ],
             "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts": [
@@ -7189,28 +7198,6 @@
                     "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<HelpDialogComponent>",
-                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
-                }
-            ],
             "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts": [
                 {
                     "name": "Primary",
@@ -7231,6 +7218,28 @@
                     "deprecationMessage": "",
                     "type": "Story<NewTeamCardComponent>",
                     "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<HelpDialogComponent>",
+                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -8108,7 +8117,7 @@
                 "linktype": "injectable",
                 "name": "RiotDdragonService",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/5",
                 "status": "low"
             },
             {
