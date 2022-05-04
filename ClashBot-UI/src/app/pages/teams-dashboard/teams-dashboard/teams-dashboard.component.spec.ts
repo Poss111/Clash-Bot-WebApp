@@ -18,7 +18,7 @@ import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {Subject} from "rxjs";
-import {TeamsModule} from "../teams-module/teams.module";
+import {TeamsModule} from "../teams.module";
 
 jest.mock("../../../services/clash-bot.service");
 jest.mock("../../../services/application-details.service");

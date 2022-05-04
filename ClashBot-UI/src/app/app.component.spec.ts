@@ -11,7 +11,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatCardModule} from "@angular/material/card";
 import {Router} from "@angular/router";
-import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component";
+import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard.component";
 import {TeamsDashboardComponent} from "./pages/teams-dashboard/teams-dashboard/teams-dashboard.component";
 import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {MatChipsModule} from "@angular/material/chips";
