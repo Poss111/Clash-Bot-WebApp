@@ -6,10 +6,15 @@ import {MatIconModule} from "@angular/material/icon";
 import {SharedModule} from "../../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {RiotDdragonService} from "../../../../../services/riot-ddragon.service";
+import Mock = jest.Mock;
+
+jest.mock('../../../../../services/riot-ddragon.service')
 
 describe('TeamCardPlayerDetailsComponent', () => {
   let component: TeamCardPlayerDetailsComponent;
   let fixture: ComponentFixture<TeamCardPlayerDetailsComponent>;
+  let riotDdragonService: any;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -20,9 +25,13 @@ describe('TeamCardPlayerDetailsComponent', () => {
           SharedModule,
           MatExpansionModule,
           BrowserAnimationsModule
+      ],
+      providers: [
+          RiotDdragonService
       ]
     })
     .compileComponents();
+    riotDdragonService = TestBed.inject(RiotDdragonService);
   });
 
   beforeEach(() => {
@@ -42,6 +51,14 @@ describe('TeamCardPlayerDetailsComponent', () => {
       component.ngOnInit();
 
       expect(component.player.champions).toHaveLength(0)
+    })
+
+    test("If the riotDdragonService has a baseUrl, then it should populate the baseUrl property.", () => {
+      riotDdragonService.host = 'http://some.url';
+
+      component.ngOnInit();
+
+      expect(component.baseUrl).toEqual(riotDdragonService.host)
     })
   })
 
