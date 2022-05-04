@@ -40,7 +40,6 @@
     "ngx-markdown": "^12.0.1",
     "npm": "^6.14.14",
     "rxjs": "~6.6.0",
-    "storybook-dark-mode": "^1.1.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },
@@ -73,6 +72,7 @@
     "jest-marbles": "^2.5.1",
     "jest-preset-angular": "^9.0.5",
     "karma-coverage": "~2.0.3",
+    "storybook-dark-mode": "^1.1.0",
     "typescript": "~4.3.5",
     "webpack-bundle-analyzer": "^4.4.2"
   },
