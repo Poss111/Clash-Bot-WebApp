@@ -25,8 +25,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
 
     @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
 
-    constructor(private dialog: MatDialog) {
-    }
+    constructor(private dialog: MatDialog) {}
 
     tentativeRegister(element: ClashBotTentativeDetails, index: number) {
         let actionMessage = 'added to';
