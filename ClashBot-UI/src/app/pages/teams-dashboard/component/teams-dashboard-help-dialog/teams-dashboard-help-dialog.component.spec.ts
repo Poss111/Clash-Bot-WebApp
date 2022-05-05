@@ -12,7 +12,7 @@ describe('TeamsDashboardHelpDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ TeamsDashboardHelpDialogComponent ],
-      imports: [ MatIconModule, MatChipsModule, MatDialogModule]
+      imports: [ MatIconModule, MatChipsModule, MatDialogModule ]
     })
     .compileComponents();
   });

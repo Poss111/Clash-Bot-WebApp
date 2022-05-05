@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HelpDialogComponent } from './help-dialog.component';
 import {MatIconModule} from "@angular/material/icon";
 import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatDialogModule} from "@angular/material/dialog";
 
 describe('HelpDialogComponent', () => {
   let component: HelpDialogComponent;
@@ -11,7 +13,7 @@ describe('HelpDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ HelpDialogComponent, TeamsDashboardHelpDialogComponent ],
-      imports: [ MatIconModule ]
+      imports: [ MatIconModule, MatChipsModule, MatDialogModule ]
     })
     .compileComponents();
   });
