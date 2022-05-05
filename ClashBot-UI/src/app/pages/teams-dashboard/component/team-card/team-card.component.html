@@ -1,0 +1,44 @@
+<mat-card id="clash-bot-team-card" class="clash-bot-team-card">
+    <div *ngIf="!team.error; else elseBlock">
+        <mat-card-header>
+            <img mat-card-avatar
+                 [src]="'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'"
+            appImageFallback/>
+            <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.serverName}}
+                - {{team.teamName}}</mat-card-title>
+            <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-tournament'"
+                               *ngIf="team.tournamentDetails">{{ team.tournamentDetails.tournamentName | tournamentNameTransformer }} -
+                Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
+            <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-start'">Start
+                Time: {{team.startTime | date:dateFormat:timezoneOffset }}
+            </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[0]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[1]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[2]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[3]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+              <app-team-card-player-details *ngIf="team.playersDetails"
+                                            [player]="team.playersDetails[4]"
+              (registerUserForRole)="registerToTeam($event)"
+              (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
+        </mat-card-content>
+    </div>
+    <ng-template #elseBlock>
+        <mat-card-content id="clash-bot-team-card-no-data">
+            <h2>No Data :(</h2>
+        </mat-card-content>
+    </ng-template>
+</mat-card>

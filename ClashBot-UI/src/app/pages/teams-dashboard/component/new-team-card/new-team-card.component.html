@@ -1,0 +1,33 @@
+<mat-card id="clash-bot-teams-card-create-new-team-card" class="clash-bot-teams-card-create-new-container">
+    <h2>Create a new Team</h2>
+    <div class="clash-bot-teams-card-create-new-form-container">
+        <button id="clash-bot-teams-card-create-new-button" *ngIf="!creatingNewTeam" mat-mini-fab color="primary"
+                aria-label="Create a new Team" (click)="creatingNewTeam = true">
+            <mat-icon>add</mat-icon>
+        </button>
+        <form *ngIf="creatingNewTeam" class="clash-bot-teams-card-create-new-forms">
+            <mat-form-field appearance="fill">
+                <mat-label>Choose a Tournament</mat-label>
+                <mat-select id="clash-bot-teams-card-create-new-tournament-dropdown"
+                            [formControl]="tournamentControl" required>
+                    <mat-option
+                            [id]="'clash-bot-teams-card-create-new-dropdown-' + eligibleTournament.tournamentName + '-' + eligibleTournament.tournamentDay"
+                            #option="matOption" (click)="createNewTeam(option)" *ngFor="let eligibleTournament of eligibleTournaments"
+                            value="{{eligibleTournament.tournamentName}} {{eligibleTournament.tournamentDay}}">{{eligibleTournament.tournamentName}}
+                        - Day {{eligibleTournament.tournamentDay}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+                <mat-label>Choose a Role</mat-label>
+                <mat-select id="clash-bot-teams-card-create-new-role-dropdown"
+                            [formControl]="roleControl" required>
+                    <mat-option
+                            id="clash-bot-teams-card-create-new-dropdown-{{roleString | kebabcase}}"
+                            #option="matOption" (click)="createNewTeam(option)" *ngFor="let roleString of rolesAsString"
+                            value="{{roleString}}">{{roleString}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </form>
+    </div>
+</mat-card>

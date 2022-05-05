@@ -11,7 +11,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatCardModule} from "@angular/material/card";
 import {Router} from "@angular/router";
-import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component";
+import {WelcomeDashboardComponent} from "./pages/welcome-dashboard/welcome-dashboard.component";
 import {TeamsDashboardComponent} from "./pages/teams-dashboard/teams-dashboard/teams-dashboard.component";
 import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {MatChipsModule} from "@angular/material/chips";
@@ -33,10 +33,12 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ClashTournamentCalendarHeaderComponent} from "./clash-tournament-calendar-header/clash-tournament-calendar-header.component";
 import {ReleaseNotificationDialogComponent} from "./dialogs/release-notification-dialog/release-notification-dialog.component";
 import {SharedModule} from "./shared/shared.module";
+import {RiotDdragonService} from "./services/riot-ddragon.service";
 
 jest.mock('./services/user-details.service');
 jest.mock('./services/application-details.service');
 jest.mock('./google-analytics.service');
+jest.mock('./services/riot-ddragon.service');
 
 @NgModule({
   declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
@@ -46,11 +48,11 @@ jest.mock('./google-analytics.service');
 class WelcomeDashboardTestModule {
 }
 
-
 describe('AppComponent', () => {
   let userDetailsServiceMock: any;
   let applicationDetailsMock: any;
   let googleAnalyticsService: any;
+  let riotDdragonServiceMock: any;
   let router: Router;
   let location: Location;
   let testScheduler: TestScheduler;
@@ -82,7 +84,8 @@ describe('AppComponent', () => {
         SharedModule
       ],
       declarations: [AppComponent, WelcomeDashboardComponent, TeamsDashboardComponent],
-      providers: [UserDetailsService,
+      providers: [
+        UserDetailsService,
         ApplicationDetailsService,
         OAuthService,
         UrlHelperService,
@@ -91,12 +94,15 @@ describe('AppComponent', () => {
         ClashBotService,
         DiscordService,
         MatDialog,
-        GoogleAnalyticsService],
+        GoogleAnalyticsService,
+        RiotDdragonService
+      ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     userDetailsServiceMock = TestBed.inject(UserDetailsService);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
     googleAnalyticsService = TestBed.inject(GoogleAnalyticsService);
+    riotDdragonServiceMock = TestBed.inject(RiotDdragonService);
     router = TestBed.inject(Router);
     location = TestBed.inject(Location);
     router.initialNavigation();
@@ -108,7 +114,7 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  test('should check to see if the appropriate user details have been loaded for the User Details and Application Details subjects.', () => {
+  test('should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     testScheduler.run(helper => {
@@ -142,12 +148,20 @@ describe('AppComponent', () => {
         }]
       };
 
+      let mockLeagueVersion: String[] = [
+          "12.8.2",
+          "12.8.1"
+      ]
+
       let userDetailsObs = cold('x----z|', {x: mockUserDetails, z: mockUserDetailsPopulated});
       let applicationObs = cold('x----z|', {x: mockApplicationDetails, z: mockApplicationDetailsPopulated});
+      let riotVersionObs = cold('x|', {x: mockLeagueVersion});
 
       userDetailsServiceMock.getUserDetails.mockReturnValue(userDetailsObs);
       applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationObs);
+      riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
 
+      expect(window.localStorage.getItem('leagueApiVersion')).toBeFalsy();
       expect(app.userDetailsLoaded).toBeFalsy();
       expect(app.applicationDetailsLoaded).toBeFalsy();
 
@@ -155,6 +169,7 @@ describe('AppComponent', () => {
 
       flush();
 
+      expect(window.localStorage.getItem('leagueApiVersion')).toEqual('12.8.2');
       expect(app.userDetailsLoaded).toBeTruthy();
       expect(app.applicationDetailsLoaded).toBeTruthy();
     })
@@ -164,6 +179,7 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     userDetailsServiceMock.getUserDetails.mockReturnValue(of({ id: '', username: '', discriminator: '12321312'}));
     applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+    riotDdragonServiceMock.getVersions.mockReturnValue(of(['12.8.1']));
     const app = fixture.componentInstance;
     fixture.detectChanges();
     app.navigateToTeams();
@@ -180,6 +196,7 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     userDetailsServiceMock.getUserDetails.mockReturnValue(of({ id: '', username: '', discriminator: '12321312'}));
     applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+    riotDdragonServiceMock.getVersions.mockReturnValue(of(['12.8.1']));
     const app = fixture.componentInstance;
     fixture.detectChanges();
     app.navigateToTeams();

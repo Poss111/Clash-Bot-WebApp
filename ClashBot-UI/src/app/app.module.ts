@@ -11,7 +11,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {ClashBotService} from "./services/clash-bot.service";
-import { WelcomeDashboardComponent } from './pages/welcome-dashboard/welcome-dashboard/welcome-dashboard.component';
+import { WelcomeDashboardComponent } from './pages/welcome-dashboard/welcome-dashboard.component';
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule} from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";
@@ -23,7 +23,7 @@ import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card/upcoming-tournament-details-card.component';
 import {MatListModule} from "@angular/material/list";
-import {TeamsModule} from "./pages/teams-dashboard/teams-module/teams.module";
+import {TeamsModule} from "./pages/teams-dashboard/teams.module";
 import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
@@ -31,40 +31,44 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    WelcomeDashboardComponent,
-    ClashTournamentCalendarComponent,
-    ClashTournamentCalendarHeaderComponent,
-    UpcomingTournamentDetailsCardComponent,
-    ReleaseNotificationDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatMenuModule,
-    MatProgressBarModule,
-    MatListModule,
-    MatSlideToggleModule,
-    ReactiveFormsModule,
-    OAuthModule.forRoot(),
-    TeamsModule,
-    MarkdownModule.forRoot({
-      sanitize: SecurityContext.HTML
-    })
-  ],
-  providers: [ClashBotService, DiscordService, {provide: HTTP_INTERCEPTORS, useClass: DiscordInterceptor, multi: true}],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        WelcomeDashboardComponent,
+        ClashTournamentCalendarComponent,
+        ClashTournamentCalendarHeaderComponent,
+        UpcomingTournamentDetailsCardComponent,
+        ReleaseNotificationDialogComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatMenuModule,
+        MatProgressBarModule,
+        MatListModule,
+        MatSlideToggleModule,
+        ReactiveFormsModule,
+        OAuthModule.forRoot(),
+        TeamsModule,
+        MarkdownModule.forRoot({
+            sanitize: SecurityContext.HTML
+        })
+    ],
+    providers: [ClashBotService, DiscordService, {
+        provide: HTTP_INTERCEPTORS,
+        useClass: DiscordInterceptor,
+        multi: true
+    }],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

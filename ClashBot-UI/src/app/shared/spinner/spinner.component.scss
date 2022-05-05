@@ -1,0 +1,45 @@
+.progress-spinner {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.loading-animation {
+  display: flex;
+}
+
+.animated-dot-one {
+  animation-duration: 3s;
+  animation-name: slidein;
+  animation-delay: 0.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.animated-dot-two {
+  animation-duration: 3s;
+  animation-name: slidein;
+  animation-delay: 0.75s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.animated-dot-three {
+  animation-duration: 3s;
+  animation-name: slidein;
+  animation-delay: 1s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes slidein {
+  from {
+    margin-left:40%;
+  }
+}
