@@ -54,11 +54,11 @@ describe('TeamCardPlayerDetailsComponent', () => {
     })
 
     test("If the riotDdragonService has a baseUrl, then it should populate the baseUrl property.", () => {
-      riotDdragonService.host = 'http://some.url';
+      window.localStorage.setItem('leagueApiVersion', '12.8.1');
 
       component.ngOnInit();
 
-      expect(component.baseUrl).toEqual(riotDdragonService.host)
+      expect(component.apiVersion).toEqual('12.8.1')
     })
   })
 

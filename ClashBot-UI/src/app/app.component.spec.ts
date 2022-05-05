@@ -48,7 +48,6 @@ jest.mock('./services/riot-ddragon.service');
 class WelcomeDashboardTestModule {
 }
 
-
 describe('AppComponent', () => {
   let userDetailsServiceMock: any;
   let applicationDetailsMock: any;
@@ -180,6 +179,7 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     userDetailsServiceMock.getUserDetails.mockReturnValue(of({ id: '', username: '', discriminator: '12321312'}));
     applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+    riotDdragonServiceMock.getVersions.mockReturnValue(of(['12.8.1']));
     const app = fixture.componentInstance;
     fixture.detectChanges();
     app.navigateToTeams();
@@ -196,6 +196,7 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     userDetailsServiceMock.getUserDetails.mockReturnValue(of({ id: '', username: '', discriminator: '12321312'}));
     applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+    riotDdragonServiceMock.getVersions.mockReturnValue(of(['12.8.1']));
     const app = fixture.componentInstance;
     fixture.detectChanges();
     app.navigateToTeams();
