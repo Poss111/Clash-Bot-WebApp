@@ -11,10 +11,10 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get(`#clash-bot-team-card-${id}-players #clash-bot-team-card-registered-player`)
         .should('have.length', numberOfPlayers);
     if (playerToBeContained) {
-      cy.get(`#clash-bot-team-card-${id}-players #clash-bot-team-card-registered-player>h2`)
+      cy.get(`#clash-bot-team-card-${id}-players #clash-bot-team-card-registered-player mat-panel-title`)
           .should('contain.text', playerToBeContained);
     } else {
-      cy.get(`#clash-bot-team-card-${id}-players #clash-bot-team-card-registered-player>h2`)
+      cy.get(`#clash-bot-team-card-${id}-players #clash-bot-team-card-registered-player mat-panel-title`)
           .should('not.contain.text', playerToNotBeContained);
     }
   }
@@ -34,7 +34,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-teams-card-create-new-team-card').should('exist');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-title').should('have.text', 'LoL-ClashBotSupport - Team Pikachu');
     cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-subtitle-tournament').should('have.text', 'Awesome Sauce - Day 2');
-    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players>app-team-card-player-details>div>div>div>div>h2').should('have.length.greaterThan', 4);
+    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players mat-accordion').should('have.length.greaterThan', 4);
   })
 
   it('Check to see if User is able to create a new Team on a Server that does not have any Clash Teams', () => {

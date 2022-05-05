@@ -2,7 +2,8 @@ export interface ClashBotTentativeDetails {
   serverName: string,
   tentativePlayers: string[],
   tournamentDetails: TournamentDetails
-  isMember?: boolean
+  isMember?: boolean,
+  index?: number
 }
 
 

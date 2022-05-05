@@ -1,0 +1,30 @@
+@media only screen and (max-width: 500px) {
+  .clash-bot-team-card {
+    max-width: 250px;
+  }
+}
+
+@media only screen and (min-width: 501px) {
+  .clash-bot-team-card {
+    max-width: 400px;
+  }
+}
+
+.clash-bot-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.player-champion-list-container {
+  margin-left: 1em;
+}
+
+.clash-bot-player-details-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.clash-bot-role-button {
+  display: flex;
+  align-items: center;
+}

@@ -7,6 +7,10 @@ import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
 import {FormControl} from "@angular/forms";
+import {MatIconRegistry} from "@angular/material/icon";
+import {DomSanitizer} from "@angular/platform-browser";
+import {RiotDdragonService} from "./services/riot-ddragon.service";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -28,7 +32,21 @@ export class AppComponent implements OnInit, OnDestroy{
   constructor(private router: Router,
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
-              private googleAnalyticsService: GoogleAnalyticsService) {}
+              private googleAnalyticsService: GoogleAnalyticsService,
+              private riotDdragonService: RiotDdragonService,
+              private matIconRegistry: MatIconRegistry,
+              private sanitizer: DomSanitizer) {
+      this.matIconRegistry.addSvgIcon('league-top',
+        this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));
+      this.matIconRegistry.addSvgIcon('league-mid',
+        this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));
+      this.matIconRegistry.addSvgIcon('league-jg',
+        this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));
+      this.matIconRegistry.addSvgIcon('league-bot',
+        this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));
+      this.matIconRegistry.addSvgIcon('league-supp',
+        this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));
+  }
 
   ngOnInit(): void {
     this.toggleDarkMode(this.darkModeFormControl.value);
@@ -48,10 +66,13 @@ export class AppComponent implements OnInit, OnDestroy{
       if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
         this.applicationDetailsLoaded = true;
     })
+    this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
+      window.localStorage.setItem('leagueApiVersion', versions[0]);
+    });
   }
 
   toggleDarkMode(turnDarkModeOn: boolean) {
-    const darkModeClassName = 'darkMode';
+    const darkModeClassName = 'dark';
     this.className = turnDarkModeOn ? darkModeClassName : '';
     localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
   }
