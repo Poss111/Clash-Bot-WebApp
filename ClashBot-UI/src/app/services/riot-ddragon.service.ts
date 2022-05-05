@@ -17,7 +17,7 @@ export class RiotDdragonService {
         this.httpClient.get<string[]>(`${this.baseHost}/api/versions.json`)
           .pipe(take(1))
           .subscribe((versions) => {
-              this.host = `${this.baseHost}/cdn/${versions.sort().pop()}`
+              this.host = `${this.baseHost}/cdn/${versions[0]}`
           });
       }
   }

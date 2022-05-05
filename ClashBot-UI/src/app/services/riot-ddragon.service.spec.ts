@@ -1,9 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 
 import {RiotDdragonService} from './riot-ddragon.service';
-import {HttpClientModule} from "@angular/common/http";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {DiscordService} from "./discord.service";
 
 describe('RiotDdragonService', () => {
     let service: RiotDdragonService;
@@ -20,12 +18,12 @@ describe('RiotDdragonService', () => {
 
     test('should be created', (done) => {
         let mockVersions = [
+            "12.8.1",
             "12.4.1",
             "12.3.1",
             "12.1.1",
             "11.21.1",
             "12.6.1",
-            "12.8.1",
             "12.7.1",
             "12.5.1",
             "12.2.1",
