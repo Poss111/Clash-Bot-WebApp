@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TeamsDashboardViewComponent } from './teams-dashboard-view.component';
+import {CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA} from "@angular/core";
 
 describe('TeamsDashboardViewComponent', () => {
   let component: TeamsDashboardViewComponent;
@@ -8,7 +9,8 @@ describe('TeamsDashboardViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TeamsDashboardViewComponent ]
+      declarations: [ TeamsDashboardViewComponent ],
+      schemas: [ CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA ]
     })
     .compileComponents();
   });

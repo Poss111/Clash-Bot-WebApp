@@ -32,10 +32,10 @@ import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notifica
 import {MarkdownModule} from "ngx-markdown";
 
 jest.mock("angular-oauth2-oidc");
-jest.mock("../../../services/clash-bot.service");
-jest.mock("../../../services/discord.service");
-jest.mock("../../../services/user-details.service");
-jest.mock("../../../services/application-details.service");
+jest.mock("../../services/clash-bot.service");
+jest.mock("../../services/discord.service");
+jest.mock("../../services/user-details.service");
+jest.mock("../../services/application-details.service");
 jest.mock("@angular/material/snack-bar");
 
 @NgModule({

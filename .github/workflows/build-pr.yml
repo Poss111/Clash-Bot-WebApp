@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Produciton build check In Progress Discord Webhook
+      - name: Production build check In Progress Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}

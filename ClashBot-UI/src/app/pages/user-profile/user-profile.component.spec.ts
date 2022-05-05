@@ -18,10 +18,10 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {ApplicationDetails} from "../../interfaces/application-details";
 
-jest.mock('../../../services/clash-bot.service')
-jest.mock('../../../services/riot-ddragon.service')
-jest.mock('../../../services/user-details.service')
-jest.mock('../../../services/application-details.service')
+jest.mock('../../services/clash-bot.service');
+jest.mock('../../services/riot-ddragon.service');
+jest.mock('../../services/user-details.service');
+jest.mock('../../services/application-details.service');
 
 describe('UserProfileComponent', () => {
   let component: UserProfileComponent;
