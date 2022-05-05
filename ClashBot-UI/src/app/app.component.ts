@@ -9,6 +9,8 @@ import {ApplicationDetailsService} from "./services/application-details.service"
 import {FormControl} from "@angular/forms";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
+import {RiotDdragonService} from "./services/riot-ddragon.service";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -31,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy{
               private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
               private googleAnalyticsService: GoogleAnalyticsService,
+              private riotDdragonService: RiotDdragonService,
               private matIconRegistry: MatIconRegistry,
               private sanitizer: DomSanitizer) {
       this.matIconRegistry.addSvgIcon('league-top',
@@ -63,6 +66,9 @@ export class AppComponent implements OnInit, OnDestroy{
       if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
         this.applicationDetailsLoaded = true;
     })
+    this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
+      window.localStorage.setItem('leagueApiVersion', versions[0]);
+    });
   }
 
   toggleDarkMode(turnDarkModeOn: boolean) {

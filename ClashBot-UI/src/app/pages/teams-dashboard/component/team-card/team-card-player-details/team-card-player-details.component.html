@@ -42,7 +42,7 @@
                             <ng-container *ngIf="player.champions && player.champions.length > 0">
                                 <div class="champion-container" *ngFor="let champion of player.champions">
                                     <img class="champion-img"
-                                         src='{{baseUrl}}/img/champion/{{champion}}.png'/>
+                                         src='https://ddragon.leagueoflegends.com/cdn/{{apiVersion}}/img/champion/{{champion}}.png'/>
                                     <p class="champion-name">{{champion}}</p>
                                 </div>
                             </ng-container>

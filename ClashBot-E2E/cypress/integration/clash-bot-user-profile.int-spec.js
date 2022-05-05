@@ -3,7 +3,6 @@ let initialUserData = {};
 
 describe('Validate User Profile of Clash Bot', () => {
   before(() => {
-    localStorage.setItem('version', 'v4.0.1');
     cy.visit('http://localhost:4200');
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
@@ -13,6 +12,11 @@ describe('Validate User Profile of Clash Bot', () => {
           initialUserData = response.body;
           initialUserData.playerName = 'Roïdräge';
         });
+  })
+
+  beforeEach(() => {
+    localStorage.setItem('version', 'v4.0.1');
+    localStorage.setItem('leagueApiVersion', '12.8.1');
   })
 
   after(() => {

@@ -29,13 +29,14 @@ export class TeamCardPlayerDetailsComponent implements OnInit {
     unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();
 
     showPlayerDetails: boolean = false;
-    baseUrl: string = 'https://ddragon.leagueoflegends.com/cdn/12.8.1';
+    apiVersion?: string;
 
-    constructor(private riotDdragonService: RiotDdragonService) {}
+    constructor() {}
 
     ngOnInit() {
-        if (this.riotDdragonService.host) {
-            this.baseUrl = this.riotDdragonService.host
+        const lsApiVersion = window.localStorage.getItem('leagueApiVersion');
+        if (lsApiVersion && !this.apiVersion) {
+            this.apiVersion = lsApiVersion;
         }
         if (!this.player.champions) {
             this.player.champions=[];

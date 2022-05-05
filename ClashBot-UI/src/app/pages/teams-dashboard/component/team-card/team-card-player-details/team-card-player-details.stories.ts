@@ -38,6 +38,7 @@ export default {
 const Template: Story<TeamCardPlayerDetailsComponent> = (args: TeamCardPlayerDetailsComponent) => ({
     props: {
         ...args,
+        apiVersion: '12.8.1',
         registerUserForRole: action('registerUserForRole'),
         unregisterUserForRole: action('unregisterUserForRole')
     },

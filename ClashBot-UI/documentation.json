@@ -959,42 +959,7 @@
         },
         {
             "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-2",
-            "file": "src/app/interfaces/clash-bot-user-register.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "export interface ClashBotUserRegister {\n  teamName?: string,\n  role?: string,\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\ninterface TournamentDetails {\n  tournamentName?: string,\n  tournamentDay?: string\n}\n",
-            "properties": [
-                {
-                    "name": "tournamentDay",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": true,
-                    "description": "",
-                    "line": 13
-                },
-                {
-                    "name": "tournamentName",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": true,
-                    "description": "",
-                    "line": 12
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 165,
-            "methods": [],
-            "isDuplicate": true,
-            "duplicateId": 2,
-            "duplicateName": "TournamentDetails-2"
-        },
-        {
-            "name": "TournamentDetails",
-            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-3",
+            "id": "interface-TournamentDetails-208995fe8433a1240aff79271aee451b1fc9406a4d7ac311df00407a964d01cab9bdff8f48e1e82a547279f4919833b018104d378e42341094230cf00f030910-2",
             "file": "src/app/interfaces/clash-team.ts",
             "deprecated": false,
             "deprecationMessage": "",
@@ -1018,6 +983,41 @@
                     "optional": false,
                     "description": "",
                     "line": 20
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 165,
+            "methods": [],
+            "isDuplicate": true,
+            "duplicateId": 2,
+            "duplicateName": "TournamentDetails-2"
+        },
+        {
+            "name": "TournamentDetails",
+            "id": "interface-TournamentDetails-9b5c0d429e13aa19be2652d4f6a3e28e4268fb87f578c9b3ca2a2f0f3cf81bc97b6456f7ac1155cec8b959aa384fc3ed5240bf365305fbff22fa34cef77f24a9-3",
+            "file": "src/app/interfaces/clash-bot-user-register.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ClashBotUserRegister {\n  teamName?: string,\n  role?: string,\n  tournamentDetails?: TournamentDetails,\n  serverName?: string,\n  startTime?: string\n  error?: string,\n  id?: string\n}\n\ninterface TournamentDetails {\n  tournamentName?: string,\n  tournamentDay?: string\n}\n",
+            "properties": [
+                {
+                    "name": "tournamentDay",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "tournamentName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 12
                 }
             ],
             "indexSignatures": [],
@@ -1853,7 +1853,7 @@
         },
         {
             "name": "RiotDdragonService",
-            "id": "injectable-RiotDdragonService-0805fa186745c0a5b47667ebe6974cdc96a94be9be9eb9353e382dce26a7b556729a33e7c14afde6f2f873e3364754c896df96bf8ef1019f022effea5328c596",
+            "id": "injectable-RiotDdragonService-c41dbf0fb7e537ba0e95d794208cdaaa39663a6541588975a3a8b8dc8111cf095f705ac916eed30f88e6f7234a0846fe8caac2d5a8328bac2e239afa6e3961ae",
             "file": "src/app/services/riot-ddragon.service.ts",
             "properties": [
                 {
@@ -1865,15 +1865,6 @@
                     "optional": false,
                     "description": "",
                     "line": 12
-                },
-                {
-                    "name": "host",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": true,
-                    "description": "",
-                    "line": 13
                 }
             ],
             "methods": [
@@ -1883,7 +1874,17 @@
                     "optional": false,
                     "returnType": "Observable<ChampionData>",
                     "typeParameters": [],
-                    "line": 25,
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "getVersions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Observable<string[]>",
+                    "typeParameters": [],
+                    "line": 20,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -1892,7 +1893,7 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {HttpClient} from \"@angular/common/http\";\nimport {Observable} from \"rxjs\";\nimport {ChampionData} from \"../interfaces/championData\";\nimport {take} from \"rxjs/operators\";\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class RiotDdragonService {\n\n  baseHost: string = 'https://ddragon.leagueoflegends.com'\n  host?: string;\n\n  constructor(private httpClient: HttpClient) {\n      if (!this.host) {\n        this.httpClient.get<string[]>(`${this.baseHost}/api/versions.json`)\n          .pipe(take(1))\n          .subscribe((versions) => {\n              this.host = `${this.baseHost}/cdn/${versions.sort().pop()}`\n          });\n      }\n  }\n\n  getListOfChampions(): Observable<ChampionData> {\n      return this.httpClient.get<ChampionData>(`${this.host}/data/en_US/champion.json`);\n  }\n}\n",
+            "sourceCode": "import {Injectable} from '@angular/core';\nimport {HttpClient} from \"@angular/common/http\";\nimport {Observable} from \"rxjs\";\nimport {ChampionData} from \"../interfaces/championData\";\nimport {take} from \"rxjs/operators\";\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class RiotDdragonService {\n\n    baseHost: string = 'https://ddragon.leagueoflegends.com'\n\n    constructor(private httpClient: HttpClient) {}\n\n    getListOfChampions(): Observable<ChampionData> {\n        return this.httpClient.get<ChampionData>(`${this.baseHost}/cdn/${window.localStorage.getItem('leagueApiVersion')}/data/en_US/champion.json`);\n    }\n\n    getVersions(): Observable<string[]>{\n        return this.httpClient.get<string[]>(`${this.baseHost}/api/versions.json`)\n    }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1906,7 +1907,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 13,
+                "line": 12,
                 "jsdoctags": [
                     {
                         "name": "httpClient",
@@ -2251,7 +2252,7 @@
     "components": [
         {
             "name": "AppComponent",
-            "id": "component-AppComponent-c3097228f96f7ceb373bb89a87c2632aa1c8ad0951f777a513f18d868d01547ad74c9cf8482682dedef9fc4d3c2d8e81e0fb3c3ad105c78af8e4988231ff979e",
+            "id": "component-AppComponent-7174c3c9177e87d6c6f34247df3adbb1ee71c58c216611c764fa37d6488f0f7b3ba14f7181c9b95f53566e3a28baf3547145010425381fb11aaa1876699ec2c4",
             "file": "src/app/app.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2278,7 +2279,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 23
                 },
                 {
                     "name": "applicationDetailsSub$",
@@ -2287,7 +2288,7 @@
                     "type": "Subscription",
                     "optional": true,
                     "description": "",
-                    "line": 23
+                    "line": 25
                 },
                 {
                     "name": "appVersion",
@@ -2297,7 +2298,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 21
                 },
                 {
                     "name": "className",
@@ -2307,7 +2308,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 28,
+                    "line": 30,
                     "decorators": [
                         {
                             "name": "HostBinding",
@@ -2323,7 +2324,7 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 26
+                    "line": 28
                 },
                 {
                     "name": "userDetailsLoaded",
@@ -2333,7 +2334,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 22
                 },
                 {
                     "name": "userDetailsSub$",
@@ -2342,7 +2343,7 @@
                     "type": "Subscription",
                     "optional": true,
                     "description": "",
-                    "line": 22
+                    "line": 24
                 },
                 {
                     "name": "username",
@@ -2352,7 +2353,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 24
+                    "line": 26
                 }
             ],
             "methodsClass": [
@@ -2362,7 +2363,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 83,
+                    "line": 89,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2372,7 +2373,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 87,
+                    "line": 93,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2382,7 +2383,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 79,
+                    "line": 85,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2392,7 +2393,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 74,
+                    "line": 80,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2402,7 +2403,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 48,
+                    "line": 51,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2419,7 +2420,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 68,
+                    "line": 74,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -2443,7 +2444,7 @@
                     "defaultValue": "''",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 28,
+                    "line": 30,
                     "type": "string",
                     "decorators": []
                 }
@@ -2452,7 +2453,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';\nimport {NavigationEnd, Router} from \"@angular/router\";\nimport {UserDetailsService} from \"./services/user-details.service\";\nimport {UserDetails} from \"./interfaces/user-details\";\nimport {Observable, Subscription} from \"rxjs\";\nimport {environment} from \"../environments/environment\";\nimport {GoogleAnalyticsService} from \"./google-analytics.service\";\nimport {ApplicationDetailsService} from \"./services/application-details.service\";\nimport {FormControl} from \"@angular/forms\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.component.html',\n  styleUrls: ['./app.component.scss']\n})\nexport class AppComponent implements OnInit, OnDestroy{\n  appVersion: string = environment.version;\n  userDetailsLoaded: boolean = false;\n  applicationDetailsLoaded: boolean = false;\n  userDetailsSub$?: Subscription;\n  applicationDetailsSub$?: Subscription;\n  username: string = '';\n\n  darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');\n\n  @HostBinding('class') className = '';\n\n  constructor(private router: Router,\n              private userDetailsService: UserDetailsService,\n              private applicationDetailsService: ApplicationDetailsService,\n              private googleAnalyticsService: GoogleAnalyticsService,\n              private matIconRegistry: MatIconRegistry,\n              private sanitizer: DomSanitizer) {\n      this.matIconRegistry.addSvgIcon('league-top',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));\n      this.matIconRegistry.addSvgIcon('league-mid',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));\n      this.matIconRegistry.addSvgIcon('league-jg',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));\n      this.matIconRegistry.addSvgIcon('league-bot',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));\n      this.matIconRegistry.addSvgIcon('league-supp',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));\n  }\n\n  ngOnInit(): void {\n    this.toggleDarkMode(this.darkModeFormControl.value);\n    this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));\n    this.router.events.subscribe(event => {\n      if(event instanceof NavigationEnd) {\n        this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);\n      }\n    })\n    this.userDetailsSub$ = this.userDetailsService.getUserDetails().subscribe((userDetails) => {\n      if (userDetails.username && userDetails.username != '') {\n        this.username = userDetails.username;\n        this.userDetailsLoaded = true;\n      }\n    })\n    this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {\n      if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)\n        this.applicationDetailsLoaded = true;\n    })\n  }\n\n  toggleDarkMode(turnDarkModeOn: boolean) {\n    const darkModeClassName = 'dark';\n    this.className = turnDarkModeOn ? darkModeClassName : '';\n    localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));\n  }\n\n  ngOnDestroy() {\n    this.userDetailsSub$?.unsubscribe();\n    this.applicationDetailsSub$?.unsubscribe();\n  }\n\n  navigateToWelcomePage() {\n    this.router.navigate(['/']);\n  }\n\n  navigateToTeams() {\n    this.router.navigate(['/teams']);\n  }\n\n  navigateToUserProfile() {\n    this.router.navigate(['/user-profile']);\n  }\n}\n",
+            "sourceCode": "import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';\nimport {NavigationEnd, Router} from \"@angular/router\";\nimport {UserDetailsService} from \"./services/user-details.service\";\nimport {UserDetails} from \"./interfaces/user-details\";\nimport {Observable, Subscription} from \"rxjs\";\nimport {environment} from \"../environments/environment\";\nimport {GoogleAnalyticsService} from \"./google-analytics.service\";\nimport {ApplicationDetailsService} from \"./services/application-details.service\";\nimport {FormControl} from \"@angular/forms\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\nimport {RiotDdragonService} from \"./services/riot-ddragon.service\";\nimport {take} from \"rxjs/operators\";\n\n@Component({\n  selector: 'app-root',\n  templateUrl: './app.component.html',\n  styleUrls: ['./app.component.scss']\n})\nexport class AppComponent implements OnInit, OnDestroy{\n  appVersion: string = environment.version;\n  userDetailsLoaded: boolean = false;\n  applicationDetailsLoaded: boolean = false;\n  userDetailsSub$?: Subscription;\n  applicationDetailsSub$?: Subscription;\n  username: string = '';\n\n  darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');\n\n  @HostBinding('class') className = '';\n\n  constructor(private router: Router,\n              private userDetailsService: UserDetailsService,\n              private applicationDetailsService: ApplicationDetailsService,\n              private googleAnalyticsService: GoogleAnalyticsService,\n              private riotDdragonService: RiotDdragonService,\n              private matIconRegistry: MatIconRegistry,\n              private sanitizer: DomSanitizer) {\n      this.matIconRegistry.addSvgIcon('league-top',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));\n      this.matIconRegistry.addSvgIcon('league-mid',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));\n      this.matIconRegistry.addSvgIcon('league-jg',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));\n      this.matIconRegistry.addSvgIcon('league-bot',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));\n      this.matIconRegistry.addSvgIcon('league-supp',\n        this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));\n  }\n\n  ngOnInit(): void {\n    this.toggleDarkMode(this.darkModeFormControl.value);\n    this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));\n    this.router.events.subscribe(event => {\n      if(event instanceof NavigationEnd) {\n        this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);\n      }\n    })\n    this.userDetailsSub$ = this.userDetailsService.getUserDetails().subscribe((userDetails) => {\n      if (userDetails.username && userDetails.username != '') {\n        this.username = userDetails.username;\n        this.userDetailsLoaded = true;\n      }\n    })\n    this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {\n      if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)\n        this.applicationDetailsLoaded = true;\n    })\n    this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {\n      window.localStorage.setItem('leagueApiVersion', versions[0]);\n    });\n  }\n\n  toggleDarkMode(turnDarkModeOn: boolean) {\n    const darkModeClassName = 'dark';\n    this.className = turnDarkModeOn ? darkModeClassName : '';\n    localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));\n  }\n\n  ngOnDestroy() {\n    this.userDetailsSub$?.unsubscribe();\n    this.applicationDetailsSub$?.unsubscribe();\n  }\n\n  navigateToWelcomePage() {\n    this.router.navigate(['/']);\n  }\n\n  navigateToTeams() {\n    this.router.navigate(['/teams']);\n  }\n\n  navigateToUserProfile() {\n    this.router.navigate(['/user-profile']);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2492,6 +2493,12 @@
                         "deprecationMessage": ""
                     },
                     {
+                        "name": "riotDdragonService",
+                        "type": "RiotDdragonService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
                         "name": "matIconRegistry",
                         "type": "MatIconRegistry",
                         "deprecated": false,
@@ -2504,7 +2511,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 28,
+                "line": 30,
                 "jsdoctags": [
                     {
                         "name": "router",
@@ -2536,6 +2543,15 @@
                     {
                         "name": "googleAnalyticsService",
                         "type": "GoogleAnalyticsService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "riotDdragonService",
+                        "type": "RiotDdragonService",
                         "deprecated": false,
                         "deprecationMessage": "",
                         "tagName": {
@@ -3477,7 +3493,7 @@
         },
         {
             "name": "TeamCardPlayerDetailsComponent",
-            "id": "component-TeamCardPlayerDetailsComponent-eef2f489b83507a13f184afa0cd5915fe78495c0a0f9ef902d4424634b41aae54de2bf4aed4f84ae1e453b547b37763978d5fc7dd15cc70034088a29197b2835",
+            "id": "component-TeamCardPlayerDetailsComponent-e02185d36eb7418f694c7b78b0a2e2e0b010160319cb604821fffe551fa71b092bcd68ff62c5301ca4b06b80f6baae66776f00ddac7be6ff466dc07b4cca7214",
             "file": "src/app/pages/teams-dashboard/component/team-card/team-card-player-details/team-card-player-details.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3499,7 +3515,7 @@
                     "defaultValue": "new Observable<boolean>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 22,
+                    "line": 23,
                     "type": "Observable<boolean>",
                     "decorators": []
                 },
@@ -3508,7 +3524,7 @@
                     "defaultValue": "{name: 'Hello', id: 1, role: 'Top', champions: []}",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 19,
+                    "line": 20,
                     "type": "PlayerDetails",
                     "decorators": []
                 }
@@ -3519,7 +3535,7 @@
                     "defaultValue": "new EventEmitter<string>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 25,
+                    "line": 26,
                     "type": "EventEmitter<string>"
                 },
                 {
@@ -3527,11 +3543,20 @@
                     "defaultValue": "new EventEmitter<void>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 28,
+                    "line": 29,
                     "type": "EventEmitter<void>"
                 }
             ],
             "propertiesClass": [
+                {
+                    "name": "apiVersion",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "",
+                    "line": 32
+                },
                 {
                     "name": "showPlayerDetails",
                     "defaultValue": "false",
@@ -3540,7 +3565,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 30
+                    "line": 31
                 }
             ],
             "methodsClass": [
@@ -3550,7 +3575,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 35,
+                    "line": 36,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -3567,7 +3592,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 41,
+                    "line": 46,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3588,7 +3613,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 45,
+                    "line": 50,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -3600,7 +3625,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {\n    Component,\n    EventEmitter,\n    Input,\n    OnInit,\n    Output\n} from '@angular/core';\nimport {PlayerDetails} from \"../../../../../interfaces/clash-team\";\nimport {Observable} from \"rxjs\";\n\n@Component({\n    selector: 'app-team-card-player-details',\n    templateUrl: './team-card-player-details.component.html',\n    styleUrls: ['./team-card-player-details.component.scss']\n})\nexport class TeamCardPlayerDetailsComponent implements OnInit {\n\n    @Input()\n    player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};\n\n    @Input()\n    event: Observable<boolean> = new Observable<boolean>();\n\n    @Output()\n    registerUserForRole: EventEmitter<string> = new EventEmitter<string>();\n\n    @Output()\n    unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();\n\n    showPlayerDetails: boolean = false;\n\n    constructor() {\n    }\n\n    ngOnInit() {\n        if (!this.player.champions) {\n            this.player.champions=[];\n        }\n    }\n\n    registerToTeam(role: string) {\n        this.registerUserForRole.emit(role);\n    }\n\n    unregisterFromTeam() {\n        this.unregisterUserForRole.emit();\n    }\n}\n",
+            "sourceCode": "import {\n    Component,\n    EventEmitter,\n    Input,\n    OnInit,\n    Output\n} from '@angular/core';\nimport {PlayerDetails} from \"../../../../../interfaces/clash-team\";\nimport {Observable} from \"rxjs\";\nimport {RiotDdragonService} from \"../../../../../services/riot-ddragon.service\";\n\n@Component({\n    selector: 'app-team-card-player-details',\n    templateUrl: './team-card-player-details.component.html',\n    styleUrls: ['./team-card-player-details.component.scss']\n})\nexport class TeamCardPlayerDetailsComponent implements OnInit {\n\n    @Input()\n    player: PlayerDetails = {name: 'Hello', id: 1, role: 'Top', champions: []};\n\n    @Input()\n    event: Observable<boolean> = new Observable<boolean>();\n\n    @Output()\n    registerUserForRole: EventEmitter<string> = new EventEmitter<string>();\n\n    @Output()\n    unregisterUserForRole: EventEmitter<void> = new EventEmitter<void>();\n\n    showPlayerDetails: boolean = false;\n    apiVersion?: string;\n\n    constructor() {}\n\n    ngOnInit() {\n        const lsApiVersion = window.localStorage.getItem('leagueApiVersion');\n        if (lsApiVersion && !this.apiVersion) {\n            this.apiVersion = lsApiVersion;\n        }\n        if (!this.player.champions) {\n            this.player.champions=[];\n        }\n    }\n\n    registerToTeam(role: string) {\n        this.registerUserForRole.emit(role);\n    }\n\n    unregisterFromTeam() {\n        this.unregisterUserForRole.emit();\n    }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -3615,12 +3640,12 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [],
-                "line": 30
+                "line": 32
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<div class=\"clash-bot-player-details-container\">\n    <div class=\"player-role-player-details-inner-container\">\n        <ng-container *ngIf=\"player.name === '' || player.name === null; else elseBlock\">\n            <div class=\"player-role-join-container\">\n                <button mat-raised-button\n                        class=\"player-role-join-btn\"\n                        id=\"clash-bot-team-card-join-{{player.role | kebabcase}}-register-button\"\n                        (click)=\"registerToTeam(player.role)\">\n                    <div class=\"player-join-button-inner-container\">\n                        {{player.role}}\n                        <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                    </div>\n                </button>\n            </div>\n        </ng-container>\n        <ng-template #elseBlock>\n            <div class=\"player-details-player-container\">\n                <div *ngIf=\"player.isUser\" class=\"clash-bot-role-button\">\n                    <div class=\"clash-bot-button-container\">\n                        <button mat-icon-button\n                                color=\"warn\"\n                                id=\"clash-bot-team-card-{{player.role | kebabcase}}-unregister-button\"\n                                (click)=\"unregisterFromTeam()\"\n                                aria-label=\"Unregister with this Team\">\n                            <mat-icon>remove</mat-icon>\n                        </button>\n                    </div>\n                </div>\n                <mat-accordion class=\"player-detail-accordion-container\">\n                    <mat-expansion-panel id=\"clash-bot-team-card-registered-player\"\n                                         class=\"player-details-player-inner-container\">\n                        <mat-expansion-panel-header\n                                id=\"clash-bot-team-card-registered-player-{{player.role | kebabcase}}\">\n                            <mat-panel-title>{{player.name}}</mat-panel-title>\n                            <mat-panel-description>{{player.role}}\n                                <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                            </mat-panel-description>\n                        </mat-expansion-panel-header>\n                        <div id=\"clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list\"\n                             class=\"player-champion-list-container\">\n                            <h4>Preferred Champions</h4>\n                            <ng-container *ngIf=\"player.champions && player.champions.length > 0\">\n                                <div class=\"champion-container\" *ngFor=\"let champion of player.champions\">\n                                    <img class=\"champion-img\"\n                                         src='https://ddragon.leagueoflegends.com/cdn/12.8.1/img/champion/{{champion}}.png'/>\n                                    <p class=\"champion-name\">{{champion}}</p>\n                                </div>\n                            </ng-container>\n                            <p *ngIf=\"player.champions.length === 0\">None set</p>\n                        </div>\n                    </mat-expansion-panel>\n                </mat-accordion>\n            </div>\n        </ng-template>\n    </div>\n</div>\n"
+            "templateData": "<div class=\"clash-bot-player-details-container\">\n    <div class=\"player-role-player-details-inner-container\">\n        <ng-container *ngIf=\"player.name === '' || player.name === null; else elseBlock\">\n            <div class=\"player-role-join-container\">\n                <button mat-raised-button\n                        class=\"player-role-join-btn\"\n                        id=\"clash-bot-team-card-join-{{player.role | kebabcase}}-register-button\"\n                        (click)=\"registerToTeam(player.role)\">\n                    <div class=\"player-join-button-inner-container\">\n                        {{player.role}}\n                        <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                    </div>\n                </button>\n            </div>\n        </ng-container>\n        <ng-template #elseBlock>\n            <div class=\"player-details-player-container\">\n                <div *ngIf=\"player.isUser\" class=\"clash-bot-role-button\">\n                    <div class=\"clash-bot-button-container\">\n                        <button mat-icon-button\n                                color=\"warn\"\n                                id=\"clash-bot-team-card-{{player.role | kebabcase}}-unregister-button\"\n                                (click)=\"unregisterFromTeam()\"\n                                aria-label=\"Unregister with this Team\">\n                            <mat-icon>remove</mat-icon>\n                        </button>\n                    </div>\n                </div>\n                <mat-accordion class=\"player-detail-accordion-container\">\n                    <mat-expansion-panel id=\"clash-bot-team-card-registered-player\"\n                                         class=\"player-details-player-inner-container\">\n                        <mat-expansion-panel-header\n                                id=\"clash-bot-team-card-registered-player-{{player.role | kebabcase}}\">\n                            <mat-panel-title>{{player.name}}</mat-panel-title>\n                            <mat-panel-description>{{player.role}}\n                                <mat-icon svgIcon=\"league-{{player.role | lowercase}}\"></mat-icon>\n                            </mat-panel-description>\n                        </mat-expansion-panel-header>\n                        <div id=\"clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list\"\n                             class=\"player-champion-list-container\">\n                            <h4>Preferred Champions</h4>\n                            <ng-container *ngIf=\"player.champions && player.champions.length > 0\">\n                                <div class=\"champion-container\" *ngFor=\"let champion of player.champions\">\n                                    <img class=\"champion-img\"\n                                         src='https://ddragon.leagueoflegends.com/cdn/{{apiVersion}}/img/champion/{{champion}}.png'/>\n                                    <p class=\"champion-name\">{{champion}}</p>\n                                </div>\n                            </ng-container>\n                            <p *ngIf=\"player.champions && player.champions.length === 0\">None set</p>\n                        </div>\n                    </mat-expansion-panel>\n                </mat-accordion>\n            </div>\n        </ng-template>\n    </div>\n</div>\n"
         },
         {
             "name": "TeamsDashboardComponent",
@@ -6517,7 +6542,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6537,7 +6562,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6647,11 +6672,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<GuildFilterListComponent>",
-                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
+                "type": "Story<HelpDialogComponent>",
+                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6667,11 +6692,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<HelpDialogComponent>",
-                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+                "type": "Story<GuildFilterListComponent>",
+                "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action('selectedTeamEvent')\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6681,7 +6706,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<TeamCardComponent>",
-                "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
+                "defaultValue": "(args: TeamCardComponent) => ({\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6711,7 +6736,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<TeamCardPlayerDetailsComponent>",
-                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
+                "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n        ...args,\n        apiVersion: '12.8.1',\n        registerUserForRole: action('registerUserForRole'),\n        unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
             },
             {
                 "name": "TopWithDetails",
@@ -6814,7 +6839,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<TeamCardComponent>",
-                    "defaultValue": "(args: TeamCardComponent) => ({\n    props: args,\n})"
+                    "defaultValue": "(args: TeamCardComponent) => ({\n  props: args,\n})"
                 }
             ],
             "src/app/pages/teams-dashboard/component/team-card/team-card-player-details/team-card-player-details.stories.ts": [
@@ -6946,7 +6971,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story<TeamCardPlayerDetailsComponent>",
-                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n      ...args,\n      registerUserForRole: action('registerUserForRole'),\n      unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
+                    "defaultValue": "(args: TeamCardPlayerDetailsComponent) => ({\n    props: {\n        ...args,\n        apiVersion: '12.8.1',\n        registerUserForRole: action('registerUserForRole'),\n        unregisterUserForRole: action('unregisterUserForRole')\n    },\n})"
                 },
                 {
                     "name": "TopWithDetails",
@@ -7198,28 +7223,6 @@
                     "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<NewTeamCardComponent>",
-                    "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
-                }
-            ],
             "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
                 {
                     "name": "Primary",
@@ -7240,6 +7243,28 @@
                     "deprecationMessage": "",
                     "type": "Story<HelpDialogComponent>",
                     "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<NewTeamCardComponent>",
+                    "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl('', Validators.required),\n      roleControl: new FormControl('', Validators.required),\n      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],\n      createNewTeamEvent: action('createNewTeamEvent')\n    },\n})"
                 }
             ]
         },
@@ -7710,7 +7735,7 @@
                 "linktype": "component",
                 "name": "TeamCardPlayerDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/10",
+                "coverageCount": "0/11",
                 "status": "low"
             },
             {
