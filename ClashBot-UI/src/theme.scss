@@ -27,7 +27,7 @@ $dark-theme: mat.define-dark-theme((
 
   .player-role-join-btn:hover {
     // Read the 500 hue from the primary color palette.
-    background-color: mat.get-color-from-palette($accent-palette);
+    background-color: mat.get-color-from-palette($accent-palette, darker);
   }
 
   .mat-calendar-body-cell.selected {
