@@ -4,7 +4,6 @@ import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../../environments/environment";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
-import {UserDetailsService} from "../../services/user-details.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, mergeMap, retryWhen, take} from "rxjs/operators";
@@ -14,6 +13,7 @@ import {ApplicationDetails} from "../../interfaces/application-details";
 import {ClashTournaments} from "../../interfaces/clash-tournaments";
 import {MatDialog} from "@angular/material/dialog";
 import {ReleaseNotificationDialogComponent} from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
+import {UserDetails} from "../../interfaces/user-details";
 
 @Component({
   selector: 'app-welcome-dashboard',
@@ -46,7 +46,6 @@ export class WelcomeDashboardComponent implements OnInit {
   constructor(private oauthService: OAuthService,
               private clashBotService: ClashBotService,
               private discordService: DiscordService,
-              private userDetailsService: UserDetailsService,
               private applicationDetailsService: ApplicationDetailsService,
               private _snackBar: MatSnackBar,
               private matDialog: MatDialog) { }
@@ -108,8 +107,7 @@ export class WelcomeDashboardComponent implements OnInit {
             })
           )),
         catchError(error => throwError(error)))
-      .subscribe((data) => {
-        this.userDetailsService.setUserDetails(data);
+      .subscribe((userDetails) => {
         this.discordService.getGuilds()
           .pipe(retryWhen(error =>
             error.pipe(
@@ -123,12 +121,12 @@ export class WelcomeDashboardComponent implements OnInit {
                 }
               })
             ))).subscribe((guilds) => {
-          this.clashBotService.getUserDetails(data.id)
+          this.clashBotService.getUserDetails(userDetails.id)
             .pipe(take(1),
               catchError(err => {
               console.error(err);
               this.loggedIn = 'NOT_LOGGED_IN';
-              this._snackBar.open('Oops, we failed to pull your data from our Servers :( Please try again later.',
+              this._snackBar.open('Oops, we failed to pull your userDetails from our Servers :( Please try again later.',
                 'X',
                 {duration: 5 * 1000});
               return throwError(err);
@@ -137,8 +135,12 @@ export class WelcomeDashboardComponent implements OnInit {
               this.applicationDetailsService.getApplicationDetails()
                 .pipe(take(1))
                 .subscribe((appDetails) => {
-                  if (!clashBotUser.username || data.username !== clashBotUser.username) {
-                    this.clashBotService.postUserDetails(data.id, guilds[0].name, new Set<string>(), {'UpcomingClashTournamentDiscordDM': false}, data.username)
+                  if (!clashBotUser.username || userDetails.username !== clashBotUser.username) {
+                    this.clashBotService.postUserDetails(userDetails.id,
+                        guilds[0].name,
+                        new Set<string>(),
+                        {'UpcomingClashTournamentDiscordDM': false},
+                        userDetails.username)
                       .pipe(take(1),
                         catchError(err => {
                         console.error(err);
@@ -149,20 +151,27 @@ export class WelcomeDashboardComponent implements OnInit {
                         return throwError(err);
                       }))
                       .subscribe((savedUser) => {
-                        this.setLoggedInDetails(appDetails, savedUser, guilds);
+                        this.setLoggedInDetails(clashBotUser, userDetails, appDetails, savedUser, guilds);
                       });
                   } else {
-                    this.setLoggedInDetails(appDetails, clashBotUser, guilds);
+                    this.setLoggedInDetails(clashBotUser, userDetails, appDetails, clashBotUser, guilds);
                   }
-                })
-            })
+                });
+            });
         });
       });
   }
 
-  private setLoggedInDetails(appDetails: ApplicationDetails, clashBotUser: ClashBotUserDetails, guilds: any[]) {
+  private setLoggedInDetails(clashBotUserDetails: ClashBotUserDetails,
+                             userDetails: UserDetails,
+                             appDetails: ApplicationDetails,
+                             clashBotUser: ClashBotUserDetails,
+                             guilds: any[]) {
     appDetails.defaultGuild = clashBotUser.serverName;
     appDetails.userGuilds = guilds;
+    appDetails.userDetails = userDetails;
+    appDetails.clashBotUserDetails = clashBotUserDetails;
+    appDetails.loggedIn = true;
     this.applicationDetailsService.setApplicationDetails(appDetails);
     this.loggedIn = 'LOGGED_IN';
   }
