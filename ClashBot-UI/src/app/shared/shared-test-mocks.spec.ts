@@ -1,6 +1,8 @@
 import {DiscordGuild} from "../interfaces/discord-guild";
 import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {UserDetails} from "../interfaces/user-details";
+import {ApplicationDetails} from "../interfaces/application-details";
+import {ClashTeam} from "../interfaces/clash-team";
 
 export function createMockGuilds() {
     return [{
@@ -47,7 +49,7 @@ export function getMockDdragonChampionList() {
     };
 }
 
-export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUserDetails?: ClashBotUserDetails, mockUserDetails?: UserDetails) {
+export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUserDetails?: ClashBotUserDetails, mockUserDetails?: UserDetails) : ApplicationDetails{
     return {
         currentTournaments: [],
         defaultGuild: '',
@@ -75,4 +77,13 @@ export function createEmptyMockClashTentativeDetails() {
             tentativePlayers: []
         }
     ]
+}
+
+export function createMockClashTeam() : ClashTeam {
+    return {
+        teamName: 'Team toBeAdded',
+        playersDetails: [],
+        serverName: 'Goon Squad',
+        startTime: new Date().toISOString()
+    };
 }

@@ -21,7 +21,7 @@ import {TeamsModule} from "../teams.module";
 import {
     createEmptyMockClashTentativeDetails,
     createMockAppDetails,
-    createMockClashBotUserDetails,
+    createMockClashBotUserDetails, createMockClashTeam, createMockGuilds,
     createMockUserDetails
 } from "../../../shared/shared-test-mocks.spec";
 
@@ -61,7 +61,7 @@ describe('TeamsDashboardComponent', () => {
     });
 
     describe('On Init', () => {
-        test('Whenever the component is created, a call to the Application Details should be made and if the User has a default guild it will be set and then a call to retrieve the teams will be made.', (done) => {
+        test('(create, logged in, and default guild) - a call to the Application Details should be made and if the User has a default guild it will be set and then a call to retrieve the teams will be made.', (done) => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
                 const mockUserDetails: UserDetails = createMockUserDetails();
@@ -78,16 +78,17 @@ describe('TeamsDashboardComponent', () => {
                         id: id
                     }
                 });
-                const mockApplicationsDetails: ApplicationDetails = createMockAppDetails(mockGuilds, createMockClashBotUserDetails(), mockUserDetails);
+                let mockApplicationsDetails: ApplicationDetails = createMockAppDetails(mockGuilds, createMockClashBotUserDetails(), mockUserDetails);
+                mockApplicationsDetails.loggedIn = true;
+                mockApplicationsDetails.defaultGuild = 'Clash Bot';
                 let mockClashTentativeDetails: ClashBotTentativeDetails[] = createEmptyMockClashTentativeDetails();
                 mockClashTentativeDetails[0].tentativePlayers.push("Sample User");
                 let coldClashTeamsWebsocketObs = new Subject<ClashTeam | String>();
 
                 applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockApplicationsDetails}));
-                clashBotServiceMock.getServerTentativeList.mockReturnValue(cold('x|', {x: mockClashTeams}));
-                clashBotServiceMock.getClashTeams.mockReturnValue(cold('x|', {x: mockClashTentativeDetails}));
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(cold('x|', {x: mockClashTentativeDetails}));
+                clashBotServiceMock.getClashTeams.mockReturnValue(cold('x|', {x: mockClashTeams}));
                 teamsWebsocketServiceMock.getSubject.mockReturnValue(coldClashTeamsWebsocketObs);
-
 
                 component = fixture.componentInstance;
 
@@ -124,8 +125,10 @@ describe('TeamsDashboardComponent', () => {
                 fixture.detectChanges();
 
                 flush();
+
                 expect(component.showSpinner).toBeFalsy();
                 expect(component.teamFilters).toEqual(expectedTeamsFilter);
+                expect(component.currentApplicationDetails).toEqual(mockApplicationsDetails);
                 expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
                 expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledTimes(1);
                 expect(clashBotServiceMock.getClashTeams).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
@@ -147,7 +150,7 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
-        test('Whenever the component is created, a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.', () => {
+        test('(create, logged in, no default guild) - a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
                 let mockObservableGuilds = mockDiscordGuilds();
@@ -176,336 +179,426 @@ describe('TeamsDashboardComponent', () => {
                 flush();
                 expect(component.showSpinner).toBeFalsy();
                 expect(component.teamFilters).toEqual(expectedTeamsFilter);
-                expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+                expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
                 expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
             })
         })
     })
 
     describe('Handling Incoming Websocket Event', () => {
-        test('When I receive an empty payload for a websocket event, I should not do anything.', () => {
+        test('(empty) - I should not do anything.', () => {
             component = fixture.componentInstance;
             let msg: ClashTeam = {}
-            let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-            component.handleIncomingTeamsWsEvent(msg, userDetails);
+            component.handleIncomingTeamsWsEvent(msg);
             expect(component.teams).toEqual([]);
         })
 
-        test('When I receive a team with a non-empty playersDetails payload for a websocket event that dne in the list of teams, it should be added.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                const expectedTournamentName = 'awesome_sauce';
-                const expectedTournamentDay = '1';
-                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
-                let msg: ClashTeam = {
-                    teamName: 'Team toBeAdded',
-                    playersDetails: [{
-                        name: 'PlayerOne',
-                        id: 1,
-                        role: 'Top',
-                        champions: [],
-                        isUser: true
-                    }],
-                    tournamentDetails: {
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    },
-                    serverName: 'Goon Squad',
-                    startTime: new Date().toISOString()
-                }
-                let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-                expect(component.teams.length).toEqual(0);
+        test('(New Team with User) - it should be added and remove one eligible Tournaments.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockUserDetails = createMockUserDetails();
+            let mockAppDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                mockUserDetails
+            );
+            let mockClashTeam: ClashTeam = createMockClashTeam();
+            mockClashTeam.playersDetails = [{
+                name: mockUserDetails.username,
+                id: mockUserDetails.id,
+                role: 'Top',
+                champions: [],
+                isUser: true
+            }];
+            mockClashTeam.tournamentDetails = {
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay
+            };
+            mockAppDetails.currentTournaments = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            component.currentApplicationDetails = mockAppDetails;
+            expect(component.teams.length).toEqual(0);
 
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
+            component.handleIncomingTeamsWsEvent(mockClashTeam);
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
-
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
-
-                component.handleIncomingTeamsWsEvent(msg, userDetails);
-
-                expect(component.teams.length).toEqual(1);
-                expect(component.teams.includes(msg)).toBeTruthy();
-
-                flush();
-
-                expect(component.eligibleTournaments).toHaveLength(1);
-                expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
-            })
+            expect(component.teams.length).toEqual(1);
+            expect(component.teams.includes(mockClashTeam)).toBeTruthy();
+            expect(component.eligibleTournaments).toHaveLength(1);
+            expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
         })
 
-        test('When I receive a team with a non-empty playersDetails payload for a websocket event that dne in the list of teams and no teams have existed before, it should overwrite the existing Teams.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                const expectedTournamentName = 'awesome_sauce';
-                const expectedTournamentDay = '1';
-                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
-                let msg: ClashTeam = {
-                    teamName: 'Team toBeAdded',
-                    playersDetails: [{
-                        name: 'PlayerOne',
-                        id: 1,
-                        role: 'Top',
-                        champions: [],
-                        isUser: true
-                    }],
-                    tournamentDetails: {
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    },
-                    serverName: 'Goon Squad',
-                    startTime: new Date().toISOString()
-                }
-                let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-                component.teams = [{error: 'No data'}];
-                expect(component.teams.length).toEqual(1);
+        test('(New Team without User) - it should be added and not remove eligible Tournaments.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockUserDetails = createMockUserDetails();
+            let mockAppDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                mockUserDetails
+            );
+            let mockClashTeam: ClashTeam = createMockClashTeam();
+            mockClashTeam.playersDetails = [{
+                name: 'Other user',
+                id: 1231232131,
+                role: 'Top',
+                champions: [],
+                isUser: true
+            }];
+            mockClashTeam.tournamentDetails = {
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay
+            };
+            mockAppDetails.currentTournaments = mockClashTournaments;
+            component.currentApplicationDetails = mockAppDetails;
 
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
+            expect(component.teams.length).toEqual(0);
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
+            component.handleIncomingTeamsWsEvent(mockClashTeam);
 
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
-
-                component.handleIncomingTeamsWsEvent(msg, userDetails);
-
-                expect(component.teams.length).toEqual(1);
-                expect(component.teams.includes(msg)).toBeTruthy();
-
-                flush();
-
-                expect(component.eligibleTournaments).toHaveLength(1);
-                expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
-            })
+            expect(component.teams.length).toEqual(1);
+            expect(component.teams.includes(mockClashTeam)).toBeTruthy();
+            expect(component.eligibleTournaments).toHaveLength(2);
+            expect(component.eligibleTournaments).toEqual(mockClashTournaments);
         })
 
-        test('When I receive a team with an empty playersDetails payload for a websocket event that exists in the list of teams, it should be removed.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                const expectedTournamentName = 'awesome_sauce';
-                const expectedTournamentDay = '1';
-                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
-                let msg: ClashTeam = {
-                    teamName: 'Team toBeRemoved',
-                    playersDetails: [{
-                        name: 'PlayerOne',
-                        id: 1,
-                        role: 'Top',
-                        champions: [],
-                        isUser: true
-                    },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Mid',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Jg',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Bot',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Supp',
-                            champions: [],
-                            isUser: false
-                        }],
-                    tournamentDetails: {
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
-                    },
-                    serverName: 'Goon Squad',
-                    startTime: new Date().toISOString()
-                }
-                let copyOfMsg = JSON.parse(JSON.stringify(msg));
-                copyOfMsg.playersDetails = [];
-                component.teams.push(msg);
-                let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-                expect(component.teams.length).toEqual(1);
+        test('(New Team with User and no existing Team) - it should overwrite the existing Teams.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockUserDetails = createMockUserDetails();
+            let msg: ClashTeam = createMockClashTeam();
+            msg.playersDetails = [{
+                name: mockUserDetails.username,
+                id: mockUserDetails.id,
+                role: 'Top',
+                champions: [],
+                isUser: true
+            }];
+            msg.tournamentDetails = {
+                tournamentName: expectedTournamentName,
+                tournamentDay: expectedTournamentDay
+            };
+            let mockApplicationDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                mockUserDetails
+            );
+            mockApplicationDetails.currentTournaments = mockClashTournaments;
+            component.currentApplicationDetails = mockApplicationDetails;
+            component.teams = [{error: 'No data'}];
+            expect(component.teams.length).toEqual(1);
 
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
+            component.handleIncomingTeamsWsEvent(msg);
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
-
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
-                component.handleIncomingTeamsWsEvent(copyOfMsg, userDetails);
-                expect(component.teams).toEqual([]);
-
-                flush();
-
-                expect(component.eligibleTournaments).toHaveLength(2);
-                expect(component.eligibleTournaments).toEqual(mockClashTournaments);
-            })
+            expect(component.teams.length).toEqual(1);
+            expect(component.teams.includes(msg)).toBeTruthy();
+            expect(component.eligibleTournaments).toHaveLength(1);
+            expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
         })
 
-        test('When I receive a team with an undefined playersDetails payload for a websocket event that exists in the list of teams, it should be removed.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                const expectedTournamentName = 'awesome_sauce';
-                const expectedTournamentDay = '1';
-                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
-                let origTeam: ClashTeam = {
-                    teamName: 'Team toBeRemoved',
-                    playersDetails: [{
+        test('(Team with no players) - it should be removed.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockApplicationDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                createMockUserDetails()
+            );
+            mockApplicationDetails.currentTournaments = mockClashTournaments;
+            let msg: ClashTeam = {
+                teamName: 'Team toBeRemoved',
+                playersDetails: [
+                    {
                         name: 'PlayerOne',
                         id: 1,
                         role: 'Top',
                         champions: [],
                         isUser: true
                     },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Mid',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Jg',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Bot',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Supp',
-                            champions: [],
-                            isUser: false
-                        }],
-                    tournamentDetails: {
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Mid',
+                        champions: [],
+                        isUser: false
                     },
-                    serverName: 'Goon Squad',
-                    startTime: new Date().toISOString()
-                }
-                let copyOfTeam = JSON.parse(JSON.stringify(origTeam));
-                delete copyOfTeam.playersDetails;
-                component.teams.push(origTeam);
-                let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-                expect(component.teams.length).toEqual(1);
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Jg',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Bot',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Supp',
+                        champions: [],
+                        isUser: false
+                    }
+                ],
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                serverName: 'Goon Squad',
+                startTime: new Date().toISOString()
+            }
+            let copyOfMsg = JSON.parse(JSON.stringify(msg));
+            copyOfMsg.playersDetails = [];
+            component.currentApplicationDetails = mockApplicationDetails;
+            component.teams.push(msg);
 
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
-
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
-
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
-
-                component.handleIncomingTeamsWsEvent(copyOfTeam, userDetails);
-                expect(component.teams.length).toEqual(0);
-                expect(component.teams).toEqual([]);
-
-                flush();
-
-                expect(component.eligibleTournaments).toHaveLength(2);
-                expect(component.eligibleTournaments).toEqual(mockClashTournaments);
-            })
+            expect(component.teams.length).toEqual(1);
+            component.handleIncomingTeamsWsEvent(copyOfMsg);
+            expect(component.teams).toEqual([{error: 'No data'}]);
+            expect(component.eligibleTournaments).toHaveLength(2);
+            expect(component.eligibleTournaments).toEqual(mockClashTournaments);
         })
 
-        test('When I receive a team with a non-empty playersDetails payload for a websocket event that does exist in the list of teams, it should updated the existing Team.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                const expectedTournamentName = 'awesome_sauce';
-                const expectedTournamentDay = '1';
-                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
-                let msg: ClashTeam = {
-                    teamName: 'Team toBeUpdated',
-                    playersDetails: [{
+        test('(Team with undefined Players) - it should be removed.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockApplicationDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                createMockUserDetails()
+            );
+            mockApplicationDetails.currentTournaments = mockClashTournaments;
+            let msg: ClashTeam = {
+                teamName: 'Team toBeRemoved',
+                playersDetails: [
+                    {
                         name: 'PlayerOne',
                         id: 1,
                         role: 'Top',
                         champions: [],
                         isUser: true
                     },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Mid',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Jg',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Bot',
-                            champions: [],
-                            isUser: false
-                        },
-                        {
-                            name: '',
-                            id: 0,
-                            role: 'Supp',
-                            champions: [],
-                            isUser: false
-                        }],
-                    tournamentDetails: {
-                        tournamentName: expectedTournamentName,
-                        tournamentDay: expectedTournamentDay
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Mid',
+                        champions: [],
+                        isUser: false
                     },
-                    serverName: 'Goon Squad',
-                    startTime: new Date().toISOString(),
-                    id: "goon-squad-team-tobeupdated",
-                };
-                let copyOfMessage = JSON.parse(JSON.stringify(msg));
-                copyOfMessage.playersDetails[1] = {
-                    name: 'PlayerTwo',
-                    id: 2,
-                    role: 'Mid',
-                    champions: [],
-                    isUser: false
-                };
-                let userDetails: UserDetails = {id: 1, username: 'Juan', discriminator: 'asdf'};
-                component.teams = [copyOfMessage];
-                expect(component.teams.length).toEqual(1);
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Jg',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Bot',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Supp',
+                        champions: [],
+                        isUser: false
+                    }
+                ],
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                serverName: 'Goon Squad',
+                startTime: new Date().toISOString()
+            }
+            let copyOfMsg = JSON.parse(JSON.stringify(msg));
+            delete copyOfMsg.playersDetails;
+            component.currentApplicationDetails = mockApplicationDetails;
+            component.teams.push(msg);
 
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}})
+            expect(component.teams.length).toEqual(1);
+            component.handleIncomingTeamsWsEvent(copyOfMsg);
+            expect(component.teams).toEqual([{error: 'No data'}]);
+            expect(component.eligibleTournaments).toHaveLength(2);
+            expect(component.eligibleTournaments).toEqual(mockClashTournaments);
+        })
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
+        test('(Existing Team update, user to be added) - it should update the existing Team.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockUserDetails = createMockUserDetails();
+            let mockApplicationDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                createMockUserDetails()
+            );
+            mockApplicationDetails.currentTournaments = mockClashTournaments;
+            let msg: ClashTeam = {
+                teamName: 'Team toBeUpdated',
+                playersDetails: [
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Top',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: 'PlayerTwo',
+                        id: 2,
+                        role: 'Mid',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Jg',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Bot',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Supp',
+                        champions: [],
+                        isUser: false
+                    }
+                ],
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                serverName: 'Goon Squad',
+                startTime: new Date().toISOString(),
+                id: "goon-squad-team-tobeupdated",
+            };
+            let updatedTeamState = JSON.parse(JSON.stringify(msg));
+            updatedTeamState.playersDetails[0] = {
+                name: mockUserDetails.username,
+                id: mockUserDetails.id,
+                role: 'Top',
+                champions: [],
+                isUser: true
+            };
+            component.teams = [msg];
+            component.currentApplicationDetails = mockApplicationDetails;
 
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
-                component.handleIncomingTeamsWsEvent(msg, userDetails);
-                expect(component.teams.length).toEqual(1);
-                expect(component.teams).toEqual([msg]);
-                expect(component.teams[0].playersDetails?.length).toEqual(5);
-                expect(component.teams[0].playersDetails?.[0].name).toEqual('PlayerOne');
+            expect(component.teams.length).toEqual(1);
+            component.handleIncomingTeamsWsEvent(updatedTeamState);
+            expect(component.teams.length).toEqual(1);
+            expect(component.teams).toEqual([updatedTeamState]);
+            expect(component.teams[0].playersDetails?.length).toEqual(5);
+            expect(component.teams[0].playersDetails?.[0].name).toEqual('Roidrage');
+            expect(component.teams[0].playersDetails?.[0].role).toEqual('Top');
+            expect(component.teams[0].playersDetails?.[0].id).toEqual(mockUserDetails.id);
+            expect(component.eligibleTournaments).toEqual(mockClashTournaments);
+        })
 
-                flush();
+        // @TODO Refactor to expect logic for user removal
+        test('(Existing Team update, user to be removed) - it should update the existing Team.', () => {
+            component = fixture.componentInstance;
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+            let mockUserDetails = createMockUserDetails();
+            let mockApplicationDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                createMockUserDetails()
+            );
+            mockApplicationDetails.currentTournaments = mockClashTournaments;
+            let msg: ClashTeam = {
+                teamName: 'Team toBeUpdated',
+                playersDetails: [
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Top',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: 'PlayerTwo',
+                        id: 2,
+                        role: 'Mid',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Jg',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Bot',
+                        champions: [],
+                        isUser: false
+                    },
+                    {
+                        name: '',
+                        id: 0,
+                        role: 'Supp',
+                        champions: [],
+                        isUser: false
+                    }
+                ],
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                serverName: 'Goon Squad',
+                startTime: new Date().toISOString(),
+                id: "goon-squad-team-tobeupdated",
+            };
+            let updatedTeamState = JSON.parse(JSON.stringify(msg));
+            updatedTeamState.playersDetails[0] = {
+                name: mockUserDetails.username,
+                id: mockUserDetails.id,
+                role: 'Top',
+                champions: [],
+                isUser: true
+            };
+            component.teams = [msg];
+            component.currentApplicationDetails = mockApplicationDetails;
 
-                expect(component.eligibleTournaments).toHaveLength(1);
-                expect(component.eligibleTournaments).toEqual([mockClashTournaments[1]]);
-            })
+            expect(component.teams.length).toEqual(1);
+            component.handleIncomingTeamsWsEvent(updatedTeamState);
+            expect(component.teams.length).toEqual(1);
+            expect(component.teams).toEqual([updatedTeamState]);
+            expect(component.teams[0].playersDetails?.length).toEqual(5);
+            expect(component.teams[0].playersDetails?.[0].name).toEqual('Roidrage');
+            expect(component.teams[0].playersDetails?.[0].role).toEqual('Top');
+            expect(component.teams[0].playersDetails?.[0].id).toEqual(mockUserDetails.id);
+            expect(component.eligibleTournaments).toEqual(mockClashTournaments);
         })
     })
 
@@ -669,7 +762,7 @@ describe('TeamsDashboardComponent', () => {
                 const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
                 const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}});
-                
+
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
                 applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
 
@@ -702,7 +795,7 @@ describe('TeamsDashboardComponent', () => {
 
                 const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 const clashTeamsObservable$ = cold('-#', undefined, error);
-                
+
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
                 const expectedSearchPhrase = 'Goon Squad';
@@ -823,7 +916,7 @@ describe('TeamsDashboardComponent', () => {
 
                 const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
-                
+
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
                 const expectedSearchPhrase = 'Goon Squad';
@@ -911,7 +1004,7 @@ describe('TeamsDashboardComponent', () => {
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse});
                 let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-                
+
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -939,7 +1032,7 @@ describe('TeamsDashboardComponent', () => {
 
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse})
-                
+
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
                 component.registerForTeam(mockRetrieveUserResponse);
@@ -973,7 +1066,7 @@ describe('TeamsDashboardComponent', () => {
                     });
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let registerUserForTeamColdObservable = cold('-#', undefined, expectedError);
-                
+
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
                 component.registerForTeam(mockRetrieveUserResponse);
@@ -1001,7 +1094,7 @@ describe('TeamsDashboardComponent', () => {
                 component.teams = [{teamName: 'Team Awesome', playersDetails: []}];
 
                 let registerUserForTeamColdObservable = cold('7000ms -x|', {x: mockUserDetails});
-                
+
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
                 component.registerForTeam(mockRetrieveUserResponse);
@@ -1133,7 +1226,7 @@ describe('TeamsDashboardComponent', () => {
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
                 let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-                
+
                 clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -1205,7 +1298,7 @@ describe('TeamsDashboardComponent', () => {
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let unregisterUserFromTeamColdObservable = cold('-#', undefined, expectedError);
                 let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-                
+
                 clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -1353,7 +1446,7 @@ describe('TeamsDashboardComponent', () => {
                 let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let getTeamsColdObservable = cold('-x|', {x: mockReturnedUpdatedTeamsList});
                 let createTeamColdObservable = cold('-x|', {x: mockCreateNewTeamReturn});
-                
+
                 clashBotServiceMock.getClashTeams.mockReturnValue(getTeamsColdObservable);
                 clashBotServiceMock.createNewTeam.mockReturnValue(getTeamsColdObservable);
 
@@ -1763,7 +1856,7 @@ describe('TeamsDashboardComponent', () => {
                 const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
 
                 const mockTentativeDetailsObs = cold('7000ms x|', {x: []});
-                
+
                 clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
 
                 component = fixture.componentInstance;
@@ -1819,7 +1912,7 @@ describe('TeamsDashboardComponent', () => {
                 component.tentativeRegister(mockTentativeDetails);
 
                 flush();
-                
+
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${mockUserDetails.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
                 expect(component.tentativeList && component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
@@ -1845,7 +1938,7 @@ describe('TeamsDashboardComponent', () => {
                 const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
                 const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
                 const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
-                
+
                 clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
 
                 component = fixture.componentInstance;
@@ -1864,7 +1957,7 @@ describe('TeamsDashboardComponent', () => {
                 component.tentativeRegister(mockTentativeDetails);
 
                 flush();
-                
+
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${mockUserDetails.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
                 expect(component.tentativeList && !component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
@@ -2031,7 +2124,7 @@ function createMockClashTeams(mockClashTournaments: ClashTournaments[], mockUser
     ];
 }
 
-function createMockClashTournaments(expectedTournamentName: string, expectedTournamentDay: string) {
+function createMockClashTournaments(expectedTournamentName: string, expectedTournamentDay: string): ClashTournaments[] {
     return [
         {
             tournamentName: expectedTournamentName,
