@@ -27,7 +27,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
     teams: ClashTeam[] = [];
     teamFilters: TeamFilter[] = [];
-    currentApplicationDetails?: ApplicationDetails;
+    currentApplicationDetails: ApplicationDetails = {loggedIn: false};
     private readonly MAX_TIMEOUT = 4000;
     eligibleTournaments: ClashTournaments[] = [];
     tentativeList?: ClashBotTentativeDetails[];
@@ -77,7 +77,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     updateTentativeList(guildName: string) {
-        if (this.currentApplicationDetails && this.currentApplicationDetails.userDetails) {
+        if (this.currentApplicationDetails.loggedIn) {
             this.tentativeDataStatus = 'LOADING';
 
             this.clashBotService.getServerTentativeList(guildName)
@@ -87,13 +87,14 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         console.error(err);
                         this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
                             'X',
-                            {duration: 5 * 1000});
+                            {duration: 5 * 1000}
+                        );
                         this.tentativeDataStatus = 'FAILED';
                         return throwError(err);
                     }))
                 .subscribe((response) => {
                     response.forEach(tentativeRecord => tentativeRecord.isMember
-                        = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails?.userDetails?.username ?? ''));
+                        = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''));
                     this.tentativeList = response.sort((itemOne, itemTwo) =>
                         itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));
                     this.tentativeDataStatus = 'SUCCESSFUL';
@@ -129,7 +130,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 }),
                 finalize(() => this.showInnerSpinner = false)
             ).subscribe(response => {
-            if (this.currentApplicationDetails && this.currentApplicationDetails.userDetails) {
+            if (this.currentApplicationDetails.loggedIn) {
                 this.syncTeamInformation(response);
             }
         });
@@ -147,7 +148,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 )
             )
             .subscribe((msg) => {
-                    if (this.currentApplicationDetails && this.currentApplicationDetails.userDetails) {
+                    if (this.currentApplicationDetails.loggedIn) {
                         this.handleIncomingTeamsWsEvent(msg);
                     }
                 },
@@ -228,14 +229,14 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private syncTournaments(clashTeams: ClashTeam[]) {
-        const currentTournaments = this.currentApplicationDetails?.currentTournaments ?? [];
+        const currentTournaments = this.currentApplicationDetails.currentTournaments ?? [];
         if (clashTeams.length < 1) {
             this.teams = [{error: 'No data'}];
             this.eligibleTournaments = currentTournaments;
             this.canCreateNewTeam = this.eligibleTournaments && this.eligibleTournaments.length != 0;
         } else {
             let map = this.createUserToTournamentMap(
-                this.currentApplicationDetails?.userDetails?.id ?? 0,
+                this.currentApplicationDetails.userDetails?.id ?? 0,
                 currentTournaments,
                 this.teams
             );
@@ -257,7 +258,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             let rolesMissing: string[] = [...Object.keys(this.roles)];
             if (record.playersDetails) {
                 record.playersDetails.map((record) => {
-                    record.isUser = record.id === this.currentApplicationDetails?.userDetails?.id;
+                    record.isUser = record.id === this.currentApplicationDetails.userDetails?.id;
                     rolesMissing = rolesMissing.filter(role => role !== record.role);
                     return record;
                 });
@@ -397,7 +398,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     })
                 ).subscribe((response) => {
                 response.isMember = response.tentativePlayers
-                    && response.tentativePlayers.includes(this.currentApplicationDetails?.userDetails?.username ?
+                    && response.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?
                         this.currentApplicationDetails.userDetails.username : '');
                 if (this.tentativeList && tentativeUserDetails.index !== undefined) {
                     this.tentativeList[tentativeUserDetails.index] = response;

@@ -1,4 +1,4 @@
-<ng-container *ngIf="currentApplicationDetails?.loggedIn; else notLoggedIn">
+<ng-container *ngIf="currentApplicationDetails.loggedIn; else notLoggedIn">
     <app-spinner *ngIf="showSpinner; else dataLoaded"></app-spinner>
     <ng-template #dataLoaded>
         <app-teams-dashboard-view

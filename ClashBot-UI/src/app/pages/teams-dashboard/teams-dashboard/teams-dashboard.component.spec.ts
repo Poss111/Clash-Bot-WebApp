@@ -519,7 +519,6 @@ describe('TeamsDashboardComponent', () => {
             expect(component.eligibleTournaments).toEqual(mockClashTournaments);
         })
 
-        // @TODO Refactor to expect logic for user removal
         test('(Existing Team update, user to be removed) - it should update the existing Team.', () => {
             component = fixture.componentInstance;
             const expectedTournamentName = 'awesome_sauce';
@@ -529,18 +528,18 @@ describe('TeamsDashboardComponent', () => {
             let mockApplicationDetails = createMockAppDetails(
                 createMockGuilds(),
                 createMockClashBotUserDetails(),
-                createMockUserDetails()
+                mockUserDetails
             );
             mockApplicationDetails.currentTournaments = mockClashTournaments;
             let msg: ClashTeam = {
                 teamName: 'Team toBeUpdated',
                 playersDetails: [
                     {
-                        name: '',
-                        id: 0,
+                        name: mockUserDetails.username,
+                        id: mockUserDetails.id,
                         role: 'Top',
                         champions: [],
-                        isUser: false
+                        isUser: true
                     },
                     {
                         name: 'PlayerTwo',
@@ -581,11 +580,11 @@ describe('TeamsDashboardComponent', () => {
             };
             let updatedTeamState = JSON.parse(JSON.stringify(msg));
             updatedTeamState.playersDetails[0] = {
-                name: mockUserDetails.username,
-                id: mockUserDetails.id,
+                name: '',
+                id: 0,
                 role: 'Top',
                 champions: [],
-                isUser: true
+                isUser: false
             };
             component.teams = [msg];
             component.currentApplicationDetails = mockApplicationDetails;
@@ -595,9 +594,9 @@ describe('TeamsDashboardComponent', () => {
             expect(component.teams.length).toEqual(1);
             expect(component.teams).toEqual([updatedTeamState]);
             expect(component.teams[0].playersDetails?.length).toEqual(5);
-            expect(component.teams[0].playersDetails?.[0].name).toEqual('Roidrage');
+            expect(component.teams[0].playersDetails?.[0].name).toEqual('');
             expect(component.teams[0].playersDetails?.[0].role).toEqual('Top');
-            expect(component.teams[0].playersDetails?.[0].id).toEqual(mockUserDetails.id);
+            expect(component.teams[0].playersDetails?.[0].id).toEqual(0);
             expect(component.eligibleTournaments).toEqual(mockClashTournaments);
         })
     })
@@ -673,6 +672,7 @@ describe('TeamsDashboardComponent', () => {
             component.updateTentativeListBasedOnTeam(mockClashTeams);
             expect(component.tentativeList).toEqual(expectedTentativeList);
         })
+
         test('If a mappedTeam is passed and the player passed back on the Team not tentative, then it should build ' +
             'a list of playerNames on the Team and not update the tentative list.', () => {
             const expectedPlayer = 'Pepe Conrad';
@@ -746,37 +746,48 @@ describe('TeamsDashboardComponent', () => {
     })
 
     describe('Filter Team', () => {
-        test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and filter it based on the argument passed.', () => {
+        test('(Filter with valid value) - it should make a call and retrieve the Teams from the ClashBot Service with the argument passed.', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
-                setupGuildObservable(cold);
-                component = fixture.componentInstance;
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
 
                 const expectedTournamentName = 'awesome_sauce';
                 const expectedTournamentDay = '1';
                 let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
                 let mockClashTeams: ClashTeam[] = createMockClashTeams(mockClashTournaments, mockUserDetails);
+                let emptyMockClashTentativeDetails = createEmptyMockClashTentativeDetails();
                 let expectedClashTeam: ClashTeam[] = mapClashTeams(mockClashTeams);
 
-                const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
-                const applicationDetailsObservable$ = cold('-x', {x: {currentTournaments: mockClashTournaments}});
+                mockAppDetails.currentTournaments = mockClashTournaments;
+                component = fixture.componentInstance;
+                component.currentApplicationDetails = mockAppDetails;
 
+                const serverTentativeListObservable$ = cold('----x|', {x: emptyMockClashTentativeDetails});
+                const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
+
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(serverTentativeListObservable$);
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObservable$);
+                teamsWebsocketServiceMock.getSubject.mockReturnValue({
+                    next: jest.fn().mockReturnThis(),
+                    pipe: jest.fn().mockReturnThis(),
+                    subscribe: jest.fn().mockReturnThis()
+                });
 
                 const expectedSearchPhrase = 'Goon Squad';
 
                 component.filterTeam(expectedSearchPhrase);
 
-                expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
                 expectObservable(clashTeamsObservable$).toBe('----x|', {x: mockClashTeams});
-                expectObservable(applicationDetailsObservable$).toBe('-x', {x: {currentTournaments: mockClashTournaments}});
 
                 flush();
+
                 expect(clashBotServiceMock.getClashTeams).toBeCalledWith(expectedSearchPhrase);
-                expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
                 expect(component.showSpinner).toBeFalsy();
                 expect(component.teams).toEqual(expectedClashTeam);
                 expect(component.eligibleTournaments).toHaveLength(1);
@@ -784,6 +795,7 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
+        // @TODO refactor for change to observables
         test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if an generic error occurs the Snack Bar should be called with a generic message..', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
@@ -815,6 +827,7 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
+        // @TODO refactor for change to observables
         test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if the call times out after 7 seconds the Snack Bar should be called with a generic message..', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
@@ -872,6 +885,7 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
+        // @TODO refactor for change to observables
         test('Error - getUserDetails - When the filterTeam method is called with invalid User Details, it should not make a call but show a snack bar error immediately that the player needs to login again.', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
@@ -935,6 +949,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Register for Team', () => {
         test('When I call register for Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to register a user to the team.', () => {
             testScheduler.run((helpers) => {
@@ -1109,6 +1124,7 @@ describe('TeamsDashboardComponent', () => {
 
     })
 
+    // @TODO refactor for change to observables
     describe('Unregister from Team', () => {
         test('When I call unregister from Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to unregister a user from team.', () => {
             testScheduler.run((helpers) => {
@@ -1381,6 +1397,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Error Handlers', () => {
         test('If getClashTeams service returns and error then a Mat Snack Bar should be opened and an error should be returned.', () => {
             component = fixture.componentInstance;
@@ -1401,6 +1418,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Create New Team', () => {
         test('When createNewTeam is called with a MatOption, then a call to the create new team ' +
             'Clash Bot Service endpoint should be made with the details necessary to create a new team.', () => {
@@ -1463,6 +1481,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Tournament to Clash Team Map', () => {
         test('As a user, I should know all Tournaments I am scheduled with and which Teams I am assigned to.', () => {
             const expectedTournamentName = 'awesome_sauce';
@@ -1565,6 +1584,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Sync Team Details', () => {
         test('When a Team list and a list of Tournaments are passed to syncTeamDetails, it should ' +
             'populate the eligible Tournaments list and add the detail if the Player is on the Team.', () => {
@@ -1775,6 +1795,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Update Tentative List Details', () => {
         test('If updateTentativeList is called with a serverName, it will populate the tentativeList with the tentiveList details for the server.', () => {
             testScheduler.run(helpers => {
@@ -1874,6 +1895,7 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
+    // @TODO refactor for change to observables
     describe('Tentative register/unregister', () => {
         test('When tentativeRegister is called with add, it should call to the clash bot service should be made with the user id.', () => {
             testScheduler.run(helpers => {
