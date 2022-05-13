@@ -3,6 +3,7 @@ import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {UserDetails} from "../interfaces/user-details";
 import {ApplicationDetails} from "../interfaces/application-details";
 import {ClashTeam} from "../interfaces/clash-team";
+import {HttpErrorResponse} from "@angular/common/http";
 
 export function createMockGuilds() {
     return [{
@@ -86,4 +87,34 @@ export function createMockClashTeam() : ClashTeam {
         serverName: 'Goon Squad',
         startTime: new Date().toISOString()
     };
+}
+
+export function create400HttpError(): Error {
+    return new HttpErrorResponse({
+        error: 'Failed to make call.',
+        headers: undefined,
+        status: 400,
+        statusText: 'Bad Request',
+        url: 'https://localhost.com/api'
+    });
+}
+
+export function create500HttpError(): Error {
+    return new HttpErrorResponse({
+        error: 'Failed to make call.',
+        headers: undefined,
+        status: 500,
+        statusText: 'Internal Server Error',
+        url: 'https://localhost.com/api'
+    });
+}
+
+export function create401HttpError(): Error {
+    return new HttpErrorResponse({
+        error: 'Failed to make call.',
+        headers: undefined,
+        status: 401,
+        statusText: 'Unauthorized Error',
+        url: 'https://localhost.com/api'
+    });
 }

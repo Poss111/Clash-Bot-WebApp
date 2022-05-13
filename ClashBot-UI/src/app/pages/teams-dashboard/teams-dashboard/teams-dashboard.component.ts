@@ -121,11 +121,10 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 take(1),
                 timeout(7000),
                 catchError((err: HttpErrorResponse) => {
-                    console.error(err);
                     this._snackBar.open('Failed to retrieve Teams. Please try again later.',
                         'X',
                         {duration: 5 * 1000});
-                    this.teams.push({error: err.message});
+                    this.teams.push({error: 'Failed to make call.'});
                     return throwError(err);
                 }),
                 finalize(() => this.showInnerSpinner = false)

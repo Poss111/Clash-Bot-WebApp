@@ -19,6 +19,7 @@ import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {Subject} from "rxjs";
 import {TeamsModule} from "../teams.module";
 import {
+    create400HttpError,
     createEmptyMockClashTentativeDetails,
     createMockAppDetails,
     createMockClashBotUserDetails, createMockClashTeam, createMockGuilds,
@@ -794,27 +795,41 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
-        // @TODO refactor for change to observables
-        test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if an generic error occurs the Snack Bar should be called with a generic message..', () => {
+        test('(Filter with valid value and API error) - When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if an generic error occurs the Snack Bar should be called with a generic message..', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
-                setupGuildObservable(cold);
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
+
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '1';
+                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+                let emptyMockClashTentativeDetails = createEmptyMockClashTentativeDetails();
+                mockAppDetails.currentTournaments = mockClashTournaments;
                 component = fixture.componentInstance;
+                component.currentApplicationDetails = mockAppDetails;
 
-                let error = new Error('Failed to make call.');
+                const serverTentativeListObservable$ = cold('----x|', {x: emptyMockClashTentativeDetails});
+                const clashTeamsObservable$ = cold('-#', undefined, create400HttpError());
 
-                const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                const clashTeamsObservable$ = cold('-#', undefined, error);
-
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(serverTentativeListObservable$);
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
+                teamsWebsocketServiceMock.getSubject.mockReturnValue({
+                    next: jest.fn().mockReturnThis(),
+                    pipe: jest.fn().mockReturnThis(),
+                    subscribe: jest.fn().mockReturnThis()
+                });
 
                 const expectedSearchPhrase = 'Goon Squad';
 
                 component.filterTeam(expectedSearchPhrase);
 
-                expectObservable(clashTeamsObservable$).toBe('-#', undefined, error);
-                expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
+                expectObservable(clashTeamsObservable$).toBe('-#', undefined, create400HttpError());
 
                 flush();
                 expect(clashBotServiceMock.getClashTeams).toBeCalledWith(expectedSearchPhrase);
