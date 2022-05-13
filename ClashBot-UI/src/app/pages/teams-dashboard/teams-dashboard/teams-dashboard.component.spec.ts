@@ -763,7 +763,6 @@ describe('TeamsDashboardComponent', () => {
                 let mockClashTeams: ClashTeam[] = createMockClashTeams(mockClashTournaments, mockUserDetails);
                 let emptyMockClashTentativeDetails = createEmptyMockClashTentativeDetails();
                 let expectedClashTeam: ClashTeam[] = mapClashTeams(mockClashTeams);
-
                 mockAppDetails.currentTournaments = mockClashTournaments;
                 component = fixture.componentInstance;
                 component.currentApplicationDetails = mockAppDetails;
