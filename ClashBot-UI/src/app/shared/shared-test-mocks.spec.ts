@@ -122,7 +122,7 @@ export function create401HttpError(): Error {
 
 export function createMockClashTournaments(expectedTournamentName: string, numberOfDays: number): ClashTournaments[] {
     let mockClashTournaments = [];
-    for (let i = 0; i < numberOfDays; i++) {
+    for (let i = 1; i <= numberOfDays; i++) {
         mockClashTournaments.push({
             tournamentName: expectedTournamentName,
             tournamentDay: `${i}`,

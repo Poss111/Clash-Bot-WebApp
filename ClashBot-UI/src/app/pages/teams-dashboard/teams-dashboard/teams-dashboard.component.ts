@@ -83,7 +83,6 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 .pipe(take(1),
                     timeout(this.MAX_TIMEOUT),
                     catchError((err: HttpErrorResponse) => {
-                        console.error(err);
                         this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
                             'X',
                             {duration: 5 * 1000}
@@ -98,6 +97,11 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));
                     this.tentativeDataStatus = 'SUCCESSFUL';
                 });
+        } else {
+            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
+
         }
     }
 
@@ -389,8 +393,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     tentativeRegister(tentativeUserDetails: ClashBotTentativeDetails) {
-        if (this.currentApplicationDetails &&
-            this.currentApplicationDetails.currentTournaments &&
+        if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             this.clashBotService.postTentativeList(
                 `${this.currentApplicationDetails.userDetails.id}`,
@@ -398,6 +401,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 tentativeUserDetails.tournamentDetails.tournamentName,
                 tentativeUserDetails.tournamentDetails.tournamentDay)
                 .pipe(take(1),
+                    timeout(7000),
                     catchError(err => {
                         console.error(err);
                         this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
@@ -414,6 +418,10 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     this.tentativeList = JSON.parse(JSON.stringify(this.tentativeList));
                 }
             });
+        } else {
+            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
         }
     }
 }

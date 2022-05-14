@@ -1425,6 +1425,7 @@ describe('TeamsDashboardComponent', () => {
                 const {cold, flush} = helpers;
                 component = fixture.componentInstance;
                 let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                const tournaments = loggedInMockApplicationDetails.currentTournaments;
                 component.currentApplicationDetails = loggedInMockApplicationDetails;
                 const expectedServerName = 'Integration Server';
                 component.currentSelectedGuild = expectedServerName;
@@ -1454,7 +1455,7 @@ describe('TeamsDashboardComponent', () => {
                     loggedInMockApplicationDetails.userDetails,
                     {
                         serverName: expectedServerName,
-                        startTime: undefined,
+                        startTime: tournaments ? tournaments[0].startTime : undefined,
                         tournamentDetails: {
                             tournamentName: 'msi2022',
                             tournamentDay: '2'
@@ -1484,6 +1485,7 @@ describe('TeamsDashboardComponent', () => {
                 const {cold, flush} = helpers;
                 component = fixture.componentInstance;
                 let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                const tournaments = loggedInMockApplicationDetails.currentTournaments;
                 component.currentApplicationDetails = loggedInMockApplicationDetails;
                 const expectedServerName = 'Integration Server';
                 component.currentSelectedGuild = expectedServerName;
@@ -1501,7 +1503,7 @@ describe('TeamsDashboardComponent', () => {
                     loggedInMockApplicationDetails.userDetails,
                     {
                         serverName: expectedServerName,
-                        startTime: undefined,
+                        startTime: tournaments ? tournaments[0].startTime : undefined,
                         tournamentDetails: {
                             tournamentName: 'msi2022',
                             tournamentDay: '2'
@@ -1519,6 +1521,7 @@ describe('TeamsDashboardComponent', () => {
                 const {cold, flush} = helpers;
                 component = fixture.componentInstance;
                 let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                const tournaments = loggedInMockApplicationDetails.currentTournaments;
                 component.currentApplicationDetails = loggedInMockApplicationDetails;
                 const expectedServerName = 'Integration Server';
                 component.currentSelectedGuild = expectedServerName;
@@ -1536,7 +1539,7 @@ describe('TeamsDashboardComponent', () => {
                     }]
                 };
                 component.eligibleTournaments = copyObject(loggedInMockApplicationDetails.currentTournaments);
-                clashBotServiceMock.createNewTeam.mockReturnValue(cold('7000ms -x|', { x: mockCreateNewTeamReturn }));
+                clashBotServiceMock.createNewTeam.mockReturnValue(cold('7000ms -x|', {x: mockCreateNewTeamReturn}));
 
                 component.createNewTeam({role: expectedRole, tournamentDay: "2", tournamentName: "msi2022"});
 
@@ -1548,7 +1551,7 @@ describe('TeamsDashboardComponent', () => {
                     loggedInMockApplicationDetails.userDetails,
                     {
                         serverName: expectedServerName,
-                        startTime: undefined,
+                        startTime: tournaments ? tournaments[0].startTime : undefined,
                         tournamentDetails: {
                             tournamentName: 'msi2022',
                             tournamentDay: '2'
@@ -1664,249 +1667,338 @@ describe('TeamsDashboardComponent', () => {
         })
     })
 
-    // @TODO refactor for change to observables
     describe('Sync Team Details', () => {
-        test('When a Team list and a list of Tournaments are passed to syncTeamDetails, it should ' +
-            'populate the eligible Tournaments list and add the detail if the Player is on the Team.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                let mockTournaments: ClashTournaments[] = [
-                    {
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '1',
-                        startTime: new Date().toISOString(),
-                        registrationTime: new Date().toISOString()
-                    },
-                    {
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '2',
-                        startTime: new Date().toISOString(),
-                        registrationTime: new Date().toISOString()
-                    },
-                ]
-                let mockUserDetails: UserDetails = {id: 123321, username: 'Hi', discriminator: '123123jsaf'};
-                let mockTeamData: ClashTeam[] = [
-                    {
-                        teamName: 'Test Team 1',
-                        serverName: 'Integration Server',
-                        tournamentDetails: {
-                            tournamentName: mockTournaments[0].tournamentName,
-                            tournamentDay: mockTournaments[0].tournamentDay
+        test('(Player is on Team for both Tournaments and alone on first) - it should populate the eligible Tournaments list and add the detail if the Player is on the Team.', () => {
+            component = fixture.componentInstance;
+            let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+            component.currentApplicationDetails = loggedInMockApplicationDetails;
+            const tournaments = loggedInMockApplicationDetails.currentTournaments;
+            const user = loggedInMockApplicationDetails.userDetails;
+            let mockTeamData: ClashTeam[] = [
+                {
+                    teamName: 'Test Team 1',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[0] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: user ? user.id : 0,
+                            name: user ? user.username : "",
+                            role: 'Top',
+                            isUser: false
                         },
-                        playersDetails: [
-                            {
-                                id: mockUserDetails.id,
-                                name: mockUserDetails.username,
-                                role: 'Top',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Mid',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Jg',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Bot',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Supp',
-                                isUser: false
-                            }
-                        ],
-                        startTime: new Date().toISOString()
-                    },
-                    {
-                        teamName: 'Test Team 1',
-                        serverName: 'Integration Server',
-                        tournamentDetails: {
-                            tournamentName: mockTournaments[1].tournamentName,
-                            tournamentDay: mockTournaments[1].tournamentDay
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Mid',
+                            isUser: false
                         },
-                        playersDetails: [
-                            {
-                                id: mockUserDetails.id,
-                                name: mockUserDetails.username,
-                                role: 'Top',
-                                isUser: false
-                            },
-                            {
-                                id: 2,
-                                name: 'User 2',
-                                role: 'Mid',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Jg',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Bot',
-                                isUser: false
-                            },
-                            {
-                                id: 0,
-                                name: '',
-                                role: 'Supp',
-                                isUser: false
-                            }],
-                        startTime: new Date().toISOString()
-                    }
-                ];
-                let mockApplicationDetails: ApplicationDetails = {currentTournaments: mockTournaments}
-                let mockApplicationDetailsObservable = cold('-x|', {x: mockApplicationDetails});
-
-                let expectedTeamData = mockTeamData.map(record => {
-                    if (record.playersDetails) {
-                        record.playersDetails.forEach(player => player.isUser = player.name === mockUserDetails.username);
-                    }
-                    return record;
-                });
-
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(mockApplicationDetailsObservable);
-
-                expectObservable(mockApplicationDetailsObservable).toBe('-x|', {x: mockApplicationDetails});
-                component.syncTeamInformation(mockTeamData);
-
-                flush();
-                expect(component.teams).toEqual(expectedTeamData);
-                expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
-                expect(component.eligibleTournaments).toEqual([mockTournaments[1]]);
-            });
-        })
-
-        test('When a Team list and an empty list of Tournaments are passed to syncTeamDetails, it should have an empty eligible tournaments list.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                let mockTournaments: ClashTournaments[] = [];
-                let mockUserDetails: UserDetails = {id: 123321, username: 'Hi', discriminator: '123123jsaf'};
-                let mockTeamData: ClashTeam[] = [
-                    {
-                        teamName: 'Test Team 1',
-                        serverName: 'Integration Server',
-                        tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '1'},
-                        playersDetails: [{id: 1, name: mockUserDetails.username, role: 'Top'}],
-                        startTime: new Date().toISOString()
-                    },
-                    {
-                        teamName: 'Test Team 1',
-                        serverName: 'Integration Server',
-                        tournamentDetails: {tournamentName: 'awesome_sauce', tournamentDay: '2'},
-                        playersDetails: [{id: 1, name: mockUserDetails.username, role: 'Top'}, {
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
+                        }
+                    ],
+                    startTime: new Date().toISOString()
+                },
+                {
+                    teamName: 'Test Team 2',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[1] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: user ? user.id : 0,
+                            name: user ? user.username : "",
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
                             id: 2,
-                            name: 'Test User 2',
-                            role: 'Mid'
+                            name: 'User 2',
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
                         }],
-                        startTime: new Date().toISOString()
-                    }
-                ];
-                let mockApplicationDetails: ApplicationDetails = {currentTournaments: mockTournaments}
-                let mockApplicationDetailsObservable = cold('-x|', {x: mockApplicationDetails});
+                    startTime: new Date().toISOString()
+                }
+            ];
 
-                let expectedTeamData = mockTeamData.map(record => {
-                    if (record.playersDetails) {
-                        record.playersDetails.forEach(player => player.isUser = player.name === mockUserDetails.username);
-                    }
-                    return record;
-                });
+            let expectedMappedTeamData = copyObject(mockTeamData);
+            expectedMappedTeamData[0].id = "integration-server-test-team-1"
+            expectedMappedTeamData[0].playersDetails[0].isUser = true;
+            expectedMappedTeamData[1].id = "integration-server-test-team-2"
+            expectedMappedTeamData[1].playersDetails[0].isUser = true;
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(mockApplicationDetailsObservable);
+            component.syncTeamInformation(mockTeamData);
 
-                expectObservable(mockApplicationDetailsObservable).toBe('-x|', {x: mockApplicationDetails});
-                component.syncTeamInformation(mockTeamData);
-
-                flush();
-                expect(component.teams).toEqual(expectedTeamData);
-                expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
-                expect(component.eligibleTournaments).toEqual([]);
-            });
+            expect(component.teams).toEqual(expectedMappedTeamData);
+            expect(component.eligibleTournaments).toEqual([tournaments?.pop()]);
         })
 
-        test('When an empty Team list is passed, it should populate the teams list with an error of No data', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                component = fixture.componentInstance;
-                let mockTournaments: ClashTournaments[] = [
-                    {
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '1',
-                        startTime: new Date().toISOString(),
-                        registrationTime: new Date().toISOString()
-                    },
-                    {
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '2',
-                        startTime: new Date().toISOString(),
-                        registrationTime: new Date().toISOString()
-                    },
-                ]
+        test('(Player is on Team for both Tournaments and alone on both) - it should populate the eligible Tournaments list and add the detail if the Player is on the Team.', () => {
+            component = fixture.componentInstance;
+            let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+            component.currentApplicationDetails = loggedInMockApplicationDetails;
+            const tournaments = loggedInMockApplicationDetails.currentTournaments;
+            const user = loggedInMockApplicationDetails.userDetails;
+            let mockTeamData: ClashTeam[] = [
+                {
+                    teamName: 'Test Team 1',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[0] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: user ? user.id : 0,
+                            name: user ? user.username : "",
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
+                        }
+                    ],
+                    startTime: new Date().toISOString()
+                },
+                {
+                    teamName: 'Test Team 2',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[1] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: user ? user.id : 0,
+                            name: user ? user.username : "",
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
+                        }
+                    ],
+                    startTime: new Date().toISOString()
+                }
+            ];
 
-                let mockApplicationDetails: ApplicationDetails = {currentTournaments: mockTournaments}
-                let mockApplicationDetailsObservable = cold('-x|', {x: mockApplicationDetails});
+            let expectedMappedTeamData = copyObject(mockTeamData);
+            expectedMappedTeamData[0].id = "integration-server-test-team-1"
+            expectedMappedTeamData[0].playersDetails[0].isUser = true;
+            expectedMappedTeamData[1].id = "integration-server-test-team-2"
+            expectedMappedTeamData[1].playersDetails[0].isUser = true;
 
-                applicationDetailsMock.getApplicationDetails.mockReturnValue(mockApplicationDetailsObservable);
+            component.syncTeamInformation(mockTeamData);
 
-                expectObservable(mockApplicationDetailsObservable).toBe('-x|', {x: mockApplicationDetails});
+            expect(component.teams).toEqual(expectedMappedTeamData);
+            expect(component.eligibleTournaments).toEqual([]);
+        })
 
-                component.syncTeamInformation([]);
+        test('(Player is on Team for one Tournament) - it should populate the eligible Tournaments list and add the detail if the Player is on the Team.', () => {
+            component = fixture.componentInstance;
+            let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+            component.currentApplicationDetails = loggedInMockApplicationDetails;
+            const tournaments = loggedInMockApplicationDetails.currentTournaments;
+            const user = loggedInMockApplicationDetails.userDetails;
+            let mockTeamData: ClashTeam[] = [
+                {
+                    teamName: 'Test Team 1',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[0] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: user ? user.id : 0,
+                            name: user ? user.username : "",
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
+                        }
+                    ],
+                    startTime: new Date().toISOString()
+                },
+                {
+                    teamName: 'Test Team 2',
+                    serverName: 'Integration Server',
+                    tournamentDetails: tournaments ? tournaments[1] : {tournamentName: "", tournamentDay: "0"},
+                    playersDetails: [
+                        {
+                            id: 5,
+                            name: 'Mocky mock',
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
+                            id: 2,
+                            name: 'User 2',
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 0,
+                            name: '',
+                            role: 'Supp',
+                            isUser: false
+                        }],
+                    startTime: new Date().toISOString()
+                }
+            ];
 
-                flush();
-                expect(component.teams).toEqual([{error: 'No data'}]);
-                expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
-                expect(component.eligibleTournaments).toEqual(mockTournaments);
-            });
+            let expectedMappedTeamData = copyObject(mockTeamData);
+            expectedMappedTeamData[0].id = "integration-server-test-team-1"
+            expectedMappedTeamData[0].playersDetails[0].isUser = true;
+            expectedMappedTeamData[1].id = "integration-server-test-team-2"
+
+            component.syncTeamInformation(mockTeamData);
+
+            expect(component.teams).toEqual(expectedMappedTeamData);
+            expect(component.eligibleTournaments).toEqual([tournaments?.pop()]);
+        })
+
+        test('(No Teams) - it should populate the teams list with an error of No data', () => {
+            component = fixture.componentInstance;
+            let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+            component.currentApplicationDetails = loggedInMockApplicationDetails;
+
+            component.syncTeamInformation([]);
+
+            expect(component.teams).toEqual([{error: 'No data'}]);
+            expect(component.eligibleTournaments).toEqual(loggedInMockApplicationDetails.currentTournaments);
         })
     })
 
-    // @TODO refactor for change to observables
     describe('Update Tentative List Details', () => {
-        test('If updateTentativeList is called with a serverName, it will populate the tentativeList with the tentiveList details for the server.', () => {
+        test('(User is logged in and User is on first tentative list) - it will populate the tentativeList with the tentativeList details for the server.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
-                const expectedGuildName = 'LoL-ClashBotSupport';
-                const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
-                    "serverName": expectedGuildName,
-                    "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
-                    "tentativePlayers": ["Sample User"]
-                }, {
-                    "serverName": expectedGuildName,
-                    "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
-                    "tentativePlayers": []
-                }, {
-                    "serverName": expectedGuildName,
-                    "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
-                    "tentativePlayers": []
-                }];
-
-                const mockTentativeDetailsObs = cold('x|', {x: JSON.parse(JSON.stringify(mockClashTentativeDetails))});
-
-                clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
-
                 component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let tournaments = loggedInMockApplicationDetails.currentTournaments;
+                let user = loggedInMockApplicationDetails.userDetails;
+                const expectedGuildName = 'LoL-ClashBotSupport';
+                const mockClashTentativeDetails: ClashBotTentativeDetails[] = [
+                    {
+                        serverName: expectedGuildName,
+                        tournamentDetails: tournaments ? tournaments[0] : {tournamentName: "", tournamentDay: "0"},
+                        tentativePlayers: [user?.username ?? ""]
+                    },
+                    {
+                        serverName: expectedGuildName,
+                        tournamentDetails: tournaments ? tournaments[1] : {tournamentName: "", tournamentDay: "0"},
+                        tentativePlayers: []
+                    }
+                ];
+
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(cold('x|', {x: copyObject(mockClashTentativeDetails)}));
                 component.updateTentativeList(expectedGuildName);
 
                 mockClashTentativeDetails[0].isMember = true;
                 mockClashTentativeDetails[1].isMember = false;
-                mockClashTentativeDetails[2].isMember = false;
 
                 expect(component.tentativeDataStatus).toEqual('LOADING');
+
                 flush();
 
                 expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
@@ -1916,25 +2008,55 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
-        test('ERROR - call fails - If the updateTentativeList call fails, it should invoke a snack bar with a generic error message.', () => {
+        test('(User is logged in and User is not on any tentative list) - it will populate the tentativeList with the tentativeList details for the server.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let tournaments = loggedInMockApplicationDetails.currentTournaments;
+                const expectedGuildName = 'LoL-ClashBotSupport';
+                const mockClashTentativeDetails: ClashBotTentativeDetails[] = [
+                    {
+                        serverName: expectedGuildName,
+                        tournamentDetails: tournaments ? tournaments[0] : {tournamentName: "", tournamentDay: "0"},
+                        tentativePlayers: []
+                    },
+                    {
+                        serverName: expectedGuildName,
+                        tournamentDetails: tournaments ? tournaments[1] : {tournamentName: "", tournamentDay: "0"},
+                        tentativePlayers: []
+                    }
+                ];
+
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(cold('x|', {x: copyObject(mockClashTentativeDetails)}));
+                component.updateTentativeList(expectedGuildName);
+
+                mockClashTentativeDetails[0].isMember = false;
+                mockClashTentativeDetails[1].isMember = false;
+
+                expect(component.tentativeDataStatus).toEqual('LOADING');
+
+                flush();
+
+                expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledTimes(1);
+                expect(clashBotServiceMock.getServerTentativeList).toHaveBeenCalledWith(expectedGuildName);
+                expect(component.tentativeList).toEqual(mockClashTentativeDetails);
+                expect(component.tentativeDataStatus).toEqual('SUCCESSFUL');
+            })
+        })
+
+        test('(User is logged in an get Tentative List API fails) - it should invoke a snack bar with a generic error message.', () => {
+            testScheduler.run(helpers => {
+                const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                component.currentApplicationDetails = setupLoggedInMockApplicationDetails();
                 const expectedGuildName = 'LoL-ClashBotSupport';
 
-                const expectedError =
-                    new HttpErrorResponse({
-                        error: 'Failed to make call.',
-                        headers: undefined,
-                        status: 400,
-                        statusText: 'Bad Request',
-                        url: 'https://localhost/api/tentative'
-                    });
-
-                const mockTentativeDetailsObs = cold('#', undefined, expectedError);
+                const mockTentativeDetailsObs = cold('#', undefined, create400HttpError());
 
                 clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
 
-                component = fixture.componentInstance;
                 component.updateTentativeList(expectedGuildName);
 
                 flush();
@@ -1948,16 +2070,15 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
-        test('ERROR - Timeout - If the updateTentativeList call timesout, it should invoke a snack bar with a generic error message.', () => {
+        test('(User is logged in an get Tentative List API Times out) - it should invoke a snack bar with a generic error message.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                component.currentApplicationDetails = setupLoggedInMockApplicationDetails();
                 const expectedGuildName = 'LoL-ClashBotSupport';
 
-                const mockTentativeDetailsObs = cold('7000ms x|', {x: []});
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(cold('7000ms x|', {x: []}));
 
-                clashBotServiceMock.getServerTentativeList.mockReturnValue(mockTentativeDetailsObs);
-
-                component = fixture.componentInstance;
                 component.updateTentativeList(expectedGuildName);
 
                 flush();
@@ -1969,15 +2090,31 @@ describe('TeamsDashboardComponent', () => {
                 expect(component.tentativeList).toBeFalsy();
                 expect(component.tentativeDataStatus).toEqual('FAILED');
             })
+        })
+
+        test('(User is not logged in) - it should invoke a snack bar with a generic error message.', () => {
+            component = fixture.componentInstance;
+            component.currentApplicationDetails = setupLoggedOutMockApplicationDetails();
+            const expectedGuildName = 'LoL-ClashBotSupport';
+
+            component.updateTentativeList(expectedGuildName);
+
+            expect(clashBotServiceMock.getServerTentativeList).not.toHaveBeenCalled()
+            expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+            expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
+            expect(component.tentativeList).toBeFalsy();
         })
     })
 
     // @TODO refactor for change to observables
     describe('Tentative register/unregister', () => {
-        test('When tentativeRegister is called with add, it should call to the clash bot service should be made with the user id.', () => {
+        test('(User is logged in and to be added) - it should call to the clash bot service should be made with the user id.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let user = loggedInMockApplicationDetails.userDetails;
                 const mockTentativeDetails: ClashBotTentativeDetails = {
                     serverName: 'Goon Squad',
                     tentativePlayers: ['Roidrage'],
@@ -1989,15 +2126,12 @@ describe('TeamsDashboardComponent', () => {
                     isMember: false
                 };
 
-                let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
-                updatedTentativeDetails.tentativePlayers.push(mockUserDetails.username);
-                const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
+                let updatedTentativeDetails: ClashBotTentativeDetails = copyObject(mockTentativeDetails);
+                updatedTentativeDetails.tentativePlayers.push(user?.username ?? "");
 
-                clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+                clashBotServiceMock.postTentativeList.mockReturnValue(cold('x|', {x: updatedTentativeDetails}));
 
-                component = fixture.componentInstance;
-
-                component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+                component.tentativeList = [copyObject(mockTentativeDetails)];
                 component.tentativeList.push({
                     serverName: 'Goon Squad',
                     tentativePlayers: ['Roidrage'],
@@ -2013,18 +2147,22 @@ describe('TeamsDashboardComponent', () => {
                 flush();
 
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${mockUserDetails.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
-                expect(component.tentativeList && component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${user?.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+                expect(component.tentativeList && component.tentativeList[0].tentativePlayers.includes(user?.username ?? "dne")).toBeTruthy();
                 expect(component.tentativeList && component.tentativeList[0].isMember).toBeTruthy();
             });
         })
 
-        test('When tentativeRegister is called with remove, it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
+        test('(User is logged in and to be removed) - it should have a confirm dialog pop up to confirm the user action then the call to the clash bot service should be made with the user id.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let user = loggedInMockApplicationDetails.userDetails;
                 const mockTentativeDetails: ClashBotTentativeDetails = {
                     serverName: 'Goon Squad',
-                    tentativePlayers: ['Roidrage', 'Sample User'],
+                    tentativePlayers: ['Sample User', user?.username ?? ""],
                     tournamentDetails: {
                         tournamentName: 'awesome_sauce',
                         tournamentDay: '1'
@@ -2032,19 +2170,15 @@ describe('TeamsDashboardComponent', () => {
                     index: 0,
                     isMember: true
                 };
-                let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
+                let updatedTentativeDetails: ClashBotTentativeDetails = copyObject(mockTentativeDetails);
                 updatedTentativeDetails.tentativePlayers.pop();
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
-                const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
 
-                clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+                clashBotServiceMock.postTentativeList.mockReturnValue(cold('x|', {x: updatedTentativeDetails}));
 
-                component = fixture.componentInstance;
-
-                component.tentativeList = [JSON.parse(JSON.stringify(mockTentativeDetails))];
+                component.tentativeList = [copyObject(mockTentativeDetails)];
                 component.tentativeList.push({
                     serverName: 'Goon Squad',
-                    tentativePlayers: ['Roidrage'],
+                    tentativePlayers: ['Sample User'],
                     tournamentDetails: {
                         tournamentName: 'awesome_sauce',
                         tournamentDay: '2'
@@ -2057,15 +2191,19 @@ describe('TeamsDashboardComponent', () => {
                 flush();
 
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${mockUserDetails.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
-                expect(component.tentativeList && !component.tentativeList[0].tentativePlayers.includes('Sample User')).toBeTruthy();
+                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${user?.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+                expect(component.tentativeList && !component.tentativeList[0].tentativePlayers.includes(user?.username ?? "")).toBeTruthy();
                 expect(component.tentativeList && !component.tentativeList[0].isMember).toBeTruthy();
             });
         })
 
-        test('ERROR - Failed to make call to Clash Bot Service - If the call fails when trying to update the tentative list, then a generic message should be shown with a snack bar pop up.', () => {
+        test('(User is logged in and API call fails) - then a generic message should be shown with a snack bar pop up.', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let user = loggedInMockApplicationDetails.userDetails;
                 const mockTentativeDetails: ClashBotTentativeDetails = {
                     serverName: 'Goon Squad',
                     tentativePlayers: ['Roidrage', 'Sample User'],
@@ -2077,29 +2215,71 @@ describe('TeamsDashboardComponent', () => {
                     isMember: true
                 };
 
-                const expectedError =
-                    new HttpErrorResponse({
-                        error: 'Failed to make call.',
-                        headers: undefined,
-                        status: 400,
-                        statusText: 'Bad Request',
-                        url: 'https://localhost/api/tentative'
-                    });
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
-
-                const mockedClashBotServiceObs = cold('#', undefined, expectedError);
+                const mockedClashBotServiceObs = cold('#', undefined, create400HttpError());
 
                 clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
-                component = fixture.componentInstance;
                 component.tentativeRegister(mockTentativeDetails);
 
                 flush()
 
                 expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${mockUserDetails.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${user?.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
                 expect(snackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(snackBarMock.open).toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!', 'X', {duration: 5000});
             });
+        })
+
+        test('(User is logged in and API times out) - then a generic message should be shown with a snack bar pop up.', () => {
+            testScheduler.run(helpers => {
+                const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                let user = loggedInMockApplicationDetails.userDetails;
+                const mockTentativeDetails: ClashBotTentativeDetails = {
+                    serverName: 'Goon Squad',
+                    tentativePlayers: ['Roidrage', 'Sample User'],
+                    tournamentDetails: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    },
+                    index: 0,
+                    isMember: true
+                };
+
+                const mockedClashBotServiceObs = cold('7000ms -x|', {x: []});
+
+                clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
+                component.tentativeRegister(mockTentativeDetails);
+
+                flush()
+
+                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledTimes(1);
+                expect(clashBotServiceMock.postTentativeList).toHaveBeenCalledWith(`${user?.id}`, mockTentativeDetails.serverName, mockTentativeDetails.tournamentDetails.tournamentName, mockTentativeDetails.tournamentDetails.tournamentDay);
+                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+                expect(snackBarMock.open).toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!', 'X', {duration: 5000});
+            });
+        })
+
+        test('(User is not logged in) - then a generic message should be shown with a snack bar pop up.', () => {
+                component = fixture.componentInstance;
+                component.currentApplicationDetails = setupLoggedOutMockApplicationDetails();
+                const mockTentativeDetails: ClashBotTentativeDetails = {
+                    serverName: 'Goon Squad',
+                    tentativePlayers: ['Roidrage', 'Sample User'],
+                    tournamentDetails: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    },
+                    index: 0,
+                    isMember: true
+                };
+
+                component.tentativeRegister(mockTentativeDetails);
+
+                expect(clashBotServiceMock.postTentativeList).not.toHaveBeenCalled();
+                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
         })
     })
 })
