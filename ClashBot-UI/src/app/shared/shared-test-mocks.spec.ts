@@ -4,6 +4,7 @@ import {UserDetails} from "../interfaces/user-details";
 import {ApplicationDetails} from "../interfaces/application-details";
 import {ClashTeam} from "../interfaces/clash-team";
 import {HttpErrorResponse} from "@angular/common/http";
+import {ClashTournaments} from "../interfaces/clash-tournaments";
 
 export function createMockGuilds() {
     return [{
@@ -117,4 +118,39 @@ export function create401HttpError(): Error {
         statusText: 'Unauthorized Error',
         url: 'https://localhost.com/api'
     });
+}
+
+export function createMockClashTournaments(expectedTournamentName: string, numberOfDays: number): ClashTournaments[] {
+    let mockClashTournaments = [];
+    for (let i = 0; i < numberOfDays; i++) {
+        mockClashTournaments.push({
+            tournamentName: expectedTournamentName,
+            tournamentDay: `${i}`,
+            startTime: new Date().toISOString(),
+            registrationTime: new Date().toISOString()
+        })
+    }
+    return mockClashTournaments;
+}
+
+export function setupLoggedInMockApplicationDetails(): ApplicationDetails {
+    const mockClashTournaments = createMockClashTournaments('msi2022', 2);
+    let mockAppDetails = createMockAppDetails(
+        createMockGuilds(),
+        createMockClashBotUserDetails(),
+        createMockUserDetails()
+    );
+    mockAppDetails.loggedIn = true;
+    mockAppDetails.currentTournaments = mockClashTournaments;
+    return mockAppDetails;
+}
+
+export function setupLoggedOutMockApplicationDetails(): ApplicationDetails {
+    let mockAppDetails: ApplicationDetails = {};
+    mockAppDetails.loggedIn = false;
+    return mockAppDetails;
+}
+
+export function copyObject(object: any) {
+    return JSON.parse(JSON.stringify(object));
 }

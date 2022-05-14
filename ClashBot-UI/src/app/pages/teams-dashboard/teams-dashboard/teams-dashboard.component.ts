@@ -1,13 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {EMPTY, Subscription, throwError} from "rxjs";
+import {Subscription, throwError} from "rxjs";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, mergeMap, retryWhen, take, tap, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, retryWhen, take, tap, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
-import {UserDetails} from "../../../interfaces/user-details";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -113,52 +112,60 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     private filterForTeamsByServer(valueToSearchFor: string) {
-        this.updateTentativeList(valueToSearchFor);
-        this.showInnerSpinner = true;
-        this.clashBotService
-            .getClashTeams(valueToSearchFor)
-            .pipe(
-                take(1),
-                timeout(7000),
-                catchError((err: HttpErrorResponse) => {
-                    this._snackBar.open('Failed to retrieve Teams. Please try again later.',
-                        'X',
-                        {duration: 5 * 1000});
-                    this.teams.push({error: 'Failed to make call.'});
-                    return throwError(err);
-                }),
-                finalize(() => this.showInnerSpinner = false)
-            ).subscribe(response => {
-            if (this.currentApplicationDetails.loggedIn) {
-                this.syncTeamInformation(response);
-            }
-        });
-        if (this.$teamsSub) this.$teamsSub.unsubscribe();
-        this.teamsWebsocketService.getSubject().next(valueToSearchFor);
-        this.$teamsSub = this.teamsWebsocketService.getSubject()
-            .pipe(
-                retryWhen(errors =>
-                    errors.pipe(
-                        tap(err => {
-                            console.error('Got error', err);
-                        }),
-                        delay(1000)
+        if (!this.currentApplicationDetails.loggedIn) {
+            this._snackBar.open(
+                'Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
+            this.teams = [{error: 'No data'}];
+        } else {
+            this.updateTentativeList(valueToSearchFor);
+            this.showInnerSpinner = true;
+            this.clashBotService
+                .getClashTeams(valueToSearchFor)
+                .pipe(
+                    take(1),
+                    timeout(7000),
+                    catchError((err: HttpErrorResponse) => {
+                        this._snackBar.open('Failed to retrieve Teams. Please try again later.',
+                            'X',
+                            {duration: 5 * 1000});
+                        this.teams.push({error: 'Failed to make call.'});
+                        return throwError(err);
+                    }),
+                    finalize(() => this.showInnerSpinner = false)
+                ).subscribe(response => {
+                if (this.currentApplicationDetails.loggedIn) {
+                    this.syncTeamInformation(response);
+                }
+            });
+            if (this.$teamsSub) this.$teamsSub.unsubscribe();
+            this.teamsWebsocketService.getSubject().next(valueToSearchFor);
+            this.$teamsSub = this.teamsWebsocketService.getSubject()
+                .pipe(
+                    retryWhen(errors =>
+                        errors.pipe(
+                            tap(err => {
+                                console.error('Got error', err);
+                            }),
+                            delay(1000)
+                        )
                     )
                 )
-            )
-            .subscribe((msg) => {
-                    if (this.currentApplicationDetails.loggedIn) {
-                        this.handleIncomingTeamsWsEvent(msg);
-                    }
-                },
-                () => {
-                    this._snackBar.open(
-                        'Oops! Failed to connect to server for Team updates, please try refreshing.',
-                        'X',
-                        {duration: 5 * 1000});
-                    this.teams = [{error: 'No data'}];
-                },
-                () => console.log('Connection closed to teams ws.'));
+                .subscribe((msg) => {
+                        if (this.currentApplicationDetails.loggedIn) {
+                            this.handleIncomingTeamsWsEvent(msg);
+                        }
+                    },
+                    () => {
+                        this._snackBar.open(
+                            'Oops! Failed to connect to server for Team updates, please try refreshing.',
+                            'X',
+                            {duration: 5 * 1000});
+                        this.teams = [{error: 'No data'}];
+                    },
+                    () => console.log('Connection closed to teams ws.'));
+        }
     }
 
     handleIncomingTeamsWsEvent(message: ClashTeam | String) {
@@ -276,14 +283,12 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     registerForTeam($event: ClashBotUserRegister) {
-        if (this.currentApplicationDetails &&
-            this.currentApplicationDetails.currentTournaments &&
+        if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             this.clashBotService.registerUserForTeam(this.currentApplicationDetails.userDetails, $event)
                 .pipe(
                     timeout(7000),
                     catchError((err) => {
-                        console.error(err);
                         let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';
                         if (err.name === 'TimeoutError') {
                             errorMessage = 'Oops! Your registration timed out, please try again!';
@@ -294,20 +299,22 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         return throwError(err);
                     }),
                     take(1)
-                ).subscribe(() => console.log('Registered successfully.'));
+                ).subscribe(() => {});
+        } else {
+            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
         }
     }
 
     unregisterFromTeam($event: ClashTeam) {
-        if (this.currentApplicationDetails &&
-            this.currentApplicationDetails.currentTournaments &&
+        if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             this.clashBotService.unregisterUserFromTeam(this.currentApplicationDetails.userDetails, $event)
                 .pipe(
                     timeout(7000),
                     take(1),
                     catchError((err) => {
-                        console.error(err);
                         let errorMessage = 'Oops! Failed to unregister you from the Team.';
                         if (err.name === 'TimeoutError') {
                             errorMessage = 'Oops! Your request timed out, please try again!';
@@ -318,6 +325,10 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         return throwError(err);
                     })
                 ).subscribe(() => console.log('Unregistered User successfully.'));
+        } else {
+            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
         }
     }
 
@@ -339,17 +350,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         return tournamentToTeamUserMap;
     }
 
-    handleClashTeamsError(snackBar: MatSnackBar, err: HttpErrorResponse) {
-        snackBar.open('Failed to retrieve Teams. Please try again later.',
-            'X',
-            {duration: 5 * 1000});
-        this.teams = [{error: err.message}];
-        return throwError(err);
-    }
-
     createNewTeam(createNewTeamEvent: CreateNewTeamDetails) {
-        if (this.currentApplicationDetails &&
-            this.currentApplicationDetails.currentTournaments &&
+        if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             const clashTournament = this.eligibleTournaments.find(item => item.tournamentName === createNewTeamEvent.tournamentName
                 && item.tournamentDay === createNewTeamEvent.tournamentDay);
@@ -365,16 +367,24 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 newTeamRequest,
                 createNewTeamEvent.role)
                 .pipe(
+                    timeout(7000),
                     catchError((err) => {
-                        console.error(err);
-                        this._snackBar.open('You are not able to create a new Team. Please try again later.',
+                        let message = 'Oops! An error occurred while creating a new team.';
+                        if (err.name === 'TimeoutError') {
+                            message = 'Oops! Your request to create a new Team has timed out. Please try again.'
+                        }
+                        this._snackBar.open(message,
                             'X',
                             {duration: 5 * 1000});
-                        this.teams = [{error: err.message}];
                         return throwError(err);
                     }),
                     take(1),
-                ).subscribe(() => console.log('Successfully created new team.'));
+                ).subscribe(() => {});
+        } else {
+            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
+                'X',
+                {duration: 5 * 1000});
+            this.teams = [{error: "No data"}];
         }
     }
 

@@ -8,7 +8,6 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTeam} from "../../../interfaces/clash-team";
 import {UserDetails} from "../../../interfaces/user-details";
 import {MatDialog} from "@angular/material/dialog";
-import {ColdObservable} from "rxjs/internal/testing/ColdObservable";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {ApplicationDetails} from "../../../interfaces/application-details";
@@ -19,11 +18,12 @@ import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {Subject} from "rxjs";
 import {TeamsModule} from "../teams.module";
 import {
+    copyObject,
     create400HttpError,
     createEmptyMockClashTentativeDetails,
     createMockAppDetails,
     createMockClashBotUserDetails, createMockClashTeam, createMockGuilds,
-    createMockUserDetails
+    createMockUserDetails, setupLoggedInMockApplicationDetails, setupLoggedOutMockApplicationDetails
 } from "../../../shared/shared-test-mocks.spec";
 
 jest.mock("../../../services/clash-bot.service");
@@ -841,44 +841,36 @@ describe('TeamsDashboardComponent', () => {
             })
         })
 
-        // @TODO refactor for change to observables
-        test('When the filterTeam method is called, it should make a call and retrieve the Teams from the ClashBot Service and if the call times out after 7 seconds the Snack Bar should be called with a generic message..', () => {
+        test('(Filter with valid value and Timeout) - times out after 7 seconds the Snack Bar should be called with a generic message..', () => {
             testScheduler.run((helpers) => {
                 const {cold, expectObservable, flush} = helpers;
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
-                setupGuildObservable(cold);
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
 
+                const expectedTournamentName = 'awesome_sauce';
+                const expectedTournamentDay = '1';
+                let mockClashTournaments: ClashTournaments[] = createMockClashTournaments(expectedTournamentName, expectedTournamentDay);
+                let mockClashTeams: ClashTeam[] = createMockClashTeams(mockClashTournaments, mockUserDetails);
+                let emptyMockClashTentativeDetails = createEmptyMockClashTentativeDetails();
+                mockAppDetails.currentTournaments = mockClashTournaments;
                 component = fixture.componentInstance;
+                component.currentApplicationDetails = mockAppDetails;
 
-                let mockClashTeams: ClashTeam[] = [
-                    {
-                        teamName: 'Team Abra',
-                        serverName: 'Test Server',
-                        playersDetails: [
-                            {
-                                id: 1,
-                                name: 'Roïdräge',
-                                champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
-                            },
-                            {
-                                id: 2,
-                                name: 'TheIncentive',
-                                champions: ['Lucian'],
-                                role: 'ADC'
-                            },
-                            {
-                                id: 3,
-                                name: 'Pepe Conrad',
-                                champions: ['Lucian'],
-                                role: 'Jg'
-                            }
-                        ]
-                    }
-                ];
-
-                const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
+                const serverTentativeListObservable$ = cold('----x|', {x: emptyMockClashTentativeDetails});
                 const clashTeamsObservable$ = cold('7000ms x|', {x: mockClashTeams});
+
+                clashBotServiceMock.getServerTentativeList.mockReturnValue(serverTentativeListObservable$);
+                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
+                teamsWebsocketServiceMock.getSubject.mockReturnValue({
+                    next: jest.fn().mockReturnThis(),
+                    pipe: jest.fn().mockReturnThis(),
+                    subscribe: jest.fn().mockReturnThis()
+                });
 
                 clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
@@ -886,96 +878,59 @@ describe('TeamsDashboardComponent', () => {
 
                 component.filterTeam(expectedSearchPhrase);
 
-                expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
                 expectObservable(clashTeamsObservable$).toBe('7000ms x|', {x: mockClashTeams});
 
                 flush();
                 expect(clashBotServiceMock.getClashTeams).toBeCalledWith(expectedSearchPhrase);
                 expect(component.showSpinner).toBeFalsy();
                 expect(component.teams).toHaveLength(1);
-                expect(component.teams).toEqual([{error: "Timeout has occurred"}]);
+                expect(component.teams).toEqual([{error: "Failed to make call."}]);
                 expect(snackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
             })
         })
 
-        // @TODO refactor for change to observables
-        test('Error - getUserDetails - When the filterTeam method is called with invalid User Details, it should not make a call but show a snack bar error immediately that the player needs to login again.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-                const mockUserDetails: UserDetails = {id: 0, username: '', discriminator: '12312asd'};
+        test('(Filter with valid value and User is not loggedIn) - it should not make a call but show a snack bar error immediately that the player needs to login again.', () => {
+            const mockUserDetails: UserDetails = createMockUserDetails();
+            let mockAppDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                mockUserDetails
+            );
+            mockAppDetails.loggedIn = false;
 
-                component = fixture.componentInstance;
+            component = fixture.componentInstance;
+            component.currentApplicationDetails = mockAppDetails;
 
-                let mockClashTeams: ClashTeam[] = [
-                    {
-                        teamName: 'Team Abra',
-                        serverName: 'Test Server',
-                        playersDetails: [
-                            {
-                                id: 1,
-                                name: 'Roïdräge',
-                                champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
-                            },
-                            {
-                                id: 2,
-                                name: 'TheIncentive',
-                                champions: ['Lucian'],
-                                role: 'ADC'
-                            },
-                            {
-                                id: 3,
-                                name: 'Pepe Conrad',
-                                champions: ['Lucian'],
-                                role: 'Jg'
-                            }
-                        ]
-                    },
+            component.filterTeam('Goon Squad');
 
-                    {
-                        teamName: 'Team Abra',
-                        serverName: 'Test Server',
-                        playersDetails: [
-                            {id: 4, name: mockUserDetails.username, role: 'Top'}
-                        ]
-                    }
-                ];
-
-                const userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                const clashTeamsObservable$ = cold('----x|', {x: mockClashTeams});
-
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
-
-                const expectedSearchPhrase = 'Goon Squad';
-
-                component.filterTeam(expectedSearchPhrase);
-
-                expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-                expectObservable(clashTeamsObservable$).toBe('----x|', {x: mockClashTeams});
-
-                flush();
-                expect(component.showSpinner).toBeFalsy();
-                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
-                expect(component.teams).toEqual([{error: "No data"}]);
-            })
+            expect(component.showSpinner).toBeFalsy();
+            expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+            expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
+            expect(component.teams).toEqual([{error: "No data"}]);
         })
     })
 
-    // @TODO refactor for change to observables
     describe('Register for Team', () => {
-        test('When I call register for Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to register a user to the team.', () => {
+        test('(Register for Team with valid User) - call to Clash Bot service to register a user to the team.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                const mockClashTournaments = createMockClashTournaments('msi2022', '1');
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
+                mockAppDetails.currentTournaments = mockClashTournaments;
                 const expectedServer = 'Test Server';
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
                 const registerUserRequest: ClashBotUserRegister = {
                     teamName: 'Team Abra',
                     role: 'Top',
                     tournamentDetails: {
-                        tournamentName: 'msi2021',
-                        tournamentDay: '1'
+                        tournamentName: mockClashTournaments[0].tournamentName,
+                        tournamentDay: mockClashTournaments[0].tournamentDay
                     },
                     serverName: expectedServer
                 };
@@ -1026,16 +981,13 @@ describe('TeamsDashboardComponent', () => {
                 let mockRetrieveUserResponse = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
 
                 component = fixture.componentInstance;
-                expect(component.showSpinner).toBeFalsy();
+                component.currentApplicationDetails = mockAppDetails;
 
                 component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse});
-                let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
 
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
                 component.registerForTeam(registerUserRequest);
 
@@ -1048,41 +1000,52 @@ describe('TeamsDashboardComponent', () => {
             });
         })
 
-        test('When I call register for Team, it should subscribe to retrieve the latest User Details and if the Users Details are empty then it should show a snackbar error.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, flush} = helpers;
+        test('(Register for Team with no valid User) - it should show a snackbar error.', () => {
+            const mockUserDetails: UserDetails = createMockUserDetails();
+            const mockClashTournaments = createMockClashTournaments('msi2022', '1');
+            let mockAppDetails = createMockAppDetails(
+                createMockGuilds(),
+                createMockClashBotUserDetails(),
+                mockUserDetails
+            );
+            mockAppDetails.loggedIn = false;
+            mockAppDetails.currentTournaments = mockClashTournaments;
+            const expectedServer = 'Test Server';
+            const registerUserRequest: ClashBotUserRegister = {
+                teamName: 'Team Abra',
+                role: 'Top',
+                tournamentDetails: {
+                    tournamentName: mockClashTournaments[0].tournamentName,
+                    tournamentDay: mockClashTournaments[0].tournamentDay
+                },
+                serverName: expectedServer
+            };
+            component = fixture.componentInstance;
+            component.currentApplicationDetails = mockAppDetails;
 
-                component = fixture.componentInstance;
+            component.registerForTeam(registerUserRequest);
 
-                const mockUserDetails: UserDetails = {id: 0, username: '', discriminator: '12312asd'};
-                const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
-
-                component.teams = [{teamName: 'Team Awesome', playersDetails: []}]
-
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let registerUserForTeamColdObservable = cold('-x|', {x: mockRetrieveUserResponse})
-
-                clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
-
-                component.registerForTeam(mockRetrieveUserResponse);
-
-                flush();
-
-                expect(component.teams).toEqual([{
-                    teamName: 'Team Awesome',
-                    playersDetails: []
-                }]);
-                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
-            });
+            expect(clashBotServiceMock.registerUserForTeam).not.toHaveBeenCalled();
+            expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+            expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
         })
 
-        test('When I call register for Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
+        test('(Register for Team and API Error) - should invoke the Snack Bar if there is an error.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
-                component = fixture.componentInstance;
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                const mockClashTournaments = createMockClashTournaments('msi2022', '1');
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
+                mockAppDetails.currentTournaments = mockClashTournaments;
 
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
+                component = fixture.componentInstance;
+                component.currentApplicationDetails = mockAppDetails;
+
                 const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
                 component.teams = [{teamName: 'Team Awesome', playersDetails: []}];
                 const expectedError =
@@ -1093,7 +1056,6 @@ describe('TeamsDashboardComponent', () => {
                         statusText: 'Bad Request',
                         url: 'https://localhost.com/api'
                     });
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
                 let registerUserForTeamColdObservable = cold('-#', undefined, expectedError);
 
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
@@ -1111,68 +1073,138 @@ describe('TeamsDashboardComponent', () => {
             });
         })
 
-        test('When I call register for Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
+        test('(Register for Team and Timeout Error) -  should invoke the Snack Bar if there is an timeout.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
+                const mockUserDetails: UserDetails = createMockUserDetails();
+                const mockClashTournaments = createMockClashTournaments('msi2022', '1');
+                let mockAppDetails = createMockAppDetails(
+                    createMockGuilds(),
+                    createMockClashBotUserDetails(),
+                    mockUserDetails
+                );
+                mockAppDetails.loggedIn = true;
+                mockAppDetails.currentTournaments = mockClashTournaments;
+                const expectedServer = 'Test Server';
+                const registerUserRequest: ClashBotUserRegister = {
+                    teamName: 'Team Abra',
+                    role: 'Top',
+                    tournamentDetails: {
+                        tournamentName: mockClashTournaments[0].tournamentName,
+                        tournamentDay: mockClashTournaments[0].tournamentDay
+                    },
+                    serverName: expectedServer
+                };
+
+                let mockClashTeams: ClashTeam[] = [
+                    {
+                        teamName: 'Team Abra',
+                        serverName: expectedServer,
+                        playersDetails: [
+                            {
+                                id: 1,
+                                name: 'Roïdräge',
+                                champions: ['Volibear', 'Ornn', 'Sett'],
+                                role: 'Top',
+                                isUser: false
+                            },
+                            {
+                                id: 3,
+                                name: 'Pepe Conrad',
+                                champions: ['Lucian'],
+                                role: 'Mid',
+                                isUser: false
+                            },
+                            {
+                                id: 2,
+                                name: 'TheIncentive',
+                                champions: ['Lucian'],
+                                role: 'Jg',
+                                isUser: false
+                            },
+                            {
+                                id: 4,
+                                name: 'TheIncentive',
+                                champions: ['Lucian'],
+                                role: 'Bot',
+                                isUser: false
+                            }
+                        ]
+                    }
+                ];
+                let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
+                expectedMockClashTeamResponse[0].playersDetails.push({
+                    id: mockUserDetails.id,
+                    name: mockUserDetails.username,
+                    role: 'Supp',
+                    isUser: true
+                });
+                let mockRetrieveUserResponse = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
 
                 component = fixture.componentInstance;
+                component.currentApplicationDetails = mockAppDetails;
 
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
-                const mockRetrieveUserResponse: ClashTeam = {teamName: 'Team Awesome'};
+                component.teams = JSON.parse(JSON.stringify(mockClashTeams));
 
-                component.teams = [{teamName: 'Team Awesome', playersDetails: []}];
-
-                let registerUserForTeamColdObservable = cold('7000ms -x|', {x: mockUserDetails});
+                let registerUserForTeamColdObservable = cold('7000ms -x|', {x: mockRetrieveUserResponse});
 
                 clashBotServiceMock.registerUserForTeam.mockReturnValue(registerUserForTeamColdObservable);
 
-                component.registerForTeam(mockRetrieveUserResponse);
+                component.registerForTeam(registerUserRequest);
 
                 flush();
 
-                expect(component.teams).toEqual([{teamName: 'Team Awesome', playersDetails: []}]);
                 expect(snackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your registration timed out, please try again!', 'X', {duration: 5000});
             });
         })
-
     })
 
-    // @TODO refactor for change to observables
     describe('Unregister from Team', () => {
-        test('When I call unregister from Team, it should subscribe to retrieve the latest User Details and then invoke a call to Clash Bot service to unregister a user from team.', () => {
+        test('(Unregister from Team) - invoke a call to Clash Bot service to unregister a user from team.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
-                const expectedServer = 'Test Server';
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
 
                 let mockClashTeams: ClashTeam[] = [
                     {
                         teamName: 'Team Abra',
-                        serverName: expectedServer,
+                        serverName: 'Test Server',
                         playersDetails: [
                             {
                                 id: 1,
                                 name: 'Roïdräge',
                                 champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
+                                role: 'Top',
+                                isUser: false
                             },
                             {
                                 id: 2,
                                 name: 'TheIncentive',
                                 champions: ['Lucian'],
-                                role: 'ADC'
+                                role: 'Mid',
+                                isUser: false
                             },
                             {
                                 id: 3,
                                 name: 'Pepe Conrad',
                                 champions: ['Lucian'],
-                                role: 'Jg'
+                                role: 'Jg',
+                                isUser: false
                             },
                             {
                                 id: 4,
-                                name: mockUserDetails.username,
-                                role: 'Supp'
+                                name: loggedInMockApplicationDetails?.userDetails?.username ?? "",
+                                role: 'Bot',
+                                isUser: false
+                            },
+                            {
+                                id: 5,
+                                name: 'The Micah-chan',
+                                role: 'Supp',
+                                isUser: true
                             }
                         ]
                     }
@@ -1180,18 +1212,12 @@ describe('TeamsDashboardComponent', () => {
                 let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
                 let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
                 expectedMockClashTeamResponse[0].playersDetails.pop();
-                let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
 
-                component = fixture.componentInstance;
-                expect(component.showSpinner).toBeFalsy();
-                component.teams = JSON.parse(JSON.stringify(mockClashTeams));
+                component.teams = copyObject(mockClashTeams);
 
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
-                let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
+                let unregisterUserFromTeamColdObservable = cold('-x|', {x: {message: 'Successfully unregistered User from Team.'}});
 
                 clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
 
                 component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
@@ -1199,138 +1225,119 @@ describe('TeamsDashboardComponent', () => {
 
                 expect(component.teams).toEqual(mockClashTeams);
                 expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(mockUserDetails, mockTeamToUnregisterFrom);
+                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(loggedInMockApplicationDetails.userDetails, mockTeamToUnregisterFrom);
                 expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
             });
         })
 
-        test('Error - Missing User Details - When I call unregister from Team, it should subscribe to retrieve the latest User Details and if the Users Details are empty then it should show a snackbar error.', () => {
-            testScheduler.run((helpers) => {
-                const {cold, flush} = helpers;
+        test('(Unregister when logged out) - it should show a snackbar error.', () => {
+            component = fixture.componentInstance;
+            let loggedOutMockApplicationDetails = setupLoggedOutMockApplicationDetails();
+            component.currentApplicationDetails = loggedOutMockApplicationDetails;
+            let mockClashTeams: ClashTeam[] = [
+                {
+                    teamName: 'Team Abra',
+                    serverName: 'Test Server',
+                    playersDetails: [
+                        {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top',
+                            isUser: false
+                        },
+                        {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Mid',
+                            isUser: false
+                        },
+                        {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg',
+                            isUser: false
+                        },
+                        {
+                            id: 4,
+                            name: loggedOutMockApplicationDetails?.userDetails?.username ?? "",
+                            role: 'Bot',
+                            isUser: false
+                        },
+                        {
+                            id: 5,
+                            name: 'The Micah-chan',
+                            role: 'Supp',
+                            isUser: true
+                        }
+                    ]
+                }
+            ];
+            let mockTeamToUnregisterFrom = copyObject(mockClashTeams[0]);
+            component.teams = copyObject(mockClashTeams);
 
-                const expectedServer = 'Test Server';
-                const mockUserDetails: UserDetails = {id: 0, username: '', discriminator: '12312asd'};
+            component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
-                let mockClashTeams: ClashTeam[] = [
-                    {
-                        teamName: 'Team Abra',
-                        serverName: expectedServer,
-                        playersDetails: [
-                            {
-                                id: 1,
-                                name: 'Roïdräge',
-                                champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
-                            },
-                            {
-                                id: 2,
-                                name: 'TheIncentive',
-                                champions: ['Lucian'],
-                                role: 'ADC'
-                            },
-                            {
-                                id: 3,
-                                name: 'Pepe Conrad',
-                                champions: ['Lucian'],
-                                role: 'Jg'
-                            },
-                            {
-                                id: 4,
-                                name: mockUserDetails.username,
-                                role: 'Supp'
-                            }
-                        ]
-                    }
-                ];
-
-                let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
-                let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
-                let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
-
-                component = fixture.componentInstance;
-
-                expect(component.showSpinner).toBeFalsy();
-
-                component.teams = JSON.parse(JSON.stringify(mockClashTeams));
-
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let unregisterUserFromTeamColdObservable = cold('-x|', {x: mockUnregisterFromTeamResponse});
-                let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-
-                clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
-
-                component.unregisterFromTeam(mockTeamToUnregisterFrom);
-
-                flush();
-
-                expect(component.teams).toEqual([{error: 'No data'}]);
-                expect(clashBotServiceMock.unregisterUserFromTeam).not.toHaveBeenCalled();
-                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
-            })
+            expect(clashBotServiceMock.unregisterUserFromTeam).not.toHaveBeenCalled();
+            expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+            expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
         })
 
-        test('Error - Unregister Failed - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an error.', () => {
+        test('(Unregister with API Error) - invoke the Snack Bar if there is an error.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
-                const expectedServer = 'Test Server';
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
                 let mockClashTeams: ClashTeam[] = [
                     {
                         teamName: 'Team Abra',
-                        serverName: expectedServer,
+                        serverName: 'Test Server',
                         playersDetails: [
                             {
                                 id: 1,
                                 name: 'Roïdräge',
                                 champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
+                                role: 'Top',
+                                isUser: false
                             },
                             {
                                 id: 2,
                                 name: 'TheIncentive',
                                 champions: ['Lucian'],
-                                role: 'ADC'
+                                role: 'Mid',
+                                isUser: false
                             },
                             {
                                 id: 3,
                                 name: 'Pepe Conrad',
                                 champions: ['Lucian'],
-                                role: 'Jg'
+                                role: 'Jg',
+                                isUser: false
                             },
                             {
                                 id: 4,
-                                name: mockUserDetails.username,
-                                role: 'Supp'
+                                name: loggedInMockApplicationDetails?.userDetails?.username ?? "",
+                                role: 'Bot',
+                                isUser: false
+                            },
+                            {
+                                id: 5,
+                                name: 'The Micah-chan',
+                                role: 'Supp',
+                                isUser: true
                             }
                         ]
                     }
                 ];
-                let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
-                let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+                let expectedMockClashTeamResponse = copyObject(mockClashTeams);
+                let mockTeamToUnregisterFrom = copyObject(mockClashTeams[0]);
                 expectedMockClashTeamResponse[0].playersDetails.pop();
+                component.teams = copyObject(mockClashTeams);
 
-                component = fixture.componentInstance;
-
-                expect(component.showSpinner).toBeFalsy();
-
-                component.teams = JSON.parse(JSON.stringify(mockClashTeams));
-
-                const expectedError =
-                    new HttpErrorResponse({
-                        error: 'Failed to make call.',
-                        headers: undefined,
-                        status: 400,
-                        statusText: 'Bad Request',
-                        url: 'https://localhost.com/api/teams/unregister'
-                    });
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let unregisterUserFromTeamColdObservable = cold('-#', undefined, expectedError);
-                let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-
-                clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
+                clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(cold('-#', undefined, create400HttpError()));
 
                 component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
@@ -1339,63 +1346,64 @@ describe('TeamsDashboardComponent', () => {
                 expect(component.teams).toEqual(mockClashTeams);
                 expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
                 expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(mockUserDetails, mockTeamToUnregisterFrom);
+                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(loggedInMockApplicationDetails.userDetails, mockTeamToUnregisterFrom);
                 expect(snackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Failed to unregister you from the Team.', 'X', {duration: 5000});
             });
         })
 
-        test('Error - Timeout for Unregister - When I call unregister from Team, it should subscribe to retrieve the latest User Details and should invoke the Snack Bar if there is an timeout.', () => {
+        test('(Unregister with Timeout Error) - should invoke the Snack Bar if there is an timeout.', () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
-                const expectedServer = 'Test Server';
-                const mockUserDetails: UserDetails = {id: 12321, username: 'Test User', discriminator: '12312asd'};
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
                 let mockClashTeams: ClashTeam[] = [
                     {
                         teamName: 'Team Abra',
-                        serverName: expectedServer,
+                        serverName: 'Test Server',
                         playersDetails: [
                             {
                                 id: 1,
                                 name: 'Roïdräge',
                                 champions: ['Volibear', 'Ornn', 'Sett'],
-                                role: 'Top'
+                                role: 'Top',
+                                isUser: false
                             },
                             {
                                 id: 2,
                                 name: 'TheIncentive',
                                 champions: ['Lucian'],
-                                role: 'ADC'
+                                role: 'Mid',
+                                isUser: false
                             },
                             {
                                 id: 3,
                                 name: 'Pepe Conrad',
                                 champions: ['Lucian'],
-                                role: 'Jg'
+                                role: 'Jg',
+                                isUser: false
                             },
                             {
                                 id: 4,
-                                name: mockUserDetails.username,
-                                role: 'Supp'
+                                name: loggedInMockApplicationDetails?.userDetails?.username ?? "",
+                                role: 'Bot',
+                                isUser: false
+                            },
+                            {
+                                id: 5,
+                                name: 'The Micah-chan',
+                                role: 'Supp',
+                                isUser: true
                             }
                         ]
                     }
                 ];
-                let expectedMockClashTeamResponse = JSON.parse(JSON.stringify(mockClashTeams));
-                let mockTeamToUnregisterFrom = JSON.parse(JSON.stringify(expectedMockClashTeamResponse[0]));
+                let expectedMockClashTeamResponse = copyObject(mockClashTeams);
+                let mockTeamToUnregisterFrom = copyObject(mockClashTeams[0]);
                 expectedMockClashTeamResponse[0].playersDetails.pop();
-                let mockUnregisterFromTeamResponse = {message: 'Successfully unregistered User from Team.'};
-
-                component = fixture.componentInstance;
-                expect(component.showSpinner).toBeFalsy();
-                component.teams = JSON.parse(JSON.stringify(mockClashTeams));
-
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let unregisterUserFromTeamColdObservable = cold('7000ms x|', {x: mockUnregisterFromTeamResponse});
-                let clashTeamsObservable$ = cold('x|', {x: expectedMockClashTeamResponse});
-
-                clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(unregisterUserFromTeamColdObservable);
-                clashBotServiceMock.getClashTeams.mockReturnValue(clashTeamsObservable$);
+                component.teams = copyObject(mockClashTeams);
+                clashBotServiceMock.unregisterUserFromTeam.mockReturnValue(cold('7000ms x|', {x: {message: 'Successfully unregistered User from Team.'}}));
 
                 component.unregisterFromTeam(mockTeamToUnregisterFrom);
 
@@ -1404,98 +1412,156 @@ describe('TeamsDashboardComponent', () => {
                 expect(component.teams).toEqual(mockClashTeams);
                 expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
                 expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledTimes(1);
-                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(mockUserDetails, mockTeamToUnregisterFrom);
+                expect(clashBotServiceMock.unregisterUserFromTeam).toHaveBeenCalledWith(loggedInMockApplicationDetails.userDetails, mockTeamToUnregisterFrom);
                 expect(snackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your request timed out, please try again!', 'X', {duration: 5000});
             });
         })
     })
 
-    // @TODO refactor for change to observables
-    describe('Error Handlers', () => {
-        test('If getClashTeams service returns and error then a Mat Snack Bar should be opened and an error should be returned.', () => {
-            component = fixture.componentInstance;
-            const expectedError =
-                new HttpErrorResponse({
-                    error: 'Failed to make call.',
-                    headers: undefined,
-                    status: 400,
-                    statusText: 'Bad Request',
-                    url: 'https://clash-bot.ninja/api/teams'
-                });
-            testScheduler.run((helpers) => {
-                const {expectObservable} = helpers;
-                expectObservable(component.handleClashTeamsError(snackBarMock, expectedError)).toBe('#', undefined, expectedError);
-                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-                expect(snackBarMock.open).toHaveBeenCalledWith('Failed to retrieve Teams. Please try again later.', 'X', {duration: 5000});
-            })
-        })
-    })
-
-    // @TODO refactor for change to observables
     describe('Create New Team', () => {
-        test('When createNewTeam is called with a MatOption, then a call to the create new team ' +
-            'Clash Bot Service endpoint should be made with the details necessary to create a new team.', () => {
+        test('(Post Team) - should invoke post for new team from Clash Bot Service.', () => {
             testScheduler.run((helpers) => {
-                const {cold, expectObservable, flush} = helpers;
-
-                let mockUserDetails: UserDetails = {id: 12321312, username: 'Test User', discriminator: '12312asdawe'};
+                const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
                 const expectedServerName = 'Integration Server';
+                component.currentSelectedGuild = expectedServerName;
                 const expectedRole = 'Top';
-                let mockEligibleTournaments = [{
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1',
-                    registrationTime: new Date().toISOString(),
-                    startTime: new Date().toISOString()
-                }];
-                let mockReturnedUpdatedTeamsList: ClashTeam[] = [
-                    {
-                        teamName: 'Team Testing',
-                        serverName: expectedServerName,
-                        tournamentDetails: {tournamentName: '', tournamentDay: ''},
-                        startTime: '',
-                        playersDetails: [{
-                            id: 1, name: mockUserDetails.username, role: 'Top'
-                        }]
-                    }
-                ];
                 let mockCreateNewTeamReturn: ClashTeam = {
                     teamName: 'Team Testing',
                     serverName: expectedServerName,
                     tournamentDetails: {tournamentName: '', tournamentDay: ''},
                     startTime: '',
                     playersDetails: [{
-                        id: mockUserDetails.id,
-                        name: mockUserDetails.username,
+                        id: loggedInMockApplicationDetails?.userDetails?.id ?? 0,
+                        name: loggedInMockApplicationDetails?.userDetails?.username ?? "",
                         role: expectedRole,
                         isUser: true
                     }]
                 };
+                component.eligibleTournaments = copyObject(loggedInMockApplicationDetails.currentTournaments);
+                clashBotServiceMock.createNewTeam.mockReturnValue(cold('-x|', {x: mockCreateNewTeamReturn}));
 
-                component = fixture.componentInstance;
-                component.eligibleTournaments = JSON.parse(JSON.stringify(mockEligibleTournaments));
-
-                let userDetailsColdObservable = cold('-x|', {x: mockUserDetails});
-                let getTeamsColdObservable = cold('-x|', {x: mockReturnedUpdatedTeamsList});
-                let createTeamColdObservable = cold('-x|', {x: mockCreateNewTeamReturn});
-
-                clashBotServiceMock.getClashTeams.mockReturnValue(getTeamsColdObservable);
-                clashBotServiceMock.createNewTeam.mockReturnValue(getTeamsColdObservable);
-
-                expectObservable(userDetailsColdObservable).toBe('-x|', {x: mockUserDetails});
-                expectObservable(getTeamsColdObservable).toBe('-x|', {x: mockReturnedUpdatedTeamsList});
-                expectObservable(createTeamColdObservable).toBe('-x|', {x: mockCreateNewTeamReturn});
-
-                component.createNewTeam({role: "", tournamentDay: "", tournamentName: ""});
+                component.createNewTeam({role: expectedRole, tournamentDay: "2", tournamentName: "msi2022"});
 
                 flush();
 
                 expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledTimes(1);
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledWith(
+                    loggedInMockApplicationDetails.userDetails,
+                    {
+                        serverName: expectedServerName,
+                        startTime: undefined,
+                        tournamentDetails: {
+                            tournamentName: 'msi2022',
+                            tournamentDay: '2'
+                        }
+                    },
+                    expectedRole
+                );
+            })
+        })
+
+        test('(Post Team with User not logged in) - should invoke Snack bar with invalid user.', () => {
+            component = fixture.componentInstance;
+            component.currentApplicationDetails = setupLoggedOutMockApplicationDetails();
+            component.currentSelectedGuild = 'Integration Server';
+
+            component.createNewTeam({role: 'Top', tournamentDay: "2", tournamentName: "msi2022"});
+
+            expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
+            expect(clashBotServiceMock.createNewTeam).not.toHaveBeenCalled();
+            expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+            expect(snackBarMock.open).toHaveBeenCalledWith('Oops! You are not logged in, please navigate to the Welcome page and login.', 'X', {duration: 5000});
+            expect(component.teams).toEqual([{error: "No data"}]);
+        })
+
+        test('(Post Team with API Error) - should invoke Snack bar with API Error.', () => {
+            testScheduler.run((helpers) => {
+                const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                const expectedServerName = 'Integration Server';
+                component.currentSelectedGuild = expectedServerName;
+                const expectedRole = 'Top';
+                component.eligibleTournaments = copyObject(loggedInMockApplicationDetails.currentTournaments);
+                clashBotServiceMock.createNewTeam.mockReturnValue(cold('-#|', undefined, create400HttpError()));
+
+                component.createNewTeam({role: expectedRole, tournamentDay: "2", tournamentName: "msi2022"});
+
+                flush();
+
+                expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledTimes(1);
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledWith(
+                    loggedInMockApplicationDetails.userDetails,
+                    {
+                        serverName: expectedServerName,
+                        startTime: undefined,
+                        tournamentDetails: {
+                            tournamentName: 'msi2022',
+                            tournamentDay: '2'
+                        }
+                    },
+                    expectedRole
+                );
+                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! An error occurred while creating a new team.', 'X', {duration: 5000});
+            })
+        })
+
+        test('(Post Team with Timeout Error) - should invoke Snack bar with Timeout Error.', () => {
+            testScheduler.run((helpers) => {
+                const {cold, flush} = helpers;
+                component = fixture.componentInstance;
+                let loggedInMockApplicationDetails = setupLoggedInMockApplicationDetails();
+                component.currentApplicationDetails = loggedInMockApplicationDetails;
+                const expectedServerName = 'Integration Server';
+                component.currentSelectedGuild = expectedServerName;
+                const expectedRole = 'Top';
+                let mockCreateNewTeamReturn: ClashTeam = {
+                    teamName: 'Team Testing',
+                    serverName: expectedServerName,
+                    tournamentDetails: {tournamentName: '', tournamentDay: ''},
+                    startTime: '',
+                    playersDetails: [{
+                        id: loggedInMockApplicationDetails?.userDetails?.id ?? 0,
+                        name: loggedInMockApplicationDetails?.userDetails?.username ?? "",
+                        role: expectedRole,
+                        isUser: true
+                    }]
+                };
+                component.eligibleTournaments = copyObject(loggedInMockApplicationDetails.currentTournaments);
+                clashBotServiceMock.createNewTeam.mockReturnValue(cold('7000ms -x|', { x: mockCreateNewTeamReturn }));
+
+                component.createNewTeam({role: expectedRole, tournamentDay: "2", tournamentName: "msi2022"});
+
+                flush();
+
+                expect(clashBotServiceMock.getClashTeams).not.toHaveBeenCalled();
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledTimes(1);
+                expect(clashBotServiceMock.createNewTeam).toHaveBeenCalledWith(
+                    loggedInMockApplicationDetails.userDetails,
+                    {
+                        serverName: expectedServerName,
+                        startTime: undefined,
+                        tournamentDetails: {
+                            tournamentName: 'msi2022',
+                            tournamentDay: '2'
+                        }
+                    },
+                    expectedRole
+                );
+                expect(snackBarMock.open).toHaveBeenCalledTimes(1);
+                expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your request to create a new Team has timed out. Please try again.', 'X', {duration: 5000});
             })
         })
     })
 
-    // @TODO refactor for change to observables
     describe('Tournament to Clash Team Map', () => {
         test('As a user, I should know all Tournaments I am scheduled with and which Teams I am assigned to.', () => {
             const expectedTournamentName = 'awesome_sauce';
@@ -1815,7 +1881,6 @@ describe('TeamsDashboardComponent', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
                 const expectedGuildName = 'LoL-ClashBotSupport';
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
                 const mockClashTentativeDetails: ClashBotTentativeDetails[] = [{
                     "serverName": expectedGuildName,
                     "tournamentDetails": {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
@@ -1864,7 +1929,6 @@ describe('TeamsDashboardComponent', () => {
                         statusText: 'Bad Request',
                         url: 'https://localhost/api/tentative'
                     });
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
 
                 const mockTentativeDetailsObs = cold('#', undefined, expectedError);
 
@@ -1888,7 +1952,6 @@ describe('TeamsDashboardComponent', () => {
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
                 const expectedGuildName = 'LoL-ClashBotSupport';
-                const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
 
                 const mockTentativeDetailsObs = cold('7000ms x|', {x: []});
 
@@ -1972,7 +2035,6 @@ describe('TeamsDashboardComponent', () => {
                 let updatedTentativeDetails: ClashBotTentativeDetails = JSON.parse(JSON.stringify(mockTentativeDetails));
                 updatedTentativeDetails.tentativePlayers.pop();
                 const mockUserDetails: UserDetails = {id: 1, username: 'Sample User', discriminator: '12312'};
-                const mockUserDetailsObs = cold('x|', {x: mockUserDetails});
                 const mockedClashBotServiceObs = cold('x|', {x: updatedTentativeDetails});
 
                 clashBotServiceMock.postTentativeList.mockReturnValue(mockedClashBotServiceObs);
@@ -2039,7 +2101,7 @@ describe('TeamsDashboardComponent', () => {
                 expect(snackBarMock.open).toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!', 'X', {duration: 5000});
             });
         })
-    });
+    })
 })
 
 function mockDiscordGuilds(): DiscordGuild[] {
@@ -2187,35 +2249,4 @@ function mapClashTeams(mockClashTeams: ClashTeam[]) {
             tournamentDetails: record.tournamentDetails
         }
     })
-}
-
-function setupGuildObservable<T>(cold: <T = string>(marbles: string, values?: { [p: string]: T }, error?: any) => ColdObservable<T>) {
-    let mockObservableGuilds = [{
-        "id": "136278926191362058",
-        "name": "Garret's Discord",
-        "icon": "17ce03186d96453d4f2b341649b2b7cc",
-        "owner": false,
-        "permissions": 37215809,
-        "features": [],
-        "permissions_new": "246997835329"
-    }, {
-        "id": "434172219472609281",
-        "name": "The Other Other Guys",
-        "icon": "87580ac4ffcd87347a7e1d566e9285ce",
-        "owner": false,
-        "permissions": 104324673,
-        "features": [],
-        "permissions_new": "247064944193"
-    }, {
-        "id": "837685892885512202",
-        "name": "LoL-ClashBotSupport",
-        "icon": null,
-        "owner": true,
-        "permissions": 2147483647,
-        "features": [],
-        "permissions_new": "274877906943"
-    }];
-    const guildObservable$ = cold('x|', {x: mockObservableGuilds});
-    // discordServiceMock.getGuilds.mockReturnValue(guildObservable$);
-    return {mockObservableGuilds, guildObservable$};
 }
