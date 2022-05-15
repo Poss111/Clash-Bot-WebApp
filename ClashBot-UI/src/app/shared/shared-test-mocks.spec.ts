@@ -100,6 +100,19 @@ export function create400HttpError(): Error {
     });
 }
 
+export function create429HttpError(): Error {
+    return new HttpErrorResponse({
+        error: {
+            msg: 'Failed to make call.',
+            retry_after: 10
+        },
+        headers: undefined,
+        status: 429,
+        statusText: 'Rate Limited',
+        url: 'https://localhost.com/api'
+    });
+}
+
 export function create500HttpError(): Error {
     return new HttpErrorResponse({
         error: 'Failed to make call.',
