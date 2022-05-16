@@ -6,6 +6,8 @@ import {ClashTeam} from "../interfaces/clash-team";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTournaments} from "../interfaces/clash-tournaments";
 
+test('Simple Check', () => expect(true).toBeTruthy())
+
 export function createMockGuilds() {
     return [{
         features: [],

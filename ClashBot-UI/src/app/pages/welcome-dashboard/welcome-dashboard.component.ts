@@ -7,7 +7,7 @@ import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {throwError, timer} from "rxjs";
+import {from, throwError, timer} from "rxjs";
 import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {ClashTournaments} from "../../interfaces/clash-tournaments";
@@ -79,9 +79,9 @@ export class WelcomeDashboardComponent implements OnInit {
         this.oauthService.configure(this.authCodeFlowConfig);
         if (sessionStorage.getItem('LoginAttempt')) {
             this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-            this.oauthService.tryLogin()
-                .then(() => this.setUserDetails())
-                .catch(() => {
+            from(this.oauthService.tryLogin())
+              .subscribe(this.setUserDetails,
+                () => {
                     this.loggedIn = 'NOT_LOGGED_IN';
                     this._snackBar.open('Failed to login to discord.',
                         'X',
