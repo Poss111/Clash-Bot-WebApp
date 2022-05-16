@@ -376,9 +376,17 @@ let startUpApp = async () => {
                         .then(result => {
                             let payload = [];
                             let userQueries = [];
+                            result.sort((one, two) => {
+                                let tournamentOne = tournaments.find(tournament => tournament.tournamentName === one.tournamentDetails.tournamentName
+                                && tournament.tournamentDay === one.tournamentDetails.tournamentDay);
+                                let tournamentTwo = tournaments.find(tournament => tournament.tournamentName === two.tournamentDetails.tournamentName
+                                && tournament.tournamentDay === two.tournamentDetails.tournamentDay);
+                                return new Date(tournamentOne.startTime) - new Date(tournamentTwo.startTime);
+                            })
                             result.forEach(tentativeRecord => {
                                 if (tentativeRecord) {
-                                    tournaments.splice(tournaments.findIndex(tournament => tournament.tournamentName === tentativeRecord.tournamentDetails.tournamentName
+                                    tournaments.splice(tournaments.findIndex(tournament =>
+                                        tournament.tournamentName === tentativeRecord.tournamentDetails.tournamentName
                                         && tournament.tournamentDay === tentativeRecord.tournamentDetails.tournamentDay), 1);
                                     userQueries.push(...tentativeRecord.tentativePlayers);
 
