@@ -5,7 +5,7 @@ import {Subscription, throwError} from "rxjs";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, retryWhen, take, tap, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, map, retryWhen, take, tap, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
@@ -89,12 +89,15 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         );
                         this.tentativeDataStatus = 'FAILED';
                         return throwError(err);
-                    }))
-                .subscribe((response) => {
+                    }),
+                  map(response => {return response.slice(0,4)}),
+                  map(response => {
                     response.forEach(tentativeRecord => tentativeRecord.isMember
-                        = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''));
-                    this.tentativeList = response.sort((itemOne, itemTwo) =>
-                        itemOne.tournamentDetails.tournamentDay.localeCompare(itemTwo.tournamentDetails.tournamentDay));
+                      = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''))
+                    return response;
+                  }))
+                .subscribe((response) => {
+                    this.tentativeList = response;
                     this.tentativeDataStatus = 'SUCCESSFUL';
                 });
         } else {
