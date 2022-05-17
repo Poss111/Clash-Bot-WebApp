@@ -2,6 +2,7 @@ describe('Simple Clash-Bot Webapp Application workflow', () => {
   beforeEach(() => {
     localStorage.setItem('version', 'v4.0.1');
     cy.visit('http://localhost:4200');
+    cy.checkAndDismissReleaseNotification();
   })
 
   it('Check to see if welcome message is displayed', () => {

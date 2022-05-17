@@ -3,7 +3,9 @@ let initialUserData = {};
 
 describe('Validate User Profile of Clash Bot', () => {
   before(() => {
+    localStorage.setItem('version', 'v4.0.1');
     cy.visit('http://localhost:4200');
+    cy.checkAndDismissReleaseNotification();
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
     cy.get('#clash-bot-discord-username').should('have.text', 'Roïdräge');
@@ -15,7 +17,6 @@ describe('Validate User Profile of Clash Bot', () => {
   })
 
   beforeEach(() => {
-    localStorage.setItem('version', 'v4.0.1');
     localStorage.setItem('leagueApiVersion', '12.8.1');
   })
 
@@ -29,7 +30,6 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get(`#clash-bot-user-profile-preferred-champion-${championNameLC}-autocomplete`).click();
   }
 
-  // TODO - Menu is showing still and is unable to dismiss due to rate limit
   it('I should be able to successfully navigate to the User Profile, edit my information and save then validate it has been updated by navigating away and back.', () => {
     cy.get('#clash-bot-menu').click();
     cy.get('#clash-bot-menu-user-profile-page').click();

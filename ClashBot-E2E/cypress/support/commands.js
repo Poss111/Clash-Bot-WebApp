@@ -28,3 +28,10 @@ Cypress.Commands.add('loginThroughOAuth', () => {
         cy.log('Already logged in.');
     }
 })
+
+Cypress.Commands.add('checkAndDismissReleaseNotification', () => {
+    if(!localStorage.getItem('version')) {
+        cy.get('#clash-bot-release-notification-button-dismiss').scrollIntoView().click();
+        cy.get('#clash-bot-release-notification-markdown-container').should('not.exist');
+    }
+});
