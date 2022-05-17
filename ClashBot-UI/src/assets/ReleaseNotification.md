@@ -1,8 +1,12 @@
 # Release v5.2.0
+### Team Dashboard
 - Clash Team cards have been revamped! Go to the Teams Dashboard and create a new Team! :D
   - Your preferred champions will now show up with their image.
   - The champion names will now be vertical so give more space for names.
   - Your role's icon will show up alongside your name.
+- Tentative Table has been trimmed to only show at most 4 upcoming tournaments
+### Maintenance 
+- Login and usage of Application of details was updated. No changes to user workflow
 > As always, please submit any suggestions and feedback to this [Google form](https://forms.gle/Yb5mG55M189drWXV7)! Thank you for your continued help and for using Clash Bot! :D
   
 
