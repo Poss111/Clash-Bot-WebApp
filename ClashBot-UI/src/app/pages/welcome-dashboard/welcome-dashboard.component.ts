@@ -60,11 +60,16 @@ export class WelcomeDashboardComponent implements OnInit {
             localStorage.setItem('version', environment.version);
         }
         this.clashBotService.getClashTournaments()
-            .pipe(take(1))
+            .pipe(
+                take(1),
+                map(tournaments => {
+                    tournaments.sort((a, b) =>
+                        new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
+                    return tournaments;
+                }))
             .subscribe((data) => {
-                this.tournaments = data.sort((a, b) =>
-                    new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-                data.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
+                this.tournaments = data;
                 this.dataLoaded = true;
                 this.applicationDetailsService.getApplicationDetails()
                     .pipe(take(1))
@@ -79,9 +84,11 @@ export class WelcomeDashboardComponent implements OnInit {
         this.oauthService.configure(this.authCodeFlowConfig);
         if (sessionStorage.getItem('LoginAttempt')) {
             this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-            from(this.oauthService.tryLogin())
-              .subscribe(this.setUserDetails,
-                () => {
+            this.oauthService.tryLogin()
+                .then(() => {
+                    this.setUserDetails();
+                })
+                .catch(() => {
                     this.loggedIn = 'NOT_LOGGED_IN';
                     this._snackBar.open('Failed to login to discord.',
                         'X',
@@ -150,7 +157,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             }
                         }))),
                 mergeMap(discordDetails => this.clashBotService.getUserDetails(discordDetails.discordUser.id)
-                    .pipe(take(1),
+                    .pipe(
                         catchError(err => {
                             this.loggedIn = 'NOT_LOGGED_IN';
                             this._snackBar.open('Oops, we failed to pull your userDetails from our Servers :( Please try again later.',
@@ -183,6 +190,7 @@ export class WelcomeDashboardComponent implements OnInit {
                                 mergeMap(response =>
                                     this.applicationDetailsService.getApplicationDetails()
                                         .pipe(
+                                            take(1),
                                             map(appDetails =>
                                                 this.mapLoggedInApplicationDetails(appDetails,
                                                     loginDetails.discordUser,
@@ -194,6 +202,7 @@ export class WelcomeDashboardComponent implements OnInit {
                     } else {
                         return this.applicationDetailsService.getApplicationDetails()
                             .pipe(
+                                take(1),
                                 map(appDetails =>
                                     this.mapLoggedInApplicationDetails(appDetails,
                                         loginDetails.discordUser,

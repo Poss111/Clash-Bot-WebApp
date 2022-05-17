@@ -11,7 +11,6 @@ export class GoogleAnalyticsService {
 
   sendPageNavigationEvent(pageUrl: string): void {
     if (environment.gTag) {
-        console.log('Google event invoked...');
           gtag('config', environment.gTag, {'page_path': pageUrl});
     }
   }

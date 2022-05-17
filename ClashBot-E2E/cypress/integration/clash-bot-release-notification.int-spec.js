@@ -1,6 +1,6 @@
 describe('Clash Bot Release Notification', () => {
     beforeEach(() => {
-        localStorage.clear();
+        localStorage.removeItem('version');
         cy.visit('http://localhost:4200');
     })
 
@@ -9,5 +9,6 @@ describe('Clash Bot Release Notification', () => {
         cy.get('#clash-bot-release-notification-button-dismiss').click();
         cy.get('#clash-bot-release-notification-markdown-container').should('not.exist');
         cy.get('#WelcomeMessage-Title').should('have.text', 'Welcome to Clash-Bot!');
+
     })
 })

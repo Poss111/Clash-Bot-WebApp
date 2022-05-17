@@ -37,6 +37,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
+    subMap: Map<string, Subscription> = new Map<string, Subscription>();
 
     constructor(private clashBotService: ClashBotService,
                 private _snackBar: MatSnackBar,
@@ -61,6 +62,20 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
                         });
                     })
+                    this.subs.push(this.teamsWebsocketService.getSubject()
+                        .pipe(retryWhen(errors => errors.pipe(delay(1000))))
+                        .subscribe((msg) => {
+                                if (this.currentApplicationDetails.loggedIn) {
+                                    this.handleIncomingTeamsWsEvent(msg);
+                                }
+                            },
+                            () => {
+                                this._snackBar.open(
+                                    'Oops! Failed to connect to server for Team updates, please try refreshing.',
+                                    'X',
+                                    {duration: 5 * 1000});
+                                this.teams = [{error: 'No data'}];
+                            }));
 
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
@@ -146,32 +161,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     this.syncTeamInformation(response);
                 }
             });
-            if (this.$teamsSub) this.$teamsSub.unsubscribe();
             this.teamsWebsocketService.getSubject().next(valueToSearchFor);
-            this.$teamsSub = this.teamsWebsocketService.getSubject()
-                .pipe(
-                    retryWhen(errors =>
-                        errors.pipe(
-                            tap(err => {
-                                console.error('Got error', err);
-                            }),
-                            delay(1000)
-                        )
-                    )
-                )
-                .subscribe((msg) => {
-                        if (this.currentApplicationDetails.loggedIn) {
-                            this.handleIncomingTeamsWsEvent(msg);
-                        }
-                    },
-                    () => {
-                        this._snackBar.open(
-                            'Oops! Failed to connect to server for Team updates, please try refreshing.',
-                            'X',
-                            {duration: 5 * 1000});
-                        this.teams = [{error: 'No data'}];
-                    },
-                    () => console.log('Connection closed to teams ws.'));
         }
     }
 
@@ -331,7 +321,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             {duration: 5 * 1000});
                         return throwError(err);
                     })
-                ).subscribe(() => console.log('Unregistered User successfully.'));
+                ).subscribe(() => {});
         } else {
             this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
                 'X',

@@ -29,6 +29,7 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get(`#clash-bot-user-profile-preferred-champion-${championNameLC}-autocomplete`).click();
   }
 
+  // TODO - Menu is showing still and is unable to dismiss due to rate limit
   it('I should be able to successfully navigate to the User Profile, edit my information and save then validate it has been updated by navigating away and back.', () => {
     cy.get('#clash-bot-menu').click();
     cy.get('#clash-bot-menu-user-profile-page').click();

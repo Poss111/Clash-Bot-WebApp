@@ -11,6 +11,7 @@ const clashUserServiceImpl = require('./service/clash-user-service-impl');
 const {errorHandler, badRequestHandler} = require('./utility/error-handler');
 const { sendTeamUpdateThroughWs } = require('./websocket-service-impl');
 const {WebSocket} = require('ws');
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 const pino  = require('pino-http')();
 const expressWs = require('express-ws')(app);
@@ -30,15 +31,15 @@ let startUpApp = async () => {
         app.use(pino);
 
         app.ws(`${urlPrefix}/ws/teams`, (ws, req) => {
+            ws.id = uuidv4();
             let interval = setInterval(() => {
-                expressWs.getWss().clients.forEach(s => {
-                    if (s.readyState === WebSocket.OPEN) {
-                        s.isAlive = false;
-                        s.ping();
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.isAlive = false;
+                        ws.ping();
                     }
                 }, 5000);
-            })
             ws.on('message', (msg) => {
+                req.log.info(`For ws :: ${ws.id}`);
                 ws.topic = JSON.parse(msg);
                 ws.send(JSON.stringify({}));
             });
@@ -372,17 +373,11 @@ let startUpApp = async () => {
                 clashTimeDbImpl.findTournament().then((tournaments) => {
                     let queries = [];
                     tournaments.forEach(tournament => queries.push(clashTentativeDbImpl.getTentative(req.query.serverName, tournament)));
+                    let currentTournaments = JSON.parse(JSON.stringify(tournaments));
                     Promise.all(queries)
                         .then(result => {
                             let payload = [];
                             let userQueries = [];
-                            result.sort((one, two) => {
-                                let tournamentOne = tournaments.find(tournament => tournament.tournamentName === one.tournamentDetails.tournamentName
-                                && tournament.tournamentDay === one.tournamentDetails.tournamentDay);
-                                let tournamentTwo = tournaments.find(tournament => tournament.tournamentName === two.tournamentDetails.tournamentName
-                                && tournament.tournamentDay === two.tournamentDetails.tournamentDay);
-                                return new Date(tournamentOne.startTime) - new Date(tournamentTwo.startTime);
-                            })
                             result.forEach(tentativeRecord => {
                                 if (tentativeRecord) {
                                     tournaments.splice(tournaments.findIndex(tournament =>
@@ -411,6 +406,13 @@ let startUpApp = async () => {
                                     tentativePlayers: []
                                 }));
                             }
+                            payload.sort((one, two) => {
+                                let tournamentOne = currentTournaments.find(tournament => tournament.tournamentName === one.tournamentDetails.tournamentName
+                                    && tournament.tournamentDay === one.tournamentDetails.tournamentDay);
+                                let tournamentTwo = currentTournaments.find(tournament => tournament.tournamentName === two.tournamentDetails.tournamentName
+                                    && tournament.tournamentDay === two.tournamentDetails.tournamentDay);
+                                return new Date(tournamentOne.startTime) - new Date(tournamentTwo.startTime);
+                            });
                             if (userQueries.length > 0) {
                                 clashUserDbImpl.retrievePlayerNames(Array.from(new Set(userQueries))).then((data) => {
                                     payload.forEach(record => record.tentativePlayers = record.tentativePlayers.map(record => data[record] ? data[record] : record));
