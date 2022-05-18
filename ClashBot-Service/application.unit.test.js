@@ -2233,10 +2233,19 @@ describe('Clash Bot Service API Controller', () => {
             const expectedServerName = 'Goon Squad';
             const mockTentativeList = ['Roidrage'];
             const mockTentativeIds = ['123456'];
-            const mockReturnedClashTournaments = createMockListOfTournaments(4);
-            createMockTentativeDbReturn(mockReturnedClashTournaments, expectedServerName, mockTentativeIds).forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
+            let mockReturnedClashTournaments = createMockListOfTournaments(4);
+            let shuffledMockReturnedClashTournaments = [];
+            shuffledMockReturnedClashTournaments[0] = mockReturnedClashTournaments[3];
+            shuffledMockReturnedClashTournaments[1] = mockReturnedClashTournaments[2];
+            shuffledMockReturnedClashTournaments[2] = mockReturnedClashTournaments[1];
+            shuffledMockReturnedClashTournaments[3] = mockReturnedClashTournaments[0];
+            createMockTentativeDbReturn(
+                shuffledMockReturnedClashTournaments,
+                expectedServerName,
+                mockTentativeIds
+            ).forEach(response => clashTentativeDbImpl.getTentative.mockResolvedValueOnce(response));
             clashSubscriptionDbImpl.retrievePlayerNames.mockResolvedValue({'123456': mockTentativeList[0]});
-            clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(mockReturnedClashTournaments));
+            clashTimeDbImpl.findTournament.mockResolvedValue(deepCopy(shuffledMockReturnedClashTournaments));
             request(application)
                 .get(`/api/tentative?serverName=${expectedServerName}`)
                 .set('Content-Type', 'application/json')
@@ -2247,7 +2256,11 @@ describe('Clash Bot Service API Controller', () => {
                     expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(4);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledTimes(1);
                     expect(clashSubscriptionDbImpl.retrievePlayerNames).toHaveBeenCalledWith(['123456']);
-                    expect(res.body).toEqual(createMockApiTentativeResponses(expectedServerName, mockReturnedClashTournaments, mockTentativeList));
+                    expect(res.body).toEqual(createMockApiTentativeResponses(
+                        expectedServerName,
+                        JSON.parse(JSON.stringify(mockReturnedClashTournaments)),
+                        mockTentativeList
+                    ));
                     done();
                 })
         })
@@ -3152,13 +3165,14 @@ function createMockListOfTournaments(numberOfTournaments) {
     let mockTournamentName = 'awesome_sauce';
     numberOfTournaments === undefined ? numberOfTournaments = 1 : numberOfTournaments;
     for (let i = 1; i <= numberOfTournaments; i++) {
+        const tournamentDate = new Date(new Date().setDate(new Date().getDate() + i)).toISOString();
         tournaments.push(
             {
-                startTime: new Date().toISOString(),
+                startTime: tournamentDate,
                 tournamentDay: `${i}`,
                 key: `${mockTournamentName}#${i}`,
                 tournamentName: mockTournamentName,
-                registrationTime: new Date().toISOString()
+                registrationTime: tournamentDate
             })
     }
     return tournaments;
@@ -3166,6 +3180,7 @@ function createMockListOfTournaments(numberOfTournaments) {
 
 function createMockApiTentativeResponses(serverName, tournaments, tentativeList) {
     let mockTentativeResponses = [];
+    tournaments = tournaments.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
     tournaments.forEach(tournament => {
         mockTentativeResponses.push({
             serverName: serverName,
@@ -3175,7 +3190,7 @@ function createMockApiTentativeResponses(serverName, tournaments, tentativeList)
             },
             tentativePlayers: tentativeList
         })
-    })
+    });
     return mockTentativeResponses;
 }
 

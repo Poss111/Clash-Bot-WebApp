@@ -1,18 +1,25 @@
-<app-spinner *ngIf="showSpinner; else elseBlock"></app-spinner>
-<ng-template #elseBlock>
-    <app-teams-dashboard-view
-            [teams]="teams"
-            [eligibleTournaments]="eligibleTournaments"
-            [defaultServer]="defaultServer"
-            [tentativeList]="tentativeList"
-            [teamFilters]="teamFilters"
-            [tentativeDataStatus]="tentativeDataStatus"
-            [showSpinner]="showInnerSpinner"
-            [canCreateNewTeam]="canCreateNewTeam"
-            (registerForTeamEvent)="registerForTeam($event)"
-            (unregisterFromTeamEvent)="unregisterFromTeam($event)"
-            (tentativeRegisterEvent)="tentativeRegister($event)"
-            (filterTeamEvent)="filterTeam($event)"
-            (createTeamEvent)="createNewTeam($event)"
-    ></app-teams-dashboard-view>
+<ng-container *ngIf="currentApplicationDetails.loggedIn; else notLoggedIn">
+    <app-spinner *ngIf="showSpinner; else dataLoaded"></app-spinner>
+    <ng-template #dataLoaded>
+        <app-teams-dashboard-view
+                [teams]="teams"
+                [eligibleTournaments]="eligibleTournaments"
+                [defaultServer]="defaultServer"
+                [tentativeList]="tentativeList"
+                [teamFilters]="teamFilters"
+                [tentativeDataStatus]="tentativeDataStatus"
+                [showSpinner]="showInnerSpinner"
+                [canCreateNewTeam]="canCreateNewTeam"
+                (registerForTeamEvent)="registerForTeam($event)"
+                (unregisterFromTeamEvent)="unregisterFromTeam($event)"
+                (tentativeRegisterEvent)="tentativeRegister($event)"
+                (filterTeamEvent)="filterTeam($event)"
+                (createTeamEvent)="createNewTeam($event)"
+        ></app-teams-dashboard-view>
+    </ng-template>
+</ng-container>
+<ng-template #notLoggedIn>
+    <div class="log-in-container">
+        <h2>You are not logged in. Please navigate back home using the menu and use the login button.</h2>
+    </div>
 </ng-template>

@@ -16,7 +16,6 @@ import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {TeamsDashboardHelpDialogComponent} from "./component/teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
 import {MatTableModule} from "@angular/material/table";
-import {TournamentNameTransformerPipe} from "../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "./component/team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../shared/shared.module";
 import {MatExpansionModule} from '@angular/material/expansion';
@@ -35,7 +34,6 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
         ConfirmationDialogComponent,
         HelpDialogComponent,
         TeamsDashboardHelpDialogComponent,
-        TournamentNameTransformerPipe,
         TeamCardPlayerDetailsComponent,
         GuildFilterListComponent,
         TeamsTentativeTableComponent,
@@ -43,8 +41,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
         TeamsDashboardViewComponent
     ],
     exports: [
-        TeamCardComponent,
-        TournamentNameTransformerPipe
+        TeamCardComponent
     ],
     imports: [
         CommonModule,

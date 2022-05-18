@@ -42,7 +42,6 @@ export class TeamCardComponent implements OnInit {
   registerToTeam(role?: string) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent,
       {data: { message: `Are you sure you want to register to this Team as ${role}?`}});
-    console.log(this.team.teamName + " -> " + role);
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const clashBotUserRegister: ClashBotUserRegister = {

@@ -4,7 +4,6 @@ import {MatCardModule} from "@angular/material/card";
 import {MatDialog} from "@angular/material/dialog";
 import {TestScheduler} from "rxjs/testing";
 import {MatIconModule} from "@angular/material/icon";
-import {TournamentNameTransformerPipe} from "../../../../tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
@@ -24,7 +23,7 @@ describe('TeamCardComponent', () => {
       expect(actual).toEqual(expected);
     });
     await TestBed.configureTestingModule({
-      declarations: [TeamCardComponent, TournamentNameTransformerPipe, TeamCardPlayerDetailsComponent],
+      declarations: [TeamCardComponent, TeamCardPlayerDetailsComponent],
       imports: [
           MatCardModule,
           MatIconModule,

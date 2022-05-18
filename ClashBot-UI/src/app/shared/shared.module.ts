@@ -4,12 +4,14 @@ import {KebabCasePipe} from "./kebab-case.pipe";
 import {ImageFallbackDirective} from "./image-fallback.directive";
 import {SpinnerComponent} from './spinner/spinner.component';
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {TournamentNameTransformerPipe} from "./tournament-name-transformer.pipe";
 
 @NgModule({
     declarations: [
         KebabCasePipe,
         ImageFallbackDirective,
-        SpinnerComponent
+        SpinnerComponent,
+        TournamentNameTransformerPipe
     ],
     imports: [
         MatProgressSpinnerModule,
@@ -18,7 +20,8 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     exports: [
         KebabCasePipe,
         ImageFallbackDirective,
-        SpinnerComponent
+        SpinnerComponent,
+        TournamentNameTransformerPipe
     ]
 })
 export class SharedModule {

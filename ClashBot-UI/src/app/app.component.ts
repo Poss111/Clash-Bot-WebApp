@@ -1,8 +1,6 @@
 import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
-import {UserDetailsService} from "./services/user-details.service";
-import {UserDetails} from "./interfaces/user-details";
-import {Observable, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
@@ -11,86 +9,105 @@ import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
 import {take} from "rxjs/operators";
+import {RoutingDetails} from "./interfaces/routing-details";
+import {PageLoadingService} from "./services/page-loading.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit, OnDestroy{
-  appVersion: string = environment.version;
-  userDetailsLoaded: boolean = false;
-  applicationDetailsLoaded: boolean = false;
-  userDetailsSub$?: Subscription;
-  applicationDetailsSub$?: Subscription;
-  username: string = '';
+export class AppComponent implements OnInit, OnDestroy {
+    appVersion: string = environment.version;
+    subscriptions: Subscription[] = [];
+    darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
+    username?: string;
+    pageLoadingObs$ = this.pageLoadingService.getSubject();
 
-  darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
+    routingArray: RoutingDetails[] = [];
 
-  @HostBinding('class') className = '';
+    defaultRoutingArray: RoutingDetails[] = [
+        {
+            name: 'Welcome Page',
+            route: '/',
+            icon: 'house',
+            id: 'clash-bot-menu-welcome-page'
+        }
+    ];
 
-  constructor(private router: Router,
-              private userDetailsService: UserDetailsService,
-              private applicationDetailsService: ApplicationDetailsService,
-              private googleAnalyticsService: GoogleAnalyticsService,
-              private riotDdragonService: RiotDdragonService,
-              private matIconRegistry: MatIconRegistry,
-              private sanitizer: DomSanitizer) {
-      this.matIconRegistry.addSvgIcon('league-top',
-        this.sanitizer.bypassSecurityTrustResourceUrl('assets/top.svg'));
-      this.matIconRegistry.addSvgIcon('league-mid',
-        this.sanitizer.bypassSecurityTrustResourceUrl('assets/mid.svg'));
-      this.matIconRegistry.addSvgIcon('league-jg',
-        this.sanitizer.bypassSecurityTrustResourceUrl('assets/jg.svg'));
-      this.matIconRegistry.addSvgIcon('league-bot',
-        this.sanitizer.bypassSecurityTrustResourceUrl('assets/bot.svg'));
-      this.matIconRegistry.addSvgIcon('league-supp',
-        this.sanitizer.bypassSecurityTrustResourceUrl('assets/supp.svg'));
-  }
+    loggedInArray: RoutingDetails[] = [
+        this.defaultRoutingArray[0],
+        {
+            name: 'Teams',
+            route: '/teams',
+            icon: 'groups',
+            id: 'clash-bot-menu-teams-page'
+        },
+        {
+            name: 'Settings',
+            route: '/user-profile',
+            icon: 'settings',
+            id: 'clash-bot-menu-user-profile-page'
+        }
+    ];
 
-  ngOnInit(): void {
-    this.toggleDarkMode(this.darkModeFormControl.value);
-    this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
-    this.router.events.subscribe(event => {
-      if(event instanceof NavigationEnd) {
-        this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
-      }
-    })
-    this.userDetailsSub$ = this.userDetailsService.getUserDetails().subscribe((userDetails) => {
-      if (userDetails.username && userDetails.username != '') {
-        this.username = userDetails.username;
-        this.userDetailsLoaded = true;
-      }
-    })
-    this.applicationDetailsSub$ = this.applicationDetailsService.getApplicationDetails().subscribe((appDetails) => {
-      if (Array.isArray(appDetails.userGuilds) && appDetails.userGuilds.length > 0)
-        this.applicationDetailsLoaded = true;
-    })
-    this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
-      window.localStorage.setItem('leagueApiVersion', versions[0]);
-    });
-  }
+    assets = ['top', 'mid', 'jg', 'bot', 'supp'];
 
-  toggleDarkMode(turnDarkModeOn: boolean) {
-    const darkModeClassName = 'dark';
-    this.className = turnDarkModeOn ? darkModeClassName : '';
-    localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
-  }
+    @HostBinding('class') className = '';
 
-  ngOnDestroy() {
-    this.userDetailsSub$?.unsubscribe();
-    this.applicationDetailsSub$?.unsubscribe();
-  }
+    constructor(private router: Router,
+                private applicationDetailsService: ApplicationDetailsService,
+                private googleAnalyticsService: GoogleAnalyticsService,
+                private riotDdragonService: RiotDdragonService,
+                private matIconRegistry: MatIconRegistry,
+                private sanitizer: DomSanitizer,
+                private pageLoadingService: PageLoadingService) {
+        this.assets.forEach((id) => {
+            this.matIconRegistry.addSvgIcon(`league-${id}`,
+                this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));
+        });
+    }
 
-  navigateToWelcomePage() {
-    this.router.navigate(['/']);
-  }
+    ngOnInit(): void {
+        this.toggleDarkMode(this.darkModeFormControl.value);
+        this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
+        this.subscriptions.push(
+            this.router.events.subscribe(event => {
+                if (event instanceof NavigationEnd) {
+                    this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
+                }
+            })
+        );
+        this.subscriptions.push(
+            this.applicationDetailsService.getApplicationDetails()
+                .subscribe((applicationDetails) => {
+                    if (applicationDetails.loggedIn) {
+                        this.routingArray = this.loggedInArray;
+                        this.username = applicationDetails.userDetails?.username;
+                    } else {
+                        this.routingArray = this.defaultRoutingArray;
+                        delete this.username;
+                    }
+            })
+        );
+        this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
+            window.localStorage.setItem('leagueApiVersion', versions[0]);
+        });
+    }
 
-  navigateToTeams() {
-    this.router.navigate(['/teams']);
-  }
+    toggleDarkMode(turnDarkModeOn: boolean) {
+        const darkModeClassName = 'dark';
+        this.className = turnDarkModeOn ? darkModeClassName : '';
+        localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
+    }
 
-  navigateToUserProfile() {
-    this.router.navigate(['/user-profile']);
-  }
+    ngOnDestroy() {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
+    }
+
+    navigate(route: string) {
+        this.pageLoadingObs$.next(true);
+        this.router.navigate([route])
+            .catch(() => this.pageLoadingObs$.next(false));
+    }
 }
