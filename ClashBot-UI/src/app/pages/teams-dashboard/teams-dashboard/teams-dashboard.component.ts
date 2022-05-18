@@ -5,7 +5,7 @@ import {Subscription, throwError} from "rxjs";
 import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, retryWhen, take, tap, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, map, retryWhen, take, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
@@ -15,6 +15,7 @@ import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register"
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
 import {ApplicationDetails} from "../../../interfaces/application-details";
+import {PageLoadingService} from "../../../services/page-loading.service";
 
 @Component({
     selector: 'app-teams-dashboard',
@@ -37,13 +38,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
-    subMap: Map<string, Subscription> = new Map<string, Subscription>();
 
     constructor(private clashBotService: ClashBotService,
                 private _snackBar: MatSnackBar,
                 private applicationDetailsService: ApplicationDetailsService,
                 private dialog: MatDialog,
-                private teamsWebsocketService: TeamsWebsocketService) {
+                private teamsWebsocketService: TeamsWebsocketService,
+                private pageLoadingService: PageLoadingService) {
         this.showSpinner = false;
     }
 
@@ -82,6 +83,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         this.currentSelectedGuild = appDetails.defaultGuild;
                         this.filterForTeamsByServer(appDetails.defaultGuild);
                     }
+                    this.pageLoadingService.updateSubject(false);
                 }
             });
     }

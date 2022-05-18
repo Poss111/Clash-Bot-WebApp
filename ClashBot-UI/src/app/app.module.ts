@@ -29,6 +29,7 @@ import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
+import {PageLoadingService} from "./services/page-loading.service";
 
 @NgModule({
     declarations: [
@@ -67,7 +68,7 @@ import {ReactiveFormsModule} from "@angular/forms";
         provide: HTTP_INTERCEPTORS,
         useClass: DiscordInterceptor,
         multi: true
-    }],
+    }, PageLoadingService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

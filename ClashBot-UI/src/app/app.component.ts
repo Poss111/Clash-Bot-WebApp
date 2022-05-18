@@ -1,6 +1,6 @@
 import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
-import {Observable, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
@@ -8,8 +8,9 @@ import {FormControl} from "@angular/forms";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import {map, take} from "rxjs/operators";
+import {take} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
+import {PageLoadingService} from "./services/page-loading.service";
 
 @Component({
     selector: 'app-root',
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
     darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
     username?: string;
+    pageLoadingObs$ = this.pageLoadingService.getSubject();
 
     routingArray: RoutingDetails[] = [];
 
@@ -58,7 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 private googleAnalyticsService: GoogleAnalyticsService,
                 private riotDdragonService: RiotDdragonService,
                 private matIconRegistry: MatIconRegistry,
-                private sanitizer: DomSanitizer) {
+                private sanitizer: DomSanitizer,
+                private pageLoadingService: PageLoadingService) {
         this.assets.forEach((id) => {
             this.matIconRegistry.addSvgIcon(`league-${id}`,
                 this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));
@@ -103,6 +106,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     navigate(route: string) {
-        this.router.navigate([route]);
+        this.pageLoadingObs$.next(true);
+        this.router.navigate([route])
+            .catch(() => this.pageLoadingObs$.next(false));
     }
 }

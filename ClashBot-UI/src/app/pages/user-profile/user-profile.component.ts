@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable, of, throwError, EMPTY} from "rxjs";
 import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} from "@angular/forms";
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
-import {catchError, map, mergeMap, startWith, take, timeout} from "rxjs/operators";
+import {catchError, finalize, map, mergeMap, startWith, take, timeout} from "rxjs/operators";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ClashBotService} from "../../services/clash-bot.service";
 import {RiotDdragonService} from "../../services/riot-ddragon.service";
@@ -10,6 +10,7 @@ import {DiscordGuild} from "../../interfaces/discord-guild";
 import {UserDetails} from "../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
+import {PageLoadingService} from "../../services/page-loading.service";
 
 @Component({
     selector: 'app-user-profile',
@@ -37,7 +38,8 @@ export class UserProfileComponent implements OnInit {
     constructor(private clashBotService: ClashBotService,
                 private riotDdragonService: RiotDdragonService,
                 private applicationDetailsService: ApplicationDetailsService,
-                private matSnackBar: MatSnackBar) {
+                private matSnackBar: MatSnackBar,
+                private pageLoadingService: PageLoadingService) {
     }
 
     notInListValidator(): ValidatorFn {
@@ -88,6 +90,7 @@ export class UserProfileComponent implements OnInit {
                                     championList: championList
                                 }
                             }))),
+                finalize(() => this.pageLoadingService.updateSubject(false))
             )
             .subscribe((userProfileDetails) => {
                 let defaultGuild = '';

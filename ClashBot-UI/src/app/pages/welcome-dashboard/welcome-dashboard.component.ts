@@ -6,8 +6,8 @@ import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
-import {catchError, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {from, throwError, timer} from "rxjs";
+import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
+import {throwError, timer} from "rxjs";
 import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {ClashTournaments} from "../../interfaces/clash-tournaments";
@@ -17,6 +17,7 @@ import {
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 import {UserDetails} from "../../interfaces/user-details";
 import {DiscordGuild} from "../../interfaces/discord-guild";
+import {PageLoadingService} from "../../services/page-loading.service";
 
 @Component({
     selector: 'app-welcome-dashboard',
@@ -51,7 +52,8 @@ export class WelcomeDashboardComponent implements OnInit {
                 private discordService: DiscordService,
                 private applicationDetailsService: ApplicationDetailsService,
                 private _snackBar: MatSnackBar,
-                private matDialog: MatDialog) {
+                private matDialog: MatDialog,
+                private pageLoadingService: PageLoadingService) {
     }
 
     ngOnInit(): void {
@@ -210,7 +212,8 @@ export class WelcomeDashboardComponent implements OnInit {
                                         loginDetails.clashBotUserDetails)
                                 ));
                     }
-                })
+                }),
+                finalize(() => this.pageLoadingService.updateSubject(false))
             )
             .subscribe(value => {
                 this.loggedIn = 'LOGGED_IN';

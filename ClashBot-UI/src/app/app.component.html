@@ -22,6 +22,9 @@
         <span id="clash-bot-discord-username"
             class="clash-bot-discord-username">{{ username }}</span>
     </mat-toolbar>
+    <div *ngIf="pageLoadingObs$ | async">
+        <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+    </div>
 </div>
 <div class="main-page">
     <router-outlet></router-outlet>
