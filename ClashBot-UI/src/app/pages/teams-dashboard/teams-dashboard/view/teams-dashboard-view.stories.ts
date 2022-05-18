@@ -16,7 +16,6 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {FilterType} from "../../../../interfaces/filter-type";
 import {MatChipsModule} from "@angular/material/chips";
 import {GuildFilterListComponent} from "../../component/guild-filter-list/guild-filter-list.component";
-import {TournamentNameTransformerPipe} from "../../../../shared/tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../../component/team-card/team-card-player-details/team-card-player-details.component";
 import {KebabCasePipe} from "../../../../shared/kebab-case.pipe";
 import {MatExpansionModule} from "@angular/material/expansion";
@@ -28,6 +27,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {action} from "@storybook/addon-actions";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {SharedModule} from "../../../../shared/shared.module";
 
 export default {
     title: 'Pages/TeamsDashboard',
@@ -42,7 +42,6 @@ export default {
                 HelpDialogComponent,
                 TeamsDashboardHelpDialogComponent,
                 GuildFilterListComponent,
-                TournamentNameTransformerPipe,
                 TeamCardPlayerDetailsComponent,
                 KebabCasePipe,
                 ConfirmationDialogComponent,
@@ -62,7 +61,8 @@ export default {
                 MatIconRegisteryModule,
                 FormsModule,
                 ReactiveFormsModule,
-                MatProgressBarModule
+                MatProgressBarModule,
+                SharedModule
             ],
         })
     ]

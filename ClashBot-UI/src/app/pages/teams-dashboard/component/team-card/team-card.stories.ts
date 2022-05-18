@@ -6,7 +6,6 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatCardModule} from "@angular/material/card";
 import {SharedModule} from "../../../../shared/shared.module";
 import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-card-player-details.component";
-import {TournamentNameTransformerPipe} from "../../../../shared/tournament-name-transformer.pipe";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatExpansionModule} from "@angular/material/expansion";
@@ -20,7 +19,7 @@ export default {
   argTypes: {},
   decorators: [
     moduleMetadata({
-      declarations: [TeamCardPlayerDetailsComponent, TournamentNameTransformerPipe],
+      declarations: [TeamCardPlayerDetailsComponent],
       imports: [
         MatDialogModule,
         MatCardModule,

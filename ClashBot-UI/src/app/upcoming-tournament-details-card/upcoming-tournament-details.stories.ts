@@ -3,8 +3,8 @@ import { moduleMetadata } from '@storybook/angular';
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {UpcomingTournamentDetailsCardComponent} from "./upcoming-tournament-details-card.component";
-import {TournamentNameTransformerPipe} from "../shared/tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
+import {SharedModule} from "../shared/shared.module";
 
 // @ts-ignore
 export default {
@@ -14,8 +14,8 @@ export default {
     argTypes: {},
     decorators: [
         moduleMetadata({
-            declarations: [TournamentNameTransformerPipe],
-            imports: [MatCardModule, MatIconModule, MatListModule],
+            declarations: [],
+            imports: [MatCardModule, MatIconModule, MatListModule, SharedModule],
         })
     ]
 } as Meta;
