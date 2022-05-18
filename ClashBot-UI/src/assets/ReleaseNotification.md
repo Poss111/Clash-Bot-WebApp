@@ -1,4 +1,6 @@
 # Release v5.2.0
+### Quality of Life
+- Added a progress bar to show page navigation.
 ### Team Dashboard
 - Clash Team cards have been revamped! Go to the Teams Dashboard and create a new Team! :D
   - Your preferred champions will now show up with their image.
