@@ -24,7 +24,6 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {
     UpcomingTournamentDetailsCardComponent
 } from "../../upcoming-tournament-details-card/upcoming-tournament-details-card.component";
-import {TournamentNameTransformerPipe} from "../../shared/tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -39,6 +38,7 @@ import {
     setupLoggedOutMockApplicationDetails
 } from "../../shared/shared-test-mocks.spec";
 import {ApplicationDetails} from "../../interfaces/application-details";
+import {SharedModule} from "../../shared/shared.module";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("../../services/clash-bot.service");
@@ -89,7 +89,7 @@ describe('WelcomeDashboardComponent', () => {
         });
         jest.resetAllMocks();
         await TestBed.configureTestingModule({
-            declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent, UpcomingTournamentDetailsCardComponent, TournamentNameTransformerPipe],
+            declarations: [WelcomeDashboardComponent, ClashTournamentCalendarComponent, UpcomingTournamentDetailsCardComponent],
             imports: [MatCardModule,
                 MatIconModule,
                 MatDatepickerModule,
@@ -99,6 +99,7 @@ describe('WelcomeDashboardComponent', () => {
                 MatProgressBarModule,
                 MatListModule,
                 MatDialogModule,
+                SharedModule,
                 BrowserAnimationsModule],
             providers: [OAuthService, UrlHelperService, OAuthLogger, DateTimeProvider, ApplicationDetailsService, ClashBotService, DiscordService, MatSnackBar, MatDialog]
         })
