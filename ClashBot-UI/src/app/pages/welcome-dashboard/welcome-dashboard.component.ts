@@ -213,7 +213,7 @@ export class WelcomeDashboardComponent implements OnInit {
                                 ));
                     }
                 }),
-                finalize(() => this.pageLoadingService.updateSubject(false))
+                finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe(value => {
                 this.loggedIn = 'LOGGED_IN';

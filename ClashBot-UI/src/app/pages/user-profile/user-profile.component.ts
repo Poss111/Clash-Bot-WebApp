@@ -90,7 +90,7 @@ export class UserProfileComponent implements OnInit {
                                     championList: championList
                                 }
                             }))),
-                finalize(() => this.pageLoadingService.updateSubject(false))
+                finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe((userProfileDetails) => {
                 let defaultGuild = '';

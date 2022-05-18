@@ -83,7 +83,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         this.currentSelectedGuild = appDetails.defaultGuild;
                         this.filterForTeamsByServer(appDetails.defaultGuild);
                     }
-                    this.pageLoadingService.updateSubject(false);
+                    setTimeout(() => this.pageLoadingService.updateSubject(false), 300);
                 }
             });
     }
