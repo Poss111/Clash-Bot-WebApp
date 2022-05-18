@@ -23,13 +23,13 @@ import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card/upcoming-tournament-details-card.component';
 import {MatListModule} from "@angular/material/list";
-import {TeamsModule} from "./pages/teams-dashboard/teams.module";
 import { ReleaseNotificationDialogComponent } from './dialogs/release-notification-dialog/release-notification-dialog.component';
 import {MarkdownModule} from "ngx-markdown";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PageLoadingService} from "./services/page-loading.service";
+import {SharedModule} from "./shared/shared.module";
 
 @NgModule({
     declarations: [
@@ -58,8 +58,8 @@ import {PageLoadingService} from "./services/page-loading.service";
         MatListModule,
         MatSlideToggleModule,
         ReactiveFormsModule,
+        SharedModule,
         OAuthModule.forRoot(),
-        TeamsModule,
         MarkdownModule.forRoot({
             sanitize: SecurityContext.HTML
         })

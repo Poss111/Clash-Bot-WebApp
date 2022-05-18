@@ -16,7 +16,7 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {FilterType} from "../../../../interfaces/filter-type";
 import {MatChipsModule} from "@angular/material/chips";
 import {GuildFilterListComponent} from "../../component/guild-filter-list/guild-filter-list.component";
-import {TournamentNameTransformerPipe} from "../../../../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../../../../shared/tournament-name-transformer.pipe";
 import {TeamCardPlayerDetailsComponent} from "../../component/team-card/team-card-player-details/team-card-player-details.component";
 import {KebabCasePipe} from "../../../../shared/kebab-case.pipe";
 import {MatExpansionModule} from "@angular/material/expansion";

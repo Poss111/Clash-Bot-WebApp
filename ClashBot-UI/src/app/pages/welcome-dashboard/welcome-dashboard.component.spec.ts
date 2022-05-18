@@ -24,7 +24,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {
     UpcomingTournamentDetailsCardComponent
 } from "../../upcoming-tournament-details-card/upcoming-tournament-details-card.component";
-import {TournamentNameTransformerPipe} from "../../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../../shared/tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UpcomingTournamentDetailsCardComponent } from './upcoming-tournament-details-card.component';
 import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
-import {TournamentNameTransformerPipe} from "../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../shared/tournament-name-transformer.pipe";
 import {MatIconModule} from "@angular/material/icon";
 
 describe('UpcomingTournamentDetailsCardComponent', () => {

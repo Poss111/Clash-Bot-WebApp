@@ -3,8 +3,7 @@ import { moduleMetadata } from '@storybook/angular';
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {UpcomingTournamentDetailsCardComponent} from "./upcoming-tournament-details-card.component";
-import {ClashTournaments} from "../interfaces/clash-tournaments";
-import {TournamentNameTransformerPipe} from "../tournament-name-transformer.pipe";
+import {TournamentNameTransformerPipe} from "../shared/tournament-name-transformer.pipe";
 import {MatListModule} from "@angular/material/list";
 
 // @ts-ignore
