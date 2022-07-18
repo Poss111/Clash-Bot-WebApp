@@ -1,0 +1,167 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: rixxroid@gmail.com
+    name: ClashBot-API-Support
+  description: Clash Bot Webapp Service to support League of Legends Clash tournament
+    scheduling with Discord.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: clash-bot-webapp-service
+  version: 1.0.0
+servers:
+- description: The local API server.
+  url: "http://localhost:{port}/{basePath}"
+  variables:
+    port:
+      default: "8080"
+    basePath:
+      default: api/v2
+paths:
+  /team:
+    get:
+      description: Returns a single Team or multiple Teams that match the name used.
+      operationId: getTeam
+      parameters:
+      - description: the name of the Team to retrieve.
+        explode: false
+        in: header
+        name: name
+        required: false
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Team'
+                type: array
+          description: return a Team or Teams
+      x-eov-operation-handler: controllers/DefaultController
+    summary: Teams that will participate in a specific League of Legends Clash tournament.
+  /tournaments:
+    get:
+      operationId: getTournaments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Tournaments'
+                type: array
+          description: return a tournament or Tournaments
+      x-eov-operation-handler: controllers/DefaultController
+    summary: APIs to interact with Clash Tournaments.
+components:
+  schemas:
+    Team:
+      example:
+        name: name
+        serverName: ""
+        id: 0
+        playerDetails:
+          subscriptions:
+            isOn: true
+            key: key
+          role: role
+          champions:
+          - champions
+          - champions
+          name: name
+          id: 6
+        tournament:
+          registrationTime: registrationTime
+          tournamentName: tournamentName
+          startTime: startTime
+          tournamentDay: "1"
+      properties:
+        id:
+          description: Unique identifier for a LoL Clash Team.
+          format: int32
+          type: integer
+        name:
+          description: The name of the Team.
+          type: string
+        playerDetails:
+          $ref: '#/components/schemas/Player'
+        serverName:
+          description: The Discord server that the Team belongs to.
+        tournament:
+          $ref: '#/components/schemas/Tournaments'
+      type: object
+    Tournaments:
+      example:
+        registrationTime: registrationTime
+        tournamentName: tournamentName
+        startTime: startTime
+        tournamentDay: "1"
+      properties:
+        tournamentName:
+          description: The name of the Tournament.
+          type: string
+        tournamentDay:
+          description: "The day number of the Tournament. [1-4]"
+          example: "1"
+          type: string
+        startTime:
+          description: When the Tournament starts.
+          type: string
+        registrationTime:
+          description: When you can register for the Tournament.
+          type: string
+      type: object
+    Player:
+      example:
+        subscriptions:
+          isOn: true
+          key: key
+        role: role
+        champions:
+        - champions
+        - champions
+        name: name
+        id: 6
+      properties:
+        id:
+          description: Unique identifier for Player
+          format: int32
+          type: integer
+        name:
+          description: The Players discord name
+          type: string
+        role:
+          description: "The Players League role for the Tournament. [Top, Mid, Jg,\
+            \ Bot, Supp]"
+          type: string
+        champions:
+          description: A list of the Users preferred champions.
+          items:
+            type: string
+          type: array
+        subscriptions:
+          $ref: '#/components/schemas/Subscription'
+      type: object
+    TentativeDetails:
+      properties:
+        serverName:
+          type: string
+        tentativePlayers:
+          $ref: '#/components/schemas/Player'
+        tournamentDetails:
+          $ref: '#/components/schemas/Tournaments'
+      type: object
+    Subscription:
+      example:
+        isOn: true
+        key: key
+      properties:
+        key:
+          type: string
+        isOn:
+          type: boolean
+      type: object

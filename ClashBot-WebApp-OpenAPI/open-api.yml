@@ -1,0 +1,249 @@
+openapi: '3.0.1'
+info:
+  title: 'clash-bot-webapp-service'
+  description: Clash Bot Webapp Service to support League of Legends Clash tournament scheduling with Discord.
+  contact:
+    name: ClashBot-API-Support
+    email: rixxroid@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+components:
+  schemas:
+    Team:
+      type: object
+      properties:
+        id:
+          description: Unique identifier for a LoL Clash Team.
+          type: integer
+          format: int32
+        name:
+          type: string
+          description: The name of the Team.
+        playerDetails:
+          $ref: '#/components/schemas/Player'
+        serverName:
+          description: The Discord server that the Team belongs to.
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+    Tournament:
+      type: object
+      properties:
+        tournamentName:
+          description: The name of the Tournament.
+          type: string
+        tournamentDay:
+          description: The day number of the Tournament. [1-4]
+          example: 1
+          type: string
+        startTime:
+          description: When the Tournament starts.
+          type: string
+        registrationTime:
+          description: When you can register for the Tournament.
+          type: string
+    Player:
+      type: object
+      properties:
+        id:
+          description: Unique identifier for Player
+          type: integer
+          format: int32
+        name:
+          description: The Players discord name
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        champions:
+          description: A list of the Users preferred champions.
+          type: array
+          items:
+            type: string
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+    TentativeDetail:
+      type: object
+      properties:
+        serverName:
+          type: string
+        tentativePlayers:
+          $ref: '#/components/schemas/Player'
+        tournamentDetails:
+          $ref: '#/components/schemas/Tournament'
+    Subscription:
+      type: object
+      properties:
+        key:
+          type: string
+        isOn:
+          type: boolean
+    TeamPatchPayload:
+        type: object
+        properties:
+          teamName:
+            type: string
+          tournamentDetails:
+            $ref: '#/components/schemas/Tournament'
+          playerId:
+            description: Player id to add to Team.
+            type: integer
+            format: int32
+          role:
+            $ref: '#/components/schemas/Role'
+    Role:
+      description: A League of Legends role.
+      type: string
+      enum:
+        - Top
+        - Mid
+        - Jg
+        - Bot
+        - Supp
+    Error:
+      type: object
+      properties:
+        code:
+            type: integer
+            format: int32
+        message:
+            type: string
+servers:
+  - url: http://localhost:{port}/{basePath}
+    description: The local API server.
+    variables:
+      port:
+        default: '8080'
+      basePath:
+        default: api/v2
+paths:
+  /team:
+    summary: 'Teams that will participate in a specific League of Legends Clash tournament.'
+    get:
+      description: 'Returns a single Team or multiple Teams that match the name used.'
+      parameters:
+        - name: name
+          description: the name of the Team to retrieve.
+          in: header
+          required: false
+          schema:
+            type: string
+      operationId: getTeam
+      responses:
+        '200':
+          description: return a Team or Teams
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Team'
+        '400':
+          description: If no teams can be found with the name given.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Create a new Team
+      requestBody:
+        description: The Team details to use to update a specific Team
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      operationId: createNewTeam
+      responses:
+        '200':
+          description: The Team was successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Bad details were given to create the Team with.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Something went wrong while creating the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      description: Updates the Team that matches the details passed.
+      requestBody:
+        description: The Team details to use to update a specific Team
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamPatchPayload'
+      operationId: updateTeam
+      responses:
+        '200':
+          description: The Team was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '204':
+          description: No update can be made to the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: No teams can be found with the name given.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tournaments:
+    summary: 'APIs to interact with Clash Tournaments.'
+    get:
+      operationId: getTournaments
+      responses:
+        '200':
+          description: return a tournament or Tournaments
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Tournament'
+        '400':
+          description: If no Tournaments can be found with a name.
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Error'
+  /user:
+    get:
+      description: Retrieve a Clash Bot Player Details
+      responses:
+        '200':
+          description: The Clash Bot Player details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+    post:
+      description: Create a new Clash Bot Player.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+      responses:
+        '200':
+          description: Created a new Clash Bot Player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
