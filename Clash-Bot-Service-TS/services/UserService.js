@@ -2,22 +2,28 @@
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
-const { userEntityToResponse, requestToUserEntity, requestToNewUserEntity } = require('../mappers/UserMapper');
+const {
+  userEntityToResponse,
+  requestToUserEntity,
+  requestToNewUserEntity,
+} = require('../mappers/UserMapper');
 
 /**
-* Retrieve a Clash Bot Player Details
-*
-* id Integer The id of the user to retrieve.
-* returns Player
-* */
+ * Retrieve a Clash Bot Player Details
+ *
+ * id Integer The id of the user to retrieve.
+ * returns Player
+ * */
 const getUser = ({ id }) => new Promise(
   async (resolve, reject) => {
     try {
       clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
         if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.', 204));
+          reject(Service.rejectResponse('User not found.',
+            204));
         } else {
-          resolve(Service.successResponse(objectMapper(userDetails, userEntityToResponse)));
+          resolve(Service.successResponse(objectMapper(userDetails,
+            userEntityToResponse)));
         }
       }).catch((e) => reject(Service.rejectResponse(
         e.message || 'Something unexpected happened.',
@@ -33,17 +39,19 @@ const getUser = ({ id }) => new Promise(
 );
 
 /**
-* Create a new Clash Bot Player.
-*
-* player Player  (optional)
-* returns Player
-* */
+ * Create a new Clash Bot Player.
+ *
+ * player Player  (optional)
+ * returns Player
+ * */
 const updateUser = ({ body }) => new Promise(
   async (resolve, reject) => {
     try {
-      clashSubscriptionDbImpl.updateUser(objectMapper(body, requestToUserEntity))
+      clashSubscriptionDbImpl.updateUser(objectMapper(body,
+        requestToUserEntity))
         .then((updatedUser) => {
-          resolve(Service.successResponse(objectMapper(updatedUser, userEntityToResponse)));
+          resolve(Service.successResponse(objectMapper(updatedUser,
+            userEntityToResponse)));
         }).catch((e) => {
           reject(Service.rejectResponse(
             e.message || 'Something unexpected happened.',
@@ -71,7 +79,8 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
     try {
       clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
         if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.', 400));
+          reject(Service.rejectResponse('User not found.',
+            400));
         } else {
           if (!userDetails.preferredChampions) {
             userDetails.preferredChampions = [body.championName];
@@ -108,12 +117,15 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
       clashSubscriptionDbImpl.retrieveUserDetails(id)
         .then((userDetails) => {
           if (!userDetails || !userDetails.key) {
-            reject(Service.rejectResponse('User not found.', 400));
+            reject(Service.rejectResponse('User not found.',
+              400));
           } else {
             const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
             userDetailsCopy.preferredChampions = body.champions;
             clashSubscriptionDbImpl.updateUser(userDetailsCopy)
-              .then((updatedUserDetails) => resolve(Service.successResponse(updatedUserDetails.preferredChampions)))
+              .then((updatedUserDetails) => resolve(
+                Service.successResponse(updatedUserDetails.preferredChampions),
+              ))
               .catch((e) => {
                 reject(Service.rejectResponse(
                   e.message || 'Something unexpected happened',
@@ -142,12 +154,13 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
  * createUserRequest CreateUserRequest
  * returns Player
  * */
-// TODO - createUser
 const createUser = ({ createUserRequest }) => new Promise(
   async (resolve, reject) => {
     try {
-      clashSubscriptionDbImpl.createUser(objectMapper(createUserRequest, requestToNewUserEntity))
-        .then((createdUserEntity) => resolve(Service.successResponse(objectMapper(createdUserEntity, userEntityToResponse))))
+      clashSubscriptionDbImpl.createUser(objectMapper(createUserRequest,
+        requestToNewUserEntity))
+        .then((createdUserEntity) => resolve(Service.successResponse(objectMapper(createdUserEntity,
+          userEntityToResponse))))
         .catch((e) => reject(Service.rejectResponse(
           e.message || 'Something went wrong',
           e.status || 500,
@@ -173,13 +186,16 @@ const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
     try {
       clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
         if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.', 400));
+          reject(Service.rejectResponse('User not found.',
+            400));
         } else if (!userDetails.preferredChampions || userDetails.preferredChampions.length <= 0) {
           resolve(Service.successResponse([]));
         } else {
           const updatedUserDetails = JSON.parse(JSON.stringify(userDetails));
-          updatedUserDetails.preferredChampions = userDetails.preferredChampions.filter((record) => record.toLowerCase() !== body.championName.toLowerCase());
-          if (updatedUserDetails.preferredChampions.join() === userDetails.preferredChampions.join()) {
+          updatedUserDetails.preferredChampions = userDetails.preferredChampions.filter((record) => record.toLowerCase()
+              !== body.championName.toLowerCase());
+          if (updatedUserDetails.preferredChampions.join()
+            === userDetails.preferredChampions.join()) {
             resolve(Service.successResponse(updatedUserDetails.preferredChampions));
           } else {
             clashSubscriptionDbImpl.updateUser(updatedUserDetails).then((returnedUserDetails) => {
@@ -221,7 +237,8 @@ const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
     try {
       clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
         if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.', 400));
+          reject(Service.rejectResponse('User not found.',
+            400));
         }
         const payload = userDetails.preferredChampions ? userDetails.preferredChampions : [];
         resolve(Service.successResponse(payload));
@@ -249,9 +266,11 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
     try {
       clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
         if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.', 400));
+          reject(Service.rejectResponse('User not found.',
+            400));
         } else {
-          resolve(Service.successResponse(objectMapper(userDetails, userEntityToResponse).subscriptions));
+          resolve(Service.successResponse(objectMapper(userDetails,
+            userEntityToResponse).subscriptions));
         }
       }).catch((err) => {
         reject(Service.rejectResponse(
@@ -274,17 +293,44 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
-// TODO - subscribeUser
 const subscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        id,
-      }));
+      clashSubscriptionDbImpl.retrieveUserDetails(id)
+        .then((userDetails) => {
+          if (!userDetails || !userDetails.key) {
+            reject(Service.rejectResponse('User not found.', 400));
+          } else if (userDetails.subscribed) {
+            resolve(Service.successResponse(
+              objectMapper(userDetails, userEntityToResponse).subscriptions
+            ));
+          } else {
+            let updatedUser = JSON.parse(JSON.stringify(userDetails));
+            updatedUser.subscribed = true;
+            clashSubscriptionDbImpl.updateUser(updatedUser)
+              .then((updatedUserDetails) => {
+                resolve(Service.successResponse(
+                  objectMapper(updatedUserDetails, userEntityToResponse).subscriptions
+                ));
+              })
+              .catch((e) => {
+                reject(Service.rejectResponse(
+                  e.message || 'Something went wrong.',
+                  e.status || 500,
+                ));
+              });
+          }
+        })
+        .catch((e) => {
+          reject(Service.rejectResponse(
+            e.message || 'Something went wrong.',
+            e.status || 500,
+          ));
+        });
     } catch (e) {
       reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
+        e.message || 'Something went wrong.',
+        e.status || 500,
       ));
     }
   },
@@ -296,17 +342,44 @@ const subscribeUser = ({ id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
-// TODO - unsubscribeUser
 const unsubscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        id,
-      }));
+      clashSubscriptionDbImpl.retrieveUserDetails(id)
+        .then((userDetails) => {
+          if (!userDetails || !userDetails.key) {
+            reject(Service.rejectResponse('User not found.', 400));
+          } else if (!userDetails.subscribed) {
+            resolve(Service.successResponse(
+              objectMapper(userDetails, userEntityToResponse).subscriptions
+            ));
+          } else {
+            let updatedUser = JSON.parse(JSON.stringify(userDetails));
+            delete updatedUser.subscribed;
+            clashSubscriptionDbImpl.updateUser(updatedUser)
+              .then((updatedUserDetails) => {
+                resolve(Service.successResponse(
+                  objectMapper(updatedUserDetails, userEntityToResponse).subscriptions
+                ));
+              })
+              .catch((e) => {
+                reject(Service.rejectResponse(
+                  e.message || 'Something went wrong.',
+                  e.status || 500,
+                ));
+              });
+          }
+        })
+        .catch((e) => {
+          reject(Service.rejectResponse(
+            e.message || 'Something went wrong.',
+            e.status || 500,
+          ));
+        });
     } catch (e) {
       reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
+        e.message || 'Something went wrong.',
+        e.status || 500,
       ));
     }
   },
