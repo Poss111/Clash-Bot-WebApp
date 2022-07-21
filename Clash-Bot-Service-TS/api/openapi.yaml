@@ -423,7 +423,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/ChampionUpdate'
         required: true
       responses:
         "200":
@@ -485,7 +485,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/ChampionUpdate'
         required: true
       responses:
         "200":
@@ -519,9 +519,7 @@ paths:
         content:
           application/json:
             schema:
-              items:
-                type: string
-              type: array
+              $ref: '#/components/schemas/ChampionPostRequest'
         required: true
       responses:
         "200":
@@ -857,6 +855,15 @@ components:
         isOn:
           type: boolean
       type: object
+    ChampionUpdate:
+      example:
+        championName: championName
+      properties:
+        championName:
+          type: string
+      required:
+      - champion
+      type: object
     TeamPatchPayload:
       example:
         teamName: teamName
@@ -909,6 +916,17 @@ components:
       required:
       - id
       - name
+    ChampionPostRequest:
+      description: A list of champions.
+      example:
+        champions:
+        - champions
+        - champions
+      properties:
+        champions:
+          items:
+            type: string
+          type: array
     Role:
       description: A League of Legends role.
       enum:

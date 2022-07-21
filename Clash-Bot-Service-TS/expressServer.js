@@ -40,19 +40,19 @@ class ExpressServer {
       // validateResponses: true, // false by default
       operationHandlers: path.join(__dirname),
     }));
-    // View the openapi document in a visual interface. Should be able to test from this page
-    this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(this.schema));
-  }
 
-  launch() {
-    this.app.use((err, req, res) => {
+    this.app.use((err, req, res, next) => {
       // format error
       res.status(err.status || 500).json({
         message: err.message,
         errors: err.errors,
       });
     });
+    // View the openapi document in a visual interface. Should be able to test from this page
+    this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(this.schema));
+  }
 
+  launch() {
     http.createServer(this.app).listen(this.port);
     console.log(`Listening on port ${this.port}`);
   }

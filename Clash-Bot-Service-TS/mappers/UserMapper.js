@@ -21,7 +21,7 @@ const requestToUserEntity = {
     transform: (value) => {
       if (value) {
         const found = value.find((item) => item.key === 'UpcomingClashTournamentDiscordDM' && item.isOn);
-        return `${found !== undefined && found !== null}`;
+        return `${found !== undefined || found !== null}`;
       }
       return 'false';
     },
