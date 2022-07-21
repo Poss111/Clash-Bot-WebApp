@@ -102,14 +102,31 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
-// TODO - createNewListOfPreferredChampions
 const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        body,
-        id,
-      }));
+      clashSubscriptionDbImpl.retrieveUserDetails(id)
+        .then((userDetails) => {
+          if (!userDetails || !userDetails.key) {
+            reject(Service.rejectResponse('User not found.', 400));
+          } else {
+            const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
+            userDetailsCopy.preferredChampions = body.champions;
+            clashSubscriptionDbImpl.updateUser(userDetailsCopy)
+              .then((updatedUserDetails) => resolve(Service.successResponse(updatedUserDetails.preferredChampions)))
+              .catch((e) => {
+                reject(Service.rejectResponse(
+                  e.message || 'Something unexpected happened',
+                  e.status || 500,
+                ));
+              });
+          }
+        }).catch((e) => {
+          reject(Service.rejectResponse(
+            e.message || 'Something unexpected happened',
+            e.status || 500,
+          ));
+        });
     } catch (e) {
       reject(Service.rejectResponse(
         e.message || 'Invalid input',
