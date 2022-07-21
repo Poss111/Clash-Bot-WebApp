@@ -35,25 +35,19 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    subscribe(id, server, playerName) {
+    createUser(newUserDetails) {
+        const timeZone = 'America/Los_Angeles';
+        moment.tz.setDefault(timeZone);
+        newUserDetails.timeAdded = new moment().format( 'MMMM DD yyyy hh:mm a z');
         return new Promise((resolve, reject) => {
-            const dateFormat = 'MMMM DD yyyy hh:mm a z';
-            const timeZone = 'America/Los_Angeles';
-            moment.tz.setDefault(timeZone);
-            let subscription = this.createUserDetails(id, playerName, server, dateFormat);
-            subscription.subscribed = 'true';
-            this.createUser(subscription, reject, resolve);
+            this.clashSubscriptionTable.create(newUserDetails, (err, data) => {
+                if (err) reject(err);
+                else {
+                    logger.info(`Successfully created new User : '${JSON.stringify(data)}'`);
+                    resolve(newUserDetails);
+                }
+            })
         });
-    }
-
-    createUser(subscription, reject, resolve) {
-        this.clashSubscriptionTable.create(subscription, (err, data) => {
-            if (err) reject(err);
-            else {
-                logger.info(`Successfully saved subscription => ${JSON.stringify(data)}`);
-                resolve(subscription);
-            }
-        })
     }
 
     updateUser(userDetailsToUpdate) {
@@ -133,10 +127,9 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-
     retrieveUserDetails(id) {
         return new Promise((resolve, reject) => {
-            logger.info(`Retrieving User Details for id ('${id}')`);
+            logger.info(`Retrieving User Details for id ('${id}')...`);
             this.clashSubscriptionTable.query(id).exec((err, data) => {
                 if (err) reject(err);
                 else {
@@ -147,23 +140,6 @@ class ClashSubscriptionDbImpl {
                     }
                 }
             });
-        });
-    }
-
-    createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed) {
-        return new Promise((resolve, reject) => {
-            if (preferredChampions && preferredChampions.length > 5) {
-                resolve({error :'Cannot persist more than 5 champions.'});
-            } else {
-                const dateFormat = 'MMMM DD yyyy hh:mm a z';
-                const timeZone = 'America/Los_Angeles';
-                moment.tz.setDefault(timeZone);
-                let subscription = this.createUserDetails(id, playerName, server, dateFormat, preferredChampions);
-                if (subscribed) {
-                    subscription.subscribed = JSON.stringify(subscribed);
-                }
-                this.createUser(subscription, reject, resolve);
-            }
         });
     }
 
@@ -192,16 +168,6 @@ class ClashSubscriptionDbImpl {
                 });
             }
         })
-    }
-
-    createUserDetails(id, playerName, server, dateFormat, preferredChampions) {
-        return {
-            key: id,
-            playerName: playerName,
-            serverName: server,
-            timeAdded: new moment().format(dateFormat),
-            preferredChampions: preferredChampions
-        };
     }
 }
 

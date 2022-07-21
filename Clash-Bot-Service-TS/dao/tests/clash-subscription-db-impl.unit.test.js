@@ -669,4 +669,25 @@ describe('Retrieve User details by ids', () => {
       expect(usernames).toEqual({});
     });
   });
+
+  describe('Create new User', () => {
+    test('createNewUser - User details are passed, it should create a user entity and persist it.', () => {
+      const userDetails = {
+        key: '1',
+        playerName: 'Roid',
+        serverName: 'Goon Squad',
+      };
+      clashSubscriptionDbImpl.clashSubscriptionTable = {
+        create: jest.fn().mockImplementation((data, callback) => {
+          callback(undefined, data);
+        }),
+      };
+      return clashSubscriptionDbImpl.createUser(userDetails).then((createdUser) => {
+        expect(createdUser.key).toEqual(userDetails.key);
+        expect(createdUser.playerName).toEqual(userDetails.playerName);
+        expect(createdUser.serverName).toEqual(userDetails.serverName);
+        expect(createdUser.timeAdded).not.toBeFalsy();
+      });
+    });
+  });
 });

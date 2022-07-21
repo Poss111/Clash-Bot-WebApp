@@ -2,7 +2,7 @@
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
-const { userEntityToResponse, requestToUserEntity } = require('../mappers/UserMapper');
+const { userEntityToResponse, requestToUserEntity, requestToNewUserEntity } = require('../mappers/UserMapper');
 
 /**
 * Retrieve a Clash Bot Player Details
@@ -102,11 +102,12 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
-const createNewListOfPreferredChampions = ({ string, id }) => new Promise(
+// TODO - createNewListOfPreferredChampions
+const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
   async (resolve, reject) => {
     try {
       resolve(Service.successResponse({
-        string,
+        body,
         id,
       }));
     } catch (e) {
@@ -124,12 +125,16 @@ const createNewListOfPreferredChampions = ({ string, id }) => new Promise(
  * createUserRequest CreateUserRequest
  * returns Player
  * */
+// TODO - createUser
 const createUser = ({ createUserRequest }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        createUserRequest,
-      }));
+      clashSubscriptionDbImpl.createUser(objectMapper(createUserRequest, requestToNewUserEntity))
+        .then((createdUserEntity) => resolve(Service.successResponse(objectMapper(createdUserEntity, userEntityToResponse))))
+        .catch((e) => reject(Service.rejectResponse(
+          e.message || 'Something went wrong',
+          e.status || 500,
+        )));
     } catch (e) {
       reject(Service.rejectResponse(
         e.message || 'Invalid input',
@@ -252,6 +257,7 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
+// TODO - subscribeUser
 const subscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
     try {
@@ -273,6 +279,7 @@ const subscribeUser = ({ id }) => new Promise(
  * id String The Clash bot Player's id (optional)
  * returns List
  * */
+// TODO - unsubscribeUser
 const unsubscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
     try {

@@ -2,7 +2,13 @@ const userEntityToResponse = {
   key: 'id',
   playerName: 'name',
   serverName: 'serverName',
-  preferredChampions: 'champions',
+  preferredChampions: {
+    key: 'champions',
+    transform: (value) => {
+      if (!value) return [];
+      return value;
+    },
+  },
   subscribed: {
     key: 'subscriptions',
     transform: (value) => {
@@ -29,7 +35,14 @@ const requestToUserEntity = {
   serverName: 'serverName',
 };
 
+const requestToNewUserEntity = {
+  id: 'key',
+  name: 'playerName',
+  serverName: 'serverName',
+};
+
 module.exports = {
   userEntityToResponse,
   requestToUserEntity,
+  requestToNewUserEntity,
 };

@@ -30,6 +30,7 @@ const createNewTeam = ({ team }) => new Promise(
 * tournamentDay String the day of the Tournament to filter the Teams by. (optional)
 * returns List
 * */
+// TODO - getTeam
 const getTeam = ({ name, serverName, tournamentName, tournamentDay }) => new Promise(
   async (resolve, reject) => {
     try {
@@ -53,6 +54,7 @@ const getTeam = ({ name, serverName, tournamentName, tournamentDay }) => new Pro
 * teamPatchPayload TeamPatchPayload The Team details to use to update a specific Team (optional)
 * returns Team
 * */
+// TODO - updateTeam
 const updateTeam = ({ teamPatchPayload }) => new Promise(
   async (resolve, reject) => {
     try {
