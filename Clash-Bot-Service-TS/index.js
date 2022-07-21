@@ -1,9 +1,16 @@
 const config = require('./config');
 const logger = require('./logger');
 const ExpressServer = require('./expressServer');
+const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
+const clashTimeDbImpl = require('./dao/clash-time-db-impl');
 
 const launchServer = async () => {
   try {
+    await Promise.all([
+      clashUserDbImpl.initialize(),
+      clashTimeDbImpl.initialize(),
+    ]);
+
     this.expressServer = new ExpressServer(config.URL_PORT, config.OPENAPI_YAML);
     this.expressServer.launch();
     logger.info('Express server running');

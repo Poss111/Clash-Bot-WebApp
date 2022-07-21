@@ -8,16 +8,11 @@
 
 const Controller = require('./Controller');
 const service = require('../services/DefaultService');
-const getTeam = async (request, response) => {
-  await Controller.handleRequest(request, response, service.getTeam);
-};
-
-const getTournaments = async (request, response) => {
-  await Controller.handleRequest(request, response, service.getTournaments);
+const updateUser = async (request, response) => {
+  await Controller.handleRequest(request, response, service.updateUser);
 };
 
 
 module.exports = {
-  getTeam,
-  getTournaments,
+  updateUser,
 };

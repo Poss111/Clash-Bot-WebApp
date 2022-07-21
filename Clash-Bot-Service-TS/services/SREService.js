@@ -2,16 +2,13 @@
 const Service = require('./Service');
 
 /**
-* Create a new Clash Bot Player.
 *
-* player Player  (optional)
-* returns Player
+* returns getApplicationHealth_200_response
 * */
-const updateUser = ({ player }) => new Promise(
+const getApplicationHealth = () => new Promise(
   async (resolve, reject) => {
     try {
       resolve(Service.successResponse({
-        player,
       }));
     } catch (e) {
       reject(Service.rejectResponse(
@@ -23,5 +20,5 @@ const updateUser = ({ player }) => new Promise(
 );
 
 module.exports = {
-  updateUser,
+  getApplicationHealth,
 };

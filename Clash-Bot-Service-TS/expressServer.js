@@ -9,8 +9,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const OpenApiValidator = require('express-openapi-validator');
+const pino = require('pino-http')();
 const logger = require('./logger');
-const config = require('./config');
 
 class ExpressServer {
   constructor(port, openApiYaml) {
@@ -28,6 +28,7 @@ class ExpressServer {
   setupMiddleware() {
     // this.setupAllowedMedia();
     this.app.use(cors());
+    this.app.use(pino);
     this.app.use(bodyParser.json({ limit: '14MB' }));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
@@ -44,8 +45,7 @@ class ExpressServer {
   }
 
   launch() {
-
-    this.app.use((err, req, res, next) => {
+    this.app.use((err, req, res) => {
       // format error
       res.status(err.status || 500).json({
         message: err.message,

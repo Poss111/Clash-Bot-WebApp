@@ -1,5 +1,11 @@
-const DefaultService = require('./DefaultService');
+const SREService = require('./SREService');
+const TeamService = require('./TeamService');
+const TournamentService = require('./TournamentService');
+const UserService = require('./UserService');
 
 module.exports = {
-  DefaultService,
+  SREService,
+  TeamService,
+  TournamentService,
+  UserService,
 };

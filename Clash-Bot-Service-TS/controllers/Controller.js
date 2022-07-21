@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const camelCase = require('camelcase');
 const config = require('../config');
-const logger = require('../logger');
 
 class Controller {
   static sendResponse(response, payload) {
@@ -43,7 +42,7 @@ class Controller {
   static collectFile(request, fieldName) {
     let uploadedFileName = '';
     if (request.files && request.files.length > 0) {
-      const fileObject = request.files.find(file => file.fieldname === fieldName);
+      const fileObject = request.files.find((file) => file.fieldname === fieldName);
       if (fileObject) {
         const fileArray = fileObject.originalname.split('.');
         const extension = fileArray.pop();
@@ -90,15 +89,17 @@ class Controller {
       }
     }
 
-    request.openapi.schema.parameters.forEach((param) => {
-      if (param.in === 'path') {
-        requestParams[param.name] = request.openapi.pathParams[param.name];
-      } else if (param.in === 'query') {
-        requestParams[param.name] = request.query[param.name];
-      } else if (param.in === 'header') {
-        requestParams[param.name] = request.headers[param.name];
-      }
-    });
+    if (request.openapi.schema.parameters) {
+      request.openapi.schema.parameters.forEach((param) => {
+        if (param.in === 'path') {
+          requestParams[param.name] = request.openapi.pathParams[param.name];
+        } else if (param.in === 'query') {
+          requestParams[param.name] = request.query[param.name];
+        } else if (param.in === 'header') {
+          requestParams[param.name] = request.headers[param.name];
+        }
+      });
+    }
     return requestParams;
   }
 

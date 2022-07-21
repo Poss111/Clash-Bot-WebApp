@@ -1,0 +1,266 @@
+/* eslint-disable no-unused-vars */
+const objectMapper = require('object-mapper');
+const Service = require('./Service');
+const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const { userEntityToResponse, requestToUserEntity } = require('../mappers/UserMapper');
+
+/**
+* Retrieve a Clash Bot Player Details
+*
+* id Integer The id of the user to retrieve.
+* returns Player
+* */
+const getUser = ({ id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
+        if (!userDetails || !userDetails.key) {
+          reject(Service.rejectResponse('User not found.', 204));
+        } else {
+          resolve(Service.successResponse(objectMapper(userDetails, userEntityToResponse)));
+        }
+      }).catch((e) => reject(Service.rejectResponse(
+        e.message || 'Something unexpected happened.',
+        e.status || 500,
+      )));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+* Create a new Clash Bot Player.
+*
+* player Player  (optional)
+* returns Player
+* */
+const updateUser = ({ body }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      clashSubscriptionDbImpl.updateUser(objectMapper(body, requestToUserEntity))
+        .then((updatedUser) => {
+          resolve(Service.successResponse(objectMapper(updatedUser, userEntityToResponse)));
+        }).catch((e) => {
+          reject(Service.rejectResponse(
+            e.message || 'Something unexpected happened.',
+            e.status || 500,
+          ));
+        });
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Adds the requested champion to the users preferred champions.
+ *
+ * body String
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const addToListOfPreferredChampions = ({ body, id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
+        if (!userDetails || !userDetails.key) {
+          reject(Service.rejectResponse('User not found.', 400));
+        } else {
+          if (!userDetails.preferredChampions) {
+            userDetails.preferredChampions = [body];
+          } else {
+            userDetails.preferredChampions.push(body);
+          }
+          clashSubscriptionDbImpl.updateUser(userDetails).then((updatedUserDetails) => {
+            resolve(Service.successResponse(updatedUserDetails.preferredChampions));
+          });
+        }
+      }).catch((err) => reject(Service.rejectResponse(
+        err.message || 'Something went wrong',
+        err.status || 405,
+      )));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Updates the users preferred champions with an entirely new list.
+ *
+ * string List
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const createNewListOfPreferredChampions = ({ string, id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        string,
+        id,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Create a new Clash Bot Player.
+ *
+ * createUserRequest CreateUserRequest
+ * returns Player
+ * */
+const createUser = ({ createUserRequest }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        createUserRequest,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Removes the requested champion to the users preferred champions.
+ *
+ * body String
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        body,
+        id,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+/**
+ * Returns a list of preferred champions that the User has.
+ *
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
+        if (!userDetails || !userDetails.key) {
+          reject(Service.rejectResponse('User not found.', 400));
+        }
+        const payload = userDetails.preferredChampions ? userDetails.preferredChampions : [];
+        resolve(Service.successResponse(payload));
+      }).catch((e) => reject(Service.rejectResponse(
+        e.message || 'Something unexpected happened.',
+        e.status || 500,
+      )));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Returns if the user is subscribed to receive Monday morning Discord DMs.
+ *
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const retrieveUserSubscriptions = ({ id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        id,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Adds user to Monday morning subscription
+ *
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const subscribeUser = ({ id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        id,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+/**
+ * Removes user from Monday morning subscription.
+ *
+ * id String The Clash bot Player's id (optional)
+ * returns List
+ * */
+const unsubscribeUser = ({ id }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        id,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
+module.exports = {
+  getUser,
+  updateUser,
+  createUser,
+  retrieveListOfUserPreferredChampions,
+  addToListOfPreferredChampions,
+  createNewListOfPreferredChampions,
+  removeFromListOfPreferredChampions,
+  retrieveUserSubscriptions,
+  subscribeUser,
+  unsubscribeUser,
+};

@@ -1,5 +1,11 @@
-const DefaultController = require('./DefaultController');
+const SREController = require('./SREController');
+const TeamController = require('./TeamController');
+const TournamentController = require('./TournamentController');
+const UserController = require('./UserController');
 
 module.exports = {
-  DefaultController,
+  SREController,
+  TeamController,
+  TournamentController,
+  UserController,
 };
