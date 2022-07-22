@@ -190,7 +190,7 @@ describe('Clash User Service Impl', () => {
         serverName: 'Goon Squad',
       };
       let updatedUser = deepCopy(returnedUser);
-      updatedUser.subscribed = true;
+      updatedUser.subscribed = 'true';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(updatedUser);
       return clashUserServiceImpl.subscribeUser({ id: expectedUserId })
@@ -217,7 +217,7 @@ describe('Clash User Service Impl', () => {
         key: expectedUserId,
         playerName: 'Roid',
         serverName: 'Goon Squad',
-        subscribed: true,
+        subscribed: 'true',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       return clashUserServiceImpl.subscribeUser({ id: expectedUserId })
@@ -261,10 +261,10 @@ describe('Clash User Service Impl', () => {
         key: expectedUserId,
         playerName: 'Roid',
         serverName: 'Goon Squad',
-        subscribed: true,
+        subscribed: 'true',
       };
       let updatedUser = deepCopy(returnedUser);
-      delete updatedUser.subscribed;
+      updatedUser.subscribed = '';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(updatedUser);
       return clashUserServiceImpl.unsubscribeUser({ id: expectedUserId })
@@ -388,6 +388,35 @@ describe('Clash User Service Impl', () => {
       });
     });
 
+    test('createNewListOfPreferredChampions - If an array with great than 5 champions are passed, it should fail with 204.', () => {
+      const expectedId = '1';
+      const championToAdd = 'Taric';
+      const foundUser = {
+        key: expectedId,
+        name: 'Roid',
+        subscriptions: [{
+          key: 'UpcomingClashTournamentDiscordDM',
+          isOn: true,
+        }],
+        serverName: 'SampleServer',
+      };
+      clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
+      const expectedResponse = {
+        code: 204,
+        error: 'Too many champions. Must be less than or equal to 5.',
+      };
+      return clashUserServiceImpl.createNewListOfPreferredChampions({ body: {
+        champions: [championToAdd, championToAdd, championToAdd, championToAdd, championToAdd, championToAdd] },
+      id: expectedId })
+        .then(() => expect(true).toBeFalsy())
+        .catch((err) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
+          expect(err).toEqual(expectedResponse);
+        });
+    });
+
     test('If user does not exist, return with a 204', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
@@ -461,6 +490,36 @@ describe('Clash User Service Impl', () => {
         expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
         expect(results).toEqual(expectedResponse);
       });
+    });
+
+    test('addToListOfPreferredChampions - if User has more than five champions already, then 204 should be returned.', () => {
+      const expectedId = '1';
+      const championToAdd = 'Volibear';
+      const foundUser = {
+        key: expectedId,
+        name: 'Roid',
+        preferredChampions: ['Taric', 'Sejuani', 'Kha\'zix', 'Rengar', 'Ornn'],
+        subscriptions: [{
+          key: 'UpcomingClashTournamentDiscordDM',
+          isOn: true,
+        }],
+        serverName: 'SampleServer',
+      };
+      clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
+      const expectedResponse = {
+        code: 204,
+        error: 'Too many champions. Must be less than or equal to 5.',
+      };
+      return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: championToAdd }, id: expectedId })
+        .then(() => {
+          expect(true).toBeFalsy();
+        })
+        .catch((err) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
+          expect(err).toEqual(expectedResponse);
+        });
     });
 
     test('If user does not exist, return with a 204', () => {

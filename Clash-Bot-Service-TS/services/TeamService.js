@@ -7,6 +7,7 @@ const Service = require('./Service');
 * team Team The Team details to use to update a specific Team (optional)
 * returns Team
 * */
+// TODO createNewTeam Implementation
 const createNewTeam = ({ team }) => new Promise(
   async (resolve, reject) => {
     try {
@@ -30,7 +31,7 @@ const createNewTeam = ({ team }) => new Promise(
 * tournamentDay String the day of the Tournament to filter the Teams by. (optional)
 * returns List
 * */
-// TODO - getTeam
+// TODO getTeam Implementation
 const getTeam = ({ name, serverName, tournamentName, tournamentDay }) => new Promise(
   async (resolve, reject) => {
     try {
@@ -49,12 +50,100 @@ const getTeam = ({ name, serverName, tournamentName, tournamentDay }) => new Pro
   },
 );
 /**
+* A list of people on the tentative queue for upcoming Tournaments.
+*
+* serverName String The Server to filter the tentative queue by.
+* tournamentName String The Tournament name to filter by. (optional)
+* tournamentDay String The Tournament day to filter by. (optional)
+* returns List
+* */
+// TODO getTentativeDetails Implementation
+const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        serverName,
+        tournamentName,
+        tournamentDay,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+/**
+* Places a player on the tentative queue for an upcoming Tournament.
+*
+* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest 
+* returns Tentative
+* */
+// TODO placePlayerOnTentative Implementation
+const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        placePlayerOnTentativeRequest,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+/**
+* Removes a Player from a Team
+*
+* body TeamRemovalBody The details of a Team to remove a player from. (optional)
+* returns Team
+* */
+// TODO removePlayerFromTeam Implementation
+const removePlayerFromTeam = ({ body }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        body,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+/**
+* Remove a player from the tentative queue for an upcoming Tournament.
+*
+* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest 
+* returns Tentative
+* */
+// TODO removePlayerFromTentative Implementation
+const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
+  async (resolve, reject) => {
+    try {
+      resolve(Service.successResponse({
+        placePlayerOnTentativeRequest,
+      }));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+/**
 * Updates the Team that matches the details passed.
 *
 * teamPatchPayload TeamPatchPayload The Team details to use to update a specific Team (optional)
 * returns Team
 * */
-// TODO - updateTeam
+// TODO updateTeam Implementation
 const updateTeam = ({ teamPatchPayload }) => new Promise(
   async (resolve, reject) => {
     try {
@@ -73,5 +162,9 @@ const updateTeam = ({ teamPatchPayload }) => new Promise(
 module.exports = {
   createNewTeam,
   getTeam,
+  getTentativeDetails,
+  placePlayerOnTentative,
+  removePlayerFromTeam,
+  removePlayerFromTentative,
   updateTeam,
 };

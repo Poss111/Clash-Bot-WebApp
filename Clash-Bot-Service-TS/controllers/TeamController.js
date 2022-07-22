@@ -16,8 +16,8 @@ const getTeam = async (request, response) => {
   await Controller.handleRequest(request, response, service.getTeam);
 };
 
-const getTenativeDetails = async (request, response) => {
-  await Controller.handleRequest(request, response, service.getTenativeDetails);
+const getTentativeDetails = async (request, response) => {
+  await Controller.handleRequest(request, response, service.getTentativeDetails);
 };
 
 const placePlayerOnTentative = async (request, response) => {
@@ -40,7 +40,7 @@ const updateTeam = async (request, response) => {
 module.exports = {
   createNewTeam,
   getTeam,
-  getTenativeDetails,
+  getTentativeDetails,
   placePlayerOnTentative,
   removePlayerFromTeam,
   removePlayerFromTentative,

@@ -29,4 +29,6 @@ logger.js
 services/UserService.js
 services/TeamService.js
 services/TournamentService.js
+services/SREService.js
 index.js
+.eslintrc.json

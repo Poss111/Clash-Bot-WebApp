@@ -84,12 +84,15 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
         } else {
           if (!userDetails.preferredChampions) {
             userDetails.preferredChampions = [body.championName];
+          } else if (userDetails.preferredChampions.length >= 5) {
+            reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
+              204));
           } else {
             userDetails.preferredChampions.push(body.championName);
+            clashSubscriptionDbImpl.updateUser(userDetails).then((updatedUserDetails) => {
+              resolve(Service.successResponse(updatedUserDetails.preferredChampions));
+            });
           }
-          clashSubscriptionDbImpl.updateUser(userDetails).then((updatedUserDetails) => {
-            resolve(Service.successResponse(updatedUserDetails.preferredChampions));
-          });
         }
       }).catch((err) => reject(Service.rejectResponse(
         err.message || 'Something went wrong',
@@ -119,6 +122,9 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
           if (!userDetails || !userDetails.key) {
             reject(Service.rejectResponse('User not found.',
               400));
+          } else if (body.champions.length >= 5) {
+            reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
+              204));
           } else {
             const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
             userDetailsCopy.preferredChampions = body.champions;
@@ -306,7 +312,7 @@ const subscribeUser = ({ id }) => new Promise(
             ));
           } else {
             let updatedUser = JSON.parse(JSON.stringify(userDetails));
-            updatedUser.subscribed = true;
+            updatedUser.subscribed = 'true';
             clashSubscriptionDbImpl.updateUser(updatedUser)
               .then((updatedUserDetails) => {
                 resolve(Service.successResponse(
@@ -355,7 +361,7 @@ const unsubscribeUser = ({ id }) => new Promise(
             ));
           } else {
             let updatedUser = JSON.parse(JSON.stringify(userDetails));
-            delete updatedUser.subscribed;
+            updatedUser.subscribed = '';
             clashSubscriptionDbImpl.updateUser(updatedUser)
               .then((updatedUserDetails) => {
                 resolve(Service.successResponse(
