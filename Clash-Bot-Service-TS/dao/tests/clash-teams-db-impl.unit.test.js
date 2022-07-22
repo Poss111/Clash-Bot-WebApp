@@ -7,10 +7,11 @@ const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const randomNames = require('../../utils/random-names');
 const { deepCopy } = require('../../utils/tests/test-utility.utility.test');
 const { retrieveName } = require('../../utils/naming-utils');
+const { buildMessage } = require('../../utils/template-builder');
 
 jest.mock('dynamodb');
 jest.mock('../impl/dynamo-db-helper');
-jest.mock('../../utility/naming-utils');
+jest.mock('../../utils/naming-utils');
 
 function buildMockReturnForRegister(streamData, teamToBeReturned, add, update, del) {
   const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([streamData]));
@@ -342,6 +343,214 @@ describe('Retrieve Teams - v2', () => {
       });
       expect(data).toEqual([value.Items[0].attrs, value.Items[1].attrs]);
     });
+  });
+});
+
+describe('Retrieve Teams - v3', () => {
+  test('retrieveTeamsByFilter - should be able to filter by nothing to retrieve all.', () => {
+    const serverName = 'Goon Squad';
+    const tournamentName = 'awesome_sauce';
+    const tournamentDay = '1';
+    const teamName = 'Pikachu';
+    const teamToBeRetrieved = {
+      key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+      teamName: ':teamName',
+      serverName: ':serverName',
+      players: [
+        '1',
+        '2',
+        '3',
+      ],
+      playersWRoles: {
+        Top: '1',
+        Jg: Joi.string(),
+        Mid: '2',
+        Bot: Joi.string(),
+        Supp: '3',
+      },
+      tournamentName: ':tournamentName',
+      tournamentDay: ':tournamentDay',
+    };
+    const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
+      serverName,
+      tournamentName,
+      tournamentDay,
+      teamName,
+    });
+    const value = { Items: [{ attrs: builtTeamToBeRetrieved }] };
+    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+    clashTeamsDbImpl.Team = jest.fn();
+    clashTeamsDbImpl.Team = {
+      query: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      beginsWith: jest.fn().mockReturnThis(),
+      expressionAttributeNames: jest.fn().mockReturnThis(),
+      exec: mockStream,
+    };
+    return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName })
+      .then((teams) => {
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+        expect(clashTeamsDbImpl.Team.where).not.toHaveBeenCalled();
+        expect(clashTeamsDbImpl.Team.beginsWith).not.toHaveBeenCalled();
+        expect(teams).toEqual([builtTeamToBeRetrieved]);
+      });
+  });
+
+  test('retrieveTeamsByFilter - should be able to filter by serverName and tournamentName to retrieve all.', () => {
+    const serverName = 'Goon Squad';
+    const tournamentName = 'awesome_sauce';
+    const tournamentDay = '1';
+    const teamName = 'Pikachu';
+    const teamToBeRetrieved = {
+      key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+      teamName: ':teamName',
+      serverName: ':serverName',
+      players: [
+        '1',
+        '2',
+        '3',
+      ],
+      playersWRoles: {
+        Top: '1',
+        Jg: Joi.string(),
+        Mid: '2',
+        Bot: Joi.string(),
+        Supp: '3',
+      },
+      tournamentName: ':tournamentName',
+      tournamentDay: ':tournamentDay',
+    };
+    const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
+      serverName,
+      tournamentName,
+      tournamentDay,
+      teamName,
+    });
+    const value = { Items: [{ attrs: builtTeamToBeRetrieved }] };
+    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+    clashTeamsDbImpl.Team = jest.fn();
+    clashTeamsDbImpl.Team = {
+      query: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      beginsWith: jest.fn().mockReturnThis(),
+      expressionAttributeNames: jest.fn().mockReturnThis(),
+      exec: mockStream,
+    };
+    return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName, tournamentName })
+      .then((teams) => {
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledWith(tournamentName + '#');
+        expect(teams).toEqual([builtTeamToBeRetrieved]);
+      });
+  });
+
+  test('retrieveTeamsByFilter - should be able to filter by serverName, tournamentName, and tournamentDay to retrieve all.', () => {
+    const serverName = 'Goon Squad';
+    const tournamentName = 'awesome_sauce';
+    const tournamentDay = '1';
+    const teamName = 'Pikachu';
+    const teamToBeRetrieved = {
+      key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+      teamName: ':teamName',
+      serverName: ':serverName',
+      players: [
+        '1',
+        '2',
+        '3',
+      ],
+      playersWRoles: {
+        Top: '1',
+        Jg: Joi.string(),
+        Mid: '2',
+        Bot: Joi.string(),
+        Supp: '3',
+      },
+      tournamentName: ':tournamentName',
+      tournamentDay: ':tournamentDay',
+    };
+    const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
+      serverName,
+      tournamentName,
+      tournamentDay,
+      teamName,
+    });
+    const value = { Items: [{ attrs: builtTeamToBeRetrieved }] };
+    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+    clashTeamsDbImpl.Team = jest.fn();
+    clashTeamsDbImpl.Team = {
+      query: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      beginsWith: jest.fn().mockReturnThis(),
+      expressionAttributeNames: jest.fn().mockReturnThis(),
+      exec: mockStream,
+    };
+    return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName, tournamentName, tournamentDay })
+      .then((teams) => {
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledWith(`${tournamentName}#${tournamentDay}`);
+        expect(teams).toEqual([builtTeamToBeRetrieved]);
+      });
+  });
+
+  test('retrieveTeamsByFilter - should be able to filter by serverName, tournamentName, tournamentDay, and teamName to retrieve all.', () => {
+    const serverName = 'Goon Squad';
+    const tournamentName = 'awesome_sauce';
+    const tournamentDay = '1';
+    const teamName = 'Pikachu';
+    const teamToBeRetrieved = {
+      key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+      teamName: ':teamName',
+      serverName: ':serverName',
+      players: [
+        '1',
+        '2',
+        '3',
+      ],
+      playersWRoles: {
+        Top: '1',
+        Jg: Joi.string(),
+        Mid: '2',
+        Bot: Joi.string(),
+        Supp: '3',
+      },
+      tournamentName: ':tournamentName',
+      tournamentDay: ':tournamentDay',
+    };
+    const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
+      serverName,
+      tournamentName,
+      tournamentDay,
+      teamName,
+    });
+    const value = { Items: [{ attrs: builtTeamToBeRetrieved }] };
+    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+    clashTeamsDbImpl.Team = jest.fn();
+    clashTeamsDbImpl.Team = {
+      query: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      beginsWith: jest.fn().mockReturnThis(),
+      expressionAttributeNames: jest.fn().mockReturnThis(),
+      exec: mockStream,
+    };
+    return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName, tournamentName, tournamentDay, teamName })
+      .then((teams) => {
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledWith(`${tournamentName}#${tournamentDay}#${teamName}`);
+        expect(teams).toEqual([builtTeamToBeRetrieved]);
+      });
   });
 });
 

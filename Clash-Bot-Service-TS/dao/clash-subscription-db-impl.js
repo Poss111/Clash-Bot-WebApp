@@ -164,7 +164,9 @@ class ClashSubscriptionDbImpl {
             } else {
                 this.clashSubscriptionTable.batchGetItems([...ids], (err, data) => {
                     if (err) reject(err)
-                    else resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {}));
+                    else {
+                        resolve(data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {}));
+                    }
                 });
             }
         })

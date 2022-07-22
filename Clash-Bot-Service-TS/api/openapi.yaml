@@ -67,15 +67,15 @@ paths:
       - description: the name of the Server to filter the Teams by.
         explode: false
         in: header
-        name: serverName
-        required: false
+        name: server
+        required: true
         schema:
           type: string
         style: simple
       - description: the name of the Tournament to filter the Teams by.
         explode: false
         in: header
-        name: tournamentName
+        name: tournament
         required: false
         schema:
           type: string
@@ -83,7 +83,7 @@ paths:
       - description: the day of the Tournament to filter the Teams by.
         explode: false
         in: header
-        name: tournamentDay
+        name: day
         required: false
         schema:
           type: string
@@ -725,35 +725,83 @@ components:
       example:
         name: name
         serverName: ""
-        id: 0
         playerDetails:
-          subscriptions:
-          - isOn: true
-            key: key
-          - isOn: true
-            key: key
-          role: null
-          champions:
-          - champions
-          - champions
-          name: name
-          serverName: serverName
-          id: id
+          top:
+            subscriptions:
+            - isOn: true
+              key: key
+            - isOn: true
+              key: key
+            role: null
+            champions:
+            - champions
+            - champions
+            name: name
+            serverName: serverName
+            id: id
+          supp:
+            subscriptions:
+            - isOn: true
+              key: key
+            - isOn: true
+              key: key
+            role: null
+            champions:
+            - champions
+            - champions
+            name: name
+            serverName: serverName
+            id: id
+          bot:
+            subscriptions:
+            - isOn: true
+              key: key
+            - isOn: true
+              key: key
+            role: null
+            champions:
+            - champions
+            - champions
+            name: name
+            serverName: serverName
+            id: id
+          mid:
+            subscriptions:
+            - isOn: true
+              key: key
+            - isOn: true
+              key: key
+            role: null
+            champions:
+            - champions
+            - champions
+            name: name
+            serverName: serverName
+            id: id
+          jg:
+            subscriptions:
+            - isOn: true
+              key: key
+            - isOn: true
+              key: key
+            role: null
+            champions:
+            - champions
+            - champions
+            name: name
+            serverName: serverName
+            id: id
         tournament:
           registrationTime: registrationTime
           tournamentName: tournamentName
           startTime: startTime
           tournamentDay: "1"
       properties:
-        id:
-          description: Unique identifier for a LoL Clash Team.
-          format: int32
-          type: integer
         name:
           description: The name of the Team.
           type: string
         playerDetails:
-          $ref: '#/components/schemas/Player'
+          $ref: '#/components/schemas/Team_playerDetails'
         serverName:
           description: The Discord server that the Team belongs to.
         tournament:
@@ -996,4 +1044,83 @@ components:
           description: Is the instance healthy
           example: Healthy
           type: string
+      type: object
+    Team_playerDetails:
+      example:
+        top:
+          subscriptions:
+          - isOn: true
+            key: key
+          - isOn: true
+            key: key
+          role: null
+          champions:
+          - champions
+          - champions
+          name: name
+          serverName: serverName
+          id: id
+        supp:
+          subscriptions:
+          - isOn: true
+            key: key
+          - isOn: true
+            key: key
+          role: null
+          champions:
+          - champions
+          - champions
+          name: name
+          serverName: serverName
+          id: id
+        bot:
+          subscriptions:
+          - isOn: true
+            key: key
+          - isOn: true
+            key: key
+          role: null
+          champions:
+          - champions
+          - champions
+          name: name
+          serverName: serverName
+          id: id
+        mid:
+          subscriptions:
+          - isOn: true
+            key: key
+          - isOn: true
+            key: key
+          role: null
+          champions:
+          - champions
+          - champions
+          name: name
+          serverName: serverName
+          id: id
+        jg:
+          subscriptions:
+          - isOn: true
+            key: key
+          - isOn: true
+            key: key
+          role: null
+          champions:
+          - champions
+          - champions
+          name: name
+          serverName: serverName
+          id: id
+      properties:
+        top:
+          $ref: '#/components/schemas/Player'
+        mid:
+          $ref: '#/components/schemas/Player'
+        jg:
+          $ref: '#/components/schemas/Player'
+        bot:
+          $ref: '#/components/schemas/Player'
+        supp:
+          $ref: '#/components/schemas/Player'
       type: object

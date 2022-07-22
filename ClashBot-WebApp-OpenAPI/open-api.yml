@@ -22,15 +22,22 @@ components:
     Team:
       type: object
       properties:
-        id:
-          description: Unique identifier for a LoL Clash Team.
-          type: integer
-          format: int32
         name:
           type: string
           description: The name of the Team.
         playerDetails:
-          $ref: '#/components/schemas/Player'
+          type: object
+          properties:
+            top:
+              $ref: '#/components/schemas/Player'
+            mid:
+              $ref: '#/components/schemas/Player'
+            jg:
+              $ref: '#/components/schemas/Player'
+            bot:
+              $ref: '#/components/schemas/Player'
+            supp:
+              $ref: '#/components/schemas/Player'
         serverName:
           description: The Discord server that the Team belongs to.
         tournament:
@@ -271,19 +278,19 @@ paths:
           required: false
           schema:
             type: string
-        - name: serverName
+        - name: server
           description: the name of the Server to filter the Teams by.
           in: header
-          required: false
+          required: true
           schema:
             type: string
-        - name: tournamentName
+        - name: tournament
           description: the name of the Tournament to filter the Teams by.
           in: header
           required: false
           schema:
             type: string
-        - name: tournamentDay
+        - name: day
           description: the day of the Tournament to filter the Teams by.
           in: header
           required: false

@@ -1,3 +1,5 @@
+const Joi = require('joi');
+const dynamodb = require('dynamodb');
 const clashTeamsServiceImpl = require('../TeamService');
 const clashTeamsDbImpl = require('../../dao/clash-teams-db-impl');
 const clashTentativeDbImpl = require('../../dao/clash-tentative-db-impl');
@@ -1062,6 +1064,12 @@ describe('Clash Teams Service Impl', () => {
 
   describe('Retrieve Teams for given Server Name and Tournaments', () => {
     describe('Retrieve Teams for given Server Name and Tournaments', () => {
+      test('getTeam - If no filtering criteria is passed, all teams should be retrieved.', () => {
+
+      });
+    });
+
+    describe('Retrieve Teams for given Server Name and Tournaments', () => {
       test('When I pass a Server Name, I should retrieve all Teams with the given Server Name and active Tournaments.', () => {
         const expectedServerName = 'Goon Squad';
         const expectedPlayerId = '123131';
@@ -1344,6 +1352,283 @@ describe('Clash Teams Service Impl', () => {
           .then(() => expect(true).toBeFalsy())
           .catch((err) => expect(err).toEqual(error));
       });
+    });
+  });
+
+  describe('Retrieve Teams', () => {
+    test('getTeam - Retrieve all teams based on serverName.', () => {
+      const serverName = 'Goon Squad';
+      const expectedTeams = [{
+        details: 'awesome_sauce#1#Abra',
+        version: 2,
+        teamName: 'Abra',
+        serverName,
+        players: ['1', '2'],
+        playersWRoles: {
+          Top: '1',
+          Jg: '2',
+        },
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+        startTime: new Date().toISOString(),
+      }];
+      const mockUserDetails = {
+        1: {
+          key: '1',
+          playerName: 'Roid',
+          serverName: 'Goon Squad',
+          timeAdded: new Date().toISOString(),
+          preferredChampions: ['Braum', 'Mordekaiser', 'Lissandra'],
+        },
+        2: {
+          key: '2',
+          playerName: 'Meso',
+          serverName: 'Goon Squad',
+          timeAdded: new Date().toISOString(),
+          preferredChampions: ['Elise'],
+        },
+      };
+      const expectedResponse = {
+        code: 200,
+        payload: expectedTeams.map((team) => {
+          const mappedTeam = {
+            name: team.teamName,
+            serverName: team.serverName,
+            tournament: {
+              tournamentName: team.tournamentName,
+              tournamentDay: team.tournamentDay,
+            },
+          };
+          mappedTeam.playerDetails = Object.entries(team.playersWRoles)
+            .reduce((ret, entry) => {
+              const foundUser = mockUserDetails[entry[1]];
+              ret[entry[0].toLowerCase()] = {
+                id: entry[1],
+                name: foundUser.playerName,
+                champions: foundUser.preferredChampions,
+              };
+              return ret;
+            }, {});
+          return mappedTeam;
+        }),
+      };
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
+      return clashTeamsServiceImpl.getTeam({ server: serverName })
+        .then((teams) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName });
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith(expectedTeams[0].players);
+          expect(teams).toEqual(expectedResponse);
+        });
+    });
+
+    test('getTeam - Retrieve all teams based on serverName and tournamentName.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const expectedTeams = [{
+        details: 'awesome_sauce#1#Abra',
+        version: 2,
+        teamName: 'Abra',
+        serverName,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+          Jg: '2',
+        },
+        tournamentName,
+        tournamentDay: '1',
+        startTime: new Date().toISOString(),
+      }];
+      const expectedResponse = {
+        code: 200,
+        payload: expectedTeams.map((team) => {
+          const mappedTeam = {
+            name: team.teamName,
+            serverName: team.serverName,
+            tournament: {
+              tournamentName: team.tournamentName,
+              tournamentDay: team.tournamentDay,
+            },
+          };
+          mappedTeam.playerDetails = Object.entries(team.playersWRoles)
+            .reduce((ret, entry) => {
+              ret[entry[0].toLowerCase()] = { id: entry[1] };
+              return ret;
+            }, {});
+          return mappedTeam;
+        }),
+      };
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(expectedTeams);
+      return clashTeamsServiceImpl.getTeam({ server: serverName, tournament: tournamentName })
+        .then((teams) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName, tournamentName });
+          expect(teams).toEqual(expectedResponse);
+        });
+    });
+
+    test('getTeam - Retrieve all teams based on serverName, tournamentName, and tournamentDay.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const expectedTeams = [{
+        details: 'awesome_sauce#1#Abra',
+        version: 2,
+        teamName: 'Abra',
+        serverName,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+          Jg: '2',
+        },
+        tournamentName,
+        tournamentDay,
+        startTime: new Date().toISOString(),
+      }];
+      const expectedResponse = {
+        code: 200,
+        payload: expectedTeams.map((team) => {
+          const mappedTeam = {
+            name: team.teamName,
+            serverName: team.serverName,
+            tournament: {
+              tournamentName: team.tournamentName,
+              tournamentDay: team.tournamentDay,
+            },
+          };
+          mappedTeam.playerDetails = Object.entries(team.playersWRoles)
+            .reduce((ret, entry) => {
+              ret[entry[0].toLowerCase()] = { id: entry[1] };
+              return ret;
+            }, {});
+          return mappedTeam;
+        }),
+      };
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(expectedTeams);
+      return clashTeamsServiceImpl.getTeam({
+        server: serverName,
+        tournament: tournamentName,
+        day: tournamentDay,
+      })
+        .then((teams) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName, tournamentName, tournamentDay });
+          expect(teams).toEqual(expectedResponse);
+        });
+    });
+
+    test('getTeam - Retrieve all teams based on serverName, tournamentName, tournamentDay, and name.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const name = 'Abra';
+      const expectedTeams = [{
+        details: 'awesome_sauce#1#Abra',
+        version: 2,
+        teamName: name,
+        serverName,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+          Jg: '2',
+        },
+        tournamentName,
+        tournamentDay,
+        startTime: new Date().toISOString(),
+      }];
+      const expectedResponse = {
+        code: 200,
+        payload: expectedTeams.map((team) => {
+          const mappedTeam = {
+            name: team.teamName,
+            serverName: team.serverName,
+            tournament: {
+              tournamentName: team.tournamentName,
+              tournamentDay: team.tournamentDay,
+            },
+          };
+          mappedTeam.playerDetails = Object.entries(team.playersWRoles)
+            .reduce((ret, entry) => {
+              ret[entry[0].toLowerCase()] = { id: entry[1] };
+              return ret;
+            }, {});
+          return mappedTeam;
+        }),
+      };
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(expectedTeams);
+      return clashTeamsServiceImpl.getTeam({
+        name,
+        server: serverName,
+        tournament: tournamentName,
+        day: tournamentDay,
+      })
+        .then((teams) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            name, serverName, tournamentName, tournamentDay,
+          });
+          expect(teams).toEqual(expectedResponse);
+        });
+    });
+
+    test('getTeam - If serverName and only tournamentDay are passed, it should return 400.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentDay = '1';
+      const name = 'Abra';
+      const response = {
+        code: 400,
+        error: 'Missing required attribute.',
+      };
+      return clashTeamsServiceImpl.getTeam({
+        name,
+        server: serverName,
+        day: tournamentDay,
+      })
+        .then(() => expect(true).toBeFalsy())
+        .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).not.toHaveBeenCalled();
+          expect(err).toEqual(response);
+        });
+    });
+
+    test('getTeam - If serverName and only team are passed, it should return 400.', () => {
+      const serverName = 'Goon Squad';
+      const name = 'Abra';
+      const response = {
+        code: 400,
+        error: 'Missing required attribute.',
+      };
+      return clashTeamsServiceImpl.getTeam({
+        name,
+        server: serverName,
+      })
+        .then(() => expect(true).toBeFalsy())
+        .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).not.toHaveBeenCalled();
+          expect(err).toEqual(response);
+        });
+    });
+
+    test('getTeam - If serverName and tournamentName, and team are passed, it should return 400.', () => {
+      const serverName = 'Goon Squad';
+      const name = 'Abra';
+      const tournamentName = 'awesome_sauce';
+      const response = {
+        code: 400,
+        error: 'Missing required attribute.',
+      };
+      return clashTeamsServiceImpl.getTeam({
+        name,
+        server: serverName,
+        tournament: tournamentName,
+      })
+        .then(() => expect(true).toBeFalsy())
+        .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).not.toHaveBeenCalled();
+          expect(err).toEqual(response);
+        });
     });
   });
 

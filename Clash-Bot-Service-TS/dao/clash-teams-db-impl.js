@@ -14,10 +14,11 @@ class ClashTeamsDbImpl {
     initialize() {
         return new Promise((resolve, reject) => {
             dynamoDbHelper.initialize(this.tableName, {
-                hashKey: 'key',
+                hashKey: 'serverName',
+                rangeKey: 'details',
                 timestamps: true,
                 schema: {
-                    key: Joi.string(),
+                    details: Joi.string(),
                     version: Joi.number(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
@@ -575,6 +576,51 @@ class ClashTeamsDbImpl {
             stream = stream.exec();
             stream.on('readable', function () {
                 let read = stream.read();
+                if (read) {
+                    read.Items.forEach((data) => {
+                        teams.push(data.attrs)
+                    });
+                }
+            });
+            stream.on('end', function () {
+                resolve(teams);
+            });
+            stream.on('error', (err) => reject(err));
+        });
+    }
+
+    retrieveTeamsByFilter({serverName, tournamentName, tournamentDay, teamName}) {
+        return new Promise((resolve, reject) => {
+            let stream = this.Team
+              .query(serverName);
+            let filteringCriteria = serverName;
+              if (tournamentName
+                || tournamentDay
+                || teamName) {
+                  let rangeKey = '';
+                  if (tournamentName) {
+                      rangeKey += `${tournamentName}#`;
+                      if (tournamentDay) {
+                          rangeKey += `${tournamentDay}`;
+                          if (teamName) {
+                              rangeKey += `#${teamName}`;
+                          }
+                      }
+                  }
+                  filteringCriteria += ' - ' + rangeKey;
+                stream = stream
+                  .where('details')
+                  .beginsWith(rangeKey);
+              }
+              logger.info('Searching for Team with criteria \'' + filteringCriteria + '\'...')
+              stream = stream.exec();
+            const teams = [];
+            stream.on('readable', function () {
+                let read = stream.read();
+                if (read) {
+                    logger.debug(`Scanned Count : '${read.ScannedCount}'`)
+                    logger.debug(`Items Returned : '${read.Count}'`)
+                }
                 if (read) {
                     read.Items.forEach((data) => {
                         teams.push(data.attrs)

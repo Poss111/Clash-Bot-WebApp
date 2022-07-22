@@ -3,12 +3,14 @@ const logger = require('./logger');
 const ExpressServer = require('./expressServer');
 const clashUserDbImpl = require('./dao/clash-subscription-db-impl');
 const clashTimeDbImpl = require('./dao/clash-time-db-impl');
+const clashTeamsDb = require('./dao/clash-teams-db-impl');
 
 const launchServer = async () => {
   try {
     await Promise.all([
       clashUserDbImpl.initialize(),
       clashTimeDbImpl.initialize(),
+      clashTeamsDb.initialize(),
     ]);
 
     this.expressServer = new ExpressServer(config.URL_PORT, config.OPENAPI_YAML);
