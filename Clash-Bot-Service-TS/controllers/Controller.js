@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const camelCase = require('camelcase');
 const config = require('../config');
+const logger = require('../logger');
 
 class Controller {
   static sendResponse(response, payload) {
@@ -20,6 +21,7 @@ class Controller {
   }
 
   static sendError(response, error) {
+    logger.error(`Error occurred : ('${error.code}') ('${error.message}')`);
     response.status(error.code || 500);
     if (error.error instanceof Object) {
       response.json(error.error);
