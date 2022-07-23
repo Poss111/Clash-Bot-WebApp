@@ -16,24 +16,22 @@ const {
  * */
 const getUser = ({ id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'getUser' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-        if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.',
-            204));
-        } else {
-          resolve(Service.successResponse(objectMapper(userDetails,
-            userEntityToResponse)));
-        }
-      }).catch((e) => reject(Service.rejectResponse(
-        e.message || 'Something unexpected happened.',
-        e.status || 500,
-      )));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          204));
+      } else {
+        resolve(Service.successResponse(objectMapper(userDetails,
+          userEntityToResponse)));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -46,23 +44,18 @@ const getUser = ({ id }) => new Promise(
  * */
 const updateUser = ({ body }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'updateUser' };
     try {
-      clashSubscriptionDbImpl.updateUser(objectMapper(body,
-        requestToUserEntity))
-        .then((updatedUser) => {
-          resolve(Service.successResponse(objectMapper(updatedUser,
-            userEntityToResponse)));
-        }).catch((e) => {
-          reject(Service.rejectResponse(
-            e.message || 'Something unexpected happened.',
-            e.status || 500,
-          ));
-        });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      const updatedUser = await clashSubscriptionDbImpl.updateUser(objectMapper(body,
+        requestToUserEntity));
+      resolve(Service.successResponse(objectMapper(updatedUser,
+        userEntityToResponse)));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -76,33 +69,30 @@ const updateUser = ({ body }) => new Promise(
  * */
 const addToListOfPreferredChampions = ({ body, id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'addToListOfPreferredChampions' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-        if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.',
-            400));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          400));
+      } else {
+        if (!userDetails.preferredChampions) {
+          userDetails.preferredChampions = [body.championName];
+        } else if (userDetails.preferredChampions.length >= 5) {
+          reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
+            204));
         } else {
-          if (!userDetails.preferredChampions) {
-            userDetails.preferredChampions = [body.championName];
-          } else if (userDetails.preferredChampions.length >= 5) {
-            reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
-              204));
-          } else {
-            userDetails.preferredChampions.push(body.championName);
-            clashSubscriptionDbImpl.updateUser(userDetails).then((updatedUserDetails) => {
-              resolve(Service.successResponse(updatedUserDetails.preferredChampions));
-            });
-          }
+          userDetails.preferredChampions.push(body.championName);
         }
-      }).catch((err) => reject(Service.rejectResponse(
-        err.message || 'Something went wrong',
-        err.status || 405,
-      )));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(userDetails);
+        resolve(Service.successResponse(updatedUserDetails.preferredChampions));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -116,40 +106,27 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
  * */
 const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'createNewListOfPreferredChampions' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id)
-        .then((userDetails) => {
-          if (!userDetails || !userDetails.key) {
-            reject(Service.rejectResponse('User not found.',
-              400));
-          } else if (body.champions.length >= 5) {
-            reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
-              204));
-          } else {
-            const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
-            userDetailsCopy.preferredChampions = body.champions;
-            clashSubscriptionDbImpl.updateUser(userDetailsCopy)
-              .then((updatedUserDetails) => resolve(
-                Service.successResponse(updatedUserDetails.preferredChampions),
-              ))
-              .catch((e) => {
-                reject(Service.rejectResponse(
-                  e.message || 'Something unexpected happened',
-                  e.status || 500,
-                ));
-              });
-          }
-        }).catch((e) => {
-          reject(Service.rejectResponse(
-            e.message || 'Something unexpected happened',
-            e.status || 500,
-          ));
-        });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          400));
+      } else if (body.champions.length >= 5) {
+        reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
+          204));
+      } else {
+        const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
+        userDetailsCopy.preferredChampions = body.champions;
+        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(userDetailsCopy);
+        resolve(Service.successResponse(updatedUserDetails.preferredChampions));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -162,20 +139,18 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
  * */
 const createUser = ({ createUserRequest }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'createUser' };
     try {
-      clashSubscriptionDbImpl.createUser(objectMapper(createUserRequest,
-        requestToNewUserEntity))
-        .then((createdUserEntity) => resolve(Service.successResponse(objectMapper(createdUserEntity,
-          userEntityToResponse))))
-        .catch((e) => reject(Service.rejectResponse(
-          e.message || 'Something went wrong',
-          e.status || 500,
-        )));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      const createdUserEntity = await clashSubscriptionDbImpl
+        .createUser(objectMapper(createUserRequest, requestToNewUserEntity));
+      resolve(Service.successResponse(objectMapper(createdUserEntity,
+        userEntityToResponse)));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -189,46 +164,42 @@ const createUser = ({ createUserRequest }) => new Promise(
  * */
 const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'removeFromListOfPreferredChampions' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-        if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.',
-            400));
-        } else if (!userDetails.preferredChampions || userDetails.preferredChampions.length <= 0) {
-          resolve(Service.successResponse([]));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          400));
+      } else if (!userDetails.preferredChampions || userDetails
+        .preferredChampions
+        .length <= 0) {
+        resolve(Service.successResponse([]));
+      } else {
+        const updatedUserDetails = JSON.parse(JSON.stringify(userDetails));
+        updatedUserDetails.preferredChampions = userDetails
+          .preferredChampions
+          .filter((record) => record.toLowerCase() !== body.championName.toLowerCase());
+        if (updatedUserDetails
+          .preferredChampions
+          .join() === userDetails
+          .preferredChampions
+          .join()) {
+          resolve(Service.successResponse(updatedUserDetails.preferredChampions));
         } else {
-          const updatedUserDetails = JSON.parse(JSON.stringify(userDetails));
-          updatedUserDetails.preferredChampions = userDetails.preferredChampions.filter((record) => record.toLowerCase()
-              !== body.championName.toLowerCase());
-          if (updatedUserDetails.preferredChampions.join()
-            === userDetails.preferredChampions.join()) {
-            resolve(Service.successResponse(updatedUserDetails.preferredChampions));
-          } else {
-            clashSubscriptionDbImpl.updateUser(updatedUserDetails).then((returnedUserDetails) => {
-              let payload = returnedUserDetails.preferredChampions;
-              if (!payload) {
-                payload = [];
-              }
-              resolve(Service.successResponse(payload));
-            }).catch((err) => {
-              reject(Service.rejectResponse(
-                err.message || 'Something went wrong',
-                err.status || 500,
-              ));
-            });
+          const returnedUserDetails = await clashSubscriptionDbImpl.updateUser(updatedUserDetails);
+          let payload = returnedUserDetails.preferredChampions;
+          if (!payload) {
+            payload = [];
           }
+          resolve(Service.successResponse(payload));
         }
-      }).catch((err) => {
-        reject(Service.rejectResponse(
-          err.message || 'Something went wrong',
-          err.status || 500,
-        ));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
       });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
     }
   },
 );
@@ -240,23 +211,23 @@ const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
  * */
 const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'retrieveListOfUserPreferredChampions' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-        if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.',
-            400));
-        }
-        const payload = userDetails.preferredChampions ? userDetails.preferredChampions : [];
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          400));
+      } else {
+        const payload = userDetails.preferredChampions ? userDetails
+          .preferredChampions : [];
         resolve(Service.successResponse(payload));
-      }).catch((e) => reject(Service.rejectResponse(
-        e.message || 'Something unexpected happened.',
-        e.status || 500,
-      )));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -269,26 +240,22 @@ const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
  * */
 const retrieveUserSubscriptions = ({ id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'retrieveUserSubscriptions' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id).then((userDetails) => {
-        if (!userDetails || !userDetails.key) {
-          reject(Service.rejectResponse('User not found.',
-            400));
-        } else {
-          resolve(Service.successResponse(objectMapper(userDetails,
-            userEntityToResponse).subscriptions));
-        }
-      }).catch((err) => {
-        reject(Service.rejectResponse(
-          err.message || 'Something went wrong.',
-          err.status || 500,
-        ));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.',
+          400));
+      } else {
+        resolve(Service.successResponse(objectMapper(userDetails,
+          userEntityToResponse).subscriptions));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
       });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 500,
-      ));
     }
   },
 );
@@ -301,43 +268,29 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
  * */
 const subscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'subscribeUser' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id)
-        .then((userDetails) => {
-          if (!userDetails || !userDetails.key) {
-            reject(Service.rejectResponse('User not found.', 400));
-          } else if (userDetails.subscribed) {
-            resolve(Service.successResponse(
-              objectMapper(userDetails, userEntityToResponse).subscriptions
-            ));
-          } else {
-            let updatedUser = JSON.parse(JSON.stringify(userDetails));
-            updatedUser.subscribed = 'true';
-            clashSubscriptionDbImpl.updateUser(updatedUser)
-              .then((updatedUserDetails) => {
-                resolve(Service.successResponse(
-                  objectMapper(updatedUserDetails, userEntityToResponse).subscriptions
-                ));
-              })
-              .catch((e) => {
-                reject(Service.rejectResponse(
-                  e.message || 'Something went wrong.',
-                  e.status || 500,
-                ));
-              });
-          }
-        })
-        .catch((e) => {
-          reject(Service.rejectResponse(
-            e.message || 'Something went wrong.',
-            e.status || 500,
-          ));
-        });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Something went wrong.',
-        e.status || 500,
-      ));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.', 400));
+      } else if (userDetails.subscribed) {
+        resolve(Service.successResponse(
+          objectMapper(userDetails, userEntityToResponse).subscriptions,
+        ));
+      } else {
+        const updatedUser = { ...userDetails };
+        updatedUser.subscribed = 'true';
+        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(updatedUser);
+        resolve(Service.successResponse(
+          objectMapper(updatedUserDetails, userEntityToResponse).subscriptions,
+        ));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -350,43 +303,29 @@ const subscribeUser = ({ id }) => new Promise(
  * */
 const unsubscribeUser = ({ id }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'UserService', method: 'unsubscribeUser' };
     try {
-      clashSubscriptionDbImpl.retrieveUserDetails(id)
-        .then((userDetails) => {
-          if (!userDetails || !userDetails.key) {
-            reject(Service.rejectResponse('User not found.', 400));
-          } else if (!userDetails.subscribed) {
-            resolve(Service.successResponse(
-              objectMapper(userDetails, userEntityToResponse).subscriptions
-            ));
-          } else {
-            let updatedUser = JSON.parse(JSON.stringify(userDetails));
-            updatedUser.subscribed = '';
-            clashSubscriptionDbImpl.updateUser(updatedUser)
-              .then((updatedUserDetails) => {
-                resolve(Service.successResponse(
-                  objectMapper(updatedUserDetails, userEntityToResponse).subscriptions
-                ));
-              })
-              .catch((e) => {
-                reject(Service.rejectResponse(
-                  e.message || 'Something went wrong.',
-                  e.status || 500,
-                ));
-              });
-          }
-        })
-        .catch((e) => {
-          reject(Service.rejectResponse(
-            e.message || 'Something went wrong.',
-            e.status || 500,
-          ));
-        });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Something went wrong.',
-        e.status || 500,
-      ));
+      const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
+      if (!userDetails || !userDetails.key) {
+        reject(Service.rejectResponse('User not found.', 400));
+      } else if (!userDetails.subscribed) {
+        resolve(Service.successResponse(
+          objectMapper(userDetails, userEntityToResponse).subscriptions,
+        ));
+      } else {
+        const updatedUser = { ...userDetails };
+        updatedUser.subscribed = '';
+        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(updatedUser);
+        resolve(Service.successResponse(
+          objectMapper(updatedUserDetails, userEntityToResponse).subscriptions,
+        ));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
