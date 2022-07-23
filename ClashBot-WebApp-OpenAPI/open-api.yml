@@ -391,7 +391,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Team'
+                oneOf:
+                  - $ref: '#/components/schemas/Team'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: What occurred during the operation.
         '400':
           description: Bad details were given to create the Team with.
           content:

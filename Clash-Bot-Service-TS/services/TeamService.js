@@ -14,18 +14,21 @@ const logger = require('../logger');
 * */
 const createNewTeam = ({ team }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'createNewTeam' };
     try {
       resolve(Service.successResponse({
         team,
       }));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
+
 /**
 * Returns a single Team or multiple Teams that match the filtering criteria.
 *
@@ -39,37 +42,35 @@ const getTeam = ({
   server, name, tournament, day,
 }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'getTeam' };
     try {
       if (!tournament && day) {
         reject(Service.rejectResponse('Missing required attribute.', 400));
       } else if ((!tournament || !day) && name) {
         reject(Service.rejectResponse('Missing required attribute.', 400));
       } else {
-        clashTeamsDbImpl.retrieveTeamsByFilter({
+        const teams = await clashTeamsDbImpl.retrieveTeamsByFilter({
           teamName: name,
           serverName: server,
           tournamentName: tournament,
           tournamentDay: day,
-        })
-          .then((teams) => {
-            const listOfPlayerIds = new Set(teams.map((team) => Object.values(team.playersWRoles)).flatMap((value) => value));
-            clashSubscriptionDbImpl.retrieveAllUserDetails([...listOfPlayerIds])
-              .then((idToUserDetails) => {
-                const response = teams.map((team) => {
-                  const mappedResponse = objectMapper(team, teamEntityToResponse);
-                  Object.keys(mappedResponse.playerDetails)
-                    .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id], userEntityToResponse));
-                  return mappedResponse;
-                });
-                resolve(Service.successResponse(response));
-              });
-          });
+        });
+        const listOfPlayerIds = new Set(teams.map((team) => Object.values(team.playersWRoles)).flatMap((value) => value));
+        const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails([...listOfPlayerIds]);
+        const response = teams.map((team) => {
+          const mappedResponse = objectMapper(team, teamEntityToResponse);
+          Object.keys(mappedResponse.playerDetails)
+            .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id], userEntityToResponse));
+          return mappedResponse;
+        });
+        resolve(Service.successResponse(response));
       }
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -84,17 +85,19 @@ const getTeam = ({
 * */
 const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'getTentativeDetails' };
     try {
       resolve(Service.successResponse({
         serverName,
         tournamentName,
         tournamentDay,
       }));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -106,18 +109,21 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
 * */
 const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'placePlayerOnTentative' };
     try {
       resolve(Service.successResponse({
         placePlayerOnTentativeRequest,
       }));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
+
 /**
 * Removes a Player from a Team
 *
@@ -126,22 +132,54 @@ const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promis
 * */
 const removePlayerFromTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
-      clashTeamsDbImpl.retrieveTeamsByFilter({
+      const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
         serverName: body.serverName,
         tournamentName: body.tournamentDetails.tournamentName,
         tournamentDay: body.tournamentDetails.tournamentDay,
         teamName: body.teamName,
-      }).then((retrievedTeams) => {
-          resolve(Service.successResponse({
-            body,
-          }));
-      })
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      });
+      logger.debug(loggerContext, `Retrieved Teams ('${retrievedTeams}').`);
+      if (!retrievedTeams || retrievedTeams.length <= 0) {
+        reject(Service.rejectResponse(`No Team found with criteria '${body}'.`, 400));
+      } else if (!retrievedTeams[0].players.some((playerId) => playerId === body.playerId)) {
+        reject(Service.rejectResponse(`Player does not exist on Team '${body}'.`, 400));
+      } else {
+        logger.debug(loggerContext, `Retrieved Teams Server ('${body.serverName}') length ('${retrievedTeams.length}')`);
+        const teamToUpdate = { ...retrievedTeams[0] };
+        logger.debug(loggerContext, `Removing player ('${body.playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`);
+        teamToUpdate.players =
+          teamToUpdate.players.filter((playerId) => playerId !== body.playerId);
+        const playerRole = Object.entries(teamToUpdate.playersWRoles)
+          .find((entry) => entry[1] === body.playerId);
+        logger.debug(loggerContext, `Removing player ('${body.playerId}') from Role ('${playerRole[0]}')...`);
+        delete teamToUpdate.playersWRoles[playerRole[0]];
+        if (teamToUpdate.players <= 0) {
+          logger.debug(loggerContext, 'Team will be empty after removal, deleting team instead...');
+          await clashTeamsDbImpl.deleteTeam({
+            serverName: teamToUpdate.serverName,
+            details: teamToUpdate.details,
+          });
+          logger.debug(loggerContext, `Server ('${body.serverName}') Team ('${teamToUpdate.details}') successfully deleted.`);
+          resolve(Service.successResponse('Team successfully deleted.'));
+        } else {
+          const updatedTeam = await clashTeamsDbImpl.updateTeam(teamToUpdate);
+          logger.debug(loggerContext, `Player ('${body.playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
+          const idToPlayerMap = await clashSubscriptionDbImpl.retrieveAllUserDetails(updatedTeam.players);
+          const mappedResponse = objectMapper(updatedTeam, teamEntityToResponse);
+          Object.keys(mappedResponse.playerDetails)
+            .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse.playerDetails[key].id],
+              userEntityToResponse));
+          resolve(Service.successResponse(mappedResponse));
+        }
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -153,15 +191,17 @@ const removePlayerFromTeam = ({ body }) => new Promise(
 * */
 const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
       resolve(Service.successResponse({
         placePlayerOnTentativeRequest,
       }));
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
@@ -174,54 +214,44 @@ const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Pro
 * */
 const updateTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
+    const loggerContext = { class: 'TeamService', method: 'updateTeam' };
     try {
-      clashTeamsDbImpl.retrieveTeamsByFilter({
+      const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
         serverName: body.serverName,
         tournamentName: body.tournamentDetails.tournamentName,
         tournamentDay: body.tournamentDetails.tournamentDay,
         teamName: body.teamName,
-      }).then((retrievedTeams) => {
-        if (!retrievedTeams || retrievedTeams.length <= 0) {
-          reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
-        } else if (retrievedTeams[0].players.length >= 5) {
-          reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
-        } else if (retrievedTeams[0].playersWRoles[body.role]) {
-          reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
-        } else {
-          const updatedTeam = { ...retrievedTeams[0] };
-          if (!updatedTeam.playersWRoles) {
-            updatedTeam.playersWRoles = {};
-            updatedTeam.players = [];
-          }
-          updatedTeam.playersWRoles[body.role] = body.playerId;
-          updatedTeam.players.push(body.playerId);
-          clashTeamsDbImpl.updateTeam(updatedTeam)
-            .then((updatedTeamAfterPersist) => {
-              clashSubscriptionDbImpl.retrieveAllUserDetails(updatedTeamAfterPersist.players)
-                .then((idToUserDetails) => {
-                  const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
-                  Object.keys(mappedResponse.playerDetails)
-                    .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id],
-                      userEntityToResponse));
-                  resolve(Service.successResponse(mappedResponse));
-                }).catch((err) => {
-                  logger.error(`updateTeam.retrieveAllUserDetails - ${err.message}`);
-                  reject(Service.rejectResponse('Something went wrong.', 500));
-                });
-            }).catch((err) => {
-              logger.error(`updateTeam.updateTeam - ${err.message}`);
-              reject(Service.rejectResponse('Something went wrong.', 500));
-            });
-        }
-      }).catch((err) => {
-        logger.error(`updateTeam.retrieveTeamsByFilter - ${err.message}`);
-        reject(Service.rejectResponse('Something went wrong.', 500));
       });
-    } catch (e) {
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 405,
-      ));
+      if (!retrievedTeams || retrievedTeams.length <= 0) {
+        reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
+      } else if (retrievedTeams[0].players.length >= 5) {
+        reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
+      } else if (retrievedTeams[0].playersWRoles[body.role]) {
+        reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
+      } else {
+        const updatedTeam = { ...retrievedTeams[0] };
+        if (!updatedTeam.playersWRoles) {
+          updatedTeam.playersWRoles = {};
+          updatedTeam.players = [];
+        }
+        updatedTeam.playersWRoles[body.role] = body.playerId;
+        updatedTeam.players.push(body.playerId);
+        const updatedTeamAfterPersist = await clashTeamsDbImpl.updateTeam(updatedTeam);
+        const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
+          updatedTeamAfterPersist.players);
+        const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
+        Object.keys(mappedResponse.playerDetails)
+          .forEach((key) => mappedResponse.playerDetails[key] =
+            objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id],
+              userEntityToResponse));
+        resolve(Service.successResponse(mappedResponse));
+      }
+    } catch (error) {
+      Service.handleException({
+        loggerContext,
+        error,
+        reject,
+      });
     }
   },
 );
