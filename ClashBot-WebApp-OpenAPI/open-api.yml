@@ -20,6 +20,7 @@ servers:
 components:
   schemas:
     Team:
+      description: A League of Legends Clash Team
       type: object
       properties:
         name:
@@ -28,21 +29,23 @@ components:
         playerDetails:
           type: object
           properties:
-            top:
+            Top:
               $ref: '#/components/schemas/Player'
-            mid:
+            Mid:
               $ref: '#/components/schemas/Player'
-            jg:
+            Jg:
               $ref: '#/components/schemas/Player'
-            bot:
+            Bot:
               $ref: '#/components/schemas/Player'
-            supp:
+            Supp:
               $ref: '#/components/schemas/Player'
         serverName:
           description: The Discord server that the Team belongs to.
+          type: string
         tournament:
           $ref: '#/components/schemas/Tournament'
     Tournament:
+      description: A League of Legends Clash Tournament
       type: object
       properties:
         tournamentName:
@@ -59,6 +62,7 @@ components:
           description: When you can register for the Tournament.
           type: string
     Tentative:
+      description: A queue for Players unsure if they will play Clash for a given Tournament.
       type: object
       properties:
         serverName:
@@ -70,6 +74,7 @@ components:
           items:
             $ref: '#/components/schemas/Player'
     Player:
+      description: A Clash Bot Player
       type: object
       properties:
         id:
@@ -92,74 +97,13 @@ components:
         serverName:
           type: string
     Subscription:
+      description: A map of subscriptions a player has for Clash Bot
       type: object
       properties:
         key:
           type: string
         isOn:
           type: boolean
-    ChampionUpdate:
-      type: object
-      required:
-        - championName
-      properties:
-        championName:
-          type: string
-    TeamPatchPayload:
-      type: object
-      required:
-        - serverName
-        - tournamentDetails
-        - playerId
-        - role
-        - teamName
-      properties:
-        serverName:
-          type: string
-        teamName:
-          type: string
-        tournamentDetails:
-          $ref: '#/components/schemas/Tournament'
-        playerId:
-          description: Player id to add to Team.
-          type: string
-        role:
-          $ref: '#/components/schemas/Role'
-    PlayerUpdate:
-      required:
-        - id
-        - name
-      example:
-        id: 999999
-        name: new-user
-        champions: Taric
-        subscriptions: [ { 'key': 'UpcomingClashTournamentDiscordDM', 'isOn': true } ]
-        serverName: Sample
-      properties:
-        id:
-          description: Unique identifier for Player
-          type: string
-        name:
-          description: The Players discord name
-          type: string
-        champions:
-          description: A list of the Users preferred champions.
-          type: array
-          items:
-            type: string
-        subscriptions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-        serverName:
-          type: string
-    ChampionPostRequest:
-      description: A list of champions.
-      properties:
-        champions:
-          type: array
-          items:
-            type: string
     Role:
       description: A League of Legends role.
       type: string
@@ -170,6 +114,7 @@ components:
         - Bot
         - Supp
     Error:
+      description: The base error object.
       type: object
       properties:
         code:
@@ -179,6 +124,7 @@ components:
           type: string
   requestBodies:
     PlayerCreateBody:
+      description: All necessary parameters to create a new Player
       required: true
       content:
         application/json:
@@ -198,6 +144,7 @@ components:
                 description: The server the player is from.
                 type: string
     PlayerUpdateBody:
+      description: Parameters to update a new Player
       required: true
       content:
         application/json:
@@ -214,30 +161,78 @@ components:
               server:
                 description: The server the player is from.
                 type: string
-    TeamRemovalBody:
+    ChampionPostBody:
+      description: A list of champions.
       required: true
       content:
         application/json:
           schema:
+            type: object
             required:
-              - id
-              - tournamentName
-              - tournamentDay
+              - champions
+            properties:
+              champions:
+                type: array
+                items:
+                  type: string
+    ChampionUpdateBody:
+      description: A League of Legends Champion to updated or remove with.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - championName
+            properties:
+              championName:
+                type: string
+    TeamPatchBody:
+      description: The Team details to use to update a specific Team
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - tournamentDetails
+              - playerId
+              - role
               - teamName
             properties:
-              player:
+              serverName:
+                type: string
+              teamName:
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              playerId:
+                description: Player id to add to Team.
+                type: string
+              role:
+                $ref: '#/components/schemas/Role'
+    TeamRemovalBody:
+      description: Payload necessary to remove a player from a Team.
+      content:
+        application/json:
+          schema:
+            required:
+              - serverName
+              - playerId
+              - tournamentDetails
+              - teamName
+            properties:
+              serverName:
+                type: string
+              playerId:
                 description: The id of the player to be removed from a given Team.
                 type: string
-              tournamentName:
-                description: The name of the Tournament the Team belongs to.
-                type: string
-              tournamentDay:
-                description: The day of the Tournament the Team belongs to.
-                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
               teamName:
                 description: The name of the Team to be removed from.
                 type: string
     TentativeBody:
+      description: Parameters to place a Player into the tentative queue
       required: true
       content:
         application/json:
@@ -361,11 +356,7 @@ paths:
       tags:
         - Team
       requestBody:
-        description: The Team details to use to update a specific Team
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeamPatchPayload'
+        $ref: '#/components/schemas/TeamPatchPayload'
       responses:
         '200':
           description: The Team was successfully updated.
@@ -393,11 +384,7 @@ paths:
       tags:
         - Team
       requestBody:
-        description: The details of a Team to remove a player from.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/requestBodies/TeamRemovalBody'
+        $ref: '#/components/requestBodies/TeamRemovalBody'
       responses:
         '200':
           description: The Team was successfully created.
@@ -627,11 +614,7 @@ paths:
       tags:
         - User
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChampionPostRequest'
+        $ref: '#/components/requestBodies/ChampionPostBody'
       responses:
         200:
           description: The new list of preferred champions that the user has.
@@ -652,11 +635,7 @@ paths:
       tags:
         - User
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ChampionUpdate"
+        $ref: "#/components/requestBodies/ChampionUpdateBody"
       responses:
         200:
           description: The updated list of preferred champions that the user has.

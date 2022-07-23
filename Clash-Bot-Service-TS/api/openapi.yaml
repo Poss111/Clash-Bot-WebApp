@@ -24,11 +24,7 @@ paths:
       description: Removes a Player from a Team
       operationId: removePlayerFromTeam
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/requestBodies/TeamRemovalBody'
-        description: The details of a Team to remove a player from.
+        $ref: '#/components/requestBodies/TeamRemovalBody'
       responses:
         "200":
           content:
@@ -680,25 +676,8 @@ components:
       content:
         application/json:
           schema:
-            properties:
-              player:
-                description: The id of the player to be removed from a given Team.
-                type: string
-              tournamentName:
-                description: The name of the Tournament the Team belongs to.
-                type: string
-              tournamentDay:
-                description: The day of the Tournament the Team belongs to.
-                type: string
-              teamName:
-                description: The name of the Team to be removed from.
-                type: string
-            required:
-            - id
-            - teamName
-            - tournamentDay
-            - tournamentName
-      required: true
+            $ref: '#/components/schemas/removePlayerFromTeam_request'
+      description: Payload necessary to remove a player from a Team.
     TentativeBody:
       content:
         application/json:
@@ -1014,6 +993,25 @@ components:
         message:
           type: string
       type: object
+    removePlayerFromTeam_request:
+      properties:
+        player:
+          description: The id of the player to be removed from a given Team.
+          type: string
+        tournamentName:
+          description: The name of the Tournament the Team belongs to.
+          type: string
+        tournamentDay:
+          description: The day of the Tournament the Team belongs to.
+          type: string
+        teamName:
+          description: The name of the Team to be removed from.
+          type: string
+      required:
+      - id
+      - teamName
+      - tournamentDay
+      - tournamentName
     placePlayerOnTentative_request:
       properties:
         serverName:

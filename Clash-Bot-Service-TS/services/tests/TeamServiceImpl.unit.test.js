@@ -1395,54 +1395,6 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
-    test('updateTeam - If Team pulled has no players, they should be added to the Team.', () => {
-      const serverName = 'Goon Squad';
-      const tournamentName = 'awesome_sauce';
-      const tournamentDay = '2';
-      const expectedUserMap = {
-        2: createUserDetails({ key: '2' }),
-        3: createUserDetails({ key: '3' }),
-        7: createUserDetails({ key: '7' }),
-      };
-      const teamPatchPayload = {
-        serverName,
-        tournamentDetails: {
-          tournamentName,
-          tournamentDay,
-        },
-        playerId: '2',
-        role: 'Top',
-      };
-      const returnedFilteredTeams = [createV3Team({
-        serverName,
-        tournamentName,
-        tournamentDay,
-      })];
-      delete returnedFilteredTeams[0].playersWRoles;
-      delete returnedFilteredTeams[0].players;
-      const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
-      expectedUpdatedTeam.playersWRoles = {};
-      expectedUpdatedTeam.playersWRoles.Top = '2';
-      expectedUpdatedTeam.players = ['2'];
-      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam, expectedUserMap);
-      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue([...returnedFilteredTeams]);
-      clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
-      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
-      return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
-        .then((updatedTeam) => {
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
-            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
-            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-            teamName: teamPatchPayload.teamName,
-          });
-          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledWith(expectedUpdatedTeam);
-          expect(updatedTeam).toEqual(expectedResponse);
-        });
-    });
-
     test('updateTeam - If user is not on the Team, and name is passeed, they should be added.', () => {
       const serverName = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
@@ -1507,7 +1459,7 @@ describe('Clash Teams Service Impl', () => {
           tournamentDay,
         },
         teamName,
-        playerId: '2',
+        playerId: '1',
         role: 'Supp',
       };
       const returnedFilteredTeams = [createV3Team({
@@ -1532,7 +1484,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: 'User already is on Team with the given role.',
+            error: `Role is already taken - '${teamPatchPayload}'.`,
           });
         });
     });
@@ -1674,7 +1626,52 @@ describe('Clash Teams Service Impl', () => {
   });
 
   describe('Remove from Team', () => {
-
+    test('removePlayerFromTeam - If a player exists on the Team, they should be removed from it.', () => {
+      const expectedServerName = 'Goon Squad';
+      const expectedPlayerToRemove = '1';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const teamName = 'Abra';
+      const expectedUserMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+      };
+      const removalPayload = {
+        serverName: 'Goon Squad',
+        playerId: expectedPlayerToRemove,
+        tournamentDetails: {
+          tournamentName,
+          tournamentDay,
+        },
+        teamName,
+      };
+      const retrieveTeams = [createV3Team({
+        serverName: expectedServerName,
+        tournamentName,
+        tournamentDay,
+        playersWRoles: {
+          Top: expectedPlayerToRemove,
+          Bot: '2',
+        },
+        players: [expectedPlayerToRemove, '2'],
+        teamName,
+      })];
+      const updatedTeam = deepCopy(retrieveTeams[0]);
+      updatedTeam.players = ['2'];
+      updatedTeam.playersWRoles = { Bot: '2' };
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(retrieveTeams);
+      const response = buildExpectedSingleTeamResponseWithUserMap(updatedTeam, expectedUserMap);
+      return clashTeamsServiceImpl.removePlayerFromTeam({ body: removalPayload })
+        .then((teamWithRemoved) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({});
+          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledWith(updatedTeam);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith(['2']);
+          expect(teamWithRemoved).toEqual(response);
+        });
+    });
   });
 
   describe('Map Team Db Response to API Response', () => {

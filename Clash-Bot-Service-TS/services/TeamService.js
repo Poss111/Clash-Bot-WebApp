@@ -127,9 +127,16 @@ const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promis
 const removePlayerFromTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        body,
-      }));
+      clashTeamsDbImpl.retrieveTeamsByFilter({
+        serverName: body.serverName,
+        tournamentName: body.tournamentDetails.tournamentName,
+        tournamentDay: body.tournamentDetails.tournamentDay,
+        teamName: body.teamName,
+      }).then((retrievedTeams) => {
+          resolve(Service.successResponse({
+            body,
+          }));
+      })
     } catch (e) {
       reject(Service.rejectResponse(
         e.message || 'Invalid input',
@@ -158,6 +165,7 @@ const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Pro
     }
   },
 );
+
 /**
 * Updates the Team that matches the details passed.
 *
@@ -175,12 +183,10 @@ const updateTeam = ({ body }) => new Promise(
       }).then((retrievedTeams) => {
         if (!retrievedTeams || retrievedTeams.length <= 0) {
           reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
-        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].players.length >= 5) {
+        } else if (retrievedTeams[0].players.length >= 5) {
           reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
-        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].playersWRoles[body.role]) {
+        } else if (retrievedTeams[0].playersWRoles[body.role]) {
           reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
-        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].playersWRoles[body.role] === body.playerId) {
-          reject(Service.rejectResponse('User already is on Team with the given role.', 400));
         } else {
           const updatedTeam = { ...retrievedTeams[0] };
           if (!updatedTeam.playersWRoles) {
