@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-const objectMapper = require("object-mapper");
+const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashTeamsDbImpl = require("../dao/clash-teams-db-impl");
-const clashSubscriptionDbImpl = require("../dao/clash-subscription-db-impl");
-const {teamEntityToResponse, userEntityToResponse} = require("../mappers/TeamMapper");
+const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
+const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
+const logger = require('../logger');
 
 /**
 * Create a new Team
@@ -34,7 +35,9 @@ const createNewTeam = ({ team }) => new Promise(
 * day String the day of the Tournament to filter the Teams by. (optional)
 * returns List
 * */
-const getTeam = ({ server, name, tournament, day }) => new Promise(
+const getTeam = ({
+  server, name, tournament, day,
+}) => new Promise(
   async (resolve, reject) => {
     try {
       if (!tournament && day) {
@@ -49,8 +52,8 @@ const getTeam = ({ server, name, tournament, day }) => new Promise(
           tournamentDay: day,
         })
           .then((teams) => {
-            const listOfPlayerIds = teams.map((team) => Object.values(team.playersWRoles)).flatMap(value => value);
-            clashSubscriptionDbImpl.retrieveAllUserDetails(listOfPlayerIds)
+            const listOfPlayerIds = new Set(teams.map((team) => Object.values(team.playersWRoles)).flatMap((value) => value));
+            clashSubscriptionDbImpl.retrieveAllUserDetails([...listOfPlayerIds])
               .then((idToUserDetails) => {
                 const response = teams.map((team) => {
                   const mappedResponse = objectMapper(team, teamEntityToResponse);
@@ -70,6 +73,7 @@ const getTeam = ({ server, name, tournament, day }) => new Promise(
     }
   },
 );
+
 /**
 * A list of people on the tentative queue for upcoming Tournaments.
 *
@@ -97,7 +101,7 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
 /**
 * Places a player on the tentative queue for an upcoming Tournament.
 *
-* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest 
+* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
 * returns Tentative
 * */
 const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
@@ -137,7 +141,7 @@ const removePlayerFromTeam = ({ body }) => new Promise(
 /**
 * Remove a player from the tentative queue for an upcoming Tournament.
 *
-* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest 
+* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
 * returns Tentative
 * */
 const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
@@ -160,12 +164,53 @@ const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Pro
 * teamPatchPayload TeamPatchPayload The Team details to use to update a specific Team (optional)
 * returns Team
 * */
-const updateTeam = ({ teamPatchPayload }) => new Promise(
+const updateTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse({
-        teamPatchPayload,
-      }));
+      clashTeamsDbImpl.retrieveTeamsByFilter({
+        serverName: body.serverName,
+        tournamentName: body.tournamentDetails.tournamentName,
+        tournamentDay: body.tournamentDetails.tournamentDay,
+        teamName: body.teamName,
+      }).then((retrievedTeams) => {
+        if (!retrievedTeams || retrievedTeams.length <= 0) {
+          reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
+        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].players.length >= 5) {
+          reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
+        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].playersWRoles[body.role]) {
+          reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
+        } else if (retrievedTeams.playersWRoles && retrievedTeams[0].playersWRoles[body.role] === body.playerId) {
+          reject(Service.rejectResponse('User already is on Team with the given role.', 400));
+        } else {
+          const updatedTeam = { ...retrievedTeams[0] };
+          if (!updatedTeam.playersWRoles) {
+            updatedTeam.playersWRoles = {};
+            updatedTeam.players = [];
+          }
+          updatedTeam.playersWRoles[body.role] = body.playerId;
+          updatedTeam.players.push(body.playerId);
+          clashTeamsDbImpl.updateTeam(updatedTeam)
+            .then((updatedTeamAfterPersist) => {
+              clashSubscriptionDbImpl.retrieveAllUserDetails(updatedTeamAfterPersist.players)
+                .then((idToUserDetails) => {
+                  const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
+                  Object.keys(mappedResponse.playerDetails)
+                    .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id],
+                      userEntityToResponse));
+                  resolve(Service.successResponse(mappedResponse));
+                }).catch((err) => {
+                  logger.error(`updateTeam.retrieveAllUserDetails - ${err.message}`);
+                  reject(Service.rejectResponse('Something went wrong.', 500));
+                });
+            }).catch((err) => {
+              logger.error(`updateTeam.updateTeam - ${err.message}`);
+              reject(Service.rejectResponse('Something went wrong.', 500));
+            });
+        }
+      }).catch((err) => {
+        logger.error(`updateTeam.retrieveTeamsByFilter - ${err.message}`);
+        reject(Service.rejectResponse('Something went wrong.', 500));
+      });
     } catch (e) {
       reject(Service.rejectResponse(
         e.message || 'Invalid input',

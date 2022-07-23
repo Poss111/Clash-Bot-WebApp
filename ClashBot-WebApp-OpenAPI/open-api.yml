@@ -107,15 +107,22 @@ components:
           type: string
     TeamPatchPayload:
       type: object
+      required:
+        - serverName
+        - tournamentDetails
+        - playerId
+        - role
+        - teamName
       properties:
+        serverName:
+          type: string
         teamName:
           type: string
         tournamentDetails:
           $ref: '#/components/schemas/Tournament'
         playerId:
           description: Player id to add to Team.
-          type: integer
-          format: int32
+          type: string
         role:
           $ref: '#/components/schemas/Role'
     PlayerUpdate:
@@ -373,7 +380,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '400':
-          description: No teams can be found with the name given.
+          description: User is not able to join the given Team
           content:
             application/json:
               schema:

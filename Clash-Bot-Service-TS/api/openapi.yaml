@@ -139,7 +139,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: No teams can be found with the name given.
+          description: User is not able to join the given Team
         default:
           content:
             application/json:
@@ -935,18 +935,26 @@ components:
           startTime: startTime
           tournamentDay: "1"
         role: null
-        playerId: 0
+        serverName: serverName
+        playerId: playerId
       properties:
+        serverName:
+          type: string
         teamName:
           type: string
         tournamentDetails:
           $ref: '#/components/schemas/Tournament'
         playerId:
           description: Player id to add to Team.
-          format: int32
-          type: integer
+          type: string
         role:
           $ref: '#/components/schemas/Role'
+      required:
+      - playerId
+      - role
+      - serverName
+      - teamName
+      - tournamentDetails
       type: object
     PlayerUpdate:
       example:

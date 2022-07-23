@@ -3776,6 +3776,61 @@ test('Should return a hashkey of the team name and the server name passed.', () 
   expect(clashTeamsDbImpl.getKey('Sample Team', 'Sample Server', 'msi2021', 'day1')).toEqual('Sample Team#Sample Server#msi2021#day1');
 });
 
+describe('Update Team', () => {
+  test('updateTeam, when a team is passed then it should call and persist it', () => {
+    const expectedMockTeam = {
+      details: 'awesome_sauce#2#Abra',
+      teamName: 'Abra',
+      serverName: 'Goon Squad',
+      players: ['1', '2'],
+      playersWRoles: {
+        Top: '1',
+        Mid: '2',
+      },
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '2',
+      startTime: new Date().toISOString(),
+    };
+    clashTeamsDbImpl.Team = {
+      update: jest.fn().mockImplementation((team, callback) => callback(null, {
+        attrs: expectedMockTeam,
+      })),
+    };
+    return clashTeamsDbImpl.updateTeam(expectedMockTeam)
+      .then((updatedTeam) => {
+        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledTimes(1);
+        expect(clashTeamsDbImpl.Team.update).toHaveBeenCalledWith(expectedMockTeam, expect.any(Function));
+        expect(updatedTeam).toEqual(expectedMockTeam);
+      })
+      .catch((err) => expect(err).toBeFalsy());
+  });
+
+  test('updateTeam - when there is an error, it should be rejected as expected.', () => {
+    const expectedMockTeam = {
+      details: 'awesome_sauce#2#Abra',
+      teamName: 'Abra',
+      serverName: 'Goon Squad',
+      players: ['1', '2'],
+      playersWRoles: {
+        Top: '1',
+        Mid: '2',
+      },
+      tournamentName: 'awesome_sauce',
+      tournamentDay: '2',
+      startTime: new Date().toISOString(),
+    };
+    const expectedError = new Error('This failed to persist.');
+    clashTeamsDbImpl.Team = {
+      update: jest.fn().mockImplementation((team, callback) => callback(expectedError, {
+        attrs: expectedMockTeam,
+      })),
+    };
+    return clashTeamsDbImpl.updateTeam(expectedMockTeam)
+      .then(() => expect(false).toBeTruthy())
+      .catch((err) => expect(err).toEqual(expectedError));
+  });
+});
+
 function buildSampleTeam(players, serverName, teamName, tournamentName, tournamentDay) {
   return {
     teamName: teamName || `Team ${randomNames[0]}`,

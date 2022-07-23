@@ -19,7 +19,6 @@ class ClashTeamsDbImpl {
                 timestamps: true,
                 schema: {
                     details: Joi.string(),
-                    version: Joi.number(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
                     players: dynamodb.types.stringSet(),
@@ -394,6 +393,19 @@ class ClashTeamsDbImpl {
                 foundTeam.tournamentName,
                 foundTeam.tournamentDay)
         }, params, (err, record) => callback(err, record));
+    }
+
+    updateTeam(updatedTeam) {
+        return new Promise((resolve, reject) => {
+            this.Team.update(updatedTeam, (err, data) => {
+               if (err) {
+                   logger.error(`clashTeamsDbImpl.updateTeam - Failed to update Team - ${err.message}`);
+                   reject(err);
+               } else {
+                   resolve(data.attrs);
+               }
+            });
+        });
     }
 
     addUserToTeamV2(id, role, teamToBeUpdated, callback) {
