@@ -266,7 +266,7 @@ describe('ClashTeamsDbImpl', () => {
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
             expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.beginsWith)
-              .toHaveBeenCalledWith(`${tournamentName}#${tournamentDay}#${teamName}`);
+              .toHaveBeenCalledWith(`${tournamentName}#${tournamentDay}#${teamName.toLowerCase()}`);
             expect(teams).toEqual([builtTeamToBeRetrieved]);
           });
       },

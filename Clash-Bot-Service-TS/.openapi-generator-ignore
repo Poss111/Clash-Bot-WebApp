@@ -25,11 +25,17 @@
 package.json
 expressServer.js
 controllers/Controller.js
+controllers/UserController.js
+controllers/TeamController.js
+controllers/TournamentController.js
+controllers/TentativeController.js
+controllers/SREController.js
 logger.js
 services/Service.js
 services/UserService.js
 services/TeamService.js
 services/TournamentService.js
+services/TentativeService.js
 services/SREService.js
 index.js
 .eslintrc.json

@@ -100,7 +100,7 @@ class ClashTeamsDbImpl {
                       if (tournamentDay) {
                           rangeKey += `${tournamentDay}`;
                           if (teamName) {
-                              rangeKey += `#${teamName}`;
+                              rangeKey += `#${teamName.toLowerCase()}`;
                           }
                       }
                   }

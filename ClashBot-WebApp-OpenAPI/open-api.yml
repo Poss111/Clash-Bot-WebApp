@@ -17,6 +17,17 @@ servers:
         default: '8080'
       basePath:
         default: api/v2
+tags:
+  - name: Team
+    description: A Clash Bot team for a League of Legends Clash tournament.
+  - name: Tentative
+    description: A tentative queue for upcoming League of Legends Clash tournaments.
+  - name: User
+    description: A Discord user that is leveraging the Clash Bot.
+  - name: SRE
+    description: Site reliability Engineering (SRE).
+  - name: Tournament
+    description: A League of Legends Clash Tournament.
 components:
   schemas:
     Team:
