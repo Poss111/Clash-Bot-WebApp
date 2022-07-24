@@ -46,7 +46,10 @@ describe('Push person onto Tentative queue', () => {
       tournamentDay: '1',
     };
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: dataToUpdate })),
+      update: jest.fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined,
+          { attrs: dataToUpdate })),
     };
     const expectedTentativeObject = {
       key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
@@ -57,10 +60,15 @@ describe('Push person onto Tentative queue', () => {
         tournamentDay: expectedTournament.tournamentDay,
       },
     };
-    return clashTentativeDbImpl.addToTentative(expectedUserId, expectedServerName, expectedTournament)
+    return clashTentativeDbImpl
+      .addToTentative(expectedUserId,
+        expectedServerName,
+        expectedTournament)
       .then((persistedRecord) => {
         expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedTentativeObject, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedTentativeObject,
+            expect.any(Function));
         expect(persistedRecord).toEqual(expectedTentativeObject);
       });
   });
@@ -447,7 +455,9 @@ describe('Is User on Tentative', () => {
     };
     const expectedError = new Error('Failed to retrieve.');
     clashTentativeDbImpl.Tentative = {
-      get: jest.fn().mockImplementation((queryKey, callback) => callback(expectedError, expectedReturnedTentativeRecord)),
+      get: jest.fn().mockImplementation((queryKey,
+        callback) => callback(expectedError,
+        expectedReturnedTentativeRecord)),
     };
     return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament)
       .then((record) => expect(record).toBeFalsy())
@@ -499,5 +509,39 @@ describe('Retrieve Tentative', () => {
       expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(`${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`, expect.any(Function));
       expect(tentativeList).toEqual(undefined);
     });
+  });
+});
+
+describe('Remove Tentative queue', () => {
+  test('removeTentativeQueue - should invoke destroy on queue key given.', () => {
+    const tentativeRecordToDelete = { key: 'Some#Key' };
+    clashTentativeDbImpl.Tentative = {
+      destroy: jest.fn().mockImplementation((queryKey,
+        callback) => callback(undefined)),
+    };
+    return clashTentativeDbImpl.deleteTentativeQueue(tentativeRecordToDelete)
+      .then((deletedQueue) => {
+        expect(clashTentativeDbImpl.Tentative.destroy).toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.destroy)
+          .toHaveBeenCalledWith(tentativeRecordToDelete, expect.any(Function));
+        expect(deletedQueue).toBeTruthy();
+      });
+  });
+
+  test('removeTentativeQueue - should reject error if it fails to destroy Tentative queue.', () => {
+    const tentativeRecordToDelete = { key: 'Some#Key' };
+    const errorToBeThrown = new Error('Failed!');
+    clashTentativeDbImpl.Tentative = {
+      destroy: jest.fn().mockImplementation((queryKey,
+        callback) => callback(errorToBeThrown)),
+    };
+    return clashTentativeDbImpl.deleteTentativeQueue(tentativeRecordToDelete)
+      .then(() => expect(true).toBeFalsy())
+      .catch((err) => {
+        expect(clashTentativeDbImpl.Tentative.destroy).toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.destroy)
+          .toHaveBeenCalledWith(tentativeRecordToDelete, expect.any(Function));
+        expect(err).toEqual(errorToBeThrown);
+      });
   });
 });

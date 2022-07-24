@@ -30,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Team'
+                $ref: '#/components/schemas/removePlayerFromTeam_200_response'
           description: The Team was successfully created.
         "400":
           content:
@@ -112,11 +112,7 @@ paths:
       description: Updates the Team that matches the details passed.
       operationId: updateTeam
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeamPatchPayload'
-        description: The Team details to use to update a specific Team
+        $ref: '#/components/requestBodies/TeamPatchBody'
       responses:
         "200":
           content:
@@ -195,8 +191,8 @@ paths:
         "5XX":
           $ref: '#/components/schemas/Error'
       tags:
-      - Team
-      x-eov-operation-handler: controllers/TeamController
+      - Tentative
+      x-eov-operation-handler: controllers/TentativeController
     get:
       description: A list of people on the tentative queue for upcoming Tournaments.
       operationId: getTentativeDetails
@@ -243,8 +239,8 @@ paths:
         "500":
           $ref: '#/components/schemas/Error'
       tags:
-      - Team
-      x-eov-operation-handler: controllers/TeamController
+      - Tentative
+      x-eov-operation-handler: controllers/TentativeController
     post:
       description: Places a player on the tentative queue for an upcoming Tournament.
       operationId: placePlayerOnTentative
@@ -263,8 +259,8 @@ paths:
         "500":
           $ref: '#/components/schemas/Error'
       tags:
-      - Team
-      x-eov-operation-handler: controllers/TeamController
+      - Tentative
+      x-eov-operation-handler: controllers/TentativeController
     summary: To place a User into a tentative queue for upcoming Tournaments.
   /tournaments:
     get:
@@ -416,11 +412,7 @@ paths:
           type: string
         style: simple
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChampionUpdate'
-        required: true
+        $ref: '#/components/requestBodies/ChampionUpdateBody'
       responses:
         "200":
           content:
@@ -479,11 +471,7 @@ paths:
           type: string
         style: simple
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChampionUpdate'
-        required: true
+        $ref: '#/components/requestBodies/ChampionUpdateBody'
       responses:
         "200":
           content:
@@ -520,11 +508,7 @@ paths:
           type: string
         style: simple
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChampionPostRequest'
-        required: true
+        $ref: '#/components/requestBodies/ChampionPostBody'
       responses:
         "200":
           content:
@@ -649,12 +633,36 @@ paths:
       x-eov-operation-handler: controllers/SREController
 components:
   requestBodies:
+    TeamCreateBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              serverName:
+                description: The dedicated for the server team
+                type: string
+              tournamentName:
+                description: The League of Legends Clash Tournament to sign up for
+                type: string
+              tournamentDay:
+                description: The Tournament day to sign up for
+                type: string
+              playerDetails:
+                $ref: '#/components/schemas/Player'
+            required:
+            - playerDetails
+            - serverName
+            - tournamentDay
+            - tournamentName
+            type: object
+      description: All necessary parameters to create a Clash Bot League of Legends
+        Clash Team
     PlayerCreateBody:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/createUser_request'
-      required: true
+      description: All necessary parameters to create a new Player
     PlayerUpdateBody:
       content:
         application/json:
@@ -671,7 +679,26 @@ components:
                 type: string
             required:
             - id
-      required: true
+            type: object
+      description: Parameters to update a new Player
+    ChampionPostBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/createNewListOfPreferredChampions_request'
+      description: A list of champions.
+    ChampionUpdateBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/removeFromListOfPreferredChampions_request'
+      description: A League of Legends Champion to updated or remove with.
+    TeamPatchBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/updateTeam_request'
+      description: The Team details to use to update a specific Team
     TeamRemovalBody:
       content:
         application/json:
@@ -683,7 +710,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/placePlayerOnTentative_request'
-      required: true
+      description: Parameters to place a Player into the tentative queue
   responses:
     NoneFound:
       content:
@@ -701,11 +728,12 @@ components:
       description: Default error.
   schemas:
     Team:
+      description: A League of Legends Clash Team
       example:
         name: name
-        serverName: ""
+        serverName: serverName
         playerDetails:
-          top:
+          Top:
             subscriptions:
             - isOn: true
               key: key
@@ -718,7 +746,7 @@ components:
             name: name
             serverName: serverName
             id: id
-          supp:
+          Supp:
             subscriptions:
             - isOn: true
               key: key
@@ -731,7 +759,7 @@ components:
             name: name
             serverName: serverName
             id: id
-          bot:
+          Bot:
             subscriptions:
             - isOn: true
               key: key
@@ -744,7 +772,7 @@ components:
             name: name
             serverName: serverName
             id: id
-          mid:
+          Mid:
             subscriptions:
             - isOn: true
               key: key
@@ -757,7 +785,7 @@ components:
             name: name
             serverName: serverName
             id: id
-          jg:
+          Jg:
             subscriptions:
             - isOn: true
               key: key
@@ -783,10 +811,12 @@ components:
           $ref: '#/components/schemas/Team_playerDetails'
         serverName:
           description: The Discord server that the Team belongs to.
+          type: string
         tournament:
           $ref: '#/components/schemas/Tournament'
       type: object
     Tournament:
+      description: A League of Legends Clash Tournament
       example:
         registrationTime: registrationTime
         tournamentName: tournamentName
@@ -808,6 +838,8 @@ components:
           type: string
       type: object
     Tentative:
+      description: A queue for Players unsure if they will play Clash for a given
+        Tournament.
       example:
         tentativePlayers:
         - subscriptions:
@@ -852,6 +884,7 @@ components:
           type: array
       type: object
     Player:
+      description: A Clash Bot Player
       example:
         subscriptions:
         - isOn: true
@@ -887,6 +920,7 @@ components:
           type: string
       type: object
     Subscription:
+      description: A map of subscriptions a player has for Clash Bot
       example:
         isOn: true
         key: key
@@ -896,26 +930,53 @@ components:
         isOn:
           type: boolean
       type: object
-    ChampionUpdate:
-      example:
-        championName: championName
+    Role:
+      description: A League of Legends role.
+      enum:
+      - Top
+      - Mid
+      - Jg
+      - Bot
+      - Supp
+      type: string
+    Error:
+      description: The base error object.
       properties:
-        championName:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      type: object
+    removePlayerFromTeam_request:
+      properties:
+        serverName:
+          type: string
+        playerId:
+          description: The id of the player to be removed from a given Team.
+          type: string
+        tournamentDetails:
+          $ref: '#/components/schemas/Tournament'
+        teamName:
+          description: The name of the Team to be removed from.
           type: string
       required:
-      - championName
+      - playerId
+      - serverName
+      - teamName
+      - tournamentDetails
       type: object
-    TeamPatchPayload:
-      example:
-        teamName: teamName
-        tournamentDetails:
-          registrationTime: registrationTime
-          tournamentName: tournamentName
-          startTime: startTime
-          tournamentDay: "1"
-        role: null
-        serverName: serverName
-        playerId: playerId
+    removePlayerFromTeam_200_response_oneOf:
+      properties:
+        message:
+          description: What occurred during the operation.
+          type: string
+      type: object
+    removePlayerFromTeam_200_response:
+      oneOf:
+      - $ref: '#/components/schemas/Team'
+      - $ref: '#/components/schemas/removePlayerFromTeam_200_response_oneOf'
+    updateTeam_request:
       properties:
         serverName:
           type: string
@@ -935,83 +996,6 @@ components:
       - teamName
       - tournamentDetails
       type: object
-    PlayerUpdate:
-      example:
-        id: 999999
-        name: new-user
-        champions: Taric
-        subscriptions:
-        - key: UpcomingClashTournamentDiscordDM
-          isOn: true
-        serverName: Sample
-      properties:
-        id:
-          description: Unique identifier for Player
-          type: string
-        name:
-          description: The Players discord name
-          type: string
-        champions:
-          description: A list of the Users preferred champions.
-          items:
-            type: string
-          type: array
-        subscriptions:
-          items:
-            $ref: '#/components/schemas/Subscription'
-          type: array
-        serverName:
-          type: string
-      required:
-      - id
-      - name
-    ChampionPostRequest:
-      description: A list of champions.
-      example:
-        champions:
-        - champions
-        - champions
-      properties:
-        champions:
-          items:
-            type: string
-          type: array
-    Role:
-      description: A League of Legends role.
-      enum:
-      - Top
-      - Mid
-      - Jg
-      - Bot
-      - Supp
-      type: string
-    Error:
-      properties:
-        code:
-          format: int32
-          type: integer
-        message:
-          type: string
-      type: object
-    removePlayerFromTeam_request:
-      properties:
-        player:
-          description: The id of the player to be removed from a given Team.
-          type: string
-        tournamentName:
-          description: The name of the Tournament the Team belongs to.
-          type: string
-        tournamentDay:
-          description: The day of the Tournament the Team belongs to.
-          type: string
-        teamName:
-          description: The name of the Team to be removed from.
-          type: string
-      required:
-      - id
-      - teamName
-      - tournamentDay
-      - tournamentName
     placePlayerOnTentative_request:
       properties:
         serverName:
@@ -1019,11 +1003,11 @@ components:
           type: string
         tournamentDetails:
           $ref: '#/components/schemas/Tournament'
-        player:
+        playerId:
           description: The Player id to be placed on tentative with.
           type: string
       required:
-      - player
+      - playerId
       - serverName
       - tournamentDetails
       type: object
@@ -1042,6 +1026,23 @@ components:
       - id
       - name
       - server
+      type: object
+    createNewListOfPreferredChampions_request:
+      properties:
+        champions:
+          items:
+            type: string
+          type: array
+      required:
+      - champions
+      type: object
+    removeFromListOfPreferredChampions_request:
+      properties:
+        championName:
+          type: string
+      required:
+      - championName
+      type: object
     getApplicationHealth_200_response:
       example:
         status: Healthy
@@ -1053,7 +1054,7 @@ components:
       type: object
     Team_playerDetails:
       example:
-        top:
+        Top:
           subscriptions:
           - isOn: true
             key: key
@@ -1066,7 +1067,7 @@ components:
           name: name
           serverName: serverName
           id: id
-        supp:
+        Supp:
           subscriptions:
           - isOn: true
             key: key
@@ -1079,7 +1080,7 @@ components:
           name: name
           serverName: serverName
           id: id
-        bot:
+        Bot:
           subscriptions:
           - isOn: true
             key: key
@@ -1092,7 +1093,7 @@ components:
           name: name
           serverName: serverName
           id: id
-        mid:
+        Mid:
           subscriptions:
           - isOn: true
             key: key
@@ -1105,7 +1106,7 @@ components:
           name: name
           serverName: serverName
           id: id
-        jg:
+        Jg:
           subscriptions:
           - isOn: true
             key: key
@@ -1119,14 +1120,14 @@ components:
           serverName: serverName
           id: id
       properties:
-        top:
+        Top:
           $ref: '#/components/schemas/Player'
-        mid:
+        Mid:
           $ref: '#/components/schemas/Player'
-        jg:
+        Jg:
           $ref: '#/components/schemas/Player'
-        bot:
+        Bot:
           $ref: '#/components/schemas/Player'
-        supp:
+        Supp:
           $ref: '#/components/schemas/Player'
       type: object

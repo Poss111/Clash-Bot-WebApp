@@ -21,7 +21,7 @@ class Controller {
   }
 
   static sendError(response, error) {
-    logger.error(`Error occurred : ('${error.code}') ('${error.message}')`);
+    logger.error({ class: 'Controller', method: 'sendError' }, `Error occurred : Code ('${error.code}') Error ('${error.error}') Message ('${error.message}')`);
     response.status(error.code || 500);
     if (error.error instanceof Object) {
       response.json(error.error);

@@ -1,6 +1,12 @@
 const tentativeDetailsEntityToRequest = {
   serverName: 'serverName',
-  tournamentDetails: 'tournamentDetails',
+  tournamentDetails: {
+    key: 'tournamentDetails',
+    transform: (tournament) => ({
+      tournamentName: tournament.tournamentName,
+      tournamentDay: tournament.tournamentDay,
+    }),
+  },
 };
 
 const userEntityToTentativeResponse = {

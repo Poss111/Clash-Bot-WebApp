@@ -5,10 +5,8 @@ const Service = require('./Service');
 const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
 const clashTimeDbImpl = require('../dao/clash-time-db-impl');
-const clashTentativeDbImpl = require('../dao/clash-tentative-db-impl');
 const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
 const logger = require('../logger');
-const { tentativeDetailsEntityToRequest, userEntityToTentativeResponse } = require('../mappers/TentativeDetailsMapper');
 
 /**
 * Create a new Team
@@ -107,86 +105,6 @@ const getTeam = ({
 );
 
 /**
-* A list of people on the tentative queue for upcoming Tournaments.
-*
-* serverName String The Server to filter the tentative queue by.
-* tournamentName String The Tournament name to filter by. (optional)
-* tournamentDay String The Tournament day to filter by. (optional)
-* returns List
-* */
-const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => new Promise(
-  async (resolve, reject) => {
-    const loggerContext = { class: 'TeamService', method: 'getTentativeDetails' };
-    try {
-      const tournaments = await clashTimeDbImpl.findTournament(tournamentName, tournamentDay);
-      if (!tournaments || tournaments.length <= 0) {
-        reject(Service.rejectResponse('No Tournaments found for tentative details.', 400));
-      } else {
-        const results = await Promise
-          .all(tournaments
-            .map((tournament) => clashTentativeDbImpl
-              .getTentative(serverName, tournament)));
-        const listOfPlayerIds = new Set(results.flatMap((array) => array)
-          .map((tentativeDetail) => tentativeDetail.tentativePlayers)
-          .flatMap((value) => value));
-        const idToPlayerDetails = await clashSubscriptionDbImpl
-          .retrieveAllUserDetails([...listOfPlayerIds]);
-        const response = results.flatMap((array) => array)
-          .map((tentativeEntity) => {
-            const mappedResponse = objectMapper(tentativeEntity, tentativeDetailsEntityToRequest);
-            mappedResponse.tentativePlayers = tentativeEntity.tentativePlayers
-              .map((id) => objectMapper(idToPlayerDetails[id], userEntityToTentativeResponse));
-            return mappedResponse;
-          });
-        resolve(Service.successResponse(response));
-      }
-    } catch (error) {
-      Service.handleException({
-        loggerContext,
-        error,
-        reject,
-      });
-    }
-  },
-);
-/**
-* Places a player on the tentative queue for an upcoming Tournament.
-*
-* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
-* returns Tentative
-* */
-const placePlayerOnTentative = ({ body }) => new Promise(
-  async (resolve, reject) => {
-    const loggerContext = { class: 'TeamService', method: 'placePlayerOnTentative' };
-    try {
-      const tentativeDetails = await clashTentativeDbImpl
-        .getTentative(body.serverName, body.tournamentDetails);
-      if (!Array.isArray(tentativeDetails) || tentativeDetails.length <= 0) {
-        reject(Service.rejectResponse('No valid Tentative queue found.', 400));
-      } else if (tentativeDetails[0].tentativePlayers.includes(body.playerId)) {
-        reject(Service.rejectResponse('User already on tentative queue for Tournament.', 400));
-      } else {
-        const updatedTentativeDetails = await clashTentativeDbImpl
-          .addToTentative(body.playerId, body.serverName, body.tournamentDetails,
-            tentativeDetails[0]);
-        const idToPlayerMap = await clashSubscriptionDbImpl
-          .retrieveAllUserDetails(updatedTentativeDetails.tentativePlayers);
-        const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
-        response.tentativePlayers = updatedTentativeDetails.tentativePlayers
-          .map((id) => objectMapper(idToPlayerMap[id], userEntityToTentativeResponse));
-        resolve(Service.successResponse(response));
-      }
-    } catch (error) {
-      Service.handleException({
-        loggerContext,
-        error,
-        reject,
-      });
-    }
-  },
-);
-
-/**
 * Removes a Player from a Team
 *
 * body TeamRemovalBody The details of a Team to remove a player from. (optional)
@@ -237,41 +155,6 @@ const removePlayerFromTeam = ({ body }) => new Promise(
                 .playerDetails[key].id], userEntityToResponse));
           resolve(Service.successResponse(mappedResponse));
         }
-      }
-    } catch (error) {
-      Service.handleException({
-        loggerContext,
-        error,
-        reject,
-      });
-    }
-  },
-);
-/**
-* Remove a player from the tentative queue for an upcoming Tournament.
-*
-* placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
-* returns Tentative
-* */
-const removePlayerFromTentative = ({ body }) => new Promise(
-  async (resolve, reject) => {
-    const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
-    try {
-      const tentativeDetails = await clashTentativeDbImpl
-        .getTentative(body.serverName, body.tournamentDetails);
-      if (!Array.isArray(tentativeDetails) || tentativeDetails.length <= 0) {
-        reject(Service.rejectResponse('No valid Tentative queue found.', 400));
-      } else if (!tentativeDetails[0].tentativePlayers.includes(body.playerId)) {
-        reject(Service.rejectResponse('User is not on found tentative queue for Tournament.', 400));
-      } else {
-        const updatedTentativeDetails = await clashTentativeDbImpl
-          .removeFromTentative(body.playerId, tentativeDetails[0]);
-        const idToPlayerMap = await clashSubscriptionDbImpl
-          .retrieveAllUserDetails(updatedTentativeDetails.tentativePlayers);
-        const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
-        response.tentativePlayers = updatedTentativeDetails.tentativePlayers
-          .map((id) => objectMapper(idToPlayerMap[id], userEntityToTentativeResponse));
-        resolve(Service.successResponse(response));
       }
     } catch (error) {
       Service.handleException({
@@ -337,9 +220,6 @@ const updateTeam = ({ body }) => new Promise(
 module.exports = {
   createNewTeam,
   getTeam,
-  getTentativeDetails,
-  placePlayerOnTentative,
   removePlayerFromTeam,
-  removePlayerFromTentative,
   updateTeam,
 };

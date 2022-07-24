@@ -8,6 +8,7 @@
 
 const Controller = require('./Controller');
 const service = require('../services/TeamService');
+
 const createNewTeam = async (request, response) => {
   await Controller.handleRequest(request, response, service.createNewTeam);
 };
@@ -16,33 +17,17 @@ const getTeam = async (request, response) => {
   await Controller.handleRequest(request, response, service.getTeam);
 };
 
-const getTentativeDetails = async (request, response) => {
-  await Controller.handleRequest(request, response, service.getTentativeDetails);
-};
-
-const placePlayerOnTentative = async (request, response) => {
-  await Controller.handleRequest(request, response, service.placePlayerOnTentative);
-};
-
 const removePlayerFromTeam = async (request, response) => {
   await Controller.handleRequest(request, response, service.removePlayerFromTeam);
-};
-
-const removePlayerFromTentative = async (request, response) => {
-  await Controller.handleRequest(request, response, service.removePlayerFromTentative);
 };
 
 const updateTeam = async (request, response) => {
   await Controller.handleRequest(request, response, service.updateTeam);
 };
 
-
 module.exports = {
   createNewTeam,
   getTeam,
-  getTentativeDetails,
-  placePlayerOnTentative,
   removePlayerFromTeam,
-  removePlayerFromTentative,
   updateTeam,
 };

@@ -26,6 +26,7 @@ package.json
 expressServer.js
 controllers/Controller.js
 logger.js
+services/Service.js
 services/UserService.js
 services/TeamService.js
 services/TournamentService.js

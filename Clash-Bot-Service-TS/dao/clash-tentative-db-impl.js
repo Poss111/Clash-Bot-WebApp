@@ -10,6 +10,7 @@ class ClashTentativeDbImpl {
     }
 
     initialize() {
+        const loggerContext = {class: 'ClashTentativeDbImpl', method: 'initialize'};
         return new Promise((resolve, reject) => {
             dynamoDbHelper.initialize(this.tableName, {
                 hashKey: 'key',
@@ -24,7 +25,7 @@ class ClashTentativeDbImpl {
                     })
                 }
             }).then(data => {
-                logger.info(`Successfully setup table def for ('${this.tableName}')`);
+                logger.info(loggerContext, `Successfully setup table def for ('${this.tableName}')`);
                 this.Tentative = data;
                 resolve(data);
             }).catch((err) => reject(err));
@@ -113,6 +114,23 @@ class ClashTentativeDbImpl {
 
     buildKey(serverName, tournamentDetails) {
         return `${serverName}#${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}`;
+    }
+
+    deleteTentativeQueue({ key }) {
+        const loggerContext = {class: 'ClashTentativeDbImpl', method: 'deleteTentativeQueue'};
+        return new Promise((resolve, reject) => {
+            this.Tentative.destroy({ key }, (err) => {
+                if (err) {
+                    loggerContext.err = err;
+                    logger.error(loggerContext, `Failed to delete Tentative Queue ('${key}').`);
+                    reject(err);
+                }
+                else {
+                    logger.debug(loggerContext, `Successfully deleted Tentative Queue ('${key}').`);
+                    resolve(true);
+                }
+            });
+        })
     }
 }
 
