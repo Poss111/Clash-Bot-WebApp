@@ -3,6 +3,7 @@ const objectMapper = require('object-mapper');
 const Service = require('./Service');
 const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const clashTimeDbImpl = require('../dao/clash-time-db-impl');
 const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
 const logger = require('../logger');
 
@@ -12,13 +13,33 @@ const logger = require('../logger');
 * team Team The Team details to use to update a specific Team (optional)
 * returns Team
 * */
-const createNewTeam = ({ team }) => new Promise(
+const createNewTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'createNewTeam' };
     try {
-      resolve(Service.successResponse({
-        team,
-      }));
+      const tournamentTimes = await clashTimeDbImpl.findTournament(body.tournamentName, body.tournamentDay);
+      if (!tournamentTimes || tournamentTimes.length <= 0) {
+        reject(Service.rejectResponse('Tournament given was not valid.', 400));
+      } else {
+        const playersWRoles = {};
+        playersWRoles[body.playerDetails.role] = body.playerDetails.id;
+        const createdTeam = await clashTeamsDbImpl.createTeam({
+          serverName: body.serverName,
+          players: [body.playerDetails.id],
+          playersWRoles,
+          tournamentDetails: {
+            tournamentName: body.tournamentName,
+            tournamentDay: body.tournamentDay,
+          },
+        });
+        const idToPlayerMap = await clashSubscriptionDbImpl.retrieveAllUserDetails(createdTeam.players);
+        const mappedResponse = objectMapper(createdTeam, teamEntityToResponse);
+        Object.keys(mappedResponse.playerDetails)
+          .forEach((key) => mappedResponse
+            .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
+              .playerDetails[key].id], userEntityToResponse));
+        resolve(Service.successResponse(mappedResponse));
+      }
     } catch (error) {
       Service.handleException({
         loggerContext,

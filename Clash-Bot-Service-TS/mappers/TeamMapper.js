@@ -8,7 +8,7 @@ const teamEntityToResponse = {
     transform: (value) => {
       return Object.entries(value)
         .reduce((ret, entry) => {
-          ret[entry[0].toLowerCase()] = { id: entry[1] };
+          ret[entry[0]] = { id: entry[1] };
           return ret;
         }, {});
     },
@@ -23,5 +23,5 @@ const userEntityToResponse = {
 
 module.exports = {
   teamEntityToResponse,
-  userEntityToResponse
+  userEntityToResponse,
 };

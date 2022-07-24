@@ -1,11 +1,13 @@
 const clashTeamsServiceImpl = require('../TeamService');
 const clashTeamsDbImpl = require('../../dao/clash-teams-db-impl');
 const clashSubscriptionDbImpl = require('../../dao/clash-subscription-db-impl');
+const clashTimeDbImpl = require('../../dao/clash-time-db-impl');
 const { deepCopy } = require('../../utils/tests/test-utility.utility.test');
 
 jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../dao/clash-tentative-db-impl');
 jest.mock('../../dao/clash-subscription-db-impl');
+jest.mock('../../dao/clash-time-db-impl');
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -857,6 +859,107 @@ describe('Clash Teams Service Impl', () => {
             code: 400,
             error: `No Team found with criteria '${removalPayload}'.`,
           });
+        });
+    });
+  });
+
+  describe('Team - POST', () => {
+    test('createNewTeam - should invoke creating a new team and return it.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const playerDetails = {
+        id: '1',
+        role: 'Top',
+      };
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+      };
+      const teamPostPayload = {
+        playerDetails,
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const persistedTeam = {
+        teamName: 'abra',
+        details: `${tournamentName}#${tournamentDay}#abra`,
+        serverName,
+        tournamentName,
+        tournamentDay,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+        },
+      };
+      const expectedResponse = {
+        code: 200,
+        payload: {
+          name: 'abra',
+          serverName,
+          tournament: {
+            tournamentName,
+            tournamentDay,
+          },
+          playerDetails: {
+            Top: {
+              id: '1',
+              name: idToPlayerMap['1'].playerName,
+              champions: idToPlayerMap['1'].preferredChampions,
+            },
+          },
+        },
+      };
+      clashTimeDbImpl.findTournament.mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1'}]);
+      clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
+        .then((createdTeam) => {
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
+            serverName,
+            players: ['1'],
+            playersWRoles: {
+              Top: '1',
+            },
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+          });
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith(['1']);
+          expect(createdTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('createNewTeam - If tournament is invalid and is not upcoming, it should return 400.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const playerDetails = {
+        id: '1',
+        role: 'Top',
+      };
+      const teamPostPayload = {
+        playerDetails,
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const expectedResponse = {
+        code: 400,
+        error: 'Tournament given was not valid.',
+      };
+      clashTimeDbImpl.findTournament.mockResolvedValue([]);
+      return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
+        .then(() => expect(true).toBeFalsy())
+        .catch((createdTeam) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(tournamentName, tournamentDay);
+          expect(clashTeamsDbImpl.createTeam).not.toHaveBeenCalled();
+          expect(createdTeam).toEqual(expectedResponse);
         });
     });
   });

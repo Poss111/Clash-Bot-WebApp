@@ -123,6 +123,28 @@ components:
         message:
           type: string
   requestBodies:
+    TeamCreateBody:
+      description: All necessary parameters to create a Clash Bot League of Legends Clash Team
+      content:
+        application/json:
+          schema:
+            required:
+              - serverName
+              - tournamentName
+              - tournamentDay
+              - playerDetails
+            properties:
+              serverName:
+                description: The dedicated for the server team
+                type: string
+              tournamentName:
+                description: The League of Legends Clash Tournament to sign up for
+                type: string
+              tournamentDay:
+                description: The Tournament day to sign up for
+                type: string
+              playerDetails:
+                $ref: '#/components/schemas/Player'
     PlayerCreateBody:
       description: All necessary parameters to create a new Player
       required: true
@@ -233,14 +255,13 @@ components:
                 type: string
     TentativeBody:
       description: Parameters to place a Player into the tentative queue
-      required: true
       content:
         application/json:
           schema:
             type: object
             required:
               - serverName
-              - player
+              - playerId
               - tournamentDetails
             properties:
               serverName:
@@ -248,7 +269,7 @@ components:
                 type: string
               tournamentDetails:
                 $ref: '#/components/schemas/Tournament'
-              player:
+              playerId:
                 description: 'The Player id to be placed on tentative with.'
                 type: string
   responses:
