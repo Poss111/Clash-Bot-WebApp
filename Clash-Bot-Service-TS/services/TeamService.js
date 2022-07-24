@@ -1,11 +1,14 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
 const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
 const clashTimeDbImpl = require('../dao/clash-time-db-impl');
+const clashTentativeDbImpl = require('../dao/clash-tentative-db-impl');
 const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
 const logger = require('../logger');
+const { tentativeDetailsEntityToRequest, userEntityToTentativeResponse } = require('../mappers/TentativeDetailsMapper');
 
 /**
 * Create a new Team
@@ -17,7 +20,8 @@ const createNewTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'createNewTeam' };
     try {
-      const tournamentTimes = await clashTimeDbImpl.findTournament(body.tournamentName, body.tournamentDay);
+      const tournamentTimes = await clashTimeDbImpl
+        .findTournament(body.tournamentName, body.tournamentDay);
       if (!tournamentTimes || tournamentTimes.length <= 0) {
         reject(Service.rejectResponse('Tournament given was not valid.', 400));
       } else {
@@ -32,7 +36,8 @@ const createNewTeam = ({ body }) => new Promise(
             tournamentDay: body.tournamentDay,
           },
         });
-        const idToPlayerMap = await clashSubscriptionDbImpl.retrieveAllUserDetails(createdTeam.players);
+        const idToPlayerMap = await clashSubscriptionDbImpl
+          .retrieveAllUserDetails(createdTeam.players);
         const mappedResponse = objectMapper(createdTeam, teamEntityToResponse);
         Object.keys(mappedResponse.playerDetails)
           .forEach((key) => mappedResponse
@@ -76,12 +81,17 @@ const getTeam = ({
           tournamentName: tournament,
           tournamentDay: day,
         });
-        const listOfPlayerIds = new Set(teams.map((team) => Object.values(team.playersWRoles)).flatMap((value) => value));
-        const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails([...listOfPlayerIds]);
+        const listOfPlayerIds = new Set(teams.map((team) => Object
+          .values(team.playersWRoles))
+          .flatMap((value) => value));
+        const idToUserDetails = await clashSubscriptionDbImpl
+          .retrieveAllUserDetails([...listOfPlayerIds]);
         const response = teams.map((team) => {
           const mappedResponse = objectMapper(team, teamEntityToResponse);
           Object.keys(mappedResponse.playerDetails)
-            .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id], userEntityToResponse));
+            .forEach((key) => mappedResponse
+              .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
+                .playerDetails[key].id], userEntityToResponse));
           return mappedResponse;
         });
         resolve(Service.successResponse(response));
@@ -108,11 +118,28 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'getTentativeDetails' };
     try {
-      resolve(Service.successResponse({
-        serverName,
-        tournamentName,
-        tournamentDay,
-      }));
+      const tournaments = await clashTimeDbImpl.findTournament(tournamentName, tournamentDay);
+      if (!tournaments || tournaments.length <= 0) {
+        reject(Service.rejectResponse('No Tournaments found for tentative details.', 400));
+      } else {
+        const results = await Promise
+          .all(tournaments
+            .map((tournament) => clashTentativeDbImpl
+              .getTentative(serverName, tournament)));
+        const listOfPlayerIds = new Set(results.flatMap((array) => array)
+          .map((tentativeDetail) => tentativeDetail.tentativePlayers)
+          .flatMap((value) => value));
+        const idToPlayerDetails = await clashSubscriptionDbImpl
+          .retrieveAllUserDetails([...listOfPlayerIds]);
+        const response = results.flatMap((array) => array)
+          .map((tentativeEntity) => {
+            const mappedResponse = objectMapper(tentativeEntity, tentativeDetailsEntityToRequest);
+            mappedResponse.tentativePlayers = tentativeEntity.tentativePlayers
+              .map((id) => objectMapper(idToPlayerDetails[id], userEntityToTentativeResponse));
+            return mappedResponse;
+          });
+        resolve(Service.successResponse(response));
+      }
     } catch (error) {
       Service.handleException({
         loggerContext,
@@ -128,13 +155,27 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
 * placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
 * returns Tentative
 * */
-const placePlayerOnTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
+const placePlayerOnTentative = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'placePlayerOnTentative' };
     try {
-      resolve(Service.successResponse({
-        placePlayerOnTentativeRequest,
-      }));
+      const tentativeDetails = await clashTentativeDbImpl
+        .getTentative(body.serverName, body.tournamentDetails);
+      if (!Array.isArray(tentativeDetails) || tentativeDetails.length <= 0) {
+        reject(Service.rejectResponse('No valid Tentative queue found.', 400));
+      } else if (tentativeDetails[0].tentativePlayers.includes(body.playerId)) {
+        reject(Service.rejectResponse('User already on tentative queue for Tournament.', 400));
+      } else {
+        const updatedTentativeDetails = await clashTentativeDbImpl
+          .addToTentative(body.playerId, body.serverName, body.tournamentDetails,
+            tentativeDetails[0]);
+        const idToPlayerMap = await clashSubscriptionDbImpl
+          .retrieveAllUserDetails(updatedTentativeDetails.tentativePlayers);
+        const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
+        response.tentativePlayers = updatedTentativeDetails.tentativePlayers
+          .map((id) => objectMapper(idToPlayerMap[id], userEntityToTentativeResponse));
+        resolve(Service.successResponse(response));
+      }
     } catch (error) {
       Service.handleException({
         loggerContext,
@@ -187,11 +228,13 @@ const removePlayerFromTeam = ({ body }) => new Promise(
         } else {
           const updatedTeam = await clashTeamsDbImpl.updateTeam(teamToUpdate);
           logger.debug(loggerContext, `Player ('${body.playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
-          const idToPlayerMap = await clashSubscriptionDbImpl.retrieveAllUserDetails(updatedTeam.players);
+          const idToPlayerMap = await clashSubscriptionDbImpl
+            .retrieveAllUserDetails(updatedTeam.players);
           const mappedResponse = objectMapper(updatedTeam, teamEntityToResponse);
           Object.keys(mappedResponse.playerDetails)
-            .forEach((key) => mappedResponse.playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse.playerDetails[key].id],
-              userEntityToResponse));
+            .forEach((key) => mappedResponse
+              .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
+                .playerDetails[key].id], userEntityToResponse));
           resolve(Service.successResponse(mappedResponse));
         }
       }
@@ -210,13 +253,26 @@ const removePlayerFromTeam = ({ body }) => new Promise(
 * placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
 * returns Tentative
 * */
-const removePlayerFromTentative = ({ placePlayerOnTentativeRequest }) => new Promise(
+const removePlayerFromTentative = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
-      resolve(Service.successResponse({
-        placePlayerOnTentativeRequest,
-      }));
+      const tentativeDetails = await clashTentativeDbImpl
+        .getTentative(body.serverName, body.tournamentDetails);
+      if (!Array.isArray(tentativeDetails) || tentativeDetails.length <= 0) {
+        reject(Service.rejectResponse('No valid Tentative queue found.', 400));
+      } else if (!tentativeDetails[0].tentativePlayers.includes(body.playerId)) {
+        reject(Service.rejectResponse('User is not on found tentative queue for Tournament.', 400));
+      } else {
+        const updatedTentativeDetails = await clashTentativeDbImpl
+          .removeFromTentative(body.playerId, tentativeDetails[0]);
+        const idToPlayerMap = await clashSubscriptionDbImpl
+          .retrieveAllUserDetails(updatedTentativeDetails.tentativePlayers);
+        const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
+        response.tentativePlayers = updatedTentativeDetails.tentativePlayers
+          .map((id) => objectMapper(idToPlayerMap[id], userEntityToTentativeResponse));
+        resolve(Service.successResponse(response));
+      }
     } catch (error) {
       Service.handleException({
         loggerContext,
@@ -259,12 +315,13 @@ const updateTeam = ({ body }) => new Promise(
         updatedTeam.players.push(body.playerId);
         const updatedTeamAfterPersist = await clashTeamsDbImpl.updateTeam(updatedTeam);
         const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
-          updatedTeamAfterPersist.players);
+          updatedTeamAfterPersist.players,
+        );
         const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
         Object.keys(mappedResponse.playerDetails)
-          .forEach((key) => mappedResponse.playerDetails[key] =
-            objectMapper(idToUserDetails[mappedResponse.playerDetails[key].id],
-              userEntityToResponse));
+          .forEach((key) => mappedResponse
+            .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
+              .playerDetails[key].id], userEntityToResponse));
         resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {

@@ -2,12 +2,93 @@ const clashTeamsServiceImpl = require('../TeamService');
 const clashTeamsDbImpl = require('../../dao/clash-teams-db-impl');
 const clashSubscriptionDbImpl = require('../../dao/clash-subscription-db-impl');
 const clashTimeDbImpl = require('../../dao/clash-time-db-impl');
+const clashTentativeDbImpl = require('../../dao/clash-tentative-db-impl');
 const { deepCopy } = require('../../utils/tests/test-utility.utility.test');
 
 jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../dao/clash-tentative-db-impl');
 jest.mock('../../dao/clash-subscription-db-impl');
 jest.mock('../../dao/clash-time-db-impl');
+
+function createV3Team({
+  serverName, teamName = 'Abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
+}) {
+  return {
+    details: `${tournamentName}#${tournamentDay}#${teamName}`,
+    teamName,
+    serverName,
+    players,
+    playersWRoles,
+    tournamentName,
+    tournamentDay,
+    startTime: new Date().toISOString(),
+  };
+}
+
+function createUserDetails({
+  key = '1', playerName = 'Roid', serverName = 'Goon Squad', preferredChampions = ['Braum', 'Mordekaiser', 'Lissandra'],
+}) {
+  return {
+    key,
+    playerName,
+    serverName,
+    timeAdded: new Date().toISOString(),
+    preferredChampions,
+  };
+}
+
+function buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
+  return {
+    code: 200,
+    payload: expectedTeams.map((team) => {
+      const mappedTeam = {
+        name: team.teamName,
+        serverName: team.serverName,
+        tournament: {
+          tournamentName: team.tournamentName,
+          tournamentDay: team.tournamentDay,
+        },
+      };
+      if (team.playersWRoles) {
+        mappedTeam.playerDetails = Object.entries(team.playersWRoles)
+          .reduce((ret, entry) => {
+            const foundUser = mockUserDetails[entry[1]];
+            ret[entry[0]] = {
+              id: entry[1],
+              name: foundUser.playerName,
+              champions: foundUser.preferredChampions,
+            };
+            return ret;
+          }, {});
+      }
+      return mappedTeam;
+    }),
+  };
+}
+
+function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
+  return {
+    code: 200,
+    payload: {
+      name: expectedTeams.teamName,
+      serverName: expectedTeams.serverName,
+      tournament: {
+        tournamentName: expectedTeams.tournamentName,
+        tournamentDay: expectedTeams.tournamentDay,
+      },
+      playerDetails: Object.entries(expectedTeams.playersWRoles)
+        .reduce((ret, entry) => {
+          const foundUser = mockUserDetails[entry[1]];
+          ret[entry[0]] = {
+            id: entry[1],
+            name: foundUser.playerName,
+            champions: foundUser.preferredChampions,
+          };
+          return ret;
+        }, {}),
+    },
+  };
+}
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -43,7 +124,8 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName });
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
-          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledWith(expectedTeams[0].players);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(expectedTeams[0].players);
           expect(teams).toEqual(expectedResponse);
         });
     });
@@ -75,7 +157,8 @@ describe('Clash Teams Service Impl', () => {
       return clashTeamsServiceImpl.getTeam({ server: serverName, tournament: tournamentName })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName, tournamentName });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .toHaveBeenCalledWith({ serverName, tournamentName });
           expect(teams).toEqual(expectedResponse);
         });
     });
@@ -112,7 +195,8 @@ describe('Clash Teams Service Impl', () => {
       })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName, tournamentName, tournamentDay });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .toHaveBeenCalledWith({ serverName, tournamentName, tournamentDay });
           expect(teams).toEqual(expectedResponse);
         });
     });
@@ -246,7 +330,8 @@ describe('Clash Teams Service Impl', () => {
       const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
       expectedUpdatedTeam.playersWRoles.Top = '2';
       expectedUpdatedTeam.players.push('2');
-      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam, expectedUserMap);
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
@@ -298,7 +383,8 @@ describe('Clash Teams Service Impl', () => {
       const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
       expectedUpdatedTeam.playersWRoles.Top = '2';
       expectedUpdatedTeam.players.push('2');
-      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam, expectedUserMap);
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
@@ -911,7 +997,7 @@ describe('Clash Teams Service Impl', () => {
           },
         },
       };
-      clashTimeDbImpl.findTournament.mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1'}]);
+      clashTimeDbImpl.findTournament.mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1' }]);
       clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
       return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
@@ -957,7 +1043,8 @@ describe('Clash Teams Service Impl', () => {
         .then(() => expect(true).toBeFalsy())
         .catch((createdTeam) => {
           expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
-          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(tournamentName, tournamentDay);
+          expect(clashTimeDbImpl.findTournament)
+            .toHaveBeenCalledWith(tournamentName, tournamentDay);
           expect(clashTeamsDbImpl.createTeam).not.toHaveBeenCalled();
           expect(createdTeam).toEqual(expectedResponse);
         });
@@ -965,94 +1052,459 @@ describe('Clash Teams Service Impl', () => {
   });
 
   describe('Tentative - GET', () => {
-    // TODO - Tentative - GET
+    test('getTentativeDetails - if no Tournaments are passed, it should pull all active Tentative details.', () => {
+      const serverName = 'Goon Squad';
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+        4: createUserDetails({ key: '4', playerName: 'Sera' }),
+      };
+      const tentativeRequestPayload = {
+        serverName,
+      };
+      const tournaments = [
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '2',
+        },
+      ];
+      const tentativeEntities = [
+        {
+          key: 'Some#Key',
+          tentativePlayers: ['1', '2'],
+          serverName,
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1',
+          },
+        },
+        {
+          key: 'Some#Key',
+          tentativePlayers: ['2', '4'],
+          serverName,
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2',
+          },
+        },
+      ];
+      const expectedResponsePayload = [
+        {
+          serverName,
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '1',
+          },
+          tentativePlayers: [{
+            id: '1',
+            name: idToPlayerMap['1'].playerName,
+          },
+          {
+            id: '2',
+            name: idToPlayerMap['2'].playerName,
+          },
+          ],
+        },
+        {
+          serverName,
+          tournamentDetails: {
+            tournamentName: 'awesome_sauce',
+            tournamentDay: '2',
+          },
+          tentativePlayers: [{
+            id: '2',
+            name: idToPlayerMap['2'].playerName,
+          },
+          {
+            id: '4',
+            name: idToPlayerMap['4'].playerName,
+          },
+          ],
+        },
+      ];
+      clashTimeDbImpl.findTournament.mockResolvedValue(tournaments);
+      clashTentativeDbImpl.getTentative.mockResolvedValueOnce([tentativeEntities[0]]);
+      clashTentativeDbImpl.getTentative.mockResolvedValueOnce([tentativeEntities[1]]);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(idToPlayerMap);
+      return clashTeamsServiceImpl.getTentativeDetails(tentativeRequestPayload)
+        .then((tentativeDetails) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(undefined, undefined);
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(2);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, { tournamentName: 'awesome_sauce', tournamentDay: '1' });
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(['1', '2', '4']);
+          expect(tentativeDetails).toEqual({
+            code: 200,
+            payload: expectedResponsePayload,
+          });
+        });
+    });
+
+    test('getTentativeDetails - if there are no active Tournaments, or none that match the criteria given, then it should return 400.', () => {
+      const serverName = 'Goon Squad';
+      const tentativeRequestPayload = {
+        serverName,
+      };
+      const tournaments = [];
+      clashTimeDbImpl.findTournament.mockResolvedValue(tournaments);
+      return clashTeamsServiceImpl.getTentativeDetails(tentativeRequestPayload)
+        .then(() => expect(true).toBeFalsy())
+        .catch((tentativeDetails) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(undefined, undefined);
+          expect(clashTentativeDbImpl.getTentative).not.toHaveBeenCalled();
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
+          expect(tentativeDetails).toEqual({
+            code: 400,
+            error: 'No Tournaments found for tentative details.',
+          });
+        });
+    });
+
+    test('getTentativeDetails - if a Tournament is passed, it should pull all matching active Tentative details.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+      };
+      const tentativeRequestPayload = {
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const tournaments = [
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+      ];
+      const tentativeEntities = [
+        {
+          key: 'Some#Key',
+          tentativePlayers: ['1', '2'],
+          serverName,
+          tournamentDetails: {
+            tournamentName,
+            tournamentDay,
+          },
+        },
+      ];
+      const expectedResponsePayload = [
+        {
+          serverName,
+          tournamentDetails: {
+            tournamentName,
+            tournamentDay,
+          },
+          tentativePlayers: [{
+            id: '1',
+            name: idToPlayerMap['1'].playerName,
+          },
+          {
+            id: '2',
+            name: idToPlayerMap['2'].playerName,
+          }],
+        },
+      ];
+      clashTimeDbImpl.findTournament.mockResolvedValue(tournaments);
+      clashTentativeDbImpl.getTentative.mockResolvedValue(tentativeEntities);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(idToPlayerMap);
+      return clashTeamsServiceImpl.getTentativeDetails(tentativeRequestPayload)
+        .then((tentativeDetails) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(tournamentName,
+            tournamentDay);
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, { tournamentName, tournamentDay });
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(tentativeEntities[0].tentativePlayers);
+          expect(tentativeDetails).toEqual({
+            code: 200,
+            payload: expectedResponsePayload,
+          });
+        });
+    });
   });
 
   describe('Tentative - POST', () => {
-    // TODO - Tentative - POST
+    test('placePlayerOnTentative - if a Tournament is passed, a player should be placed on the Tentative queue', () => {
+      const playerId = '2';
+      const serverName = 'Goon Squad';
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+      };
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      const tentativeEntity = {
+        key: 'Some#Key',
+        tentativePlayers: ['1'],
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+      };
+      const responsePayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+        tentativePlayers: [
+          {
+            id: '1',
+            name: idToPlayerMap['1'].playerName,
+          },
+          {
+            id: '2',
+            name: idToPlayerMap['2'].playerName,
+          },
+        ],
+      };
+      const updatedTentativeEntity = deepCopy(tentativeEntity);
+      updatedTentativeEntity.tentativePlayers.push(playerId);
+      clashTentativeDbImpl.getTentative.mockResolvedValue([tentativeEntity]);
+      clashTentativeDbImpl.addToTentative.mockResolvedValue(updatedTentativeEntity);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.placePlayerOnTentative({ body: request })
+        .then((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.addToTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.addToTentative)
+            .toHaveBeenCalledWith(playerId, serverName, tournament, tentativeEntity);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(['1', '2']);
+          expect(tentativeDetails).toEqual(
+            {
+              code: 200,
+              payload: responsePayload,
+            },
+          );
+        });
+    });
+
+    test('placePlayerOnTentative - If the Tournament passed is not valid, then 400 should be returned.', () => {
+      const playerId = '2';
+      const serverName = 'Goon Squad';
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      clashTentativeDbImpl.getTentative.mockResolvedValue([]);
+      return clashTeamsServiceImpl.placePlayerOnTentative({ body: request })
+        .then(() => expect(true).toBeFalsy())
+        .catch((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.addToTentative).not.toHaveBeenCalled();
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
+          expect(tentativeDetails).toEqual(
+            {
+              code: 400,
+              error: 'No valid Tentative queue found.',
+            },
+          );
+        });
+    });
+
+    test('placePlayerOnTentative - If the User is already Tentative for the Tournament, then 400 should be returned.', () => {
+      const playerId = '1';
+      const serverName = 'Goon Squad';
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      const tentativeEntity = {
+        key: 'Some#Key',
+        tentativePlayers: ['1'],
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+      };
+      clashTentativeDbImpl.getTentative.mockResolvedValue([tentativeEntity]);
+      return clashTeamsServiceImpl.placePlayerOnTentative({ body: request })
+        .then(() => expect(true).toBeFalsy())
+        .catch((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.addToTentative).not.toHaveBeenCalled();
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
+          expect(tentativeDetails).toEqual(
+            {
+              code: 400,
+              error: 'User already on tentative queue for Tournament.',
+            },
+          );
+        });
+    });
   });
 
   describe('Tentative - DELETE', () => {
-    // TODO - Tentative - DELETE
-  });
-});
-
-function createV3Team({
-  serverName, teamName = 'Abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
-}) {
-  return {
-    details: `${tournamentName}#${tournamentDay}#${teamName}`,
-    teamName,
-    serverName,
-    players,
-    playersWRoles,
-    tournamentName,
-    tournamentDay,
-    startTime: new Date().toISOString(),
-  };
-}
-
-function createUserDetails({
-  key = '1', playerName = 'Roid', serverName = 'Goon Squad', preferredChampions = ['Braum', 'Mordekaiser', 'Lissandra'],
-}) {
-  return {
-    key,
-    playerName,
-    serverName,
-    timeAdded: new Date().toISOString(),
-    preferredChampions,
-  };
-}
-
-function buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
-  return {
-    code: 200,
-    payload: expectedTeams.map((team) => {
-      const mappedTeam = {
-        name: team.teamName,
-        serverName: team.serverName,
-        tournament: {
-          tournamentName: team.tournamentName,
-          tournamentDay: team.tournamentDay,
+    test('removePlayerFromTentative - if a Tournament is passed, a player should be removed from the Tentative queue', () => {
+      const playerId = '2';
+      const serverName = 'Goon Squad';
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+      };
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      const tentativeEntity = {
+        key: 'Some#Key',
+        tentativePlayers: ['1', '2'],
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
         },
       };
-      if (team.playersWRoles) {
-        mappedTeam.playerDetails = Object.entries(team.playersWRoles)
-          .reduce((ret, entry) => {
-            const foundUser = mockUserDetails[entry[1]];
-            ret[entry[0].toLowerCase()] = {
-              id: entry[1],
-              name: foundUser.playerName,
-              champions: foundUser.preferredChampions,
-            };
-            return ret;
-          }, {});
-      }
-      return mappedTeam;
-    }),
-  };
-}
+      const responsePayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+        tentativePlayers: [
+          {
+            id: '1',
+            name: idToPlayerMap['1'].playerName,
+          },
+        ],
+      };
+      const updatedTentativeEntity = deepCopy(tentativeEntity);
+      updatedTentativeEntity.tentativePlayers.pop();
+      clashTentativeDbImpl.getTentative.mockResolvedValue([tentativeEntity]);
+      clashTentativeDbImpl.removeFromTentative.mockResolvedValue(updatedTentativeEntity);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.removePlayerFromTentative({ body: request })
+        .then((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.removeFromTentative)
+            .toHaveBeenCalledWith(playerId, tentativeEntity);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(['1']);
+          expect(tentativeDetails).toEqual(
+            {
+              code: 200,
+              payload: responsePayload,
+            },
+          );
+        });
+    });
 
-function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
-  return {
-    code: 200,
-    payload: {
-      name: expectedTeams.teamName,
-      serverName: expectedTeams.serverName,
-      tournament: {
-        tournamentName: expectedTeams.tournamentName,
-        tournamentDay: expectedTeams.tournamentDay,
-      },
-      playerDetails: Object.entries(expectedTeams.playersWRoles)
-        .reduce((ret, entry) => {
-          const foundUser = mockUserDetails[entry[1]];
-          ret[entry[0].toLowerCase()] = {
-            id: entry[1],
-            name: foundUser.playerName,
-            champions: foundUser.preferredChampions,
-          };
-          return ret;
-        }, {}),
-    },
-  };
-}
+    test('removePlayerFromTentative - If the Tournament passed is not valid, then 400 should be returned.', () => {
+      const playerId = '2';
+      const serverName = 'Goon Squad';
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      clashTentativeDbImpl.getTentative.mockResolvedValue([]);
+      return clashTeamsServiceImpl.removePlayerFromTentative({ body: request })
+        .then(() => expect(true).toBeFalsy())
+        .catch((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
+          expect(tentativeDetails).toEqual(
+            {
+              code: 400,
+              error: 'No valid Tentative queue found.',
+            },
+          );
+        });
+    });
+
+    test('removePlayerFromTentative - If the User is not on Tentative for the Tournament, then 400 should be returned.', () => {
+      const playerId = '2';
+      const serverName = 'Goon Squad';
+      const tournament = {
+        tournamentName: 'awesome_sauce',
+        tournamentDay: '1',
+      };
+      const request = {
+        playerId,
+        serverName,
+        tournamentDetails: tournament,
+      };
+      const tentativeEntity = {
+        key: 'Some#Key',
+        tentativePlayers: ['1'],
+        serverName,
+        tournamentDetails: {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+        },
+      };
+      clashTentativeDbImpl.getTentative.mockResolvedValue([tentativeEntity]);
+      return clashTeamsServiceImpl.removePlayerFromTentative({ body: request })
+        .then(() => expect(true).toBeFalsy())
+        .catch((tentativeDetails) => {
+          expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
+          expect(clashTentativeDbImpl.getTentative)
+            .toHaveBeenCalledWith(serverName, tournament);
+          expect(clashTentativeDbImpl.removeFromTentative).not.toHaveBeenCalled();
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
+          expect(tentativeDetails).toEqual(
+            {
+              code: 400,
+              error: 'User is not on found tentative queue for Tournament.',
+            },
+          );
+        });
+    });
+  });
+});
