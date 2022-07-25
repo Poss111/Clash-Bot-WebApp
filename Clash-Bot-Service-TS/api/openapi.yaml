@@ -156,11 +156,7 @@ paths:
       description: Create a new Team
       operationId: createNewTeam
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Team'
-        description: The Team details to use to update a specific Team
+        $ref: '#/components/requestBodies/TeamCreateBody'
       responses:
         "200":
           content:
@@ -647,27 +643,32 @@ components:
     TeamCreateBody:
       content:
         application/json:
+          examples:
+            simple:
+              summary: A base sample object.
+              value:
+                serverName: LoL-ClashBotSupport
+                tournamentName: awesome_sauce
+                tournamentDay: "4"
+                playerDetails:
+                  id: "1"
+                  role: Top
           schema:
-            properties:
-              serverName:
-                description: The dedicated for the server team
-                type: string
-              tournamentName:
-                description: The League of Legends Clash Tournament to sign up for
-                type: string
-              tournamentDay:
-                description: The Tournament day to sign up for
-                type: string
-              playerDetails:
-                $ref: '#/components/schemas/Player'
-            required:
-            - playerDetails
-            - serverName
-            - tournamentDay
-            - tournamentName
-            type: object
+            $ref: '#/components/schemas/createNewTeam_request'
       description: All necessary parameters to create a Clash Bot League of Legends
         Clash Team
+    TeamPatchBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/updateTeam_request'
+      description: The Team details to use to update a specific Team
+    TeamRemovalBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/removePlayerFromTeam_request'
+      description: Payload necessary to remove a player from a Team.
     PlayerCreateBody:
       content:
         application/json:
@@ -704,18 +705,6 @@ components:
           schema:
             $ref: '#/components/schemas/removeFromListOfPreferredChampions_request'
       description: A League of Legends Champion to updated or remove with.
-    TeamPatchBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/updateTeam_request'
-      description: The Team details to use to update a specific Team
-    TeamRemovalBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/removePlayerFromTeam_request'
-      description: Payload necessary to remove a player from a Team.
     TentativeBody:
       content:
         application/json:
@@ -958,6 +947,33 @@ components:
           type: integer
         message:
           type: string
+      type: object
+    createNewTeam_request_playerDetails:
+      properties:
+        id:
+          description: Unique identifier for Player
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+      type: object
+    createNewTeam_request:
+      properties:
+        serverName:
+          description: The dedicated for the server team
+          type: string
+        tournamentName:
+          description: The League of Legends Clash Tournament to sign up for
+          type: string
+        tournamentDay:
+          description: The Tournament day to sign up for
+          type: string
+        playerDetails:
+          $ref: '#/components/schemas/createNewTeam_request_playerDetails'
+      required:
+      - playerDetails
+      - serverName
+      - tournamentDay
+      - tournamentName
       type: object
     removePlayerFromTeam_request:
       properties:

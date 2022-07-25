@@ -138,6 +138,10 @@ components:
       description: All necessary parameters to create a Clash Bot League of Legends Clash Team
       content:
         application/json:
+          examples:
+            simple:
+              summary: A base sample object.
+              value: { "serverName": "LoL-ClashBotSupport", "tournamentName": "awesome_sauce", "tournamentDay": "4", "playerDetails": { "id": "1", "role": "Top" }}
           schema:
             type: object
             required:
@@ -156,7 +160,59 @@ components:
                 description: The Tournament day to sign up for
                 type: string
               playerDetails:
-                $ref: '#/components/schemas/Player'
+                type: object
+                properties:
+                  id:
+                    description: Unique identifier for Player
+                    type: string
+                  role:
+                    $ref: '#/components/schemas/Role'
+    TeamPatchBody:
+      description: The Team details to use to update a specific Team
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - tournamentDetails
+              - playerId
+              - role
+              - teamName
+            properties:
+              serverName:
+                type: string
+              teamName:
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              playerId:
+                description: Player id to add to Team.
+                type: string
+              role:
+                $ref: '#/components/schemas/Role'
+    TeamRemovalBody:
+      description: Payload necessary to remove a player from a Team.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - playerId
+              - tournamentDetails
+              - teamName
+            properties:
+              serverName:
+                type: string
+              playerId:
+                description: The id of the player to be removed from a given Team.
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              teamName:
+                description: The name of the Team to be removed from.
+                type: string
     PlayerCreateBody:
       description: All necessary parameters to create a new Player
       content:
@@ -218,52 +274,6 @@ components:
               - championName
             properties:
               championName:
-                type: string
-    TeamPatchBody:
-      description: The Team details to use to update a specific Team
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - serverName
-              - tournamentDetails
-              - playerId
-              - role
-              - teamName
-            properties:
-              serverName:
-                type: string
-              teamName:
-                type: string
-              tournamentDetails:
-                $ref: '#/components/schemas/Tournament'
-              playerId:
-                description: Player id to add to Team.
-                type: string
-              role:
-                $ref: '#/components/schemas/Role'
-    TeamRemovalBody:
-      description: Payload necessary to remove a player from a Team.
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - serverName
-              - playerId
-              - tournamentDetails
-              - teamName
-            properties:
-              serverName:
-                type: string
-              playerId:
-                description: The id of the player to be removed from a given Team.
-                type: string
-              tournamentDetails:
-                $ref: '#/components/schemas/Tournament'
-              teamName:
-                description: The name of the Team to be removed from.
                 type: string
     TentativeBody:
       description: Parameters to place a Player into the tentative queue
@@ -359,11 +369,7 @@ paths:
       tags:
         - Team
       requestBody:
-        description: The Team details to use to update a specific Team
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Team'
+        $ref: '#/components/requestBodies/TeamCreateBody'
       responses:
         '200':
           description: The Team was successfully created.

@@ -15,16 +15,6 @@ module.exports = {
     {
       startTime: ':currentDateOne',
       serverName: ':serverName',
-      playersWRoles: {},
-      teamName: 'abra',
-      tournamentName: ':tournamentName',
-      updatedAt: '2021-07-25T01:44:24.048Z',
-      tournamentDay: ':tournamentDayOne',
-      details: ':tournamentName#:tournamentDayOne#abra',
-    },
-    {
-      startTime: ':currentDateOne',
-      serverName: ':serverName',
       players: [
         '5',
       ],
@@ -52,7 +42,7 @@ module.exports = {
       tournamentName: ':tournamentName',
       updatedAt: '2021-07-18T09:25:42.680Z',
       tournamentDay: ':tournamentDayTwo',
-      details: ':tournamentName#:tournamentDayTwo#ho oh',
+      details: ':tournamentName#:tournamentDayTwo#ho-oh',
     },
     {
       startTime: ':datePlusOneDay',
