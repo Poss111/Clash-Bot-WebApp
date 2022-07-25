@@ -1,12 +1,12 @@
-const clashTimeDbImpl = require('../../dao/clash-time-db-impl');
-const clashTentativeDbImpl = require('../../dao/clash-tentative-db-impl');
-const clashSubscriptionDbImpl = require('../../dao/clash-subscription-db-impl');
+const clashTimeDbImpl = require('../../dao/ClashTimeDbImpl');
+const clashTentativeDbImpl = require('../../dao/ClashTentativeDbImpl');
+const clashSubscriptionDbImpl = require('../../dao/ClashUserDbImpl');
 const clashTentativeServiceImpl = require('../TentativeService');
 const { deepCopy, createUserDetails } = require('../../utils/tests/test-utility.utility.test');
 
-jest.mock('../../dao/clash-tentative-db-impl');
-jest.mock('../../dao/clash-subscription-db-impl');
-jest.mock('../../dao/clash-time-db-impl');
+jest.mock('../../dao/ClashTentativeDbImpl');
+jest.mock('../../dao/ClashUserDbImpl');
+jest.mock('../../dao/ClashTimeDbImpl');
 
 beforeEach(() => {
   jest.resetAllMocks();

@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const clashTentativeDbImpl = require('../clash-tentative-db-impl');
+const clashTentativeDbImpl = require('../ClashTentativeDbImpl');
 const dynamoDbHelper = require('../impl/dynamo-db-helper');
 
 jest.mock('../impl/dynamo-db-helper');
@@ -89,18 +89,28 @@ describe('Push person onto Tentative queue', () => {
         tournamentDay: expectedTournament.tournamentDay,
       },
     };
-    const expectedReturnedTentativeRecordAfterUpdate = JSON.parse(JSON.stringify(expectedReturnedTentativeRecord));
+    const expectedReturnedTentativeRecordAfterUpdate = JSON
+      .parse(JSON.stringify(expectedReturnedTentativeRecord));
     expectedReturnedTentativeRecordAfterUpdate.tentativePlayers.push(expectedUserId);
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: dataToUpdate })),
-      get: jest.fn().mockImplementation((queryKey, callback) => {
-        callback(undefined, expectedReturnedTentativeRecord);
-      }),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined, { attrs: dataToUpdate })),
+      get: jest
+        .fn()
+        .mockImplementation((queryKey, callback) => {
+          callback(undefined, expectedReturnedTentativeRecord);
+        }),
     };
-    return clashTentativeDbImpl.addToTentative(expectedUserId, expectedServerName, expectedTournament, expectedReturnedTentativeRecord)
+    return clashTentativeDbImpl
+      .addToTentative(expectedUserId, expectedServerName,
+        expectedTournament, expectedReturnedTentativeRecord)
       .then((persistedRecord) => {
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedReturnedTentativeRecordAfterUpdate, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedReturnedTentativeRecordAfterUpdate, expect.any(Function));
         expect(persistedRecord).toEqual(expectedReturnedTentativeRecordAfterUpdate);
       });
   });
@@ -122,19 +132,30 @@ describe('Push person onto Tentative queue', () => {
         },
       },
     };
-    const expectedReturnedTentativeRecordAfterUpdate = JSON.parse(JSON.stringify(expectedReturnedTentativeRecord.attrs));
+    const expectedReturnedTentativeRecordAfterUpdate = JSON
+      .parse(JSON.stringify(expectedReturnedTentativeRecord.attrs));
     expectedReturnedTentativeRecordAfterUpdate.tentativePlayers = [expectedUserId];
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: dataToUpdate })),
-      get: jest.fn().mockImplementation((queryKey, callback) => {
-        callback(undefined, expectedReturnedTentativeRecord);
-      }),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined, { attrs: dataToUpdate })),
+      get: jest
+        .fn()
+        .mockImplementation((queryKey, callback) => {
+          callback(undefined, expectedReturnedTentativeRecord);
+        }),
     };
-    return clashTentativeDbImpl.addToTentative(expectedUserId, expectedServerName, expectedTournament).then((persistedRecord) => {
-      expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedReturnedTentativeRecordAfterUpdate, expect.any(Function));
-      expect(persistedRecord).toEqual(expectedReturnedTentativeRecordAfterUpdate);
-    });
+    return clashTentativeDbImpl
+      .addToTentative(expectedUserId, expectedServerName, expectedTournament)
+      .then((persistedRecord) => {
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedReturnedTentativeRecordAfterUpdate,
+            expect.any(Function));
+        expect(persistedRecord).toEqual(expectedReturnedTentativeRecordAfterUpdate);
+      });
   });
 
   test('If an error occurs, then it should be rejected.', () => {
@@ -146,9 +167,13 @@ describe('Push person onto Tentative queue', () => {
     };
     const expectedError = new Error('Failed to persist');
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(expectedError, { attrs: dataToUpdate })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(expectedError, { attrs: dataToUpdate })),
     };
-    return clashTentativeDbImpl.addToTentative(expectedUserId, expectedServerName, expectedTournament)
+    return clashTentativeDbImpl
+      .addToTentative(expectedUserId, expectedServerName, expectedTournament)
       .then((persistedRecord) => expect(persistedRecord).toBeFalsy())
       .catch((err) => expect(err).toEqual(expectedError));
   });
@@ -172,15 +197,27 @@ describe('Remove person from Tentative queue', () => {
       },
     };
     const expectedUpdatedTentativeObject = JSON.parse(JSON.stringify(expectedTentativeObject));
-    expectedUpdatedTentativeObject.tentativePlayers.splice(expectedUpdatedTentativeObject.tentativePlayers.indexOf(expectedUserId), 1);
+    expectedUpdatedTentativeObject
+      .tentativePlayers
+      .splice(expectedUpdatedTentativeObject
+        .tentativePlayers
+        .indexOf(expectedUserId), 1);
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: expectedUpdatedTentativeObject })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined,
+          { attrs: expectedUpdatedTentativeObject })),
     };
 
-    return clashTentativeDbImpl.removeFromTentative(expectedUserId, expectedTentativeObject)
+    return clashTentativeDbImpl
+      .removeFromTentative(expectedUserId, expectedTentativeObject)
       .then((persistedRecord) => {
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedTentativeObject, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedTentativeObject,
+            expect.any(Function));
         expect(persistedRecord).toEqual(expectedTentativeObject);
       });
   });
@@ -202,13 +239,18 @@ describe('Remove person from Tentative queue', () => {
       },
     };
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: expectedTentativeObject })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined, { attrs: expectedTentativeObject })),
     };
 
-    return clashTentativeDbImpl.removeFromTentative(expectedUserId, JSON.parse(JSON.stringify(expectedTentativeObject)))
+    return clashTentativeDbImpl
+      .removeFromTentative(expectedUserId, JSON.parse(JSON.stringify(expectedTentativeObject)))
       .then((persistedRecord) => {
         expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedTentativeObject, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedTentativeObject, expect.any(Function));
         expect(persistedRecord).toEqual(expectedTentativeObject);
       });
   });
@@ -242,10 +284,16 @@ describe('Remove person from Tentative queue', () => {
       },
     };
     const expectedUpdatedTentativeObject = JSON.parse(JSON.stringify(expectedTentativeObject));
-    expectedUpdatedTentativeObject.tentativePlayers.splice(expectedUpdatedTentativeObject.tentativePlayers.indexOf(expectedUserId), 1);
+    expectedUpdatedTentativeObject
+      .tentativePlayers
+      .splice(expectedUpdatedTentativeObject.tentativePlayers.indexOf(expectedUserId), 1);
     const expectedError = new Error('Failed to persist');
     clashTentativeDbImpl.Tentative = {
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(expectedError, { attrs: expectedUpdatedTentativeObject })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(expectedError,
+          { attrs: expectedUpdatedTentativeObject })),
     };
 
     return clashTentativeDbImpl.removeFromTentative(expectedUserId, expectedTentativeObject)
@@ -274,16 +322,27 @@ describe('Handle tentative', () => {
     const expectedUpdatedTentativeObject = JSON.parse(JSON.stringify(expectedTentativeObject));
     expectedUpdatedTentativeObject.tentativePlayers.pop();
     clashTentativeDbImpl.Tentative = {
-      get: jest.fn().mockImplementation((key, callback) => callback(undefined, { attrs: expectedTentativeObject })),
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: expectedUpdatedTentativeObject })),
+      get: jest
+        .fn()
+        .mockImplementation((key,
+          callback) => callback(undefined, { attrs: expectedTentativeObject })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined, { attrs: expectedUpdatedTentativeObject })),
     };
 
-    return clashTentativeDbImpl.handleTentative(expectedUserId, expectedServerName, expectedTournament)
+    return clashTentativeDbImpl
+      .handleTentative(expectedUserId, expectedServerName, expectedTournament)
       .then((successful) => {
-        expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedTentativeObject.key, expect.any(Function));
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedUpdatedTentativeObject, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedTentativeObject.key, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedUpdatedTentativeObject, expect.any(Function));
         expect(successful).toBeTruthy();
       });
   });
@@ -307,16 +366,27 @@ describe('Handle tentative', () => {
     const expectedUpdatedTentativeObject = JSON.parse(JSON.stringify(expectedTentativeObject));
     expectedUpdatedTentativeObject.tentativePlayers.push(expectedUserId);
     clashTentativeDbImpl.Tentative = {
-      get: jest.fn().mockImplementation((key, callback) => callback(undefined, { attrs: expectedTentativeObject })),
-      update: jest.fn().mockImplementation((dataToUpdate, callback) => callback(undefined, { attrs: expectedUpdatedTentativeObject })),
+      get: jest
+        .fn()
+        .mockImplementation((key,
+          callback) => callback(undefined, { attrs: expectedTentativeObject })),
+      update: jest
+        .fn()
+        .mockImplementation((dataToUpdate,
+          callback) => callback(undefined, { attrs: expectedUpdatedTentativeObject })),
     };
 
-    return clashTentativeDbImpl.handleTentative(expectedUserId, expectedServerName, expectedTournament)
+    return clashTentativeDbImpl
+      .handleTentative(expectedUserId, expectedServerName, expectedTournament)
       .then((successful) => {
-        expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedTentativeObject.key, expect.any(Function));
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
-        expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledWith(expectedUpdatedTentativeObject, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedTentativeObject.key, expect.any(Function));
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.update)
+          .toHaveBeenCalledWith(expectedUpdatedTentativeObject, expect.any(Function));
         expect(successful).toBeTruthy();
       });
   });
@@ -346,12 +416,17 @@ describe('Is User on Tentative', () => {
         callback(undefined, expectedReturnedTentativeRecord);
       }),
     };
-    return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament).then((record) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedReturnedTentativeRecord.attrs.key, expect.any(Function));
-      expect(record.onTentative).toEqual(true);
-      expect(record.tentativeList).toEqual(expectedReturnedTentativeRecord.attrs);
-    });
+    return clashTentativeDbImpl
+      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .then((record) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedReturnedTentativeRecord.attrs.key,
+            expect.any(Function));
+        expect(record.onTentative).toEqual(true);
+        expect(record.tentativeList).toEqual(expectedReturnedTentativeRecord.attrs);
+      });
   });
 
   test('If a User is not on Tentative for the Server and Tournament and there does not exist a record for the tournament details, it should return the false and undefined.', () => {
@@ -366,12 +441,17 @@ describe('Is User on Tentative', () => {
         callback(null, null);
       }),
     };
-    return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament).then((record) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(`${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`, expect.any(Function));
-      expect(record.onTentative).toBeFalsy();
-      expect(record.tentativeList).toBeFalsy();
-    });
+    return clashTentativeDbImpl
+      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .then((record) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(`${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+            expect.any(Function));
+        expect(record.onTentative).toBeFalsy();
+        expect(record.tentativeList).toBeFalsy();
+      });
   });
 
   test('If a User is not on Tentative for the Server and Tournament, it should return the tentative object.', () => {
@@ -397,12 +477,18 @@ describe('Is User on Tentative', () => {
         callback(undefined, expectedReturnedTentativeRecord);
       }),
     };
-    return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament).then((record) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedReturnedTentativeRecord.attrs.key, expect.any(Function));
-      expect(record.onTentative).toBeFalsy();
-      expect(record.tentativeList).toEqual(expectedReturnedTentativeRecord.attrs);
-    });
+    return clashTentativeDbImpl
+      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .then((record) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedReturnedTentativeRecord
+            .attrs.key, expect.any(Function));
+        expect(record.onTentative).toBeFalsy();
+        expect(record.tentativeList)
+          .toEqual(expectedReturnedTentativeRecord.attrs);
+      });
   });
 
   test('If a User is not on Tentative for the Server and Tournament and the tentative list is empty, it should return the tentative object.', () => {
@@ -427,12 +513,16 @@ describe('Is User on Tentative', () => {
         callback(undefined, expectedReturnedTentativeRecord);
       }),
     };
-    return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament).then((record) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedReturnedTentativeRecord.attrs.key, expect.any(Function));
-      expect(record.onTentative).toBeFalsy();
-      expect(record.tentativeList).toEqual(expectedReturnedTentativeRecord.attrs);
-    });
+    return clashTentativeDbImpl
+      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .then((record) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedReturnedTentativeRecord.attrs.key, expect.any(Function));
+        expect(record.onTentative).toBeFalsy();
+        expect(record.tentativeList).toEqual(expectedReturnedTentativeRecord.attrs);
+      });
   });
 
   test('If an error occurs, it should be rejected.', () => {
@@ -486,11 +576,16 @@ describe('Retrieve Tentative', () => {
         callback(undefined, { attrs: expectedResponse });
       }),
     };
-    return clashTentativeDbImpl.getTentative(expectedServerName, expectedTournamentDetails).then((tentativeList) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(expectedResponse.key, expect.any(Function));
-      expect(tentativeList).toEqual(expectedResponse);
-    });
+    return clashTentativeDbImpl
+      .getTentative(expectedServerName, expectedTournamentDetails)
+      .then((tentativeList) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(expectedResponse.key,
+            expect.any(Function));
+        expect(tentativeList).toEqual(expectedResponse);
+      });
   });
 
   test('If a server name, tournament name, and day is passed but does not exist, then an undefined object should be returned.', () => {
@@ -504,11 +599,16 @@ describe('Retrieve Tentative', () => {
         callback(undefined, undefined);
       }),
     };
-    return clashTentativeDbImpl.getTentative(expectedServerName, expectedTournamentDetails).then((tentativeList) => {
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledTimes(1);
-      expect(clashTentativeDbImpl.Tentative.get).toHaveBeenCalledWith(`${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`, expect.any(Function));
-      expect(tentativeList).toEqual(undefined);
-    });
+    return clashTentativeDbImpl
+      .getTentative(expectedServerName, expectedTournamentDetails)
+      .then((tentativeList) => {
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledTimes(1);
+        expect(clashTentativeDbImpl.Tentative.get)
+          .toHaveBeenCalledWith(`${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
+            expect.any(Function));
+        expect(tentativeList).toEqual(undefined);
+      });
   });
 });
 

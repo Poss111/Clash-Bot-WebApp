@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
+const clashTeamsDbImpl = require('../dao/ClashTeamsDbImpl');
 const { teamEntityToResponse } = require('../mappers/TeamMapper');
 
 /**

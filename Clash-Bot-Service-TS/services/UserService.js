@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
 const {
   userEntityToResponse,
   requestToUserEntity,
@@ -75,12 +75,13 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
       if (!userDetails || !userDetails.key) {
         reject(Service.rejectResponse('User not found.',
           400));
+      } else if (Array.isArray(userDetails.preferredChampions)
+        && userDetails.preferredChampions.length >= 5) {
+        reject(Service
+          .rejectResponse('Too many champions. Must be less than or equal to 5.', 204));
       } else {
         if (!userDetails.preferredChampions) {
           userDetails.preferredChampions = [body.championName];
-        } else if (userDetails.preferredChampions.length >= 5) {
-          reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
-            204));
         } else {
           userDetails.preferredChampions.push(body.championName);
         }

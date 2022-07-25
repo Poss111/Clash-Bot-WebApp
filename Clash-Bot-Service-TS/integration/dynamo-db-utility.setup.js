@@ -1,7 +1,7 @@
-const clashTimeDb = require('../dao/clash-time-db-impl');
-const clashTeamsDb = require('../dao/clash-teams-db-impl');
-const clashSubscriptionDb = require('../dao/clash-subscription-db-impl');
-const clashTentativeDb = require('../dao/clash-tentative-db-impl');
+const clashTimeDb = require('../dao/ClashTimeDbImpl');
+const clashTeamsDb = require('../dao/ClashTeamsDbImpl');
+const clashSubscriptionDb = require('../dao/ClashUserDbImpl');
+const clashTentativeDb = require('../dao/ClashTentativeDbImpl');
 const clashTimesData = require('./mock-data/clash-times-sample-data');
 const clashTeamsData = require('./mock-data/clash-teams-sample-data');
 const clashSubscriptionData = require('./mock-data/clash-subscriptions-sample-data');
@@ -110,10 +110,10 @@ function persistSampleData(module, data) {
               table.create(recordToInsert, (err) => {
                 if (err) {
                   logger.error('Failed to load data', err);
-                  failed++;
+                  failed += 1;
                 } else {
                   dataPersisted.push(recordToInsert);
-                  successful++;
+                  successful += 1;
                 }
                 if (data.Items.length === (failed + successful)) {
                   logger.info(`Loaded ('${successful}') records into ('${module.tableName}')`);

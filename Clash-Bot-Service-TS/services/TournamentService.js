@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashTimeDb = require('../dao/clash-time-db-impl');
+const clashTimeDb = require('../dao/ClashTimeDbImpl');
 const { tournamentEntityToRequest } = require('../mappers/TournamentMapper');
 
 /**

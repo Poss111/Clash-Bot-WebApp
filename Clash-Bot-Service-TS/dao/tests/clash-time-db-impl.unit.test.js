@@ -1,7 +1,7 @@
 const streamTest = require('streamtest');
 const moment = require('moment-timezone');
 const Joi = require('joi');
-const clashtimeDb = require('../clash-time-db-impl');
+const clashtimeDb = require('../ClashTimeDbImpl');
 const dynamoDbHelper = require('../impl/dynamo-db-helper');
 
 jest.mock('../impl/dynamo-db-helper');
@@ -42,7 +42,7 @@ describe('Find Tournament', () => {
     const tournaments = [];
     const expectedTournaments = [];
     const dateFormat = 'MMMM DD yyyy hh:mm a z';
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i < days; i += 1) {
       if (!daysBehind) {
         daysBehind = 0;
       }

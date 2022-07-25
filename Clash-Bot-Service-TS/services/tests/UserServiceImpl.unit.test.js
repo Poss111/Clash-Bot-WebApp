@@ -1,8 +1,8 @@
 const clashUserServiceImpl = require('../UserService');
-const clashSubscriptionDbImpl = require('../../dao/clash-subscription-db-impl');
+const clashSubscriptionDbImpl = require('../../dao/ClashUserDbImpl');
 const { deepCopy } = require('../../utils/tests/test-utility.utility.test');
 
-jest.mock('../../dao/clash-subscription-db-impl');
+jest.mock('../../dao/ClashUserDbImpl');
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -104,7 +104,7 @@ describe('Clash User Service Impl', () => {
     test('If something goes wrong - it should return Error.', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'Failed to persist.',
+        error: 'Something went wrong.',
         code: 500,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockRejectedValue(new Error('Failed to persist.'));

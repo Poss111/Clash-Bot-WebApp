@@ -1,7 +1,7 @@
 const clashTournamentService = require('../TournamentService');
-const clashTimeDb = require('../../dao/clash-time-db-impl');
+const clashTimeDb = require('../../dao/ClashTimeDbImpl');
 
-jest.mock('../../dao/clash-time-db-impl');
+jest.mock('../../dao/ClashTimeDbImpl');
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -58,7 +58,7 @@ describe('Error', () => {
     return clashTournamentService.getTournaments({}).catch((response) => {
       expect(response).toEqual({
         code: 500,
-        error: 'Failed to connect.',
+        error: 'Something went wrong.',
       });
     });
   });

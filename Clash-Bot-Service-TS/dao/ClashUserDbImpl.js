@@ -3,7 +3,7 @@ const Joi = require('joi');
 const moment = require('moment-timezone');
 const logger = require('./../logger');
 
-class ClashSubscriptionDbImpl {
+class ClashUserDbImpl {
 
     clashSubscriptionTable;
     tableName = 'clash-registered-user';
@@ -173,4 +173,4 @@ class ClashSubscriptionDbImpl {
     }
 }
 
-module.exports = new ClashSubscriptionDbImpl;
+module.exports = new ClashUserDbImpl;

@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashTentativeDbImpl = require('../dao/clash-tentative-db-impl');
-const clashTimeDbImpl = require('../dao/clash-time-db-impl');
+const clashTentativeDbImpl = require('../dao/ClashTentativeDbImpl');
+const clashTimeDbImpl = require('../dao/ClashTimeDbImpl');
 const logger = require('../logger');
-const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
 const { tentativeDetailsEntityToRequest, userEntityToTentativeResponse } = require(
   '../mappers/TentativeDetailsMapper',
 );

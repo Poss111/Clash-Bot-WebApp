@@ -1,7 +1,7 @@
 const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
 const Joi = require('joi');
-const clashTeamsDbImpl = require('../clash-teams-db-impl');
+const clashTeamsDbImpl = require('../ClashTeamsDbImpl');
 const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const { buildMessage } = require('../../utils/template-builder');
 const namingUtils = require('../../utils/naming-utils');

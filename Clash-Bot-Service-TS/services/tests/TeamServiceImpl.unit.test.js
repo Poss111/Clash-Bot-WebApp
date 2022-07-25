@@ -1,15 +1,14 @@
 const clashTeamsServiceImpl = require('../TeamService');
-const clashTeamsDbImpl = require('../../dao/clash-teams-db-impl');
-const clashSubscriptionDbImpl = require('../../dao/clash-subscription-db-impl');
-const clashTimeDbImpl = require('../../dao/clash-time-db-impl');
+const clashTeamsDbImpl = require('../../dao/ClashTeamsDbImpl');
+const clashSubscriptionDbImpl = require('../../dao/ClashUserDbImpl');
+const clashTimeDbImpl = require('../../dao/ClashTimeDbImpl');
 const {
   deepCopy, buildExpectedTeamResponseWithUserMap, createUserDetails, createV3Team,
 } = require('../../utils/tests/test-utility.utility.test');
 
-jest.mock('../../dao/clash-teams-db-impl');
-jest.mock('../../dao/clash-tentative-db-impl');
-jest.mock('../../dao/clash-subscription-db-impl');
-jest.mock('../../dao/clash-time-db-impl');
+jest.mock('../../dao/ClashTeamsDbImpl');
+jest.mock('../../dao/ClashUserDbImpl');
+jest.mock('../../dao/ClashTimeDbImpl');
 
 function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
   return {

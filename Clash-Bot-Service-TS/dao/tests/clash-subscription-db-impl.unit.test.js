@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const clashSubscriptionDbImpl = require('../clash-subscription-db-impl');
+const clashUserDbImpl = require('../ClashUserDbImpl');
 const dynamoDbHelper = require('../impl/dynamo-db-helper');
 
 jest.mock('dynamodb');
@@ -13,9 +13,9 @@ describe('Initialize Table connection', () => {
   test('Initialize the table connection to be used.', async () => {
     const expectedTableObject = { setupTable: true };
     dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
-    return clashSubscriptionDbImpl.initialize().then(() => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable).toEqual(expectedTableObject);
-      expect(dynamoDbHelper.initialize).toBeCalledWith(clashSubscriptionDbImpl.tableName,
+    return clashUserDbImpl.initialize().then(() => {
+      expect(clashUserDbImpl.clashSubscriptionTable).toEqual(expectedTableObject);
+      expect(dynamoDbHelper.initialize).toBeCalledWith(clashUserDbImpl.tableName,
         {
           hashKey: 'key',
           timestamps: true,
@@ -42,34 +42,7 @@ describe('Initialize Table connection', () => {
   test('Error should be handled if it occurs during table initialization', async () => {
     const expectedError = new Error('Failed to compile table def');
     dynamoDbHelper.initialize = jest.fn().mockRejectedValue(expectedError);
-    return clashSubscriptionDbImpl.initialize('Sample Table', {}).catch((err) => expect(err).toEqual(expectedError));
-  });
-});
-
-describe('Subscribe', () => {
-  test('Subscribe should be passed with a user id, a Server, and a player name.', async () => {
-    const id = '12345667';
-    const server = 'TestServer';
-    const playerName = 'Sample User';
-    const expectedResults = {
-      key: id,
-      playerName,
-      serverName: server,
-      subscribed: 'true',
-    };
-    clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
-    clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn().mockImplementation((sub, callback) => {
-      callback(undefined, expectedResults);
-    });
-    return clashSubscriptionDbImpl.subscribe(id, server, playerName).then((data) => {
-      expect(data.key).toEqual(id);
-      expect(data.playerName).toEqual(playerName);
-      expect(data.serverName).toEqual(server);
-      expect(data.timeAdded).toBeTruthy();
-      expect(data.subscribed).toEqual('true');
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expect.anything(), expect.any(Function));
-    });
+    return clashUserDbImpl.initialize('Sample Table', {}).catch((err) => expect(err).toEqual(expectedError));
   });
 });
 
@@ -84,18 +57,20 @@ describe('Unsubscribe', () => {
       timeAdded: 'Jan 20 2021 11:30 PM EST',
       subscribed: '',
     };
-    clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
-    clashSubscriptionDbImpl.clashSubscriptionTable.update = jest.fn().mockImplementation((sub, callback) => {
-      callback(undefined, expectedResults);
-    });
-    return clashSubscriptionDbImpl.unsubscribe(id, server).then((data) => {
+    clashUserDbImpl.clashSubscriptionTable = jest.fn();
+    clashUserDbImpl.clashSubscriptionTable.update = jest
+      .fn()
+      .mockImplementation((sub, callback) => {
+        callback(undefined, expectedResults);
+      });
+    return clashUserDbImpl.unsubscribe(id, server).then((data) => {
       expect(data.key).toEqual(id);
       expect(data.playerName).toEqual(expectedResults.playerName);
       expect(data.serverName).toEqual(server);
       expect(data.timeAdded).toBeTruthy();
       expect(data.subscribed).toHaveLength(0);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith({
+      expect(clashUserDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.update).toBeCalledWith({
         key: id,
         subscribed: '',
       }, expect.any(Function));
@@ -117,16 +92,22 @@ describe('Update preferred Champion', () => {
       timeAdded: expect.any(String),
       serverName,
     };
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => callback(undefined, { Items: [] })),
-      create: jest.fn().mockImplementation((userData, callback) => callback(undefined, { attrs: expectedResults })),
+      create: jest
+        .fn()
+        .mockImplementation((userData,
+          callback) => callback(undefined, { attrs: expectedResults })),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, serverName, playerName).then((data) => {
-      expect(data).toEqual(expectedResults);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expectedResults, expect.any(Function));
-    });
+    return clashUserDbImpl
+      .updatePreferredChampions(id, championToAdd,
+        serverName, playerName).then((data) => {
+        expect(data).toEqual(expectedResults);
+        expect(clashUserDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
+        expect(clashUserDbImpl.clashSubscriptionTable.create)
+          .toBeCalledWith(expectedResults, expect.any(Function));
+      });
   });
 
   test('Should be able to update a record of the Users preferred champions if the user does exist.', async () => {
@@ -145,7 +126,7 @@ describe('Update preferred Champion', () => {
     const expectedData = JSON.parse(JSON.stringify(initialData));
     expectedData.preferredChampions.push(championToAdd);
     expectedData.timeAdded = expect.any(String);
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: initialData }] });
@@ -158,10 +139,11 @@ describe('Update preferred Champion', () => {
         }
       }),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then((data) => {
+    return clashUserDbImpl.updatePreferredChampions(id, championToAdd, server).then((data) => {
       expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
+      expect(clashUserDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.update)
+        .toBeCalledWith(expectedData, expect.any(Function));
     });
   });
 
@@ -179,9 +161,10 @@ describe('Update preferred Champion', () => {
       timeAdded: expect.any(String),
     };
     const expectedData = JSON.parse(JSON.stringify(initialData));
-    expectedData.preferredChampions = expectedData.preferredChampions.filter((record) => record !== championToRemove);
+    expectedData.preferredChampions = expectedData
+      .preferredChampions.filter((record) => record !== championToRemove);
     expectedData.timeAdded = expect.any(String);
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: initialData }] });
@@ -194,10 +177,11 @@ describe('Update preferred Champion', () => {
         }
       }),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, server).then((data) => {
+    return clashUserDbImpl.updatePreferredChampions(id, championToRemove, server).then((data) => {
       expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
+      expect(clashUserDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.update)
+        .toBeCalledWith(expectedData, expect.any(Function));
     });
   });
 
@@ -218,17 +202,18 @@ describe('Update preferred Champion', () => {
     expectedData.preferredChampions = initialData.preferredChampions;
     expectedData.timeAdded = expect.any(String);
     expectedData.error = 'User has maximum preferred Champions. Cannot add.';
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: initialData }] });
       }),
       update: jest.fn(),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then((data) => {
-      expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).not.toHaveBeenCalled();
-    });
+    return clashUserDbImpl
+      .updatePreferredChampions(id, championToAdd, server).then((data) => {
+        expect(data).toEqual(expectedData);
+        expect(clashUserDbImpl.clashSubscriptionTable.update).not.toHaveBeenCalled();
+      });
   });
 
   test('If the user is requesting to add a champion and the champion array is undefined, they should be able to still add.', () => {
@@ -246,7 +231,7 @@ describe('Update preferred Champion', () => {
     const expectedData = JSON.parse(JSON.stringify(initialData));
     expectedData.preferredChampions = [championToAdd];
     expectedData.timeAdded = expect.any(String);
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: initialData }] });
@@ -259,10 +244,12 @@ describe('Update preferred Champion', () => {
         }
       }),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, server).then((data) => {
+    return clashUserDbImpl.updatePreferredChampions(id, championToAdd, server).then((data) => {
       expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
+      expect(clashUserDbImpl.clashSubscriptionTable.update)
+        .toBeCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.update)
+        .toBeCalledWith(expectedData, expect.any(Function));
     });
   });
 
@@ -280,21 +267,25 @@ describe('Update preferred Champion', () => {
       timeAdded: expect.any(String),
     };
     const expectedData = JSON.parse(JSON.stringify(initialData));
-    expectedData.preferredChampions = expectedData.preferredChampions.filter((record) => record !== championToRemove);
+    expectedData.preferredChampions = expectedData.preferredChampions
+      .filter((record) => record !== championToRemove);
     expectedData.timeAdded = expect.any(String);
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: initialData }] });
       }),
     };
-    clashSubscriptionDbImpl.clashSubscriptionTable.update = jest.fn().mockImplementation((sub, callback) => {
-      callback(new Error('Failed to update.'));
-    });
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, server).then((data) => {
+    clashUserDbImpl.clashSubscriptionTable.update = jest
+      .fn()
+      .mockImplementation((sub, callback) => {
+        callback(new Error('Failed to update.'));
+      });
+    return clashUserDbImpl.updatePreferredChampions(id, championToRemove, server).then((data) => {
       expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
+      expect(clashUserDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.update)
+        .toBeCalledWith(expectedData, expect.any(Function));
     }).catch((err) => expect(err).toEqual(new Error('Failed to update.')));
   });
 
@@ -312,20 +303,24 @@ describe('Update preferred Champion', () => {
       timeAdded: expect.any(String),
     };
     const expectedData = JSON.parse(JSON.stringify(initialData));
-    expectedData.preferredChampions = expectedData.preferredChampions.filter((record) => record !== championToRemove);
+    expectedData.preferredChampions = expectedData.preferredChampions
+      .filter((record) => record !== championToRemove);
     expectedData.timeAdded = expect.any(String);
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [] });
       }),
       create: jest.fn().mockImplementation((sub, callback) => callback(new Error('Failed to create.'))),
     };
-    return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, server).then((data) => {
-      expect(data).toEqual(expectedData);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expectedData, expect.any(Function));
-    }).catch((err) => expect(err).toEqual(new Error('Failed to create.')));
+    return clashUserDbImpl
+      .updatePreferredChampions(id, championToRemove, server).then((data) => {
+        expect(data).toEqual(expectedData);
+        expect(clashUserDbImpl.clashSubscriptionTable.create)
+          .toBeCalledTimes(1);
+        expect(clashUserDbImpl.clashSubscriptionTable.create)
+          .toBeCalledWith(expectedData, expect.any(Function));
+      }).catch((err) => expect(err).toEqual(new Error('Failed to create.')));
   });
 });
 
@@ -341,124 +336,54 @@ describe('Get User Subscription', () => {
       preferredChampions: ['Akali'],
       subscribed: false,
     };
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [{ attrs: expectedResults }] });
       }),
     };
-    return clashSubscriptionDbImpl.retrieveUserDetails(id).then((data) => {
+    return clashUserDbImpl.retrieveUserDetails(id).then((data) => {
       expect(data).toEqual(expectedResults);
     });
   });
 
   test('I should be returned an empty object if the user record does not exist.', () => {
     const id = '123456789';
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [] });
       }),
     };
-    return clashSubscriptionDbImpl.retrieveUserDetails(id).then((data) => {
+    return clashUserDbImpl.retrieveUserDetails(id).then((data) => {
       expect(data).toEqual({});
     });
   });
 
   test('I should be returned an empty object if the user record does not exist and the object returned is undefined.', () => {
     const id = '123456789';
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(undefined, { Items: [] });
       }),
     };
-    return clashSubscriptionDbImpl.retrieveUserDetails(id).then((data) => {
+    return clashUserDbImpl.retrieveUserDetails(id).then((data) => {
       expect(data).toEqual({});
     });
   });
 
   test('I should be able to return the error if one occurs.', () => {
     const id = '123456789';
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
+    clashUserDbImpl.clashSubscriptionTable = {
       query: jest.fn().mockReturnThis(),
       exec: jest.fn().mockImplementation((callback) => {
         callback(new Error('Failed to retrieve'));
       }),
     };
-    return clashSubscriptionDbImpl.retrieveUserDetails(id)
+    return clashUserDbImpl.retrieveUserDetails(id)
       .then((data) => expect(data).toBeTruthy())
       .catch((err) => expect(err).toEqual(new Error('Failed to retrieve')));
-  });
-});
-
-describe('Create User Subscription', () => {
-  test('I should be able to pass all required details and create the requested user.', () => {
-    const id = '123456789';
-    const server = 'Goon Squad';
-    const preferredChampions = ['Akali'];
-    const subscribed = true;
-    const playerName = 'Sample User';
-    const expectedResults = {
-      key: id,
-      playerName,
-      serverName: server,
-      preferredChampions,
-      subscribed: JSON.stringify(subscribed),
-      timeAdded: expect.anything(),
-    };
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      create: jest.fn().mockImplementation((data, callback) => {
-        callback(undefined, data);
-      }),
-    };
-    return clashSubscriptionDbImpl
-      .createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed)
-      .then((data) => {
-        expect(data).toEqual(expectedResults);
-      }).catch((err) => expect(err).toBeFalsy());
-  });
-
-  test('I should be able to pass all required details and create the requested user and if subscribed is given as false, I should not persist it.', () => {
-    const id = '123456789';
-    const server = 'Goon Squad';
-    const preferredChampions = ['Akali'];
-    const subscribed = false;
-    const playerName = 'Sample User';
-    const expectedResults = {
-      key: id,
-      playerName,
-      serverName: server,
-      preferredChampions,
-      timeAdded: expect.anything(),
-    };
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      create: jest.fn().mockImplementation((data, callback) => {
-        callback(undefined, data);
-      }),
-    };
-    return clashSubscriptionDbImpl
-      .createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed)
-      .then((data) => {
-        expect(data).toEqual(expectedResults);
-      }).catch((err) => expect(err).toBeFalsy());
-  });
-
-  test('If a user tries to persist greater than 5 champions then an error should be returned.', () => {
-    const id = '123456789';
-    const server = 'Goon Squad';
-    const preferredChampions = ['Akali', 'Aatrox', 'Aanivia', 'Ahri', 'Annie', 'Miss Fortune'];
-    const subscribed = false;
-    const playerName = 'Sample User';
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      create: jest.fn(),
-    };
-    return clashSubscriptionDbImpl
-      .createUpdateUserDetails(id, server, playerName, preferredChampions, subscribed)
-      .then((data) => {
-        expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).not.toHaveBeenCalled();
-        expect(data.error).toEqual('Cannot persist more than 5 champions.');
-      }).catch((err) => expect(err).toBeFalsy());
   });
 });
 
@@ -473,14 +398,17 @@ describe('Update User', () => {
       playerName: updatedUsername,
     };
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      update: jest.fn().mockImplementation((updateParams, callback) => callback(undefined, { attrs: updatedRecord })),
+    clashUserDbImpl.clashSubscriptionTable = {
+      update: jest.fn()
+        .mockImplementation((updateParams,
+          callback) => callback(undefined, { attrs: updatedRecord })),
     };
 
-    return clashSubscriptionDbImpl.updateUser({ id: expectedUserId, playerName: updatedUsername }).then((results) => {
-      expect(results).toEqual(updatedRecord);
-      expect(results.playerName).not.toEqual(priorUsername);
-    });
+    return clashUserDbImpl
+      .updateUser({ id: expectedUserId, playerName: updatedUsername }).then((results) => {
+        expect(results).toEqual(updatedRecord);
+        expect(results.playerName).not.toEqual(priorUsername);
+      });
   });
 
   test('When I call updateUser with an id and username and an error occurs, it should properly reject it.', () => {
@@ -494,11 +422,14 @@ describe('Update User', () => {
 
     const expectedError = new Error('Failed to update');
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      update: jest.fn().mockImplementation((updateParams, callback) => callback(expectedError, { attrs: updatedRecord })),
+    clashUserDbImpl.clashSubscriptionTable = {
+      update: jest
+        .fn()
+        .mockImplementation((updateParams,
+          callback) => callback(expectedError, { attrs: updatedRecord })),
     };
 
-    return clashSubscriptionDbImpl.updateUser({ id: expectedUserId, playerName: updatedUsername })
+    return clashUserDbImpl.updateUser({ id: expectedUserId, playerName: updatedUsername })
       .then(() => expect(true).toBeFalsy())
       .catch((err) => expect(err).toEqual(expectedError));
   });
@@ -514,15 +445,21 @@ describe('Retrieve Usernames by ids', () => {
       },
     }];
 
-    const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {});
+    const expectedMap = data
+      .reduce((map, record) => (map[record
+        .attrs.key] = record.attrs.playerName, map), {});
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys, callback) => callback(undefined, data)),
     };
 
-    return clashSubscriptionDbImpl.retrievePlayerNames(expectedPlayerId).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
+    return clashUserDbImpl.retrievePlayerNames(expectedPlayerId).then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+        .toHaveBeenCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+        .toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
       expect(usernames).toEqual(expectedMap);
     });
   });
@@ -546,48 +483,67 @@ describe('Retrieve Usernames by ids', () => {
       },
     ];
 
-    const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs.playerName, map), {});
+    const expectedMap = data
+      .reduce((map, record) => (map[record
+        .attrs.key] = record.attrs.playerName, map), {});
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, data)),
     };
 
-    return clashSubscriptionDbImpl.retrievePlayerNames([expectedPlayerId, expectedPlayerIdTwo]).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId, expectedPlayerIdTwo], expect.any(Function));
-      expect(usernames).toEqual(expectedMap);
-    });
+    return clashUserDbImpl
+      .retrievePlayerNames([expectedPlayerId, expectedPlayerIdTwo])
+      .then((usernames) => {
+        expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+          .toHaveBeenCalledTimes(1);
+        expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+          .toHaveBeenCalledWith([expectedPlayerId,
+            expectedPlayerIdTwo], expect.any(Function));
+        expect(usernames).toEqual(expectedMap);
+      });
   });
 
   test('If no ids are passed, then it should return with an empty object.', () => {
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, undefined)),
     };
 
-    return clashSubscriptionDbImpl.retrievePlayerNames([]).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+    return clashUserDbImpl.retrievePlayerNames([]).then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
       expect(usernames).toEqual({});
     });
   });
 
   test('If undefined is passed, then it should return with an empty object.', () => {
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, undefined)),
     };
 
-    return clashSubscriptionDbImpl.retrievePlayerNames().then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+    return clashUserDbImpl.retrievePlayerNames().then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
       expect(usernames).toEqual({});
     });
   });
 
   test('If undefined in an array is passed, then it should return with an empty object.', () => {
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, undefined)),
     };
 
-    return clashSubscriptionDbImpl.retrievePlayerNames([undefined]).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+    return clashUserDbImpl.retrievePlayerNames([undefined]).then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
       expect(usernames).toEqual({});
     });
   });
@@ -603,15 +559,22 @@ describe('Retrieve User details by ids', () => {
       },
     }];
 
-    const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {});
+    const expectedMap = data
+      .reduce((map, record) => (map[record
+        .attrs.key] = record.attrs, map), {});
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, data)),
     };
 
-    return clashSubscriptionDbImpl.retrieveAllUserDetails(expectedPlayerId).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
+    return clashUserDbImpl.retrieveAllUserDetails(expectedPlayerId).then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+        .toHaveBeenCalledTimes(1);
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+        .toHaveBeenCalledWith([expectedPlayerId], expect.any(Function));
       expect(usernames).toEqual(expectedMap);
     });
   });
@@ -635,37 +598,50 @@ describe('Retrieve User details by ids', () => {
       },
     ];
 
-    const expectedMap = data.reduce((map, record) => (map[record.attrs.key] = record.attrs, map), {});
+    const expectedMap = data
+      .reduce((map, record) => (map[record
+        .attrs.key] = record.attrs, map), {});
 
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys, callback) => callback(undefined, data)),
     };
 
-    return clashSubscriptionDbImpl.retrieveAllUserDetails([expectedPlayerId, expectedPlayerIdTwo]).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledTimes(1);
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).toHaveBeenCalledWith([expectedPlayerId, expectedPlayerIdTwo], expect.any(Function));
-      expect(usernames).toEqual(expectedMap);
-    });
+    return clashUserDbImpl
+      .retrieveAllUserDetails([expectedPlayerId, expectedPlayerIdTwo]).then((usernames) => {
+        expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+          .toHaveBeenCalledTimes(1);
+        expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems)
+          .toHaveBeenCalledWith([expectedPlayerId, expectedPlayerIdTwo], expect.any(Function));
+        expect(usernames).toEqual(expectedMap);
+      });
   });
 
   test('If no ids are passed, then it should return with an empty object.', () => {
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, undefined)),
     };
 
-    return clashSubscriptionDbImpl.retrieveAllUserDetails([]).then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+    return clashUserDbImpl.retrieveAllUserDetails([]).then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
       expect(usernames).toEqual({});
     });
   });
 
   test('If undefined is passed, then it should return with an empty object.', () => {
-    clashSubscriptionDbImpl.clashSubscriptionTable = {
-      batchGetItems: jest.fn().mockImplementation((listOfKeys, callback) => callback(undefined, data)),
+    clashUserDbImpl.clashSubscriptionTable = {
+      batchGetItems: jest
+        .fn()
+        .mockImplementation((listOfKeys,
+          callback) => callback(undefined, undefined)),
     };
 
-    return clashSubscriptionDbImpl.retrieveAllUserDetails().then((usernames) => {
-      expect(clashSubscriptionDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
+    return clashUserDbImpl.retrieveAllUserDetails().then((usernames) => {
+      expect(clashUserDbImpl.clashSubscriptionTable.batchGetItems).not.toHaveBeenCalled();
       expect(usernames).toEqual({});
     });
   });
@@ -677,12 +653,12 @@ describe('Retrieve User details by ids', () => {
         playerName: 'Roid',
         serverName: 'Goon Squad',
       };
-      clashSubscriptionDbImpl.clashSubscriptionTable = {
+      clashUserDbImpl.clashSubscriptionTable = {
         create: jest.fn().mockImplementation((data, callback) => {
           callback(undefined, data);
         }),
       };
-      return clashSubscriptionDbImpl.createUser(userDetails).then((createdUser) => {
+      return clashUserDbImpl.createUser(userDetails).then((createdUser) => {
         expect(createdUser.key).toEqual(userDetails.key);
         expect(createdUser.playerName).toEqual(userDetails.playerName);
         expect(createdUser.serverName).toEqual(userDetails.serverName);

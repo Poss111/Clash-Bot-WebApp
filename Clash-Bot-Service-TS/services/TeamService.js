@@ -2,9 +2,9 @@
 /* eslint-disable no-async-promise-executor */
 const objectMapper = require('object-mapper');
 const Service = require('./Service');
-const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
-const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
-const clashTimeDbImpl = require('../dao/clash-time-db-impl');
+const clashTeamsDbImpl = require('../dao/ClashTeamsDbImpl');
+const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
+const clashTimeDbImpl = require('../dao/ClashTimeDbImpl');
 const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
 const logger = require('../logger');
 

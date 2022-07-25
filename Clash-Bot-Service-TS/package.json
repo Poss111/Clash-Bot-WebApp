@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js | pino-pretty -t",
-    "db-test": "node dao/tests/db-test.unit.test.js | pino-pretty -t",
-    "integration-setup": "node integration/integration-setup.js | pino-pretty -t"
+    "db-test": "node dao/tests/db-test.utility.test.js | pino-pretty -t",
+    "integration-setup": "node integration/integration-setup.js | pino-pretty -t",
+    "test": "jest unit --silent",
+    "local-test": "jest unit --silent | pino-pretty -t"
   },
   "keywords": [
     "openapi-generator",
