@@ -10,7 +10,6 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import {ClashBotService} from "./services/clash-bot.service";
 import { WelcomeDashboardComponent } from './pages/welcome-dashboard/welcome-dashboard.component';
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule} from "@angular/material/core";
@@ -30,6 +29,7 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PageLoadingService} from "./services/page-loading.service";
 import {SharedModule} from "./shared/shared.module";
+import {ApiModule} from "clash-bot-service-api"
 
 @NgModule({
     declarations: [
@@ -41,6 +41,7 @@ import {SharedModule} from "./shared/shared.module";
         ReleaseNotificationDialogComponent
     ],
     imports: [
+        ApiModule,
         BrowserModule,
         HttpClientModule,
         AppRoutingModule,
@@ -64,7 +65,7 @@ import {SharedModule} from "./shared/shared.module";
             sanitize: SecurityContext.HTML
         })
     ],
-    providers: [ClashBotService, DiscordService, {
+    providers: [DiscordService, {
         provide: HTTP_INTERCEPTORS,
         useClass: DiscordInterceptor,
         multi: true

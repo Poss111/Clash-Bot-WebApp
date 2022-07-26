@@ -16,6 +16,10 @@ import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {PageLoadingService} from "../../../services/page-loading.service";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {TentativeService} from "clash-bot-service-api/api/tentative.service";
+import {TeamService} from "clash-bot-service-api/api/team.service";
+import { Tentative } from 'clash-bot-service-api/model/tentative';
 
 @Component({
     selector: 'app-teams-dashboard',
@@ -29,8 +33,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     teamFilters: TeamFilter[] = [];
     currentApplicationDetails: ApplicationDetails = {loggedIn: false};
     private readonly MAX_TIMEOUT = 4000;
-    eligibleTournaments: ClashTournaments[] = [];
-    tentativeList?: ClashBotTentativeDetails[];
+    eligibleTournaments: Tournament[] = [];
+    tentativeList?: Tentative[];
     $teamsSub: Subscription | undefined;
     tentativeDataStatus: string = 'NOT_LOADED';
     canCreateNewTeam: boolean = false;
@@ -39,12 +43,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
 
-    constructor(private clashBotService: ClashBotService,
-                private _snackBar: MatSnackBar,
+    constructor(private _snackBar: MatSnackBar,
                 private applicationDetailsService: ApplicationDetailsService,
                 private dialog: MatDialog,
                 private teamsWebsocketService: TeamsWebsocketService,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private tentativeService: TentativeService,
+                private teamsService: TeamService) {
         this.showSpinner = false;
     }
 
@@ -96,7 +101,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         if (this.currentApplicationDetails.loggedIn) {
             this.tentativeDataStatus = 'LOADING';
 
-            this.clashBotService.getServerTentativeList(guildName)
+            this.tentativeService.getTentativeDetails(guildName)
                 .pipe(take(1),
                     timeout(this.MAX_TIMEOUT),
                     catchError((err: HttpErrorResponse) => {
@@ -108,11 +113,12 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         return throwError(err);
                     }),
                   map(response => {return response.slice(0,4)}),
-                  map(response => {
-                    response.forEach(tentativeRecord => tentativeRecord.isMember
-                      = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''))
-                    return response;
-                  }))
+                  // map(response => {
+                  //   response.forEach(tentativeRecord => tentativeRecord.isMember
+                  //     = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''))
+                  //   return response;
+                  // })
+                )
                 .subscribe((response) => {
                     this.tentativeList = response;
                     this.tentativeDataStatus = 'SUCCESSFUL';
@@ -145,8 +151,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         } else {
             this.updateTentativeList(valueToSearchFor);
             this.showInnerSpinner = true;
-            this.clashBotService
-                .getClashTeams(valueToSearchFor)
+            this.teamsService
+                .getTeam(valueToSearchFor)
                 .pipe(
                     take(1),
                     timeout(7000),
@@ -213,16 +219,16 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
         if (this.tentativeList && playerNames.length > 0) {
             for (let i = 0; i < this.tentativeList?.length; i++) {
-                if (this.tentativeList[i].tournamentDetails.tournamentName === mappedTeam.tournamentDetails?.tournamentName
-                    && this.tentativeList[i].tournamentDetails.tournamentDay === mappedTeam.tournamentDetails?.tournamentDay) {
-                    let updatedTentative =
-                        this.tentativeList[i].tentativePlayers
-                            .filter((name) => !playerNames.includes(name));
-                    if (updatedTentative !== this.tentativeList[i].tentativePlayers
-                        && this.tentativeList[i].isMember) {
-                        this.tentativeList[i].isMember = false;
-                    }
-                    this.tentativeList[i].tentativePlayers = updatedTentative;
+                if (this.tentativeList[i].tournamentDetails?.tournamentName === mappedTeam.tournamentDetails?.tournamentName
+                    && this.tentativeList[i].tournamentDetails?.tournamentDay === mappedTeam.tournamentDetails?.tournamentDay) {
+                    // let updatedTentative =
+                    //     this.tentativeList[i].tentativePlayers
+                    //         .filter((name) => !playerNames.includes(name));
+                    // if (updatedTentative !== this.tentativeList[i].tentativePlayers
+                    //     && this.tentativeList[i].isMember) {
+                    //     this.tentativeList[i].isMember = false;
+                    // }
+                    // this.tentativeList[i].tentativePlayers = updatedTentative;
                 }
             }
         }
@@ -245,7 +251,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 currentTournaments,
                 this.teams
             );
-            let newEligibleTournaments: ClashTournaments[] = [];
+            let newEligibleTournaments: Tournament[] = [];
             map.forEach((value, key) => {
                 if (!value) {
                     newEligibleTournaments.push(key);
@@ -284,21 +290,21 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     registerForTeam($event: ClashBotUserRegister) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.registerUserForTeam(this.currentApplicationDetails.userDetails, $event)
-                .pipe(
-                    timeout(7000),
-                    catchError((err) => {
-                        let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';
-                        if (err.name === 'TimeoutError') {
-                            errorMessage = 'Oops! Your registration timed out, please try again!';
-                        }
-                        this._snackBar.open(errorMessage,
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
-                    }),
-                    take(1)
-                ).subscribe(() => {});
+            // this.userService.registerUserForTeam(this.currentApplicationDetails.userDetails, $event)
+            //     .pipe(
+            //         timeout(7000),
+            //         catchError((err) => {
+            //             let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';
+            //             if (err.name === 'TimeoutError') {
+            //                 errorMessage = 'Oops! Your registration timed out, please try again!';
+            //             }
+            //             this._snackBar.open(errorMessage,
+            //                 'X',
+            //                 {duration: 5 * 1000});
+            //             return throwError(err);
+            //         }),
+            //         take(1)
+            //     ).subscribe(() => {});
         } else {
             this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
                 'X',
@@ -309,21 +315,21 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     unregisterFromTeam($event: ClashTeam) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.unregisterUserFromTeam(this.currentApplicationDetails.userDetails, $event)
-                .pipe(
-                    timeout(7000),
-                    take(1),
-                    catchError((err) => {
-                        let errorMessage = 'Oops! Failed to unregister you from the Team.';
-                        if (err.name === 'TimeoutError') {
-                            errorMessage = 'Oops! Your request timed out, please try again!';
-                        }
-                        this._snackBar.open(errorMessage,
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
-                    })
-                ).subscribe(() => {});
+            // this.clashBotService.unregisterUserFromTeam(this.currentApplicationDetails.userDetails, $event)
+            //     .pipe(
+            //         timeout(7000),
+            //         take(1),
+            //         catchError((err) => {
+            //             let errorMessage = 'Oops! Failed to unregister you from the Team.';
+            //             if (err.name === 'TimeoutError') {
+            //                 errorMessage = 'Oops! Your request timed out, please try again!';
+            //             }
+            //             this._snackBar.open(errorMessage,
+            //                 'X',
+            //                 {duration: 5 * 1000});
+            //             return throwError(err);
+            //         })
+            //     ).subscribe(() => {});
         } else {
             this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
                 'X',
@@ -331,8 +337,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
-        let tournamentToTeamUserMap = new Map<ClashTournaments, any>();
+    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: ClashTeam[]) {
+        let tournamentToTeamUserMap = new Map<Tournament, any>();
         clashTournaments.forEach((tournament) =>
             tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {
                 let reducedMap;
@@ -362,23 +368,23 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     tournamentDay: createNewTeamEvent.tournamentDay
                 }
             };
-            this.clashBotService.createNewTeam(this.currentApplicationDetails.userDetails,
-                newTeamRequest,
-                createNewTeamEvent.role)
-                .pipe(
-                    timeout(7000),
-                    catchError((err) => {
-                        let message = 'Oops! An error occurred while creating a new team.';
-                        if (err.name === 'TimeoutError') {
-                            message = 'Oops! Your request to create a new Team has timed out. Please try again.'
-                        }
-                        this._snackBar.open(message,
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
-                    }),
-                    take(1),
-                ).subscribe(() => {});
+            // this.clashBotService.createNewTeam(this.currentApplicationDetails.userDetails,
+            //     newTeamRequest,
+            //     createNewTeamEvent.role)
+            //     .pipe(
+            //         timeout(7000),
+            //         catchError((err) => {
+            //             let message = 'Oops! An error occurred while creating a new team.';
+            //             if (err.name === 'TimeoutError') {
+            //                 message = 'Oops! Your request to create a new Team has timed out. Please try again.'
+            //             }
+            //             this._snackBar.open(message,
+            //                 'X',
+            //                 {duration: 5 * 1000});
+            //             return throwError(err);
+            //         }),
+            //         take(1),
+            //     ).subscribe(() => {});
         } else {
             this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
                 'X',
@@ -390,11 +396,11 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     tentativeRegister(tentativeUserDetails: ClashBotTentativeDetails) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.postTentativeList(
-                `${this.currentApplicationDetails.userDetails.id}`,
-                tentativeUserDetails.serverName,
-                tentativeUserDetails.tournamentDetails.tournamentName,
-                tentativeUserDetails.tournamentDetails.tournamentDay)
+            this.tentativeService.placePlayerOnTentative({
+                playerId: `${this.currentApplicationDetails.userDetails.id}`,
+                serverName: tentativeUserDetails.serverName,
+                tournamentDetails: tentativeUserDetails.tournamentDetails
+                })
                 .pipe(take(1),
                     timeout(7000),
                     catchError(err => {
@@ -405,9 +411,9 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         return throwError(err);
                     })
                 ).subscribe((response) => {
-                response.isMember = response.tentativePlayers
-                    && response.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?
-                        this.currentApplicationDetails.userDetails.username : '');
+                // response.isMember = response.tentativePlayers
+                //     && response.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?
+                //         this.currentApplicationDetails.userDetails.username : '');
                 if (this.tentativeList && tentativeUserDetails.index !== undefined) {
                     this.tentativeList[tentativeUserDetails.index] = response;
                     this.tentativeList = JSON.parse(JSON.stringify(this.tentativeList));

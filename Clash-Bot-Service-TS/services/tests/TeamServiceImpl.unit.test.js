@@ -63,7 +63,7 @@ describe('Clash Teams Service Impl', () => {
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
-      return clashTeamsServiceImpl.getTeam({ server: serverName })
+      return clashTeamsServiceImpl.getTeam({ serverName })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName });
@@ -98,7 +98,7 @@ describe('Clash Teams Service Impl', () => {
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
-      return clashTeamsServiceImpl.getTeam({ server: serverName, tournament: tournamentName })
+      return clashTeamsServiceImpl.getTeam({ serverName, tournament: tournamentName })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
@@ -133,7 +133,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
-        server: serverName,
+        serverName,
         tournament: tournamentName,
         day: tournamentDay,
       })
@@ -174,7 +174,7 @@ describe('Clash Teams Service Impl', () => {
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
         name: teamName,
-        server: serverName,
+        serverName,
         tournament: tournamentName,
         day: tournamentDay,
       })
@@ -197,7 +197,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        server: serverName,
+        serverName,
         day: tournamentDay,
       })
         .then(() => expect(true).toBeFalsy())
@@ -216,7 +216,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        server: serverName,
+        serverName,
       })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
@@ -235,7 +235,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        server: serverName,
+        serverName,
         tournament: tournamentName,
       })
         .then(() => expect(true).toBeFalsy())

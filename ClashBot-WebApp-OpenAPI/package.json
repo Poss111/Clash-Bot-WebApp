@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "generate": "openapi-generator-cli generate -i open-api.yml -g nodejs-express-server -o ../Clash-Bot-Service-TS --minimal-update -s",
+    "generate-angular-client": "openapi-generator-cli generate -i open-api.yml -g typescript-angular -o ../../ClashBot-AngularClient -s --additional-properties npmName=clash-bot-service-api,snapshot=false,ngVersion=12.2.0,npmVersion=1.0.0",
     "dry-run-generate": "openapi-generator-cli generate -i open-api.yml -g nodejs-express-server -o ../Clash-Bot-Service-TS --minimal-update -s --dry-run"
   },
   "author": "",

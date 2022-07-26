@@ -5,6 +5,7 @@ import {ApplicationDetails} from "../interfaces/application-details";
 import {ClashTeam} from "../interfaces/clash-team";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTournaments} from "../interfaces/clash-tournaments";
+import {Player} from "clash-bot-service-api/model/player";
 
 test('Simple Check', () => expect(true).toBeTruthy())
 
@@ -30,13 +31,14 @@ export function createMockUserDetails() {
 
 export function createMockClashBotUserDetails() {
     return {
-        id: 12312321312,
+        id: '12312321312',
         username: 'Roidrage',
         serverName: 'Goon Squad',
         preferredChampions: ['Sett'],
-        subscriptions: {
-            UpcomingClashTournamentDiscordDM: true
-        }
+        subscriptions: [{
+            key: "UpcomingClashTournamentDiscordDM",
+            isOn: true
+        }]
     };
 }
 
@@ -53,7 +55,7 @@ export function getMockDdragonChampionList() {
     };
 }
 
-export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUserDetails?: ClashBotUserDetails, mockUserDetails?: UserDetails) : ApplicationDetails{
+export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUserDetails?: Player, mockUserDetails?: UserDetails) : ApplicationDetails{
     return {
         currentTournaments: [],
         defaultGuild: '',

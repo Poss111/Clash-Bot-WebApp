@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {ClashBotService} from "../../services/clash-bot.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {environment} from "../../../environments/environment";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
@@ -8,9 +7,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
 import {throwError, timer} from "rxjs";
-import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {ApplicationDetails} from "../../interfaces/application-details";
-import {ClashTournaments} from "../../interfaces/clash-tournaments";
 import {MatDialog} from "@angular/material/dialog";
 import {
     ReleaseNotificationDialogComponent
@@ -18,6 +15,10 @@ import {
 import {UserDetails} from "../../interfaces/user-details";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {PageLoadingService} from "../../services/page-loading.service";
+import {UserService} from "clash-bot-service-api/api/user.service";
+import {TournamentService} from "clash-bot-service-api/api/tournament.service";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {Player} from "clash-bot-service-api/model/player";
 
 @Component({
     selector: 'app-welcome-dashboard',
@@ -27,7 +28,7 @@ import {PageLoadingService} from "../../services/page-loading.service";
 })
 export class WelcomeDashboardComponent implements OnInit {
     tournamentDays: any[] = [];
-    tournaments?: ClashTournaments[];
+    tournaments?: Tournament[];
     dataLoaded: boolean = false;
     loggedIn: string = 'NOT_LOGGED_IN';
 
@@ -48,12 +49,13 @@ export class WelcomeDashboardComponent implements OnInit {
     }
 
     constructor(private oauthService: OAuthService,
-                private clashBotService: ClashBotService,
                 private discordService: DiscordService,
                 private applicationDetailsService: ApplicationDetailsService,
                 private _snackBar: MatSnackBar,
                 private matDialog: MatDialog,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private userService: UserService,
+                private tournamentService: TournamentService) {
     }
 
     ngOnInit(): void {
@@ -61,13 +63,13 @@ export class WelcomeDashboardComponent implements OnInit {
             this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});
             localStorage.setItem('version', environment.version);
         }
-        this.clashBotService.getClashTournaments()
+        this.tournamentService.getTournaments()
             .pipe(
                 take(1),
                 map(tournaments => {
                     tournaments.sort((a, b) =>
-                        new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime)));
+                        new Date(a.startTime === undefined ? '': a.startTime).getTime() - new Date(b.startTime === undefined ? '': b.startTime).getTime());
+                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime === undefined ? '': tournament.startTime)));
                     return tournaments;
                 }))
             .subscribe((data) => {
@@ -158,7 +160,7 @@ export class WelcomeDashboardComponent implements OnInit {
                                 discordGuilds: response
                             }
                         }))),
-                mergeMap(discordDetails => this.clashBotService.getUserDetails(discordDetails.discordUser.id)
+                mergeMap(discordDetails => this.userService.getUser(`${discordDetails.discordUser.id}`)
                     .pipe(
                         catchError(err => {
                             this.loggedIn = 'NOT_LOGGED_IN';
@@ -175,13 +177,13 @@ export class WelcomeDashboardComponent implements OnInit {
                             }
                         }))),
                 mergeMap(loginDetails => {
-                    if (!loginDetails.clashBotUserDetails.username ||
-                        loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.username) {
-                        return this.clashBotService.postUserDetails(loginDetails.discordUser.id,
-                            loginDetails.discordGuilds[0].name,
-                            new Set<string>(),
-                            {'UpcomingClashTournamentDiscordDM': false},
-                            loginDetails.discordUser.username)
+                    if (!loginDetails.clashBotUserDetails.name ||
+                        loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.name) {
+                        return this.userService.updateUser({
+                            id: `${loginDetails.clashBotUserDetails.id}`,
+                            serverName: loginDetails.discordGuilds[0].name,
+                            name: loginDetails.discordUser.username,
+                        })
                             .pipe(
                                 catchError(err => {
                                     this._snackBar.open('Oops, we see your discord username has changed. We failed to updated it. Please try to login again.',
@@ -224,7 +226,7 @@ export class WelcomeDashboardComponent implements OnInit {
     mapLoggedInApplicationDetails(appDetails: ApplicationDetails,
                                   discordUser: UserDetails,
                                   guilds: DiscordGuild[],
-                                  clashBotUserDetails: ClashBotUserDetails) {
+                                  clashBotUserDetails: Player) {
         appDetails.userDetails = discordUser;
         appDetails.userGuilds = guilds;
         appDetails.clashBotUserDetails = clashBotUserDetails;

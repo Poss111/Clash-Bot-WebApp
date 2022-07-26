@@ -1,6 +1,6 @@
-const clashUserDbImpl = require('../clash-subscription-db-impl');
-const clashTimeDbImpl = require('../clash-time-db-impl');
-const clashTeamsDb = require('../clash-teams-db-impl');
+const clashUserDbImpl = require('../ClashUserDbImpl');
+const clashTimeDbImpl = require('../ClashTimeDbImpl');
+const clashTeamsDb = require('../ClashTeamsDbImpl');
 const logger = require('../../logger');
 
 // Promise.all([

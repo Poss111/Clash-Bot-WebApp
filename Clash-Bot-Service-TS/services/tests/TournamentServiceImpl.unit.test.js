@@ -12,17 +12,17 @@ describe('Retrieve Tournament times.', () => {
   test('When no filter is given, all times should be retrieved and transformed to correct response.', () => {
     const dbTournaments = [{
       key: 'some#key',
-      startTime: 'June 1st, 2022 1:30 PM',
+      startTime: 'Jul 30, 2022, 7:22:38 PM CDT',
       tournamentName: 'shadow_lands',
       tournamentDay: 'Day 1',
-      registrationTime: 'June 1st, 2022 1:00 PM',
+      registrationTime: 'Jul 30, 2022, 7:22:38 PM CDT',
     }];
     const expectedReturnedTournaments = [
       {
         tournamentName: dbTournaments[0].tournamentName,
         tournamentDay: dbTournaments[0].tournamentDay,
-        startTime: dbTournaments[0].startTime,
-        registrationTime: dbTournaments[0].registrationTime,
+        startTime: new Date(dbTournaments[0].startTime).toISOString(),
+        registrationTime: new Date(dbTournaments[0].registrationTime).toISOString(),
       },
     ];
     clashTimeDb.findTournament.mockResolvedValue(dbTournaments);

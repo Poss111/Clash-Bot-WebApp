@@ -63,7 +63,7 @@ const createNewTeam = ({ body }) => new Promise(
 * returns List
 * */
 const getTeam = ({
-  server, name, tournament, day,
+  serverName, name, tournament, day,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'getTeam' };
@@ -75,7 +75,7 @@ const getTeam = ({
       } else {
         const teams = await clashTeamsDbImpl.retrieveTeamsByFilter({
           teamName: name,
-          serverName: server,
+          serverName,
           tournamentName: tournament,
           tournamentDay: day,
         });

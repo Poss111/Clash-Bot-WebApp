@@ -1,13 +1,13 @@
-import {ClashTournaments} from "./clash-tournaments";
 import {DiscordGuild} from "./discord-guild";
 import {UserDetails} from "./user-details";
-import {ClashBotUserDetails} from "./clash-bot-user-details";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {Player} from "clash-bot-service-api/model/player";
 
 export interface ApplicationDetails {
-  currentTournaments?: ClashTournaments[],
+  currentTournaments?: Tournament[],
   defaultGuild?: string,
   userGuilds?: DiscordGuild[],
   userDetails?: UserDetails,
-  clashBotUserDetails?: ClashBotUserDetails,
+  clashBotUserDetails?: Player,
   loggedIn?: boolean
 }

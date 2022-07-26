@@ -74,7 +74,7 @@ paths:
       - description: the name of the Server to filter the Teams by.
         explode: false
         in: header
-        name: server
+        name: serverName
         required: true
         schema:
           type: string
@@ -686,7 +686,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              server:
+              serverName:
                 description: The server the player is from.
                 type: string
             required:
@@ -799,9 +799,9 @@ components:
             serverName: serverName
             id: id
         tournament:
-          registrationTime: registrationTime
+          registrationTime: 2000-01-23T04:56:07.000+00:00
           tournamentName: tournamentName
-          startTime: startTime
+          startTime: 2000-01-23T04:56:07.000+00:00
           tournamentDay: "1"
       properties:
         name:
@@ -818,9 +818,9 @@ components:
     Tournament:
       description: A League of Legends Clash Tournament
       example:
-        registrationTime: registrationTime
+        registrationTime: 2000-01-23T04:56:07.000+00:00
         tournamentName: tournamentName
-        startTime: startTime
+        startTime: 2000-01-23T04:56:07.000+00:00
         tournamentDay: "1"
       properties:
         tournamentName:
@@ -832,9 +832,11 @@ components:
           type: string
         startTime:
           description: When the Tournament starts.
+          format: date-time
           type: string
         registrationTime:
           description: When you can register for the Tournament.
+          format: date-time
           type: string
       type: object
     Tentative:
@@ -867,9 +869,9 @@ components:
           serverName: serverName
           id: id
         tournamentDetails:
-          registrationTime: registrationTime
+          registrationTime: 2000-01-23T04:56:07.000+00:00
           tournamentName: tournamentName
-          startTime: startTime
+          startTime: 2000-01-23T04:56:07.000+00:00
           tournamentDay: "1"
         serverName: serverName
       properties:
@@ -1046,13 +1048,13 @@ components:
         name:
           description: The name of the player
           type: string
-        server:
+        serverName:
           description: The server the player is from.
           type: string
       required:
       - id
       - name
-      - server
+      - serverName
       type: object
     createNewListOfPreferredChampions_request:
       properties:

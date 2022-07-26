@@ -4,13 +4,13 @@ import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} 
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
 import {catchError, finalize, map, mergeMap, startWith, take, timeout} from "rxjs/operators";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
-import {ClashBotService} from "../../services/clash-bot.service";
 import {RiotDdragonService} from "../../services/riot-ddragon.service";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {UserDetails} from "../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {PageLoadingService} from "../../services/page-loading.service";
+import { UserService } from 'clash-bot-service-api';
 
 @Component({
     selector: 'app-user-profile',
@@ -35,11 +35,11 @@ export class UserProfileComponent implements OnInit {
     @ViewChild('championInput') championInput: any = '';
     userDetailsForm?: FormGroup;
 
-    constructor(private clashBotService: ClashBotService,
-                private riotDdragonService: RiotDdragonService,
+    constructor(private riotDdragonService: RiotDdragonService,
                 private applicationDetailsService: ApplicationDetailsService,
                 private matSnackBar: MatSnackBar,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private userService: UserService) {
     }
 
     notInListValidator(): ValidatorFn {
@@ -54,7 +54,7 @@ export class UserProfileComponent implements OnInit {
             .pipe(
                 take(1),
                 mergeMap(details => details.userDetails ?
-                    this.clashBotService.getUserDetails(details.userDetails.id)
+                    this.userService.getUser(`${details.userDetails.id}`)
                         .pipe(
                             take(1),
                             timeout(4000),
@@ -77,7 +77,6 @@ export class UserProfileComponent implements OnInit {
                         .pipe(take(1),
                             timeout(7000),
                             catchError((err) => {
-                                console.error(err);
                                 this.matSnackBar.open('Oops! Failed to retrieve League Champion names. Please try again later.',
                                     'X',
                                     {duration: 5000});
@@ -107,22 +106,24 @@ export class UserProfileComponent implements OnInit {
                     this.userDetails = userProfileDetails.appDetails.userDetails;
                     if (!userProfileDetails.clashBotUserDetails || !userProfileDetails.clashBotUserDetails.id) {
                         userProfileDetails.clashBotUserDetails.serverName = defaultGuild;
-                        userProfileDetails.clashBotUserDetails.preferredChampions = [];
-                        userProfileDetails.clashBotUserDetails.subscriptions = {
-                            UpcomingClashTournamentDiscordDM: false
-                        };
+                        userProfileDetails.clashBotUserDetails.champions = [];
+                        userProfileDetails.clashBotUserDetails.subscriptions = [{
+                            key: "UpcomingClashTournamentDiscordDM",
+                            isOn: false
+                        }];
                     }
-                    this.defaultGuild = userProfileDetails.clashBotUserDetails.serverName;
-                    let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.preferredChampions) ? userProfileDetails.clashBotUserDetails.preferredChampions : [];
+                    this.defaultGuild = userProfileDetails.clashBotUserDetails.serverName === undefined ? '' : userProfileDetails.clashBotUserDetails.serverName;
+                    let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
                     this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
                     this.userDetailsForm = new FormGroup({
                         preferredChampionsFC: new FormControl([...preferredChampions]),
-                        subscribedDiscordDMFC: new FormControl(userProfileDetails.clashBotUserDetails.subscriptions.UpcomingClashTournamentDiscordDM),
+                        subscribedDiscordDMFC: new FormControl(userProfileDetails.clashBotUserDetails.subscriptions === undefined
+                            ? false : userProfileDetails.clashBotUserDetails.subscriptions[0].isOn),
                         defaultGuildFC: new FormControl(this.defaultGuild)
                     });
-                    this.preferredChampions = new Set<string>(userProfileDetails.clashBotUserDetails.preferredChampions);
+                    this.preferredChampions = new Set<string>(userProfileDetails.clashBotUserDetails.champions);
                     this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
                     this.championsAutofillArray = this.championAutoCompleteCtrl.valueChanges.pipe(
                         startWith(null),
@@ -178,12 +179,12 @@ export class UserProfileComponent implements OnInit {
     onSubmit() {
         if (this.userDetailsForm && this.userDetails) {
             this.userDetailsForm.markAsPending();
-            this.clashBotService.postUserDetails(this.userDetails.id,
-                this.userDetailsForm.value.defaultGuildFC,
-                new Set<string>(this.userDetailsForm.value.preferredChampionsFC),
-                {'UpcomingClashTournamentDiscordDM': this.userDetailsForm.value.subscribedDiscordDMFC},
-                this.userDetails.username)
-                .pipe(timeout(4000),
+
+            this.userService.updateUser({
+                id: `${this.userDetails.id}`,
+                name: this.userDetails.username,
+                serverName: this.userDetailsForm.value.defaultGuildFC,
+            }).pipe(timeout(4000),
                     catchError((err) => {
                         console.error(err);
                         this.matSnackBar.open('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});

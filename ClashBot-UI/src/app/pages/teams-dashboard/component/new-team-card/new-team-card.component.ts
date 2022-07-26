@@ -3,6 +3,7 @@ import {FormControl, Validators} from "@angular/forms";
 import {MatOption} from "@angular/material/core";
 import {ClashTournaments} from "../../../../interfaces/clash-tournaments";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
+import {Tournament} from "clash-bot-service-api/model/tournament";
 
 @Component({
   selector: 'app-new-team-card',
@@ -12,7 +13,7 @@ import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-detai
 export class NewTeamCardComponent {
 
   @Input()
-  eligibleTournaments: ClashTournaments[] = [];
+  eligibleTournaments: Tournament[] = [];
 
   @Output()
   createNewTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();

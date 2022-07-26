@@ -4,6 +4,7 @@ import {MatTable} from "@angular/material/table";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {take} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
+import {Tentative} from "clash-bot-service-api/model/tentative";
 
 @Component({
     selector: 'app-teams-tentative-table',
@@ -15,7 +16,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
     showTentative: boolean = false;
 
     @Input()
-    tentativeList?: ClashBotTentativeDetails[] = [];
+    tentativeList?: Tentative[] = [];
 
     @Input()
     tentativeDataStatus: string = 'NOT_LOADED';

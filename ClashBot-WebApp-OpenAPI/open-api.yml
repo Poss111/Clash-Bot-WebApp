@@ -69,9 +69,11 @@ components:
         startTime:
           description: When the Tournament starts.
           type: string
+          format: date-time
         registrationTime:
           description: When you can register for the Tournament.
           type: string
+          format: date-time
     Tentative:
       description: A queue for Players unsure if they will play Clash for a given Tournament.
       type: object
@@ -222,7 +224,7 @@ components:
             required:
               - id
               - name
-              - server
+              - serverName
             properties:
               id:
                 description: The id of the player
@@ -230,7 +232,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              server:
+              serverName:
                 description: The server the player is from.
                 type: string
     PlayerUpdateBody:
@@ -248,7 +250,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              server:
+              serverName:
                 description: The server the player is from.
                 type: string
     ChampionPostBody:
@@ -323,7 +325,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: server
+        - name: serverName
           description: the name of the Server to filter the Teams by.
           in: header
           required: true

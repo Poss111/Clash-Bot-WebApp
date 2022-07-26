@@ -5,6 +5,8 @@ import {ClashTeam} from "../../../../interfaces/clash-team";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
 import {TeamFilter} from "../../../../interfaces/team-filter";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {Tentative} from "clash-bot-service-api/model/tentative";
 
 @Component({
   selector: 'app-teams-dashboard-view',
@@ -14,13 +16,13 @@ import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-detai
 export class TeamsDashboardViewComponent {
 
   @Input()
-  eligibleTournaments: ClashTournaments[] = [];
+  eligibleTournaments: Tournament[] = [];
 
   @Input()
   teams: ClashTeam[] = [];
 
   @Input()
-  tentativeList?: ClashBotTentativeDetails[] = [];
+  tentativeList?: Tentative[] = [];
 
   @Input()
   teamFilters: TeamFilter[] = [];

@@ -17,10 +17,13 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import * as mocks from '../../shared/shared-test-mocks.spec';
+import {UserService} from 'clash-bot-service-api';
+import {Player} from "clash-bot-service-api/model/player";
 
 jest.mock('../../services/clash-bot.service');
 jest.mock('../../services/riot-ddragon.service');
 jest.mock('../../services/application-details.service');
+jest.mock('clash-bot-service-api');
 
 function createMockBlankUserDetails() {
   return {id: 0, username: '', discriminator: ''};
@@ -52,6 +55,7 @@ describe('UserProfileComponent', () => {
   let fixture: ComponentFixture<UserProfileComponent>;
   let testScheduler: TestScheduler;
   let clashBotServiceMock: ClashBotService;
+  let userServiceMock: UserService;
   let riotDDragonServiceMock: RiotDdragonService;
   let applicationDetailsMock: any;
   let matSnackBarMock: MatSnackBar;
@@ -63,14 +67,16 @@ describe('UserProfileComponent', () => {
     });
     jest.resetAllMocks();
     await TestBed.configureTestingModule({
-      imports: [UserProfileModule,
+      imports: [
+        UserProfileModule,
         BrowserAnimationsModule,
         HttpClientTestingModule,
         MatSnackBarModule],
-      providers: [RiotDdragonService, ApplicationDetailsService]
+      providers: [RiotDdragonService, ApplicationDetailsService, UserService]
     })
       .compileComponents();
     clashBotServiceMock = TestBed.inject(ClashBotService);
+    userServiceMock = TestBed.inject(UserService);
     riotDDragonServiceMock = TestBed.inject(RiotDdragonService);
     matSnackBarMock = TestBed.inject(MatSnackBar);
     applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
@@ -84,7 +90,7 @@ describe('UserProfileComponent', () => {
         const {cold, flush} = helpers;
         let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
         let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-        let mockClashBotUserDetails: ClashBotUserDetails = mocks.createMockClashBotUserDetails();
+        let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
         let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
         let mockAppDetails: ApplicationDetails =
             mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
@@ -110,7 +116,7 @@ describe('UserProfileComponent', () => {
         } else {
           expect(true).toBeFalsy();
         }
-        expect(component.preferredChampions).toEqual(new Set(mockClashBotUserDetails.preferredChampions));
+        expect(component.preferredChampions).toEqual(new Set(mockClashBotUserDetails.champions));
         let expectedInitialFormControlState = {
           preferredChampionsFC: ['Sett'],
           subscribedDiscordDMFC: true,
@@ -121,10 +127,10 @@ describe('UserProfileComponent', () => {
         expect(component.guilds).toEqual(mockGuilds);
         expect(component.listOfChampions)
           .toEqual(Object.keys(mockDdragonChampionList.data).filter(record =>
-            !mockClashBotUserDetails.preferredChampions.includes(record)));
+            !mockClashBotUserDetails.champions?.includes(record)));
         expect(component.initialAutoCompleteArray)
           .toEqual(Object.keys(mockDdragonChampionList.data).filter(record =>
-            !mockClashBotUserDetails.preferredChampions.includes(record)));
+            !mockClashBotUserDetails.champions?.includes(record)));
       })
     });
 
@@ -133,7 +139,7 @@ describe('UserProfileComponent', () => {
         testScheduler.run((helpers) => {
           const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
-          let mockClashBotUserDetails: ClashBotUserDetails = mocks.createMockClashBotUserDetails();
+          let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
           let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
 
           let mockAppDetails: ApplicationDetails =
@@ -164,7 +170,7 @@ describe('UserProfileComponent', () => {
           const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
           let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-          let mockClashBotUserDetails: ClashBotUserDetails = ({} as any);
+          let mockClashBotUserDetails: Player = ({} as any);
           let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
           mockAppDetails.loggedIn = true;
@@ -188,7 +194,7 @@ describe('UserProfileComponent', () => {
           } else {
             expect(true).toBeFalsy();
           }
-          expect(component.preferredChampions).toEqual(new Set(mockClashBotUserDetails.preferredChampions));
+          expect(component.preferredChampions).toEqual(new Set(mockClashBotUserDetails.champions));
           let expectedInitialFormControlState = {
             preferredChampionsFC: [],
             subscribedDiscordDMFC: false,
@@ -246,7 +252,7 @@ describe('UserProfileComponent', () => {
 
           let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
           let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-          let mockClashBotUserDetails: ClashBotUserDetails = mocks.createMockClashBotUserDetails();
+          let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
           let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
 
@@ -282,7 +288,7 @@ describe('UserProfileComponent', () => {
         testScheduler.run((helpers) => {
           const {cold, flush} = helpers;
           let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-          let mockClashBotUserDetails: ClashBotUserDetails = mocks.createMockClashBotUserDetails();
+          let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails)}));
           (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
@@ -314,7 +320,7 @@ describe('UserProfileComponent', () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-        let mockClashBotUserDetails: ClashBotUserDetails = mocks.createMockClashBotUserDetails();
+        let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
 
         let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails);
 
@@ -621,7 +627,9 @@ describe('UserProfileComponent', () => {
 
         let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
         let applicationDetailsObsMock = cold('x|', {x: {}});
-        (clashBotServiceMock.postUserDetails as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        (userServiceMock.updateUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        (userServiceMock.createNewListOfPreferredChampions as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        (userServiceMock.subscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
