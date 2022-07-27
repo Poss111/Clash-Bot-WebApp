@@ -2,12 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {Subscription, throwError} from "rxjs";
-import {ClashBotService} from "../../../services/clash-bot.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
 import {catchError, delay, finalize, map, retryWhen, take, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
-import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
@@ -17,8 +15,8 @@ import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details"
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {PageLoadingService} from "../../../services/page-loading.service";
 import {Tournament} from "clash-bot-service-api/model/tournament";
-import {TentativeService} from "clash-bot-service-api/api/tentative.service";
-import {TeamService} from "clash-bot-service-api/api/team.service";
+import {TentativeService} from "clash-bot-service-api";
+import {TeamService} from "clash-bot-service-api";
 import { Tentative } from 'clash-bot-service-api/model/tentative';
 
 @Component({

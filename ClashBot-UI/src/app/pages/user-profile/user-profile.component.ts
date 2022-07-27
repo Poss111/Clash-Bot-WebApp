@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Observable, of, throwError, EMPTY} from "rxjs";
+import {Observable, of, throwError, EMPTY, forkJoin} from "rxjs";
 import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} from "@angular/forms";
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
 import {catchError, finalize, map, mergeMap, startWith, take, timeout} from "rxjs/operators";
@@ -10,7 +10,7 @@ import {UserDetails} from "../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {PageLoadingService} from "../../services/page-loading.service";
-import { UserService } from 'clash-bot-service-api';
+import {UserService} from 'clash-bot-service-api';
 
 @Component({
     selector: 'app-user-profile',
@@ -71,7 +71,7 @@ export class UserProfileComponent implements OnInit {
                                     appDetails: details
                                 }
                             }))
-                : EMPTY),
+                    : EMPTY),
                 mergeMap(details =>
                     this.riotDdragonService.getListOfChampions()
                         .pipe(take(1),
@@ -180,16 +180,42 @@ export class UserProfileComponent implements OnInit {
         if (this.userDetailsForm && this.userDetails) {
             this.userDetailsForm.markAsPending();
 
-            this.userService.updateUser({
-                id: `${this.userDetails.id}`,
-                name: this.userDetails.username,
-                serverName: this.userDetailsForm.value.defaultGuildFC,
-            }).pipe(timeout(4000),
-                    catchError((err) => {
-                        console.error(err);
-                        this.matSnackBar.open('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});
-                        return throwError(err);
-                    }))
+            const updateCallsToMake = [];
+            if (this.userDetailsForm.value
+                .defaultGuildFC !== this.initialFormControlState
+                .defaultGuildFC) {
+                updateCallsToMake.push(this.userService.updateUser({
+                    id: `${this.userDetails.id}`,
+                    name: this.userDetails.username,
+                    serverName: this.userDetailsForm.value.defaultGuildFC,
+                }).pipe(timeout(4000),
+                    catchError((err) => throwError(err))));
+            } if (!this.compareArray(this.userDetailsForm.value
+                .preferredChampionsFC, this.initialFormControlState
+                .preferredChampionsFC)) {
+                updateCallsToMake.push(this.userService.createNewListOfPreferredChampions(
+                    `${this.userDetails.id}`,
+                    {
+                        champions: Array.from(new Set<string>(this.userDetailsForm.value.preferredChampionsFC))
+                    },
+                ).pipe(timeout(4000),
+                    catchError((err) => throwError(err))));
+            } if (this.userDetailsForm.value
+                .subscribedDiscordDMFC !== this.initialFormControlState
+                .subscribedDiscordDMFC) {
+                if (this.userDetailsForm.value
+                    .subscribedDiscordDMFC) {
+                    updateCallsToMake.push(this.userService.subscribeUser(`${this.userDetails.id}`)
+                        .pipe(timeout(4000),
+                            catchError((err) => throwError(err))));
+                } else {
+                    updateCallsToMake.push(this.userService.unsubscribeUser(`${this.userDetails.id}`)
+                        .pipe(timeout(4000),
+                            catchError((err) => throwError(err))));
+                }
+            }
+
+            forkJoin(updateCallsToMake)
                 .subscribe(() => {
                     this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm?.value));
                     this.userDetailsForm?.markAsPristine();
@@ -199,6 +225,9 @@ export class UserProfileComponent implements OnInit {
                             appDetails.defaultGuild = this.userDetailsForm?.value.defaultGuildFC;
                             this.applicationDetailsService.setApplicationDetails(appDetails);
                         })
+                }, (err) => {
+                    console.error(err);
+                    this.matSnackBar.open('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});
                 });
         }
     }

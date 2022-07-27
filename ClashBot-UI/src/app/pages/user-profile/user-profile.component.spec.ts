@@ -4,7 +4,6 @@ import {UserProfileComponent} from './user-profile.component';
 import {UserProfileModule} from "./user-profile.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ClashBotService} from "../../services/clash-bot.service";
-import {ClashBotUserDetails} from "../../interfaces/clash-bot-user-details";
 import {RiotDdragonService} from "../../services/riot-ddragon.service";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {DiscordGuild} from "../../interfaces/discord-guild";
@@ -17,17 +16,14 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import * as mocks from '../../shared/shared-test-mocks.spec';
-import {UserService} from 'clash-bot-service-api';
+import {Subscription, UserService} from 'clash-bot-service-api';
 import {Player} from "clash-bot-service-api/model/player";
+import {CreateUserRequest} from "clash-bot-service-api/model/createUserRequest";
 
 jest.mock('../../services/clash-bot.service');
 jest.mock('../../services/riot-ddragon.service');
 jest.mock('../../services/application-details.service');
 jest.mock('clash-bot-service-api');
-
-function createMockBlankUserDetails() {
-  return {id: 0, username: '', discriminator: ''};
-}
 
 function expectDefaultState(component: UserProfileComponent, mockGuilds: DiscordGuild[]) {
   expect(component.userDetails).toBeFalsy();
@@ -605,25 +601,34 @@ describe('UserProfileComponent', () => {
         createComponent();
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: 'Goon Squad',
+            defaultGuildFC: 'Sejjjus',
             preferredChampionsFC: ['Sett'],
             subscribedDiscordDMFC: true
           },
           markAsPristine: jest.fn(),
           markAsPending: jest.fn()
         } as any);
+        component.initialFormControlState = {
+          defaultGuildFC: 'Goon Squad',
+          preferredChampionsFC: ['Ahri'],
+          subscribedDiscordDMFC: false
+        };
         component.userDetails = {
           id: 123321312,
           username: 'Roidrage',
           discriminator: '1232132131231'
         };
-        let userDetailsResponse: ClashBotUserDetails = {
-          id: 12321,
-          username: 'Roidrage',
-          serverName: 'Goon Squad',
-          preferredChampions: ['Sett'],
-          subscriptions: {subscribedDiscordDMFC: true}
-        }
+        let userDetailsResponse: Player = {
+          id: '12321',
+          name: 'Roidrage',
+          serverName: 'Sejjjus',
+          champions: ['Sett'],
+          subscriptions: [
+            {
+              key: 'UpcomingClashTournamentDiscordDM',
+              isOn: true
+            }]
+        };
 
         let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
         let applicationDetailsObsMock = cold('x|', {x: {}});
@@ -636,14 +641,25 @@ describe('UserProfileComponent', () => {
 
         flush();
 
-        expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.createNewListOfPreferredChampions).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.subscribeUser).toHaveBeenCalledTimes(1);
 
         if (component.userDetailsForm) {
-          expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
-            component.userDetailsForm.value.defaultGuildFC,
-            new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
-            component.userDetails.username);
+
+          const expectedUpdateUserRequest: CreateUserRequest = {
+            id: `${component.userDetails.id}`,
+            name: component.userDetails.username,
+            serverName: `${component.userDetailsForm.value.defaultGuildFC}`
+          };
+          expect(userServiceMock.updateUser)
+              .toHaveBeenCalledWith(expectedUpdateUserRequest);
+          expect(userServiceMock.createNewListOfPreferredChampions).toHaveBeenCalledWith(
+              `${component.userDetails.id}`,
+              {champions: ['Sett']}
+          );
+          expect(userServiceMock.subscribeUser)
+              .toHaveBeenCalledWith(`${component.userDetails.id}`);
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
@@ -656,13 +672,248 @@ describe('UserProfileComponent', () => {
       })
     })
 
+    test('When onSubmit is called, if only champions are changed, only the champions update call should be made.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, flush} = helpers;
+        createComponent();
+        component.userDetailsForm = ({
+          value: {
+            defaultGuildFC: 'Goon Squad',
+            preferredChampionsFC: ['Sett'],
+            subscribedDiscordDMFC: true
+          },
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
+        } as any);
+        component.initialFormControlState = {
+          defaultGuildFC: 'Goon Squad',
+          preferredChampionsFC: ['Ahri'],
+          subscribedDiscordDMFC: true
+        };
+        component.userDetails = {
+          id: 123321312,
+          username: 'Roidrage',
+          discriminator: '1232132131231'
+        };
+        let userDetailsResponse = ['Sett'];
+
+        let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
+        let applicationDetailsObsMock = cold('x|', {x: {}});
+        (userServiceMock.createNewListOfPreferredChampions as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+
+        component.onSubmit();
+
+        flush();
+
+        expect(userServiceMock.updateUser).not.toHaveBeenCalled();
+        expect(userServiceMock.createNewListOfPreferredChampions).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.subscribeUser).not.toHaveBeenCalled();
+
+        if (component.userDetailsForm) {
+
+          expect(userServiceMock.createNewListOfPreferredChampions).toHaveBeenCalledWith(
+              `${component.userDetails.id}`,
+              {champions: ['Sett']}
+          );
+          expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
+          expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: 'Goon Squad' });
+        } else {
+          expect(true).toBeFalsy();
+        }
+      })
+    })
+
+    test('When onSubmit is called, if only the subscription is changed and is changing to true, only the subscribe user update call should be made.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, flush} = helpers;
+        createComponent();
+        component.userDetailsForm = ({
+          value: {
+            defaultGuildFC: 'Goon Squad',
+            preferredChampionsFC: ['Sett'],
+            subscribedDiscordDMFC: true
+          },
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
+        } as any);
+        component.initialFormControlState = {
+          defaultGuildFC: 'Goon Squad',
+          preferredChampionsFC: ['Sett'],
+          subscribedDiscordDMFC: false
+        };
+        component.userDetails = {
+          id: 123321312,
+          username: 'Roidrage',
+          discriminator: '1232132131231'
+        };
+        let userDetailsResponse: Subscription[] = [{
+          key: 'UpcomingClashTournamentDiscordDM',
+          isOn: true
+        }];
+
+        let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
+        let applicationDetailsObsMock = cold('x|', {x: {}});
+        (userServiceMock.subscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+
+        component.onSubmit();
+
+        flush();
+
+        expect(userServiceMock.updateUser).not.toHaveBeenCalled();
+        expect(userServiceMock.createNewListOfPreferredChampions).not.toHaveBeenCalled();
+        expect(userServiceMock.subscribeUser).toHaveBeenCalledTimes(1);
+
+        if (component.userDetailsForm) {
+          expect(userServiceMock.subscribeUser).toHaveBeenCalledWith(`${component.userDetails.id}`);
+          expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
+          expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: 'Goon Squad' });
+        } else {
+          expect(true).toBeFalsy();
+        }
+      })
+    })
+
+    test('When onSubmit is called, if only the subscription is changed and is changing to false, only the unsubscribe user update call should be made.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, flush} = helpers;
+        createComponent();
+        component.userDetailsForm = ({
+          value: {
+            defaultGuildFC: 'Goon Squad',
+            preferredChampionsFC: ['Sett'],
+            subscribedDiscordDMFC: false
+          },
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
+        } as any);
+        component.initialFormControlState = {
+          defaultGuildFC: 'Goon Squad',
+          preferredChampionsFC: ['Sett'],
+          subscribedDiscordDMFC: true
+        };
+        component.userDetails = {
+          id: 123321312,
+          username: 'Roidrage',
+          discriminator: '1232132131231'
+        };
+        let userDetailsResponse: Subscription[] = [{
+          key: 'UpcomingClashTournamentDiscordDM',
+          isOn: false
+        }];
+
+        let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
+        let applicationDetailsObsMock = cold('x|', {x: {}});
+        (userServiceMock.unsubscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+
+        component.onSubmit();
+
+        flush();
+
+        expect(userServiceMock.updateUser).not.toHaveBeenCalled();
+        expect(userServiceMock.createNewListOfPreferredChampions).not.toHaveBeenCalled();
+        expect(userServiceMock.subscribeUser).not.toHaveBeenCalled();
+        expect(userServiceMock.unsubscribeUser).toHaveBeenCalledTimes(1);
+
+        if (component.userDetailsForm) {
+          expect(userServiceMock.unsubscribeUser).toHaveBeenCalledWith(`${component.userDetails.id}`);
+          expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
+          expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: 'Goon Squad' });
+        } else {
+          expect(true).toBeFalsy();
+        }
+      })
+    })
+
+    test('When onSubmit is called, if only the default server is changed, only the server update call should be made.', () => {
+      testScheduler.run((helpers) => {
+        const {cold, flush} = helpers;
+        createComponent();
+        component.userDetailsForm = ({
+          value: {
+            defaultGuildFC: 'Goon Squad',
+            preferredChampionsFC: ['Sett'],
+            subscribedDiscordDMFC: true
+          },
+          markAsPristine: jest.fn(),
+          markAsPending: jest.fn()
+        } as any);
+        component.initialFormControlState = {
+          defaultGuildFC: 'Sejjjjjjj',
+          preferredChampionsFC: ['Sett'],
+          subscribedDiscordDMFC: true
+        };
+        component.userDetails = {
+          id: 123321312,
+          username: 'Roidrage',
+          discriminator: '1232132131231'
+        };
+        let userDetailsResponse: Player = {
+          id: '12321',
+          name: 'Roidrage',
+          serverName: 'Goon Squad',
+          champions: ['Sett'],
+          subscriptions: [
+            {
+              key: 'UpcomingClashTournamentDiscordDM',
+              isOn: true
+            }]
+        };
+
+        let clashBotUserDetailsObservableMock = cold('x|', {x: userDetailsResponse});
+        let applicationDetailsObsMock = cold('x|', {x: {}});
+        (userServiceMock.updateUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+
+        component.onSubmit();
+
+        flush();
+
+        expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.createNewListOfPreferredChampions).not.toHaveBeenCalled();
+        expect(userServiceMock.subscribeUser).not.toHaveBeenCalled();
+
+        if (component.userDetailsForm) {
+
+          const expectedUpdateUserRequest: CreateUserRequest = {
+            id: `${component.userDetails.id}`,
+            name: component.userDetails.username,
+            serverName: `${component.userDetailsForm.value.defaultGuildFC}`
+          };
+          expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
+          expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
+          expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
+          expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({ defaultGuild: 'Goon Squad' });
+        } else {
+          expect(true).toBeFalsy();
+        }
+      })
+    })
+
     test('Error - Failed to Post - If onSubmit call fails to the Clash Bot User Service, a Snack Bar should be called with a generic message the Form should still be dirty.', () => {
       testScheduler.run((helpers) => {
         const {cold, expectObservable, flush} = helpers;
         createComponent();
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: 'Goon Squad',
+            defaultGuildFC: 'HeeeeeHoooo',
             preferredChampionsFC: ['Sett'],
             subscribedDiscordDMFC: true
           },
@@ -676,7 +927,7 @@ describe('UserProfileComponent', () => {
         };
         component.initialFormControlState = {
           defaultGuildFC: 'Goon Squad',
-          preferredChampionsFC: [],
+          preferredChampionsFC: ['Sett'],
           subscribedDiscordDMFC: true
         };
 
@@ -689,24 +940,27 @@ describe('UserProfileComponent', () => {
             url: 'https://localhost.com/api/user'
           });
         let clashBotUserDetailsObservableMock = cold('-#', undefined, expectedError);
-        (clashBotServiceMock.postUserDetails as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-
+        (userServiceMock.updateUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
         expectObservable(clashBotUserDetailsObservableMock).toBe('-#', undefined, expectedError);
 
         component.onSubmit();
 
         flush();
 
-        expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.createNewListOfPreferredChampions).not.toHaveBeenCalled();
+        expect(userServiceMock.subscribeUser).not.toHaveBeenCalled();
         expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
         expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});
 
         if (component.userDetailsForm) {
-          expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
-            component.userDetailsForm.value.defaultGuildFC,
-            new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
-            component.userDetails.username);
+
+          const expectedUpdateUserRequest: CreateUserRequest = {
+            id: `${component.userDetails.id}`,
+            name: component.userDetails.username,
+            serverName: `${component.userDetailsForm.value.defaultGuildFC}`
+          };
+          expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
@@ -735,37 +989,51 @@ describe('UserProfileComponent', () => {
           username: 'Roidrage'
         };
         component.initialFormControlState = {
-          defaultGuildFC: 'Goon Squad',
+          defaultGuildFC: 'Sejj',
           username: 'Roidrage',
-          preferredChampionsFC: [],
+          preferredChampionsFC: ['Sett'],
           subscribedDiscordDMFC: true
         }
-        let userDetailsResponse: ClashBotUserDetails = {
-          id: 12321,
-          username: 'Roidrage',
+        let userDetailsResponse: Player = {
+          id: '12321',
+          name: 'Roidrage',
           serverName: 'Goon Squad',
-          preferredChampions: ['Sett'],
-          subscriptions: {subscribedDiscordDMFC: true}
-        }
-        let clashBotUserDetailsObservableMock = cold('7000ms -x|', {x: userDetailsResponse});
-        (clashBotServiceMock.postUserDetails as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
+          champions: ['Sett'],
+          subscriptions: [
+            {
+              key: 'UpcomingClashTournamentDiscordDM',
+              isOn: true
+            }]
+        };
+        let clashBotUserDetailsObservableMock = cold('7000ms -x|',
+            {x: userDetailsResponse});
+        (userServiceMock.updateUser as Mock)
+            .mockReturnValue(clashBotUserDetailsObservableMock);
 
-        expectObservable(clashBotUserDetailsObservableMock).toBe('7000ms -x|', {x: userDetailsResponse});
+        expectObservable(clashBotUserDetailsObservableMock).toBe('7000ms -x|',
+            {x: userDetailsResponse});
 
         component.onSubmit();
 
         flush();
 
-        expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
+        expect(userServiceMock.subscribeUser).not.toHaveBeenCalled();
+        expect(userServiceMock.unsubscribeUser).not.toHaveBeenCalled();
+        expect(userServiceMock.createNewListOfPreferredChampions).not.toHaveBeenCalled();
         expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
-        expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});
+        expect(openMatSnackBarMock)
+            .toHaveBeenCalledWith('Oops! Failed to persist your requested update. Please try again.',
+                'X', {duration: 5000});
 
         if (component.userDetailsForm) {
-          expect(clashBotServiceMock.postUserDetails).toHaveBeenCalledWith(component.userDetails.id,
-            component.userDetailsForm.value.defaultGuildFC,
-            new Set<string>(component.userDetailsForm.value.preferredChampionsFC),
-            {'UpcomingClashTournamentDiscordDM': component.userDetailsForm.value.subscribedDiscordDMFC},
-            component.userDetails.username);
+
+          const expectedUpdateUserRequest: CreateUserRequest = {
+            id: `${component.userDetails.id}`,
+            name: component.userDetails.username,
+            serverName: `${component.userDetailsForm.value.defaultGuildFC}`
+          };
+          expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
           expect(component.userDetailsForm.markAsPending).toHaveBeenCalledTimes(1);
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(0);
