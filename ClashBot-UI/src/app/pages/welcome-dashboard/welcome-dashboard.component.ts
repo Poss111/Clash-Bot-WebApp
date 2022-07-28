@@ -163,7 +163,7 @@ export class WelcomeDashboardComponent implements OnInit {
                 mergeMap(discordDetails => this.userService.getUser(`${discordDetails.discordUser.id}`)
                     .pipe(
                         catchError(err => {
-                            if (err.status === 404 && err.statusText === 'Resource not found.') {
+                            if (err.status === 404 && err.error === 'Resource not found.') {
                                  const player: Player = {}
                                 return of(player);
                             } else {

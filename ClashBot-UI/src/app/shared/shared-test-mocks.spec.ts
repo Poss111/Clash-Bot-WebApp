@@ -1,5 +1,4 @@
 import {DiscordGuild} from "../interfaces/discord-guild";
-import {ClashBotUserDetails} from "../interfaces/clash-bot-user-details";
 import {UserDetails} from "../interfaces/user-details";
 import {ApplicationDetails} from "../interfaces/application-details";
 import {ClashTeam} from "../interfaces/clash-team";
@@ -145,13 +144,10 @@ export function create204HttpError(): Error {
 
 export function create404HttpError(): Error {
     return new HttpErrorResponse({
-        error: {
-            msg: 'Failed to make call.',
-            retry_after: 10
-        },
+        error: 'Resource not found.',
         headers: undefined,
         status: 404,
-        statusText: 'Resource not found.',
+        statusText: 'Not Found',
         url: 'https://localhost.com/api'
     });
 }
