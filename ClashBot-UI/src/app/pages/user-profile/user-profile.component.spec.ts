@@ -86,14 +86,14 @@ describe('UserProfileComponent', () => {
         const {cold, flush} = helpers;
         let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
         let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-        let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
+        let mockClashBotUserDetails: Player = mocks.createMockPlayer();
         let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
         let mockAppDetails: ApplicationDetails =
             mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
         mockAppDetails.loggedIn = true;
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockAppDetails}));
-        (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
+        (userServiceMock.getUser as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('x|', {x: mockDdragonChampionList}));
 
         createComponent();
@@ -101,8 +101,8 @@ describe('UserProfileComponent', () => {
         flush();
 
         expect(applicationDetailsMock.getApplicationDetails).toBeCalledTimes(1);
-        expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-        expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+        expect(userServiceMock.getUser).toBeCalledTimes(1);
+        expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
         expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(1);
 
         expect(component.userDetails).toEqual(mockUserDetails);
@@ -131,11 +131,11 @@ describe('UserProfileComponent', () => {
     });
 
     describe('Retrieve Application Loaded User Information', () => {
-      test('Error - AppDetails show not logged in - Then show a Snack Bar with a generic error message for User information.', () => {
+      test('Error - If AppDetails show not logged in - Then show a Snack Bar with a generic error message for User information.', () => {
         testScheduler.run((helpers) => {
           const {cold, flush} = helpers;
           let mockGuilds: DiscordGuild[] = mocks.createMockGuilds();
-          let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
+          let mockClashBotUserDetails: Player = mocks.createMockPlayer();
           let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
 
           let mockAppDetails: ApplicationDetails =
@@ -143,7 +143,7 @@ describe('UserProfileComponent', () => {
           mockAppDetails.loggedIn = false;
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockAppDetails}));
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('x|', {x: mockDdragonChampionList}));
 
           createComponent();
@@ -153,7 +153,7 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! You are not logged in. Please navigate back to the home screen and log in.', 'X', {duration: 5000});
 
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
+          expect(userServiceMock.getUser).toBeCalledTimes(1);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(1);
           expectDefaultState(component, mockGuilds);
         });
@@ -172,15 +172,15 @@ describe('UserProfileComponent', () => {
           mockAppDetails.loggedIn = true;
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockAppDetails}));
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('x|', {x: mockDdragonChampionList}));
 
           createComponent();
           fixture.detectChanges();
           flush();
 
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+          expect(userServiceMock.getUser).toBeCalledTimes(1);
+          expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(1);
 
           expect(component.userDetails).toEqual(mockUserDetails);
@@ -217,7 +217,7 @@ describe('UserProfileComponent', () => {
           mockAppDetails.loggedIn = true;
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockAppDetails}));
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('#|', undefined, createMockErrorResponse()));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold('#|', undefined, createMockErrorResponse()));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('x|', {x: mockDdragonChampionList}));
 
           createComponent();
@@ -227,8 +227,8 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
 
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+          expect(userServiceMock.getUser).toBeCalledTimes(1);
+          expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(0);
 
           expect(component.userDetails).toBeFalsy();
@@ -253,7 +253,7 @@ describe('UserProfileComponent', () => {
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mockAppDetails}));
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('7000ms x|', {x: mockClashBotUserDetails}));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold('7000ms x|', {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('x|', {x: mockDdragonChampionList}));
 
           createComponent();
@@ -263,8 +263,8 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve your User Information. Please try again later.', 'X', {duration: 5000});
 
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+          expect(userServiceMock.getUser).toBeCalledTimes(1);
+          expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(0);
 
           expect(component.userDetails).toBeFalsy();
@@ -284,10 +284,10 @@ describe('UserProfileComponent', () => {
         testScheduler.run((helpers) => {
           const {cold, flush} = helpers;
           let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-          let mockClashBotUserDetails: Player = mocks.createMockClashBotUserDetails();
+          let mockClashBotUserDetails: Player = mocks.createMockPlayer();
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold('x|', {x: mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails)}));
-          (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold('x|', {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold('#', undefined, createMockErrorResponse()));
 
           createComponent();
@@ -297,8 +297,8 @@ describe('UserProfileComponent', () => {
           expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
           expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
 
-          expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-          expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+          expect(userServiceMock.getUser).toBeCalledTimes(1);
+          expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
           expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(1);
 
           expect(component.userDetails).toBeFalsy();
@@ -325,7 +325,7 @@ describe('UserProfileComponent', () => {
         let ddragonServiceListOfChampionsColdObservable = cold('7000ms x|', {x: mocks.getMockDdragonChampionList()});
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
-        (clashBotServiceMock.getUserDetails as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
+        (userServiceMock.getUser as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
 
         createComponent();
@@ -335,8 +335,8 @@ describe('UserProfileComponent', () => {
         expect(openMatSnackBarMock).toHaveBeenCalledTimes(1);
         expect(openMatSnackBarMock).toHaveBeenCalledWith('Oops! Failed to retrieve League Champion names. Please try again later.', 'X', {duration: 5000});
 
-        expect(clashBotServiceMock.getUserDetails).toBeCalledTimes(1);
-        expect(clashBotServiceMock.getUserDetails).toBeCalledWith(mockUserDetails.id);
+        expect(userServiceMock.getUser).toBeCalledTimes(1);
+        expect(userServiceMock.getUser).toBeCalledWith(`${mockUserDetails.id}`);
         expect(riotDDragonServiceMock.getListOfChampions).toBeCalledTimes(1);
 
         expect(component.userDetails).toBeFalsy();

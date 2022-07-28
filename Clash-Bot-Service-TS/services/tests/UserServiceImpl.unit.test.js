@@ -14,8 +14,8 @@ describe('Clash User Service Impl', () => {
     test('User does not exist - it should return Error.', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 204,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.getUser({ id: expectedUserId }).catch((userDetails) => {
@@ -142,7 +142,7 @@ describe('Clash User Service Impl', () => {
         serverName: 'Goon Squad',
       };
       clashSubscriptionDbImpl.createUser.mockResolvedValue(userRequestEntity);
-      return clashUserServiceImpl.createUser({ createUserRequest: userRequest })
+      return clashUserServiceImpl.createUser({ body: userRequest })
         .then((response) => {
           expect(response).toEqual(userResponse);
         });
@@ -166,11 +166,11 @@ describe('Clash User Service Impl', () => {
       });
     });
 
-    test('If user does not exist, return with a 204', () => {
+    test('If user does not exist, return with a 404.', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 400,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.retrieveUserSubscriptions({ id: expectedUserId }).catch((userDetails) => {
@@ -237,7 +237,7 @@ describe('Clash User Service Impl', () => {
         });
     });
 
-    test('subscribeUser - If user is does not exist return with 400.', () => {
+    test('subscribeUser - If user is does not exist return with 404.', () => {
       const expectedUserId = '12';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.subscribeUser({ id: expectedUserId })
@@ -247,8 +247,8 @@ describe('Clash User Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
           expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
           expect(err).toEqual({
-            code: 400,
-            error: 'User not found.',
+            code: 404,
+            error: 'Resource not found.',
           });
         });
     });
@@ -310,7 +310,7 @@ describe('Clash User Service Impl', () => {
         });
     });
 
-    test('unsubscribeUser - If user is does not exist return with 400.', () => {
+    test('unsubscribeUser - If user is does not exist return with 404.', () => {
       const expectedUserId = '12';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.unsubscribeUser({ id: expectedUserId })
@@ -320,8 +320,8 @@ describe('Clash User Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
           expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
           expect(err).toEqual({
-            code: 400,
-            error: 'User not found.',
+            code: 404,
+            error: 'Resource not found.',
           });
         });
     });
@@ -417,11 +417,11 @@ describe('Clash User Service Impl', () => {
         });
     });
 
-    test('If user does not exist, return with a 204', () => {
+    test('If user does not exist, return with a 404', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 400,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.createNewListOfPreferredChampions({ body: { championName: 'SomeChamp' }, id: expectedUserId }).catch((userDetails) => {
@@ -522,11 +522,11 @@ describe('Clash User Service Impl', () => {
         });
     });
 
-    test('If user does not exist, return with a 204', () => {
+    test('If user does not exist, return with a 404', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 400,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: 'SomeChamp' }, id: expectedUserId }).catch((userDetails) => {
@@ -619,11 +619,11 @@ describe('Clash User Service Impl', () => {
       });
     });
 
-    test('If user does not exist, return with a 204', () => {
+    test('If user does not exist, return with a 404', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 400,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.removeFromListOfPreferredChampions({ body: { championName: 'SomeChamp' }, id: expectedUserId })
@@ -684,11 +684,11 @@ describe('Clash User Service Impl', () => {
       });
     });
 
-    test('If user does not exist, return with a 204', () => {
+    test('If user does not exist, return with a 404', () => {
       const expectedUserId = '1';
       const expectedUserDetails = {
-        error: 'User not found.',
-        code: 400,
+        error: 'Resource not found.',
+        code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
       return clashUserServiceImpl.retrieveListOfUserPreferredChampions({ id: expectedUserId }).catch((userDetails) => {

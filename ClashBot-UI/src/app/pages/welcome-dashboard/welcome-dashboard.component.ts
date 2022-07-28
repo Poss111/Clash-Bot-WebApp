@@ -6,7 +6,7 @@ import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {throwError, timer} from "rxjs";
+import {of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
 import {
@@ -163,11 +163,16 @@ export class WelcomeDashboardComponent implements OnInit {
                 mergeMap(discordDetails => this.userService.getUser(`${discordDetails.discordUser.id}`)
                     .pipe(
                         catchError(err => {
-                            this.loggedIn = 'NOT_LOGGED_IN';
-                            this._snackBar.open('Oops, we failed to pull your userDetails from our Servers :( Please try again later.',
-                                'X',
-                                {duration: 5 * 1000});
-                            return throwError(err);
+                            if (err.status === 404 && err.statusText === 'Resource not found.') {
+                                 const player: Player = {}
+                                return of(player);
+                            } else {
+                                this.loggedIn = 'NOT_LOGGED_IN';
+                                this._snackBar.open('Oops, we failed to pull your userDetails from our Servers :( Please try again later.',
+                                    'X',
+                                    {duration: 5 * 1000});
+                                return throwError(err);
+                            }
                         }),
                         map(response => {
                             return {
@@ -177,10 +182,33 @@ export class WelcomeDashboardComponent implements OnInit {
                             }
                         }))),
                 mergeMap(loginDetails => {
-                    if (!loginDetails.clashBotUserDetails.name ||
+                    if (!loginDetails.clashBotUserDetails.id) {
+                        return this.userService.createUser({
+                            id: `${loginDetails.discordUser.id}`,
+                            serverName: loginDetails.discordGuilds[0].name,
+                            name: loginDetails.discordUser.username,
+                        }).pipe(
+                                catchError(err => {
+                                    this._snackBar.open('Failed to create a new profile for you. Please try to login again.',
+                                        'X',
+                                        {duration: 5 * 1000});
+                                    return throwError(err);
+                                }),
+                                mergeMap(response =>
+                                    this.applicationDetailsService.getApplicationDetails()
+                                        .pipe(
+                                            take(1),
+                                            map(appDetails =>
+                                                this.mapLoggedInApplicationDetails(appDetails,
+                                                    loginDetails.discordUser,
+                                                    loginDetails.discordGuilds,
+                                                    response)
+                                            )
+                                        )));
+                    } else if (!loginDetails.clashBotUserDetails.name ||
                         loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.name) {
                         return this.userService.updateUser({
-                            id: `${loginDetails.clashBotUserDetails.id}`,
+                            id: `${loginDetails.discordUser.id}`,
                             serverName: loginDetails.discordGuilds[0].name,
                             name: loginDetails.discordUser.username,
                         })
@@ -220,6 +248,8 @@ export class WelcomeDashboardComponent implements OnInit {
             .subscribe(value => {
                 this.loggedIn = 'LOGGED_IN';
                 this.applicationDetailsService.setApplicationDetails(value);
+            }, (err) => {
+                console.error(err);
             });
     }
 

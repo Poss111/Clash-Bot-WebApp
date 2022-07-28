@@ -20,8 +20,8 @@ const getUser = ({ id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          204));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else {
         resolve(Service.successResponse(objectMapper(userDetails,
           userEntityToResponse)));
@@ -73,8 +73,8 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          400));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else if (Array.isArray(userDetails.preferredChampions)
         && userDetails.preferredChampions.length >= 5) {
         reject(Service
@@ -111,8 +111,8 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          400));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else if (body.champions.length >= 5) {
         reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
           204));
@@ -138,12 +138,12 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
  * createUserRequest CreateUserRequest
  * returns Player
  * */
-const createUser = ({ createUserRequest }) => new Promise(
+const createUser = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'UserService', method: 'createUser' };
     try {
       const createdUserEntity = await clashSubscriptionDbImpl
-        .createUser(objectMapper(createUserRequest, requestToNewUserEntity));
+        .createUser(objectMapper(body, requestToNewUserEntity));
       resolve(Service.successResponse(objectMapper(createdUserEntity,
         userEntityToResponse)));
     } catch (error) {
@@ -169,8 +169,8 @@ const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          400));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else if (!userDetails.preferredChampions || userDetails
         .preferredChampions
         .length <= 0) {
@@ -216,8 +216,8 @@ const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          400));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else {
         const payload = userDetails.preferredChampions ? userDetails
           .preferredChampions : [];
@@ -245,8 +245,8 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.',
-          400));
+        reject(Service.rejectResponse('Resource not found.',
+          404));
       } else {
         resolve(Service.successResponse(objectMapper(userDetails,
           userEntityToResponse).subscriptions));
@@ -273,7 +273,7 @@ const subscribeUser = ({ id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.', 400));
+        reject(Service.rejectResponse('Resource not found.', 404));
       } else if (userDetails.subscribed) {
         resolve(Service.successResponse(
           objectMapper(userDetails, userEntityToResponse).subscriptions,
@@ -308,7 +308,7 @@ const unsubscribeUser = ({ id }) => new Promise(
     try {
       const userDetails = await clashSubscriptionDbImpl.retrieveUserDetails(id);
       if (!userDetails || !userDetails.key) {
-        reject(Service.rejectResponse('User not found.', 400));
+        reject(Service.rejectResponse('Resource not found.', 404));
       } else if (!userDetails.subscribed) {
         resolve(Service.successResponse(
           objectMapper(userDetails, userEntityToResponse).subscriptions,

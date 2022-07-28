@@ -42,6 +42,19 @@ export function createMockClashBotUserDetails() {
     };
 }
 
+export function createMockPlayer() : Player {
+    return {
+        id: '12312321312',
+        name: 'Roidrage',
+        serverName: 'Goon Squad',
+        champions: ['Sett'],
+        subscriptions: [{
+            key: "UpcomingClashTournamentDiscordDM",
+            isOn: true
+        }]
+    };
+}
+
 export function getMockDdragonChampionList() {
     return {
         type: '12312',
@@ -116,6 +129,33 @@ export function create429HttpError(): Error {
         url: 'https://localhost.com/api'
     });
 }
+
+export function create204HttpError(): Error {
+    return new HttpErrorResponse({
+        error: {
+            msg: 'Failed to make call.',
+            retry_after: 10
+        },
+        headers: undefined,
+        status: 204,
+        statusText: 'No Content',
+        url: 'https://localhost.com/api'
+    });
+}
+
+export function create404HttpError(): Error {
+    return new HttpErrorResponse({
+        error: {
+            msg: 'Failed to make call.',
+            retry_after: 10
+        },
+        headers: undefined,
+        status: 404,
+        statusText: 'Resource not found.',
+        url: 'https://localhost.com/api'
+    });
+}
+
 
 export function create500HttpError(): Error {
     return new HttpErrorResponse({

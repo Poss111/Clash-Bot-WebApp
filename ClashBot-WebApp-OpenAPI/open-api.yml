@@ -297,6 +297,12 @@ components:
                 description: 'The Player id to be placed on tentative with.'
                 type: string
   responses:
+    NotFound:
+      description: Unable to find requested resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     NoneFound:
       description: No results found matching the criteria.
       content:
@@ -507,6 +513,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tentative'
+        404:
+          $ref: '#/components/responses/NotFound'
         400:
           $ref: '#/components/responses/BadInput'
         500:
@@ -525,6 +533,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tentative'
+        404:
+          $ref: '#/components/responses/NotFound'
         4XX:
           $ref: '#/components/responses/BadInput'
         5XX:
@@ -551,7 +561,7 @@ paths:
       tags:
         - Tournament
       responses:
-        '200':
+        200:
           description: return a tournament or Tournaments
           content:
             application/json:
@@ -559,7 +569,7 @@ paths:
                 type: 'array'
                 items:
                   $ref: '#/components/schemas/Tournament'
-        '400':
+        400:
           description: If no Tournaments can be found with a name.
           content:
             application/json:
@@ -581,15 +591,17 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        200:
           description: The Clash Bot Player details.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
-        '204':
-          $ref: '#/components/responses/NoneFound'
-        '500':
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
           $ref: '#/components/responses/ClashBotException'
         default:
           $ref: "#/components/responses/ClashBotException"
@@ -601,13 +613,15 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/PlayerCreateBody'
       responses:
-        '200':
+        200:
           description: Created a new Clash Bot Player
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
-        '500':
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
           $ref: '#/components/responses/ClashBotException'
         default:
           $ref: "#/components/responses/ClashBotException"
@@ -619,13 +633,15 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/PlayerCreateBody'
       responses:
-        '200':
+        200:
           description: Created a new Clash Bot Player
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
-        '500':
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
           $ref: '#/components/responses/ClashBotException'
         default:
           $ref: "#/components/responses/ClashBotException"
@@ -653,6 +669,8 @@ paths:
                   type: string
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
     post:
@@ -674,6 +692,8 @@ paths:
           $ref: '#/components/responses/NoneFound'
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
     patch:
@@ -695,6 +715,8 @@ paths:
           $ref: '#/components/responses/NoneFound'
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
     delete:
@@ -714,6 +736,8 @@ paths:
                   type: string
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
   /user/{id}/subscriptions:
@@ -739,6 +763,8 @@ paths:
                   $ref: "#/components/schemas/Subscription"
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
     post:
@@ -756,6 +782,8 @@ paths:
                   $ref: "#/components/schemas/Subscription"
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
     delete:
@@ -773,6 +801,8 @@ paths:
                   $ref: "#/components/schemas/Subscription"
         400:
           $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
   /health:
