@@ -5,6 +5,8 @@ import {ClashTeam} from "../interfaces/clash-team";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ClashTournaments} from "../interfaces/clash-tournaments";
 import {Player} from "clash-bot-service-api/model/player";
+import {Tentative} from "clash-bot-service-api/model/tentative";
+import {Tournament} from "clash-bot-service-api/model/tournament";
 
 test('Simple Check', () => expect(true).toBeTruthy())
 
@@ -77,7 +79,7 @@ export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUse
     };
 }
 
-export function createEmptyMockClashTentativeDetails() {
+export function createEmptyMockClashTentativeDetails() : Tentative[] {
     return [
         {
             serverName: "LoL-ClashBotSupport",
@@ -173,7 +175,7 @@ export function create401HttpError(): Error {
     });
 }
 
-export function createMockClashTournaments(expectedTournamentName: string, numberOfDays: number): ClashTournaments[] {
+export function createMockClashTournaments(expectedTournamentName: string, numberOfDays: number): Tournament[] {
     let mockClashTournaments = [];
     for (let i = 1; i <= numberOfDays; i++) {
         mockClashTournaments.push({
