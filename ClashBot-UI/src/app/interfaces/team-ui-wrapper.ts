@@ -5,6 +5,7 @@ export interface PlayerUiWrapper extends Player {
 }
 
 export interface TeamUiWrapper extends Team {
-    id: string;
-    teamDetails: PlayerUiWrapper[];
+    id?: string;
+    teamDetails?: PlayerUiWrapper[];
+    error?: string
 }

@@ -13,11 +13,10 @@ import {Subject} from "rxjs";
 import {TeamsModule} from "../teams.module";
 import {
     createEmptyMockClashTentativeDetails,
-    createMockAppDetails,
-    createMockClashBotUserDetails, createMockClashTournaments, createMockPlayer,
+    createMockAppDetails, createMockClashTournaments, createMockPlayer,
     createMockUserDetails,
 } from "../../../shared/shared-test-mocks.spec";
-import {Team, TeamService, TentativeService, UserService} from "clash-bot-service-api";
+import {Role, Team, TeamService, TentativeService, UserService} from "clash-bot-service-api";
 import {Tentative} from "clash-bot-service-api/model/tentative";
 import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
@@ -156,6 +155,7 @@ describe('TeamsDashboardComponent', () => {
                 expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
                 expect(teamsWebsocketServiceMock.getSubject).toHaveBeenCalledTimes(2);
                 expect(component.tentativeList).toEqual(mockClashTentativeDetails);
+                expect(component.teams).toEqual([...mockMappedTeams])
 
                 coldClashTeamsWebsocketObs.subscribe((msg) => {
                     if (typeof msg !== 'string') {
@@ -170,6 +170,62 @@ describe('TeamsDashboardComponent', () => {
             })
         })
     });
+
+    describe('Map Team Service Response', () => {
+        test('mapDynamicValues - When there is only one Team and one valid member.', () => {
+            component = fixture.componentInstance;
+            component
+                .currentApplicationDetails
+                .userDetails = createMockUserDetails();
+            let mockTeam: Team[] = [{
+                name: 'Oooooogi',
+                serverName: 'Goon Squad',
+                playerDetails: {
+                    Top: {
+                        name: 'Roid',
+                        id: '1',
+                    }
+                },
+                tournament: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                }
+            }];
+            const expectedMappedTeam: TeamUiWrapper = ({...mockTeam[0]} as TeamUiWrapper);
+            expectedMappedTeam.id = 'goon-squad-oooooogi';
+            expectedMappedTeam.teamDetails = [
+                {
+                    name: 'Roid',
+                    id: '1',
+                    role: Role.Top,
+                    isUser: false
+                },
+                {
+                    id: '0',
+                    role: Role.Mid,
+                    isUser: false
+                },
+                {
+                    id: '0',
+                    role: Role.Jg,
+                    isUser: false
+                },
+                {
+                    id: '0',
+                    role: Role.Bot,
+                    isUser: false
+                },
+                {
+                    id: '0',
+                    role: Role.Supp,
+                    isUser: false
+                },
+            ];
+           const mappedValues = component.mapDynamicValues(mockTeam);
+           expect(mappedValues).toHaveLength(1);
+           expect(mappedValues[0]).toEqual(expectedMappedTeam);
+        });
+    })
 });
 
 function mockDiscordGuilds(): DiscordGuild[] {

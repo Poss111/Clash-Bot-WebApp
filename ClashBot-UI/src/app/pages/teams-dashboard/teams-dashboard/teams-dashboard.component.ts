@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
+import {ClashTeam} from "../../../interfaces/clash-team";
 import {TeamFilter} from "../../../interfaces/team-filter";
 import {Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -27,7 +27,7 @@ import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrappe
 export class TeamsDashboardComponent implements OnInit, OnDestroy {
     currentSelectedGuild: string = '';
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
-    teams: ClashTeam[] = [];
+    teams: TeamUiWrapper[] = [];
     teamFilters: TeamFilter[] = [];
     currentApplicationDetails: ApplicationDetails = {loggedIn: false};
     private readonly MAX_TIMEOUT = 4000;
@@ -183,15 +183,15 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleIncomingTeamsWsEvent(message: ClashTeam | String) {
-        let teamToBeUpdated = <ClashTeam>message;
-        if (teamToBeUpdated.teamName) {
+    handleIncomingTeamsWsEvent(message: Team | String) {
+        let teamToBeUpdated = <Team>message;
+        if (teamToBeUpdated.name) {
             let foundTeam = this.teams.find((team) =>
-                team.teamName === teamToBeUpdated.teamName
-                && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName
-                && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);
+                team.name === teamToBeUpdated.name
+                && team.tournament?.tournamentName === teamToBeUpdated.tournament?.tournamentName
+                && team.tournament?.tournamentDay === teamToBeUpdated.tournament?.tournamentDay);
             if (!foundTeam) {
-                if (teamToBeUpdated.teamName) {
+                if (teamToBeUpdated.name) {
                     let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
                     this.updateTentativeListBasedOnTeam(mappedTeam[0]);
                     if (this.teams.length === 1 && this.teams.find(team => team.error)) {
@@ -200,23 +200,29 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         this.teams.push(...mappedTeam);
                     }
                 }
-            } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
+            } else if (teamToBeUpdated.playerDetails
+                && Object.keys(teamToBeUpdated.playerDetails).length > 0) {
                 let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
                 this.updateTentativeListBasedOnTeam(mappedTeam[0]);
-                if (foundTeam.playersDetails && mappedTeam[0].playersDetails) {
+                if (foundTeam.playerDetails && mappedTeam[0].playerDetails) {
                     for (let i = 0; i < 5; i++) {
-                        let roleDetailsToUpdate = foundTeam.playersDetails[i];
+                        let roleDetailsToUpdate : PlayerUiWrapper | undefined = undefined;
+                        if (foundTeam.teamDetails) {
+                            roleDetailsToUpdate = foundTeam.teamDetails[i]
+                        }
                         if (roleDetailsToUpdate) {
-                            let foundRecord = mappedTeam[0].playersDetails
-                                .find(record => record.role === roleDetailsToUpdate.role);
-                            if (foundRecord && roleDetailsToUpdate.name !== foundRecord.name) {
-                                foundTeam.playersDetails[i] = foundRecord;
+                            let foundRecord = mappedTeam[0]
+                                .teamDetails?.find(record => record.role === roleDetailsToUpdate?.role);
+                            if (foundRecord
+                                && foundTeam.teamDetails
+                                && roleDetailsToUpdate.name !== foundRecord.name) {
+                                foundTeam.teamDetails[i] = foundRecord;
                             }
                         }
                     }
                 }
             } else {
-                this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);
+                this.teams = this.teams.filter((team) => team.name !== teamToBeUpdated.name);
             }
             this.syncTournaments(this.teams);
         }
@@ -254,12 +260,14 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         this.syncTournaments(data);
     }
 
-    private syncTournaments(clashTeams: ClashTeam[]) {
+    private syncTournaments(clashTeams: Team[]) {
         const currentTournaments = this.currentApplicationDetails.currentTournaments ?? [];
         if (clashTeams.length < 1) {
             this.teams = [{error: 'No data'}];
             this.eligibleTournaments = currentTournaments;
-            this.canCreateNewTeam = this.eligibleTournaments && this.eligibleTournaments.length != 0;
+            this.canCreateNewTeam = this
+                .eligibleTournaments && this
+                .eligibleTournaments.length != 0;
         } else {
             let map = this.createUserToTournamentMap(
                 this.currentApplicationDetails.userDetails?.id ?? 0,
@@ -277,7 +285,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    private mapDynamicValues(data: Team[]) : TeamUiWrapper[] {
+    mapDynamicValues(data: Team[]) : TeamUiWrapper[] {
         return data.map(record => {
             let teamUiWrapper : TeamUiWrapper = record as TeamUiWrapper;
             teamUiWrapper.id = `${record.serverName}-${record.name}`
@@ -291,21 +299,25 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         playerUiWrapper
                             .isUser = record[1].id === this
                             .currentApplicationDetails.userDetails?.id;
-                        playerUiWrapper.role = record[0];
+                        playerUiWrapper.role = this.getKeyByValue(record[0]);
                         rolesMissing = rolesMissing
                             .filter(role => role !== record[0]);
                         return playerUiWrapper;
                 });
             }
-            if (!Array.isArray(record.playerDetails)
-                || record.playerDetails.length === 0) {
+            if (!record.playerDetails
+                || Object.keys(record.playerDetails).length === 0) {
                 teamUiWrapper.teamDetails = [];
             }
             for (let role in rolesMissing) {
                 teamUiWrapper
-                    .teamDetails.push({ name: '', id: '0', isUser: false });
+                    .teamDetails?.push({
+                        id: '0',
+                        isUser: false,
+                        role: this.getKeyByValue(rolesMissing[role])
+                    });
             }
-            teamUiWrapper.teamDetails.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {
+            teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {
                 if (a.role && b.role) {
                     return this.roles[a.role] - this.roles[b.role]
                         || a.role.localeCompare(b.role);
