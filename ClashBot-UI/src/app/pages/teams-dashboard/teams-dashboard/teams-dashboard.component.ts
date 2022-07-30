@@ -40,6 +40,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
+    private readonly noDataAvailable = {error: 'No data'};
 
     constructor(private _snackBar: MatSnackBar,
                 private applicationDetailsService: ApplicationDetailsService,
@@ -51,7 +52,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         this.showSpinner = false;
     }
 
-    ngOnInit(): void {
+  ngOnInit(): void {
         this.subs.push(this.applicationDetailsService.getApplicationDetails()
             .subscribe((details) => this.currentApplicationDetails = details));
         this.applicationDetailsService.getApplicationDetails()
@@ -78,7 +79,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                                     'Oops! Failed to connect to server for Team updates, please try refreshing.',
                                     'X',
                                     {duration: 5 * 1000});
-                                this.teams = [{error: 'No data'}];
+                                this.teams = [this.noDataAvailable];
                             }));
 
                     if (appDetails.defaultGuild) {
@@ -156,29 +157,33 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 'please navigate to the Welcome page and login.',
                 'X',
                 {duration: 5 * 1000});
-            this.teams = [{error: 'No data'}];
+            this.teams = [this.noDataAvailable];
         } else {
             this.updateTentativeList(valueToSearchFor);
             this.showInnerSpinner = true;
             this.teamsService
                 .getTeam(valueToSearchFor)
                 .pipe(
+                    map((records) => records.map((team) => this.mapTeamToTeamUiWrapper(team))),
                     take(1),
                     timeout(7000),
                     catchError((err: HttpErrorResponse) => {
-                        this._snackBar.open('Failed to retrieve Teams. ' +
-                            'Please try again later.',
-                            'X',
-                            {duration: 5 * 1000});
-                        this.teams.push({error: 'Failed to make call.'});
                         return throwError(err);
                     }),
                     finalize(() => this.showInnerSpinner = false)
                 ).subscribe(response => {
-                if (this.currentApplicationDetails.loggedIn) {
-                    this.syncTeamInformation(response);
+                    if (this.currentApplicationDetails.loggedIn) {
+                        this.teams = response;
+                        this.syncTeamInformation(response);
+                    }
+                }, () => {
+                  this.teams = [{error: 'Failed to make call.'}];
+                  this._snackBar.open('Failed to retrieve Teams. ' +
+                    'Please try again later.',
+                    'X',
+                    {duration: 5 * 1000});
                 }
-            });
+              );
             this.teamsWebsocketService.getSubject().next(valueToSearchFor);
         }
     }
@@ -192,26 +197,26 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 && team.tournament?.tournamentDay === teamToBeUpdated.tournament?.tournamentDay);
             if (!foundTeam) {
                 if (teamToBeUpdated.name) {
-                    let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
-                    this.updateTentativeListBasedOnTeam(mappedTeam[0]);
+                    let mappedTeam = this.mapTeamToTeamUiWrapper(teamToBeUpdated);
+                    this.updateTentativeListBasedOnTeam(mappedTeam);
                     if (this.teams.length === 1 && this.teams.find(team => team.error)) {
-                        this.teams = [...mappedTeam];
+                        this.teams = [mappedTeam];
                     } else {
-                        this.teams.push(...mappedTeam);
+                        this.teams.push(mappedTeam);
                     }
                 }
             } else if (teamToBeUpdated.playerDetails
                 && Object.keys(teamToBeUpdated.playerDetails).length > 0) {
-                let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
-                this.updateTentativeListBasedOnTeam(mappedTeam[0]);
-                if (foundTeam.playerDetails && mappedTeam[0].playerDetails) {
+              let mappedTeam = this.mapTeamToTeamUiWrapper(teamToBeUpdated);
+                this.updateTentativeListBasedOnTeam(mappedTeam);
+                if (foundTeam.playerDetails && mappedTeam.playerDetails) {
                     for (let i = 0; i < 5; i++) {
                         let roleDetailsToUpdate : PlayerUiWrapper | undefined = undefined;
                         if (foundTeam.teamDetails) {
                             roleDetailsToUpdate = foundTeam.teamDetails[i]
                         }
                         if (roleDetailsToUpdate) {
-                            let foundRecord = mappedTeam[0]
+                            let foundRecord = mappedTeam
                                 .teamDetails?.find(record => record.role === roleDetailsToUpdate?.role);
                             if (foundRecord
                                 && foundTeam.teamDetails
@@ -256,14 +261,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     syncTeamInformation(data: Team[]) {
-        this.teams = this.mapDynamicValues(data);
         this.syncTournaments(data);
     }
 
     private syncTournaments(clashTeams: Team[]) {
         const currentTournaments = this.currentApplicationDetails.currentTournaments ?? [];
         if (clashTeams.length < 1) {
-            this.teams = [{error: 'No data'}];
+            this.teams = [this.noDataAvailable];
             this.eligibleTournaments = currentTournaments;
             this.canCreateNewTeam = this
                 .eligibleTournaments && this
@@ -285,49 +289,47 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    mapDynamicValues(data: Team[]) : TeamUiWrapper[] {
-        return data.map(record => {
-            let teamUiWrapper : TeamUiWrapper = record as TeamUiWrapper;
-            teamUiWrapper.id = `${record.serverName}-${record.name}`
-                .replace(new RegExp(/ /, 'g'), '-')
-                .toLowerCase();
-            let rolesMissing: string[] = [...Object.keys(this.roles)];
-            if (record.playerDetails) {
-                teamUiWrapper.teamDetails = Object.entries(record.playerDetails)
-                    .map((record) => {
-                        let playerUiWrapper : PlayerUiWrapper = record[1] as PlayerUiWrapper;
-                        playerUiWrapper
-                            .isUser = record[1].id === this
-                            .currentApplicationDetails.userDetails?.id;
-                        playerUiWrapper.role = this.getKeyByValue(record[0]);
-                        rolesMissing = rolesMissing
-                            .filter(role => role !== record[0]);
-                        return playerUiWrapper;
-                });
-            }
-            if (!record.playerDetails
-                || Object.keys(record.playerDetails).length === 0) {
-                teamUiWrapper.teamDetails = [];
-            }
-            for (let role in rolesMissing) {
-                teamUiWrapper
-                    .teamDetails?.push({
-                        id: '0',
-                        isUser: false,
-                        role: this.getKeyByValue(rolesMissing[role])
-                    });
-            }
-            teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {
-                if (a.role && b.role) {
-                    return this.roles[a.role] - this.roles[b.role]
-                        || a.role.localeCompare(b.role);
-                } else if (a.role) {
-                    return 1;
-                }
-                return -1;
-            })
-            return teamUiWrapper;
-        });
+    mapTeamToTeamUiWrapper(record: Team) : TeamUiWrapper {
+          let teamUiWrapper : TeamUiWrapper = record as TeamUiWrapper;
+          teamUiWrapper.id = `${record.serverName}-${record.name}`
+              .replace(new RegExp(/ /, 'g'), '-')
+              .toLowerCase();
+          let rolesMissing: string[] = [...Object.keys(this.roles)];
+          if (record.playerDetails) {
+              teamUiWrapper.teamDetails = Object.entries(record.playerDetails)
+                  .map((record) => {
+                      let playerUiWrapper : PlayerUiWrapper = record[1] as PlayerUiWrapper;
+                      playerUiWrapper
+                          .isUser = record[1].id === this
+                          .currentApplicationDetails.userDetails?.id;
+                      playerUiWrapper.role = this.getKeyByValue(record[0]);
+                      rolesMissing = rolesMissing
+                          .filter(role => role !== record[0]);
+                      return playerUiWrapper;
+              });
+          }
+          if (!record.playerDetails
+              || Object.keys(record.playerDetails).length === 0) {
+              teamUiWrapper.teamDetails = [];
+          }
+          for (let role in rolesMissing) {
+              teamUiWrapper
+                  .teamDetails?.push({
+                      id: '0',
+                      isUser: false,
+                      role: this.getKeyByValue(rolesMissing[role])
+                  });
+          }
+          teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {
+              if (a.role && b.role) {
+                  return this.roles[a.role] - this.roles[b.role]
+                      || a.role.localeCompare(b.role);
+              } else if (a.role) {
+                  return 1;
+              }
+              return -1;
+          })
+          return teamUiWrapper;
     }
 
     getKeyByValue(value?: string) : Role {
@@ -404,17 +406,17 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: ClashTeam[]) {
+    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: Team[]) {
         let tournamentToTeamUserMap = new Map<Tournament, any>();
         clashTournaments.forEach((tournament) =>
             tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {
                 let reducedMap;
-                if (team.playersDetails) {
-                    reducedMap = new Set(team.playersDetails.map(object => object.id));
+                if (team.playerDetails) {
+                    reducedMap = new Set(Object.entries(team.playerDetails).map(object => object[1].id));
                 }
-                return team.tournamentDetails
-                    && team.tournamentDetails.tournamentName === tournament.tournamentName
-                    && team.tournamentDetails.tournamentDay === tournament.tournamentDay
+                return team.tournament
+                    && team.tournament.tournamentName === tournament.tournamentName
+                    && team.tournament.tournamentDay === tournament.tournamentDay
                     && reducedMap
                     && reducedMap.size === 2
                     && reducedMap.has(currentUserId)
@@ -456,7 +458,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
                 'X',
                 {duration: 5 * 1000});
-            this.teams = [{error: "No data"}];
+            this.teams = [this.noDataAvailable];
         }
     }
 
