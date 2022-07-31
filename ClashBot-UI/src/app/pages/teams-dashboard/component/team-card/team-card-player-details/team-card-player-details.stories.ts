@@ -46,78 +46,78 @@ const Template: Story<TeamCardPlayerDetailsComponent> = (args: TeamCardPlayerDet
 
 export const PrimaryWithChampions = Template.bind({});
 PrimaryWithChampions.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Top', champions: ['Camille', 'Volibear', 'Ornn']},
+    player: {name: 'Roidrage', id: '1', role: 'Top', champions: ['Camille', 'Volibear', 'Ornn'], isUser: false},
     showPlayerDetails: true
 };
 
 export const PrimaryWithoutChampions = Template.bind({});
 PrimaryWithoutChampions.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Top', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Top', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const CurrentPlayerWithChampions = Template.bind({});
 CurrentPlayerWithChampions.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Top', champions: ['Camille', 'Volibear', 'Ornn'], isUser: true},
+    player: {name: 'Roidrage', id: '1', role: 'Top', champions: ['Camille', 'Volibear', 'Ornn'], isUser: true},
     showPlayerDetails: true
 };
 
 export const TopWithDetails = Template.bind({});
 TopWithDetails.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Top', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Top', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const MidWithDetails = Template.bind({});
 MidWithDetails.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Mid', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Mid', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const JgWithDetails = Template.bind({});
 JgWithDetails.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Jg', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Jg', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const BotWithDetails = Template.bind({});
 BotWithDetails.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Bot', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Bot', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const SuppWithDetails = Template.bind({});
 SuppWithDetails.args = {
-    player: {name: 'Roidrage', id: 1, role: 'Supp', champions: []},
+    player: {name: 'Roidrage', id: '1', role: 'Supp', champions: [], isUser: false},
     showPlayerDetails: true
 };
 
 export const EmptyTop = Template.bind({});
 EmptyTop.args = {
-    player: {name: '', id: 1, role: 'Top', champions: []},
+    player: {name: '', id: '1', role: 'Top', champions: [], isUser: false},
     showPlayerDetails: false
 };
 
 export const EmptyMid = Template.bind({});
 EmptyMid.args = {
-    player: {name: '', id: 1, role: 'Mid', champions: []},
+    player: {name: '', id: '1', role: 'Mid', champions: [], isUser: false},
     showPlayerDetails: false
 };
 
 export const EmptyJg = Template.bind({});
 EmptyJg.args = {
-    player: {name: '', id: 1, role: 'JG', champions: []},
+    player: {name: '', id: '1', role: 'JG', champions: [], isUser: false},
     showPlayerDetails: false
 };
 
 export const EmptyBot = Template.bind({});
 EmptyBot.args = {
-    player: {name: '', id: 1, role: 'Bot', champions: []},
+    player: {name: '', id: '1', role: 'Bot', champions: [], isUser: false},
     showPlayerDetails: false
 };
 
 export const EmptySupp = Template.bind({});
 EmptySupp.args = {
-    player: {name: '', id: 1, role: 'Supp', champions: []},
+    player: {name: '', id: '1', role: 'Supp', champions: [], isUser: false},
     showPlayerDetails: false
 };

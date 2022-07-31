@@ -15,8 +15,7 @@ import {
 import {UserDetails} from "../../interfaces/user-details";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {PageLoadingService} from "../../services/page-loading.service";
-import {UserService} from "clash-bot-service-api";
-import {TournamentService} from "clash-bot-service-api";
+import {UserService,TournamentService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Player} from "clash-bot-service-api/model/player";
 

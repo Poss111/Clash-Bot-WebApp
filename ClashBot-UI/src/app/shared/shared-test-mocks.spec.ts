@@ -181,8 +181,8 @@ export function createMockClashTournaments(expectedTournamentName: string, numbe
         mockClashTournaments.push({
             tournamentName: expectedTournamentName,
             tournamentDay: `${i}`,
-            startTime: new Date().toISOString(),
-            registrationTime: new Date().toISOString()
+            startTime: "2022-07-30T19:37:40.569Z",
+            registrationTime: "2022-07-30T19:37:40.569Z"
         })
     }
     return mockClashTournaments;

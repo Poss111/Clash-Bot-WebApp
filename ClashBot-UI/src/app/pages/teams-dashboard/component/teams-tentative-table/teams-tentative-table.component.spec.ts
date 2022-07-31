@@ -57,7 +57,8 @@ describe('TeamsTentativeTableComponent', () => {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: true
+        isMember: true,
+        toBeAdded: false
       };
       component.register.subscribe((event) => {
         mockClashBotTentativeDetails.index = 1;
@@ -83,7 +84,8 @@ describe('TeamsTentativeTableComponent', () => {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: false
+        isMember: false,
+        toBeAdded: true
       };
       component.register.subscribe((event) => {
         mockClashBotTentativeDetails.index = 1;
@@ -110,7 +112,8 @@ describe('TeamsTentativeTableComponent', () => {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: false
+        isMember: false,
+        toBeAdded: false
       };
       component.tentativeRegister(mockClashBotTentativeDetails, 1);
       expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: { message:`Are you sure you want to be added to the Tentative list for this tournament?`}});

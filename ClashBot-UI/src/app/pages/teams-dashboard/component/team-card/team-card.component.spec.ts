@@ -8,6 +8,7 @@ import {TeamCardPlayerDetailsComponent} from "./team-card-player-details/team-ca
 import {SharedModule} from "../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { TeamUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
 
 jest.mock("@angular/material/dialog");
 
@@ -51,28 +52,26 @@ describe('TeamCardComponent', () => {
 
   test('Should add placeholder values for Tournament if no values are given and set the image url.', () => {
     component.team = {
-      teamName: 'Test Team',
-      startTime: '123'
+      name: 'Test Team',
     };
     fixture.detectChanges();
-    expect(component.team.tournamentDetails).toBeTruthy();
-    expect(component.team.tournamentDetails?.tournamentName).toEqual('Placeholder');
-    expect(component.team.tournamentDetails?.tournamentDay).toEqual('1');
+    expect(component.team.tournament).toBeTruthy();
+    expect(component.team.tournament?.tournamentName).toEqual('Placeholder');
+    expect(component.team.tournament?.tournamentDay).toEqual('1');
     expect(component.pokemonName).toEqual('team')
   })
 
   test('Should not modify tournament Details if they are given', () => {
-    let expectedTeam = {
-      teamName: 'Test Team',
-      startTime: '123',
-      tournamentDetails: {
+    let expectedTeam: TeamUiWrapper = {
+      name: 'Test Team',
+      tournament: {
         tournamentName: 'test_tournament',
         tournamentDay: '2'
       }
     }
-    component.team = JSON.parse(JSON.stringify(expectedTeam));
+    component.team = {...expectedTeam};
     fixture.detectChanges();
-    expect(component.team.tournamentDetails).toEqual(expectedTeam.tournamentDetails);
+    expect(component.team.tournament).toEqual(expectedTeam.tournament);
     expect(component.pokemonName).toEqual('team')
   })
 

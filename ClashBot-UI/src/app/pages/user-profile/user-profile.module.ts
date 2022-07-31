@@ -14,7 +14,6 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSliderModule} from "@angular/material/slider";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {ClashBotService} from "../../services/clash-bot.service";
 import {MatButtonModule} from "@angular/material/button";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
@@ -43,6 +42,5 @@ import {SharedModule} from "../../shared/shared.module";
         MatProgressBarModule,
         SharedModule
     ],
-    providers: [ClashBotService]
 })
 export class UserProfileModule { }

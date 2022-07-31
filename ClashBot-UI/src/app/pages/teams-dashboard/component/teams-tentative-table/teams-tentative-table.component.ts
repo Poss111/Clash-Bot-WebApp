@@ -30,8 +30,10 @@ export class TeamsTentativeTableComponent implements OnChanges {
 
     tentativeRegister(element: ClashBotTentativeDetails, index: number) {
         let actionMessage = 'added to';
+        element.toBeAdded = true;
         if (element.isMember) {
             actionMessage = 'removed from';
+            element.toBeAdded = false;
         }
         let dialogRef = this.dialog.open(ConfirmationDialogComponent,
             {
@@ -42,6 +44,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
         dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
             if (result) {
                 element.index = index;
+                
                 this.register.emit(element)
             }
         });

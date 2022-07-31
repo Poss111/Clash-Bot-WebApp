@@ -3,6 +3,7 @@ import {ClashTeam} from "../../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
+import { TeamUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
 
 @Component({
   selector: 'app-team-card',
@@ -12,7 +13,7 @@ import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-regist
 export class TeamCardComponent implements OnInit {
 
   @Input()
-  team: ClashTeam = {};
+  team: TeamUiWrapper = {};
 
   @Output()
   registerUser: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
@@ -28,14 +29,14 @@ export class TeamCardComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.team
-        && !this.team.tournamentDetails) {
-      this.team.tournamentDetails = {
+        && !this.team.tournament) {
+      this.team.tournament = {
         tournamentName: 'Placeholder',
         tournamentDay: '1'
       };
     }
-    if(this.team && this.team.teamName) {
-      this.pokemonName = this.team.teamName.split(' ')[1].toLowerCase();
+    if(this.team && this.team.name) {
+      this.pokemonName = this.team.name.split(' ')[1].toLowerCase();
     }
   }
 
@@ -46,11 +47,11 @@ export class TeamCardComponent implements OnInit {
       if (result) {
         const clashBotUserRegister: ClashBotUserRegister = {
           role: role,
-          teamName: this.team.teamName,
+          teamName: this.team.name,
           serverName: this.team.serverName,
           tournamentDetails: {
-            tournamentName: this.team.tournamentDetails?.tournamentName,
-            tournamentDay: this.team.tournamentDetails?.tournamentDay,
+            tournamentName: this.team.tournament?.tournamentName,
+            tournamentDay: this.team.tournament?.tournamentDay,
           }
         };
         this.registerUser.emit(clashBotUserRegister);

@@ -39,7 +39,6 @@ import {SharedModule} from "../../shared/shared.module";
 import {Tournament, TournamentService, UserService} from 'clash-bot-service-api';
 
 jest.mock("angular-oauth2-oidc");
-jest.mock("../../services/clash-bot.service");
 jest.mock('clash-bot-service-api');
 jest.mock("../../services/discord.service");
 jest.mock("../../services/application-details.service");

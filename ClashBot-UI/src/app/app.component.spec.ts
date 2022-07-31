@@ -16,7 +16,6 @@ import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {MatChipsModule} from "@angular/material/chips";
 import {DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {ClashBotService} from "./services/clash-bot.service";
 import {DiscordService} from "./services/discord.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatSelectModule} from "@angular/material/select";
@@ -92,7 +91,6 @@ describe('AppComponent', () => {
                 UrlHelperService,
                 OAuthLogger,
                 DateTimeProvider,
-                ClashBotService,
                 DiscordService,
                 MatDialog,
                 GoogleAnalyticsService,

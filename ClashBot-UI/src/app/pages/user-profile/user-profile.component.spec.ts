@@ -3,7 +3,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {UserProfileComponent} from './user-profile.component';
 import {UserProfileModule} from "./user-profile.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {ClashBotService} from "../../services/clash-bot.service";
 import {RiotDdragonService} from "../../services/riot-ddragon.service";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {DiscordGuild} from "../../interfaces/discord-guild";
@@ -11,7 +10,6 @@ import {UserDetails} from "../../interfaces/user-details";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {TestScheduler} from "rxjs/testing";
 import {ChampionData} from "../../interfaces/championData";
-import Mock = jest.Mock;
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {ApplicationDetails} from "../../interfaces/application-details";
@@ -19,8 +17,8 @@ import * as mocks from '../../shared/shared-test-mocks.spec';
 import {Subscription, UserService} from 'clash-bot-service-api';
 import {Player} from "clash-bot-service-api/model/player";
 import {CreateUserRequest} from "clash-bot-service-api/model/createUserRequest";
+import Mock = jest.Mock;
 
-jest.mock('../../services/clash-bot.service');
 jest.mock('../../services/riot-ddragon.service');
 jest.mock('../../services/application-details.service');
 jest.mock('clash-bot-service-api');
@@ -50,7 +48,6 @@ describe('UserProfileComponent', () => {
   let component: UserProfileComponent;
   let fixture: ComponentFixture<UserProfileComponent>;
   let testScheduler: TestScheduler;
-  let clashBotServiceMock: ClashBotService;
   let userServiceMock: UserService;
   let riotDDragonServiceMock: RiotDdragonService;
   let applicationDetailsMock: any;
@@ -71,7 +68,6 @@ describe('UserProfileComponent', () => {
       providers: [RiotDdragonService, ApplicationDetailsService, UserService]
     })
       .compileComponents();
-    clashBotServiceMock = TestBed.inject(ClashBotService);
     userServiceMock = TestBed.inject(UserService);
     riotDDragonServiceMock = TestBed.inject(RiotDdragonService);
     matSnackBarMock = TestBed.inject(MatSnackBar);

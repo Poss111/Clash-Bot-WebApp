@@ -41,46 +41,49 @@ const Template: Story<TeamCardComponent> = (args: TeamCardComponent) => ({
 export const Primary = Template.bind({});
 Primary.args = {
   team: {
-    teamName: 'Team Charizard',
-    playersDetails: [
+    name: 'Charizard',
+    teamDetails: [
       {
         name: 'Roidrage',
-        id: 1,
+        id: '1',
         role: 'Top',
         champions: ['Sett', 'Volibear', 'Ornn'],
         isUser: true
       },
       {
         name: 'Shiragaku',
-        id: 1,
+        id: '2',
         role: 'Mid',
-        champions: ['Ahri', 'Seraphine', 'Nami']
+        champions: ['Ahri', 'Seraphine', 'Nami'],
+        isUser: false
       },
       {
         name: 'Sirpryse',
-        id: 1,
+        id: '3',
         role: 'Jg',
-        champions: ['Zac', 'Ekko', 'Taric']
+        champions: ['Zac', 'Ekko', 'Taric'],
+        isUser: false
       },
       {
         name: 'TheIncentive',
-        id: 1,
+        id: '4',
         role: 'Bot',
-        champions: ['Lucian', 'Senna', 'Jhin']
+        champions: ['Lucian', 'Senna', 'Jhin'],
+        isUser: false
       },
       {
         name: 'PepeConrad',
-        id: 1,
+        id: '5',
         role: 'Supp',
-        champions: ['Thresh', 'Bard', 'Lulu']
+        champions: ['Thresh', 'Bard', 'Lulu'],
+        isUser: false
       }
     ],
-    tournamentDetails: {
+    tournament: {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1'
     },
     serverName: 'Goon Squad',
-    startTime: new Date().toISOString(),
     id: 'charizard'
   }
 };
@@ -88,46 +91,49 @@ Primary.args = {
 export const Bot = Template.bind({});
 Bot.args = {
   team: {
-    teamName: 'Team Charizard',
-    playersDetails: [
+    name: 'Charizard',
+    teamDetails: [
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Top',
         champions: [],
         isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Mid',
         champions: [],
+        isUser: false,
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Jg',
         champions: [],
+        isUser: false
       },
       {
         name: 'TheIncentive',
-        id: 1,
+        id: '0',
         role: 'Bot',
-        champions: ['Lucian', 'Senna', 'Jhin']
+        champions: ['Lucian', 'Senna', 'Jhin'],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Supp',
         champions: [],
+        isUser: false
       }
     ],
-    tournamentDetails: {
+    tournament: {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1'
     },
     serverName: 'Goon Squad',
-    startTime: new Date().toISOString(),
     id: 'charizard'
   }
 };
@@ -135,46 +141,49 @@ Bot.args = {
 export const Mid = Template.bind({});
 Mid.args = {
   team: {
-    teamName: 'Team Charizard',
-    playersDetails: [
+    name: 'Charizard',
+    teamDetails: [
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Top',
         champions: [],
         isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Bot',
-        champions: []
+        champions: [],
+        isUser: false
       },
       {
         name: 'TheIncentive',
-        id: 1,
+        id: '1',
         role: 'Mid',
-        champions: ['Lucian', 'Senna', 'Jhin']
+        champions: ['Lucian', 'Senna', 'Jhin'],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Jg',
         champions: [],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Supp',
         champions: [],
+        isUser: false
       }
     ],
-    tournamentDetails: {
+    tournament: {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1'
     },
     serverName: 'Goon Squad',
-    startTime: new Date().toISOString(),
     id: 'charizard'
   }
 };
@@ -182,46 +191,49 @@ Mid.args = {
 export const Jg = Template.bind({});
 Jg.args = {
   team: {
-    teamName: 'Team Charizard',
-    playersDetails: [
+    name: 'Charizard',
+    teamDetails: [
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Top',
         champions: [],
         isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Bot',
-        champions: []
+        champions: [],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Mid',
-        champions: []
+        champions: [],
+        isUser: false
       },
       {
         name: 'TheIncentive',
-        id: 1,
+        id: '1',
         role: 'Jg',
         champions: ['Lucian', 'Senna', 'Jhin'],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Supp',
         champions: [],
+        isUser: false
       }
     ],
-    tournamentDetails: {
+    tournament: {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1'
     },
     serverName: 'Goon Squad',
-    startTime: new Date().toISOString(),
     id: 'charizard'
   }
 };
@@ -229,46 +241,49 @@ Jg.args = {
 export const Supp = Template.bind({});
 Supp.args = {
   team: {
-    teamName: 'Team Charizard',
-    playersDetails: [
+    name: 'Charizard',
+    teamDetails: [
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Top',
         champions: [],
         isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Bot',
-        champions: []
+        champions: [],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Mid',
-        champions: []
+        champions: [],
+        isUser: false
       },
       {
         name: '',
-        id: 1,
+        id: '0',
         role: 'Jg',
         champions: [],
+        isUser: false
       },
       {
         name: 'TheIncentive',
-        id: 1,
+        id: '1',
         role: 'Supp',
         champions: ['Lucian', 'Senna', 'Jhin'],
+        isUser: false
       }
     ],
-    tournamentDetails: {
+    tournament: {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1'
     },
     serverName: 'Goon Squad',
-    startTime: new Date().toISOString(),
     id: 'charizard'
   }
 };

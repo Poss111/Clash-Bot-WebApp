@@ -46,7 +46,7 @@ describe('TeamCardPlayerDetailsComponent', () => {
 
   describe("OnInit", () => {
     test("If the player champion array is empty, then it should populate with an empty array.", () => {
-      component.player = { name: 'Hi', id: 2, role: 'Mid'}
+      component.player =  { name: 'Hi', id: '2', role: 'Mid', isUser: true };
 
       component.ngOnInit();
 

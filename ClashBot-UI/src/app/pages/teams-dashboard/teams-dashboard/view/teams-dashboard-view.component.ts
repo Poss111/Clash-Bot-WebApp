@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {ClashTournaments} from "../../../../interfaces/clash-tournaments";
 import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
 import {ClashTeam} from "../../../../interfaces/clash-team";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
@@ -7,6 +6,7 @@ import {TeamFilter} from "../../../../interfaces/team-filter";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Tentative} from "clash-bot-service-api/model/tentative";
+import { TeamUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
 
 @Component({
   selector: 'app-teams-dashboard-view',
@@ -19,7 +19,7 @@ export class TeamsDashboardViewComponent {
   eligibleTournaments: Tournament[] = [];
 
   @Input()
-  teams: ClashTeam[] = [];
+  teams: TeamUiWrapper[] = [];
 
   @Input()
   tentativeList?: Tentative[] = [];
