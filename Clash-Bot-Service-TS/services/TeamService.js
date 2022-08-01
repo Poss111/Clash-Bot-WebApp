@@ -9,6 +9,12 @@ const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamM
 const socketService = require('../socket/SocketServices');
 const logger = require('../logger');
 
+function sendAsyncEvent(mappedResponse, loggerContext) {
+  socketService.sendMessage(mappedResponse)
+    .then(() => logger.debug(loggerContext, 'Successfully sent Team event.'))
+    .catch((error) => logger.error({ err: error, ...loggerContext }, 'Failed to fulfill call.'));
+}
+
 /**
 * Create a new Team
 *
@@ -42,12 +48,7 @@ const createNewTeam = ({ body }) => new Promise(
           .forEach((key) => mappedResponse
             .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
               .playerDetails[key].id], userEntityToResponse));
-        socketService.sendMessage(mappedResponse)
-          .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
-          .catch((error) => {
-            loggerContext.err = error;
-            logger.error(loggerContext, 'Failed to fulfill call.');
-          });
+        sendAsyncEvent(mappedResponse, { ...loggerContext });
         resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {
@@ -136,8 +137,8 @@ const removePlayerFromTeam = ({ body }) => new Promise(
         logger.debug(loggerContext, `Retrieved Teams Server ('${body.serverName}') length ('${retrievedTeams.length}')`);
         const teamToUpdate = { ...retrievedTeams[0] };
         logger.debug(loggerContext, `Removing player ('${body.playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`);
-        teamToUpdate.players =
-          teamToUpdate.players.filter((playerId) => playerId !== body.playerId);
+        teamToUpdate.players = teamToUpdate.players
+          .filter((playerId) => playerId !== body.playerId);
         const playerRole = Object.entries(teamToUpdate.playersWRoles)
           .find((entry) => entry[1] === body.playerId);
         logger.debug(loggerContext, `Removing player ('${body.playerId}') from Role ('${playerRole[0]}')...`);
@@ -160,12 +161,7 @@ const removePlayerFromTeam = ({ body }) => new Promise(
             .forEach((key) => mappedResponse
               .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
                 .playerDetails[key].id], userEntityToResponse));
-          socketService.sendMessage(mappedResponse)
-            .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
-            .catch((error) => {
-              loggerContext.err = error;
-              logger.error(loggerContext, 'Failed to fulfill call.');
-            });
+          sendAsyncEvent(mappedResponse, { ...loggerContext });
           resolve(Service.successResponse(mappedResponse));
         }
       }
@@ -218,12 +214,7 @@ const updateTeam = ({ body }) => new Promise(
           .forEach((key) => mappedResponse
             .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
               .playerDetails[key].id], userEntityToResponse));
-        socketService.sendMessage(mappedResponse)
-          .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
-          .catch((error) => {
-            loggerContext.err = error;
-            logger.error(loggerContext, 'Failed to fulfill call.');
-          });
+        sendAsyncEvent(mappedResponse, { ...loggerContext });
         resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {
