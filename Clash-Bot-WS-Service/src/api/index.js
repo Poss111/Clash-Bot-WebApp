@@ -1,6 +1,6 @@
+require('dotenv').config();
 const app = require('express')();
 require('express-ws')(app);
-const config = require('../lib/config');
 const routes = require('./routes');
 const asyncapi = require('../lib/asyncapi');
 const logger = require('../../logger');
@@ -21,8 +21,9 @@ const start = async () => {
     next();
   });
 
-  app.listen(config.port);
-  logger.info(`Listening on port ${config.port}`);
+  const runningPort = process.env.PORT ?? 8081;
+  app.listen(runningPort);
+  logger.info(`Listening on port ${runningPort}`);
 };
 
 start();
