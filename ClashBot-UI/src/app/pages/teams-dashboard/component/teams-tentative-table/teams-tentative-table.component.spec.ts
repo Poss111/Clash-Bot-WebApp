@@ -7,6 +7,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
 import { of } from 'rxjs';
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 jest.mock("@angular/material/dialog");
 
@@ -50,9 +51,12 @@ describe('TeamsTentativeTableComponent', () => {
         afterClosed:  afterClosedMock
       })
       matDialogMock.open = openMock;
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: '0',
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
@@ -77,9 +81,12 @@ describe('TeamsTentativeTableComponent', () => {
         afterClosed:  afterClosedMock
       })
       matDialogMock.open = openMock;
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: '0',
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
@@ -105,9 +112,12 @@ describe('TeamsTentativeTableComponent', () => {
       })
       matDialogMock.open = openMock;
       component.register.emit = jest.fn().mockImplementation();
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: '0',
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"

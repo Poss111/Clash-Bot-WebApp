@@ -6,6 +6,7 @@ const clashTeamsDbImpl = require('../dao/ClashTeamsDbImpl');
 const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
 const clashTimeDbImpl = require('../dao/ClashTimeDbImpl');
 const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
+const socketService = require('../socket/SocketServices');
 const logger = require('../logger');
 
 /**
@@ -41,6 +42,12 @@ const createNewTeam = ({ body }) => new Promise(
           .forEach((key) => mappedResponse
             .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
               .playerDetails[key].id], userEntityToResponse));
+        socketService.sendMessage(mappedResponse)
+          .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
+          .catch((error) => {
+            loggerContext.err = error;
+            logger.error(loggerContext, 'Failed to fulfill call.');
+          });
         resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {
@@ -153,6 +160,12 @@ const removePlayerFromTeam = ({ body }) => new Promise(
             .forEach((key) => mappedResponse
               .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
                 .playerDetails[key].id], userEntityToResponse));
+          socketService.sendMessage(mappedResponse)
+            .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
+            .catch((error) => {
+              loggerContext.err = error;
+              logger.error(loggerContext, 'Failed to fulfill call.');
+            });
           resolve(Service.successResponse(mappedResponse));
         }
       }
@@ -205,6 +218,12 @@ const updateTeam = ({ body }) => new Promise(
           .forEach((key) => mappedResponse
             .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
               .playerDetails[key].id], userEntityToResponse));
+        socketService.sendMessage(mappedResponse)
+          .then(() => console.debug(loggerContext, 'Successfully sent updated.'))
+          .catch((error) => {
+            loggerContext.err = error;
+            logger.error(loggerContext, 'Failed to fulfill call.');
+          });
         resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {

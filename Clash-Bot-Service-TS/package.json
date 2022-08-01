@@ -8,7 +8,8 @@
     "db-test": "node dao/tests/db-test.utility.test.js | pino-pretty -t",
     "integration-setup": "node integration/integration-setup.js | pino-pretty -t",
     "test": "jest unit --silent",
-    "local-test": "jest unit --silent | pino-pretty -t"
+    "local-test": "jest unit --silent | pino-pretty -t",
+    "ws": "node test.js"
   },
   "keywords": [
     "openapi-generator",
@@ -34,7 +35,8 @@
     "pino": "^7.6.5",
     "pino-http": "^6.6.0",
     "swagger-ui-express": "^4.0.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "ws": "^8.8.1"
   },
   "devDependencies": {
     "axios": "^0.19.0",

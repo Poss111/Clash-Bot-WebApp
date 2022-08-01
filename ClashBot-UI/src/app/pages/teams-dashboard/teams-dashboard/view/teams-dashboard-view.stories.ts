@@ -43,9 +43,7 @@ export default {
                 TeamsDashboardHelpDialogComponent,
                 GuildFilterListComponent,
                 TeamCardPlayerDetailsComponent,
-                KebabCasePipe,
                 ConfirmationDialogComponent,
-                SpinnerComponent
             ],
             imports: [
                 MatCardModule,
@@ -140,180 +138,176 @@ Primary.args = {
     ],
     teams: [
         {
-            teamName: 'Team Abra',
-            playersDetails: [
+            name: 'Abra',
+            teamDetails: [
                 {
                     name: 'Roidrage',
-                    id: 1,
+                    id: '1',
                     role: 'Top',
                     champions: ['Sett'],
                     isUser: true
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Mid',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Jg',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Bot',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Supp',
                     isUser: false
                 },
             ],
-            tournamentDetails: {
+            tournament: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '1'
             },
             serverName: 'Clash Bot',
-            startTime: new Date().toISOString(),
             id: '1'
         },
         {
-            teamName: 'Team Blastoise',
-            playersDetails: [
+            name: 'Blastoise',
+            teamDetails: [
                 {
                     name: 'Roidrage',
-                    id: 1,
+                    id: '1',
                     role: 'Top',
                     champions: ['Sett'],
                     isUser: true
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Mid',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Jg',
                     isUser: false
                 },
                 {
                     name: 'PepeConrad',
-                    id: 2,
+                    id: '2',
                     role: 'Bot',
                     champions: ['Aphelios', 'Xayah', 'Kaisa'],
                     isUser: false
                 },
                 {
                     name: 'Shiragaku',
-                    id: 3,
+                    id: '3',
                     role: 'Supp',
                     champions: ['Nami', 'Lulu', 'Leona'],
                     isUser: false
                 },
             ],
-            tournamentDetails: {
+            tournament: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '2'
             },
             serverName: 'Clash Bot',
-            startTime: new Date().toISOString(),
             id: '2'
         },
         {
-            teamName: 'Team Charizard',
-            playersDetails: [
+            name: 'Charizard',
+            teamDetails: [
                 {
                     name: 'Roidrage',
-                    id: 1,
+                    id: '1',
                     role: 'Top',
                     champions: ['Sett'],
                     isUser: true
                 },
                 {
                     name: 'Coair',
-                    id: 2,
+                    id: '2',
                     role: 'Mid',
                     champions: ['Malzahar', 'Kassadin', 'Viktor'],
                     isUser: false
                 },
                 {
                     name: 'Drone123',
-                    id: 3,
+                    id: '3',
                     role: 'Jg',
                     champions: ['Lillia', 'Nidalee', 'Hecarim'],
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Bot',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Supp',
                     isUser: false
                 }
             ],
-            tournamentDetails: {
+            tournament: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '3'
             },
             serverName: 'Clash Bot',
-            startTime: new Date().toISOString(),
             id: '3'
         },
         {
-            teamName: 'Team Venusaur',
-            playersDetails: [
+            name: 'Venusaur',
+            teamDetails: [
                 {
                     name: 'Roidrage',
-                    id: 1,
+                    id: '1',
                     role: 'Top',
                     champions: ['Sett'],
                     isUser: true
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Mid',
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Jg',
                     isUser: false
                 },
                 {
                     name: 'TheIncentive',
-                    id: 2,
+                    id: '2',
                     role: 'Bot',
                     champions: ['Xayah', 'Tristana', 'Draven'],
                     isUser: false
                 },
                 {
                     name: '',
-                    id: 0,
+                    id: '0',
                     role: 'Supp',
                     isUser: false
                 }
             ],
-            tournamentDetails: {
+            tournament: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '4'
             },
             serverName: 'Clash Bot',
-            startTime: new Date().toISOString(),
             id: '4'
         }
     ]
@@ -406,46 +400,45 @@ CreateNewTeam.args = {
   ],
   teams: [
     {
-      teamName: 'Team Abra',
-      playersDetails: [
+      name: 'Abra',
+      teamDetails: [
         {
           name: 'Roidrage',
-          id: 1,
+          id: '1',
           role: 'Top',
           champions: ['Sett'],
           isUser: true
         },
         {
           name: '',
-          id: 0,
+          id: '0',
           role: 'Mid',
           isUser: false
         },
         {
           name: '',
-          id: 0,
+          id: '0',
           role: 'Jg',
           isUser: false
         },
         {
           name: '',
-          id: 0,
+          id: '0',
           role: 'Bot',
           isUser: false
         },
         {
           name: '',
-          id: 0,
+          id: '0',
           role: 'Supp',
           isUser: false
         },
       ],
-      tournamentDetails: {
+        tournament: {
         tournamentName: 'awesome_sauce',
         tournamentDay: '1'
       },
       serverName: 'Clash Bot',
-      startTime: new Date().toISOString(),
       id: '1'
     }
   ]

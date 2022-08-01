@@ -725,6 +725,7 @@ describe('TeamsDashboardComponent', () => {
           name: 'Roid',
         }
       );
+      tentativeDetails
       component.tentativeList = [...tentativeDetails];
       component.updateTentativeListBasedOnTeam({});
 
@@ -1115,17 +1116,20 @@ describe('TeamsDashboardComponent', () => {
   
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        component.currentSelectedGuild = 'Goon Squad';
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
-        const clashBotTentativeDetails: ClashBotTentativeDetails = {
+        const clashBotTentativeDetails: TentativeRecord = {
           serverName: 'Goon Squad',
           tentativePlayers: [],
+          playerNames: [],
           tournamentDetails: {
             tournamentName: 'awesome_sauce',
             tournamentDay: '1'
           },
           index: 0,
+          isMember: true,
           toBeAdded: true
         };
 
@@ -1164,6 +1168,7 @@ describe('TeamsDashboardComponent', () => {
           tournamentDay: '1'
         });
         expect(component.tentativeList[0].tentativePlayers).toHaveLength(1);
+        expect(component.tentativeList[0].playerNames?.[0]).toEqual('Tentative Player');
         expect(component.tentativeList?.[0].tentativePlayers?.[0]).toEqual({
           id: `${component.currentApplicationDetails.userDetails.id}`,
           name: 'Tentative Player'
@@ -1178,17 +1183,20 @@ describe('TeamsDashboardComponent', () => {
   
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        component.currentSelectedGuild = 'Goon Squad';
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
-        const clashBotTentativeDetails: ClashBotTentativeDetails = {
+        const clashBotTentativeDetails: TentativeRecord = {
           serverName: 'Goon Squad',
           tentativePlayers: [],
+          playerNames: ['Tentative Player'],
           tournamentDetails: {
             tournamentName: 'awesome_sauce',
             tournamentDay: '1'
           },
           index: 0,
+          isMember: true,
           toBeAdded: false
         };
 
@@ -1207,10 +1215,7 @@ describe('TeamsDashboardComponent', () => {
             tournamentName: 'awesome_sauce',
             tournamentDay: '1'
           },
-          tentativePlayers: [{
-            id: `${component.currentApplicationDetails.userDetails.id}`,
-            name: 'Tentative Player'
-          }]
+          tentativePlayers: []
         };
 
         (tentativeServiceMock.removePlayerFromTentative as any).mockReturnValue(cold('x|', { x: tentativeResponse}))
@@ -1221,16 +1226,13 @@ describe('TeamsDashboardComponent', () => {
         expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledTimes(1);
         expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledWith(placePlayerOnTentativeRequest);
 
-        expect(component.tentativeList[0].isMember).toBeTruthy();
+        expect(component.tentativeList[0].isMember).toBeFalsy();
         expect(component.tentativeList[0].tournamentDetails).toEqual({
           tournamentName: 'awesome_sauce',
           tournamentDay: '1'
         });
-        expect(component.tentativeList[0].tentativePlayers).toHaveLength(1);
-        expect(component.tentativeList?.[0].tentativePlayers?.[0]).toEqual({
-          id: `${component.currentApplicationDetails.userDetails.id}`,
-          name: 'Tentative Player'
-        })
+        expect(component.tentativeList[0].tentativePlayers).toHaveLength(0);
+        expect(component.tentativeList[0].playerNames).toHaveLength(0);
       });
     });
 
@@ -1241,17 +1243,20 @@ describe('TeamsDashboardComponent', () => {
   
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        component.currentSelectedGuild = 'Goon Squad';
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
-        const clashBotTentativeDetails: ClashBotTentativeDetails = {
+        const clashBotTentativeDetails: TentativeRecord = {
           serverName: 'Goon Squad',
           tentativePlayers: [],
+          playerNames: [],
           tournamentDetails: {
             tournamentName: 'awesome_sauce',
             tournamentDay: '1'
           },
           index: 0,
+          isMember: true,
           toBeAdded: true
         };
 
@@ -1262,18 +1267,6 @@ describe('TeamsDashboardComponent', () => {
             tournamentDay: '1'
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`
-        };
-
-        const tentativeResponse: Tentative = {
-          serverName: 'Goon Squad',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          tentativePlayers: [{
-            id: `${component.currentApplicationDetails.userDetails.id}`,
-            name: 'Tentative Player'
-          }]
         };
 
         (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold('#', undefined, create400HttpError()))
@@ -1301,17 +1294,20 @@ describe('TeamsDashboardComponent', () => {
   
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        component.currentSelectedGuild = 'Goon Squad';
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
-        const clashBotTentativeDetails: ClashBotTentativeDetails = {
+        const clashBotTentativeDetails: TentativeRecord = {
           serverName: 'Goon Squad',
           tentativePlayers: [],
+          playerNames: [],
           tournamentDetails: {
             tournamentName: 'awesome_sauce',
             tournamentDay: '1'
           },
           index: 0,
+          isMember: true,
           toBeAdded: true
         };
 
@@ -1322,18 +1318,6 @@ describe('TeamsDashboardComponent', () => {
             tournamentDay: '1'
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`
-        };
-
-        const tentativeResponse: Tentative = {
-          serverName: 'Goon Squad',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          tentativePlayers: [{
-            id: `${component.currentApplicationDetails.userDetails.id}`,
-            name: 'Tentative Player'
-          }]
         };
 
         (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold('7000ms x|', {x: {}}))

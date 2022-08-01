@@ -18,3 +18,5 @@ export const parameters = {
   },
   docs: { inlineStories: true },
 }
+
+localStorage.setItem('leagueApiVersion', '12.14.1')

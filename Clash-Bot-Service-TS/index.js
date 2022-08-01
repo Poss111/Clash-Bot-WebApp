@@ -5,6 +5,7 @@ const clashUserDbImpl = require('./dao/ClashUserDbImpl');
 const clashTimeDbImpl = require('./dao/ClashTimeDbImpl');
 const clashTeamsDb = require('./dao/ClashTeamsDbImpl');
 const clashTentativeDb = require('./dao/ClashTentativeDbImpl');
+const socketService = require('./socket/SocketServices');
 
 const launchServer = async () => {
   try {
@@ -15,6 +16,10 @@ const launchServer = async () => {
       clashTentativeDb.initialize(),
     ]);
 
+    socketService.waitForConnection(1)
+      .then(() => logger.info('Connected to Websocket Service.'))
+      .catch((err) => logger.error(err));
+
     this.expressServer = new ExpressServer(config.URL_PORT, config.OPENAPI_YAML);
     this.expressServer.launch();
     logger.info('Express server running');
@@ -24,4 +29,4 @@ const launchServer = async () => {
   }
 };
 
-launchServer().catch(e => logger.error(e));
+launchServer().catch((e) => logger.error(e));

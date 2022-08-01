@@ -106,7 +106,7 @@ EmptyMid.args = {
 
 export const EmptyJg = Template.bind({});
 EmptyJg.args = {
-    player: {name: '', id: '1', role: 'JG', champions: [], isUser: false},
+    player: {name: '', id: '1', role: 'Jg', champions: [], isUser: false},
     showPlayerDetails: false
 };
 

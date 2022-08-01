@@ -5,6 +5,7 @@ import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dial
 import {take} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
 import {Tentative} from "clash-bot-service-api/model/tentative";
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
     selector: 'app-teams-tentative-table',
@@ -16,19 +17,19 @@ export class TeamsTentativeTableComponent implements OnChanges {
     showTentative: boolean = false;
 
     @Input()
-    tentativeList?: Tentative[] = [];
+    tentativeList?: TentativeRecord[] = [];
 
     @Input()
     tentativeDataStatus: string = 'NOT_LOADED';
 
     @Output()
-    register: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
+    register: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
 
-    @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
+    @ViewChild(MatTable) table?: MatTable<TentativeRecord>;
 
     constructor(private dialog: MatDialog) {}
 
-    tentativeRegister(element: ClashBotTentativeDetails, index: number) {
+    tentativeRegister(element: TentativeRecord, index: number) {
         let actionMessage = 'added to';
         element.toBeAdded = true;
         if (element.isMember) {

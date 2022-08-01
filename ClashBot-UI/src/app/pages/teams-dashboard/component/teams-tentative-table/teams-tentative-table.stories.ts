@@ -50,7 +50,17 @@ Successful.args = {
     tentativeList: [
         {
             serverName: 'Goon Squad',
-            tentativePlayers: ['Hehoo'],
+            tentativePlayers: [
+                {
+                    name: 'Hehoo',
+                    id: '1'
+                },
+                {
+                    name: 'Roidrage',
+                    id: '2'
+                }
+            ],
+            playerNames: ['Hehoo', 'Roidrage'],
             tournamentDetails: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '1'
@@ -68,7 +78,11 @@ Successful.args = {
         },
         {
             serverName: 'Goon Squad',
-            tentativePlayers: ['Hehoo'],
+            tentativePlayers: [{
+                name: 'Hehoo',
+                id: '1'
+            }],
+            playerNames: ['Hehoo'],
             tournamentDetails: {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '3'

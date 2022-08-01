@@ -455,13 +455,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    tentativeRegister(tentativeUserDetails: ClashBotTentativeDetails) {
+    tentativeRegister(tentativeUserDetails: TentativeRecord) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             const payload: PlacePlayerOnTentativeRequest = {
                 playerId: `${this.currentApplicationDetails.userDetails.id}`,
-                serverName: tentativeUserDetails.serverName,
-                tournamentDetails: tentativeUserDetails.tournamentDetails
+                serverName: this.currentSelectedGuild,
+                tournamentDetails: tentativeUserDetails.tournamentDetails ?? {}
             };
             let obs = this.tentativeService.placePlayerOnTentative(payload);
             if (!tentativeUserDetails.toBeAdded) {
@@ -474,6 +474,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             serverName: response.serverName,
                             tournamentDetails: response.tournamentDetails,
                             tentativePlayers: response.tentativePlayers,
+                            playerNames: response.tentativePlayers?.map((player) => player.name ?? '') ?? [],
                             isMember: response.tentativePlayers?.some((player) => {
                                 return player.id === `${this.currentApplicationDetails.userDetails?.id}`
                             }) ?? false

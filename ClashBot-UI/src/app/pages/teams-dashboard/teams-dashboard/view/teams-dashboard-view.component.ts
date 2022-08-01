@@ -7,6 +7,7 @@ import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-detai
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Tentative} from "clash-bot-service-api/model/tentative";
 import { TeamUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
   selector: 'app-teams-dashboard-view',
@@ -43,13 +44,13 @@ export class TeamsDashboardViewComponent {
   createTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();
 
   @Output()
-  unregisterFromTeamEvent: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+  unregisterFromTeamEvent: EventEmitter<TeamUiWrapper> = new EventEmitter<TeamUiWrapper>();
 
   @Output()
   registerForTeamEvent: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
 
   @Output()
-  tentativeRegisterEvent: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
+  tentativeRegisterEvent: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
 
   @Output()
   filterTeamEvent: EventEmitter<string> = new EventEmitter<string>();
@@ -60,7 +61,7 @@ export class TeamsDashboardViewComponent {
     this.createTeamEvent.emit($event);
   }
 
-  unregisterFromTeam($event: ClashTeam) {
+  unregisterFromTeam($event: TeamUiWrapper) {
     this.unregisterFromTeamEvent.emit($event);
   }
 
@@ -68,7 +69,7 @@ export class TeamsDashboardViewComponent {
     this.registerForTeamEvent.emit($event);
   }
 
-  tentativeRegister($event: ClashBotTentativeDetails) {
+  tentativeRegister($event: TentativeRecord) {
     this.tentativeRegisterEvent.emit($event)
   }
 
