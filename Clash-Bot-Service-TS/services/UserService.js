@@ -159,11 +159,11 @@ const createUser = ({ body }) => new Promise(
 /**
  * Removes the requested champion to the users preferred champions.
  *
- * body String
  * id String The Clash bot Player's id (optional)
+ * champion the champion name to remove from the user's list of champions.
  * returns List
  * */
-const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
+const removeFromListOfPreferredChampions = ({ id, champion }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'UserService', method: 'removeFromListOfPreferredChampions' };
     try {
@@ -179,7 +179,7 @@ const removeFromListOfPreferredChampions = ({ body, id }) => new Promise(
         const updatedUserDetails = JSON.parse(JSON.stringify(userDetails));
         updatedUserDetails.preferredChampions = userDetails
           .preferredChampions
-          .filter((record) => record.toLowerCase() !== body.championName.toLowerCase());
+          .filter((record) => record.toLowerCase() !== champion.toLowerCase());
         if (updatedUserDetails
           .preferredChampions
           .join() === userDetails

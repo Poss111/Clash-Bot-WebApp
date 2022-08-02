@@ -71,7 +71,7 @@ const createNewTeam = ({ body }) => new Promise(
 * returns List
 * */
 const getTeam = ({
-  serverName, name, tournament, day,
+  server, name, tournament, day,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'getTeam' };
@@ -83,7 +83,7 @@ const getTeam = ({
       } else {
         const teams = await clashTeamsDbImpl.retrieveTeamsByFilter({
           teamName: name,
-          serverName,
+          serverName: server,
           tournamentName: tournament,
           tournamentDay: day,
         });
@@ -113,35 +113,41 @@ const getTeam = ({
 );
 
 /**
-* Removes a Player from a Team
-*
-* body TeamRemovalBody The details of a Team to remove a player from. (optional)
-* returns Team
-* */
-const removePlayerFromTeam = ({ body }) => new Promise(
+ * Removes a Player from a Team
+ *
+ * name String the name of the Team to retrieve.
+ * serverName String the name of the Server to filter the Teams by.
+ * tournament String the name of the Tournament to filter the Teams by.
+ * tournamentDay String the day of the Tournament to filter the Teams by.
+ * playerId String the player id to remove from the Team.
+ * returns removePlayerFromTeam_200_response
+ * */
+const removePlayerFromTeam = ({
+  name, serverName, tournament, tournamentDay, playerId,
+}) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
       const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
-        serverName: body.serverName,
-        tournamentName: body.tournamentDetails.tournamentName,
-        tournamentDay: body.tournamentDetails.tournamentDay,
-        teamName: body.teamName,
+        serverName,
+        tournamentName: tournament,
+        tournamentDay,
+        teamName: name,
       });
       logger.debug(loggerContext, `Retrieved Teams ('${retrievedTeams}').`);
       if (!retrievedTeams || retrievedTeams.length <= 0) {
-        reject(Service.rejectResponse(`No Team found with criteria '${body}'.`, 400));
-      } else if (!retrievedTeams[0].players.some((playerId) => playerId === body.playerId)) {
-        reject(Service.rejectResponse(`Player does not exist on Team '${body}'.`, 400));
+        reject(Service.rejectResponse('No Team found with criteria.', 400));
+      } else if (!retrievedTeams[0].players.some((id) => id === playerId)) {
+        reject(Service.rejectResponse(`Player does not exist on Team '${name}'.`, 400));
       } else {
-        logger.debug(loggerContext, `Retrieved Teams Server ('${body.serverName}') length ('${retrievedTeams.length}')`);
+        logger.debug(loggerContext, `Retrieved Teams Server ('${serverName}') length ('${retrievedTeams.length}')`);
         const teamToUpdate = { ...retrievedTeams[0] };
-        logger.debug(loggerContext, `Removing player ('${body.playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`);
+        logger.debug(loggerContext, `Removing player ('${playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`);
         teamToUpdate.players = teamToUpdate.players
-          .filter((playerId) => playerId !== body.playerId);
+          .filter((id) => id !== playerId);
         const playerRole = Object.entries(teamToUpdate.playersWRoles)
-          .find((entry) => entry[1] === body.playerId);
-        logger.debug(loggerContext, `Removing player ('${body.playerId}') from Role ('${playerRole[0]}')...`);
+          .find((entry) => entry[1] === playerId);
+        logger.debug(loggerContext, `Removing player ('${playerId}') from Role ('${playerRole[0]}')...`);
         delete teamToUpdate.playersWRoles[playerRole[0]];
         if (teamToUpdate.players <= 0) {
           logger.debug(loggerContext, 'Team will be empty after removal, deleting team instead...');
@@ -149,11 +155,11 @@ const removePlayerFromTeam = ({ body }) => new Promise(
             serverName: teamToUpdate.serverName,
             details: teamToUpdate.details,
           });
-          logger.debug(loggerContext, `Server ('${body.serverName}') Team ('${teamToUpdate.details}') successfully deleted.`);
+          logger.debug(loggerContext, `Server ('${serverName}') Team ('${teamToUpdate.details}') successfully deleted.`);
           resolve(Service.successResponse('Team successfully deleted.'));
         } else {
           const updatedTeam = await clashTeamsDbImpl.updateTeam(teamToUpdate);
-          logger.debug(loggerContext, `Player ('${body.playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
+          logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
           const idToPlayerMap = await clashSubscriptionDbImpl
             .retrieveAllUserDetails(updatedTeam.players);
           const mappedResponse = objectMapper(updatedTeam, teamEntityToResponse);

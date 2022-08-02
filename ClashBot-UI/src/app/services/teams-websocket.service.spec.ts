@@ -13,4 +13,8 @@ describe('TeamsWebsocketService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  test('getSubject - (Subscribe) - should subscribe to a websocket subject with a query param of serverName.', () => {
+
+  });
 });

@@ -7,7 +7,6 @@ import {catchError, delay, finalize, map, retryWhen, take, timeout} from "rxjs/o
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
-import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
@@ -48,6 +47,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
+    websocketSub: Subscription | undefined = undefined;
     private readonly noDataAvailable = {error: 'No data'};
 
     constructor(private _snackBar: MatSnackBar,
@@ -74,22 +74,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             state: record.name === appDetails.defaultGuild,
                             id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
                         });
-                    })
-                    this.subs.push(this.teamsWebsocketService.getSubject()
-                        .pipe(retryWhen(errors => errors.pipe(delay(1000))))
-                        .subscribe((msg) => {
-                                if (this.currentApplicationDetails.loggedIn) {
-                                    this.handleIncomingTeamsWsEvent(msg);
-                                }
-                            },
-                            () => {
-                                this._snackBar.open(
-                                    'Oops! Failed to connect to server for Team updates, please try refreshing.',
-                                    'X',
-                                    {duration: 5 * 1000});
-                                this.teams = [this.noDataAvailable];
-                            }));
-
+                    });
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
                         this.currentSelectedGuild = appDetails.defaultGuild;
@@ -102,6 +87,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subs.forEach(subscriptions => subscriptions.unsubscribe());
+        this.websocketSub?.unsubscribe();
     }
 
     updateTentativeList(guildName: string) {
@@ -194,7 +180,23 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         {duration: 5 * 1000});
                 }
             );
-            this.teamsWebsocketService.getSubject().next(valueToSearchFor);
+            if (this.websocketSub && !this.websocketSub.closed) {
+                this.websocketSub.unsubscribe();
+            }
+            this.websocketSub = this.teamsWebsocketService.connect(this.currentSelectedGuild)
+                .pipe(retryWhen(errors => errors.pipe(delay(1000))))
+                .subscribe((msg) => {
+                        if (this.currentApplicationDetails.loggedIn) {
+                            this.handleIncomingTeamsWsEvent(msg);
+                        }
+                    },
+                    () => {
+                        this._snackBar.open(
+                            'Oops! Failed to connect to server for Team updates, please try refreshing.',
+                            'X',
+                            {duration: 5 * 1000});
+                        this.teams = [this.noDataAvailable];
+                    });
         }
     }
 
@@ -482,7 +484,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         return tentativeRecord;
                     }),
                     timeout(7000),
-                    catchError((err) => {
+                    catchError(() => {
                         return throwError('Oops, we were unable to update the tentative list. Please try again later!');
                     })
                 ).subscribe((response) => {

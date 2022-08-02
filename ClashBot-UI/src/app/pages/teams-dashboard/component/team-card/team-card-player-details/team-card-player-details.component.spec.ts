@@ -7,7 +7,6 @@ import {SharedModule} from "../../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RiotDdragonService} from "../../../../../services/riot-ddragon.service";
-import Mock = jest.Mock;
 
 jest.mock('../../../../../services/riot-ddragon.service')
 

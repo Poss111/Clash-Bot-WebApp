@@ -22,8 +22,6 @@ export class TeamCardComponent implements OnInit {
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
   pokemonName: string = '';
-  dateFormat: string = 'MMM d, y h:mm a';
-  timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   constructor(private dialog: MatDialog) {}
 
@@ -36,7 +34,7 @@ export class TeamCardComponent implements OnInit {
       };
     }
     if(this.team && this.team.name) {
-      this.pokemonName = this.team.name.split(' ')[1].toLowerCase();
+      this.pokemonName = this.team.name;
     }
   }
 

@@ -139,18 +139,23 @@ const placePlayerOnTentative = ({ body }) => new Promise(
 /**
  * Remove a player from the tentative queue for an upcoming Tournament.
  *
- * placePlayerOnTentativeRequest PlacePlayerOnTentativeRequest
+ * serverName String the name of the Server the queue falls under.
+ * playerId String the player id to remove from the tentative queue with.
+ * tournament String the Tournament that the tentative queue belongs to.
+ * tournamentDay String the Tournament day that the tentative queue belongs to.
  * returns Tentative
  * */
-const removePlayerFromTentative = ({ body }) => new Promise(
+const removePlayerFromTentative = ({
+  serverName, playerId, tournament, tournamentDay
+}) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
       const tentativeDetails = await clashTentativeDbImpl
-        .getTentative(body.serverName, body.tournamentDetails);
+        .getTentative(serverName, { tournamentName: tournament, tournamentDay });
       if (tentativeDetails
         && Array.isArray(tentativeDetails.tentativePlayers)
-        && !tentativeDetails.tentativePlayers.includes(body.playerId)) {
+        && !tentativeDetails.tentativePlayers.includes(playerId)) {
         reject(Service.rejectResponse('User is not on found tentative queue for Tournament.', 400));
       } else {
         let updatedTentativeDetails = {};
@@ -161,7 +166,7 @@ const removePlayerFromTentative = ({ body }) => new Promise(
           Object.assign(updatedTentativeDetails, tentativeDetails);
         } else {
           updatedTentativeDetails = await clashTentativeDbImpl
-            .removeFromTentative(body.playerId, tentativeDetails);
+            .removeFromTentative(playerId, tentativeDetails);
         }
         const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
         if (Array.isArray(updatedTentativeDetails.tentativePlayers)

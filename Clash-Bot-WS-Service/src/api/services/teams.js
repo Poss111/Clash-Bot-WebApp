@@ -1,10 +1,11 @@
 const service = module.exports = {};
 const logger = require('../../../logger');
 
-const wsClients = [];
+let wsClients = [];
 
 setInterval(() => {
   logger.info(wsClients.map((client) => `${client.id} - ${client.server}`))
+  wsClients = [...wsClients.filter((client) => client.readyState === 1 || client.readyState === 2)];
 }, 5000);
 
 /**

@@ -331,7 +331,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: serverName
+        - name: server
           description: the name of the Server to filter the Teams by.
           in: header
           required: true
@@ -430,8 +430,37 @@ paths:
       operationId: removePlayerFromTeam
       tags:
         - Team
-      requestBody:
-        $ref: '#/components/requestBodies/TeamRemovalBody'
+      parameters:
+        - name: name
+          description: the name of the Team to retrieve.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: serverName
+          description: the name of the Server to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournament
+          description: the name of the Tournament to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournamentDay
+          description: the day of the Tournament to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          description: the player id to remove from the Team.
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The Team was successfully created.
@@ -524,8 +553,31 @@ paths:
       operationId: removePlayerFromTentative
       tags:
         - Tentative
-      requestBody:
-        $ref: '#/components/requestBodies/TentativeBody'
+      parameters:
+        - name: serverName
+          description: the name of the Server the queue falls under.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          description: the player id to remove from the tentative queue with.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournament
+          description: the Tournament that the tentative queue belongs to.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournamentDay
+          description: the Tournament day that the tentative queue belongs to.
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         200:
           description: Player has been removed from queue.
@@ -724,8 +776,13 @@ paths:
       operationId: removeFromListOfPreferredChampions
       tags:
         - User
-      requestBody:
-        $ref: '#/components/requestBodies/ChampionUpdateBody'
+      parameters:
+        - name: champion
+          description: the champion name to remove from the user's list of champions
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         200:
           description: The updated list of preferred champions that the user has.

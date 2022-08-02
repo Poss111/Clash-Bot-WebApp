@@ -52,7 +52,7 @@ describe('TeamCardComponent', () => {
 
   test('Should add placeholder values for Tournament if no values are given and set the image url.', () => {
     component.team = {
-      name: 'Test Team',
+      name: 'Team',
     };
     fixture.detectChanges();
     expect(component.team.tournament).toBeTruthy();
@@ -63,7 +63,7 @@ describe('TeamCardComponent', () => {
 
   test('Should not modify tournament Details if they are given', () => {
     let expectedTeam: TeamUiWrapper = {
-      name: 'Test Team',
+      name: 'team',
       tournament: {
         tournamentName: 'test_tournament',
         tournamentDay: '2'

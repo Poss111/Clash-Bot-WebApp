@@ -4,8 +4,7 @@
             <img mat-card-avatar
                  [src]="'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'"
             appImageFallback/>
-            <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.serverName}}
-                - {{team.name}}</mat-card-title>
+            <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.name | titlecase}}</mat-card-title>
             <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-tournament'"
                                *ngIf="team.tournament">{{ team.tournament.tournamentName | tournamentNameTransformer }} -
                 Day {{team.tournament.tournamentDay}}</mat-card-subtitle>

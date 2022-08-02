@@ -6,6 +6,9 @@ module.exports = {
       players: [
         '5',
       ],
+      playersWRoles: {
+        Top: '5',
+      },
       teamName: 'absol',
       tournamentName: ':tournamentName',
       updatedAt: '2021-07-19T14:06:29.155Z',
