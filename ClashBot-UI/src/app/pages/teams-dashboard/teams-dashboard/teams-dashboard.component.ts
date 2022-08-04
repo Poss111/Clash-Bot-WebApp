@@ -3,7 +3,7 @@ import {TeamFilter} from "../../../interfaces/team-filter";
 import {Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, retryWhen, take, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, map, retryWhen, take, tap, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -183,7 +183,12 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 this.websocketSub.unsubscribe();
             }
             this.websocketSub = this.teamsWebsocketService.connect(this.currentSelectedGuild)
-                .pipe(retryWhen(errors => errors.pipe(delay(1000))))
+                .pipe(
+                    tap(value => console.dir(value)),
+                    retryWhen(errors => {
+                    return errors.pipe(tap(value => console.error(value)),
+                        delay(1000))
+                }))
                 .subscribe((msg) => {
                         if (this.currentApplicationDetails.loggedIn) {
                             this.handleIncomingTeamsWsEvent(msg);

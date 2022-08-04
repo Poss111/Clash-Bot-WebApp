@@ -21,17 +21,3 @@ services:
       - "8001:8001"
     environment:
       - DYNAMO_ENDPOINT=http://dynamodb-local:8000
-  clash-bot-local-service:
-    image: 'poss11111/clash-bot-open-api-service:latest'
-    container_name: clash-bot-local-service
-    ports:
-      - "8080:8080"
-    environment:
-      - INTEGRATION_TEST=true
-      - HOST=dynamodb-local
-      - WS_SERVICE_HOSTNAME=ws://clash-bot-local-ws-service:8081
-  clash-bot-local-ws-service:
-    image: 'poss11111/clash-bot-ws-service:latest'
-    container_name: clash-bot-local-ws-service
-    ports:
-      - "8081:8081"

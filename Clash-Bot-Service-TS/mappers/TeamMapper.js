@@ -17,6 +17,7 @@ const teamEntityToResponse = {
 
 const teamEntityDeletionToResponse = {
   teamName: 'name',
+  serverName: 'serverName',
 };
 
 const userEntityToResponse = {

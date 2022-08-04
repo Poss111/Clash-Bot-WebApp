@@ -1,6 +1,6 @@
 <div class="clash-bot-player-details-container">
     <div class="player-role-player-details-inner-container">
-        <ng-container *ngIf="player.name === '' || player.name === null; else elseBlock">
+        <ng-container *ngIf="!player.name || player.name === ''; else elseBlock">
             <div class="player-role-join-container">
                 <button mat-raised-button
                         class="player-role-join-btn"

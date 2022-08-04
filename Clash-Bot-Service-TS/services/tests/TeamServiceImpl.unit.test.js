@@ -812,11 +812,13 @@ describe('Clash Teams Service Impl', () => {
           expect(socketService.sendMessage).toHaveBeenCalledTimes(1);
           expect(socketService.sendMessage).toHaveBeenCalledWith({
             name: teamName,
+            serverName: expectedServerName,
           });
           expect(teamWithRemoved).toEqual({
             code: 200,
             payload: {
-              name: 'Abra',
+              name: teamName,
+              serverName: expectedServerName,
             },
           });
         });

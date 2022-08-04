@@ -1,13 +1,16 @@
 const { WebSocket } = require('ws');
 const logger = require('../logger');
+var os = require("os");
 
 class SocketService {
   ws;
 
   waitForConnection(attemptNumber) {
     const loggerContext = { class: 'SocketService', method: 'waitForConnection' };
-    logger.info(`Attempting to connect times ('${attemptNumber}').`);
-    this.ws = new WebSocket('ws://localhost:8081/ws/teams');
+    const hostname = process.env.WS_SERVICE_HOSTNAME === undefined
+      ? 'ws://localhost:8081' : process.env.WS_SERVICE_HOSTNAME
+    logger.info(`Attempting to connect times ('${attemptNumber}') Hostname ('${hostname}').`);
+    this.ws = new WebSocket(`${hostname}/ws/teams?service=${os.hostname()}`);
     this.ws.on('close', () => {
       logger.debug(loggerContext, 'Socket Closed.');
       setTimeout(() => this.waitForConnection(attemptNumber+=1), 1000 * 3);

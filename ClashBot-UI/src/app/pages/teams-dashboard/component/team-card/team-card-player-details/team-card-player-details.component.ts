@@ -33,6 +33,7 @@ export class TeamCardPlayerDetailsComponent implements OnInit {
     constructor() {}
 
     ngOnInit() {
+        console.dir(this.player);
         if (!this.player.role) {
             this.player.role = 'Top';   
         }

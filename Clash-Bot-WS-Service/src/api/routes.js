@@ -1,4 +1,3 @@
-const util = require('util');
 const { Router } = require('express');
 const { pathParser } = require('../lib/path');
 const { yellow } = require('../lib/colors');
@@ -16,7 +15,11 @@ router.ws('/ws/teams', async (ws, req) => {
   const loggerContext = { class: 'router', method: 'router.ws' }
   ws.isAlive = true;
   ws.id = uuidv4();
-  ws.server = req.query.serverName;
+  if (req.query.serverName) {
+    ws.server = req.query.serverName;
+  } else if (req.query.service) {
+    ws.service = req.query.service;
+  }
   loggerContext.wsId = ws.id;
   const path = pathParser(req.path);
   logger.info(loggerContext, `${yellow(path)} client connected.`);

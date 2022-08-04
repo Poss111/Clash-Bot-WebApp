@@ -2,10 +2,28 @@ const service = module.exports = {};
 const logger = require('../../../logger');
 
 let wsClients = [];
+let wsPublishers = [];
 
 setInterval(() => {
-  logger.info(wsClients.map((client) => `${client.id} - ${client.server}`))
-  wsClients = [...wsClients.filter((client) => client.readyState === 1 || client.readyState === 2)];
+  if (wsPublishers.length > 0 ) {
+    logger.info({
+      type      : 'Publishers',
+      publishers: wsPublishers.map((client) => `${client.id} - ${client.service}`),
+    });
+    wsPublishers =
+      [...wsPublishers.filter((client) => client.readyState === 1 || client.readyState === 2)];
+  }
+}, 5000);
+
+setInterval(() => {
+  if (wsClients.length > 0 ) {
+    logger.info({
+      type: 'Clients',
+      clients: wsClients.map((client) => `${client.id} - ${client.server}`),
+    });
+    wsClients =
+      [...wsClients.filter((client) => client.readyState === 1 || client.readyState === 2)];
+  }
 }, 5000);
 
 /**
@@ -13,8 +31,12 @@ setInterval(() => {
  * @param {object} ws WebSocket connection.
  */
 service.subscribeToTeamEventsBasedOnServer = async (ws) => {
-  wsClients.push(ws);
-  ws.send('Connected');
+  if (ws.service) {
+    wsPublishers.push(ws);
+  } else if (ws.server) {
+    wsClients.push(ws);
+  }
+  ws.send(JSON.stringify({}));
 };
 
 /**
