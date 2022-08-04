@@ -2,12 +2,12 @@ const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
 const Joi = require('joi');
 const clashTeamsDbImpl = require('../ClashTeamsDbImpl');
-const dynamoDbHelper = require('../impl/dynamo-db-helper');
+const dynamoDbHelper = require('../impl/DynamoDbHelper');
 const { buildMessage } = require('../../utils/template-builder');
 const namingUtils = require('../../utils/naming-utils');
 
 jest.mock('dynamodb');
-jest.mock('../impl/dynamo-db-helper');
+jest.mock('../impl/DynamoDbHelper');
 jest.mock('../../utils/naming-utils');
 
 beforeEach(() => {

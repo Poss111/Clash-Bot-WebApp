@@ -1,6 +1,6 @@
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
-const dynamoDbHelper = require('./impl/dynamo-db-helper');
+const dynamoDbHelper = require('./impl/DynamoDbHelper');
 const logger = require('./../logger');
 const namingUtils = require("../utils/naming-utils");
 

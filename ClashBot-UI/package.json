@@ -36,7 +36,7 @@
     "@angular/router": "~12.2.0",
     "angular-oauth2-oidc": "^12.0.2",
     "angular-oauth2-oidc-jwks": "^12.0.0",
-    "clash-bot-service-api": "1.0.2",
+    "clash-bot-service-api": "1.0.3",
     "dotenv": "^10.0.0",
     "gzipper": "^5.0.0",
     "ngx-markdown": "^12.0.1",

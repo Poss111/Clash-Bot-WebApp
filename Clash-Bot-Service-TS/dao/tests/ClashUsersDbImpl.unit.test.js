@@ -1,9 +1,9 @@
 const Joi = require('joi');
 const clashUserDbImpl = require('../ClashUserDbImpl');
-const dynamoDbHelper = require('../impl/dynamo-db-helper');
+const dynamoDbHelper = require('../impl/DynamoDbHelper');
 
 jest.mock('dynamodb');
-jest.mock('../impl/dynamo-db-helper');
+jest.mock('../impl/DynamoDbHelper');
 
 beforeEach(() => {
   jest.resetModules();

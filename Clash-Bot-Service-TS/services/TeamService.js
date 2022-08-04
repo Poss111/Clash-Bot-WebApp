@@ -5,7 +5,7 @@ const Service = require('./Service');
 const clashTeamsDbImpl = require('../dao/ClashTeamsDbImpl');
 const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
 const clashTimeDbImpl = require('../dao/ClashTimeDbImpl');
-const { teamEntityToResponse, userEntityToResponse } = require('../mappers/TeamMapper');
+const { teamEntityToResponse, userEntityToResponse, teamEntityDeletionToResponse} = require('../mappers/TeamMapper');
 const socketService = require('../socket/SocketServices');
 const logger = require('../logger');
 
@@ -155,8 +155,16 @@ const removePlayerFromTeam = ({
             serverName: teamToUpdate.serverName,
             details: teamToUpdate.details,
           });
-          logger.debug(loggerContext, `Server ('${serverName}') Team ('${teamToUpdate.details}') successfully deleted.`);
-          resolve(Service.successResponse('Team successfully deleted.'));
+          logger.debug(
+            loggerContext,
+            `Server ('${serverName}') Team ('${teamToUpdate.details}') successfully deleted.`,
+          );
+          sendAsyncEvent(
+            objectMapper(teamToUpdate, teamEntityDeletionToResponse),
+            { ...loggerContext },
+          );
+          resolve(Service
+            .successResponse(objectMapper(teamToUpdate, teamEntityDeletionToResponse)));
         } else {
           const updatedTeam = await clashTeamsDbImpl.updateTeam(teamToUpdate);
           logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);

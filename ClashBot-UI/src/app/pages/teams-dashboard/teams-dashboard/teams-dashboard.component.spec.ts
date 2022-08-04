@@ -20,7 +20,7 @@ import {
   createMockPlayer,
   createMockUserDetails,
 } from "../../../shared/shared-test-mocks.spec";
-import {CreateNewTeamRequest, PlacePlayerOnTentativeRequest, RemovePlayerFromTeamRequest, Role, Team, TeamService, TentativeService, UpdateTeamRequest, UserService} from "clash-bot-service-api";
+import {CreateNewTeamRequest, PlacePlayerOnTentativeRequest, Role, Team, TeamService, TentativeService, UpdateTeamRequest, UserService} from "clash-bot-service-api";
 import {Tentative} from "clash-bot-service-api/model/tentative";
 import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
@@ -29,7 +29,6 @@ import {TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import { ClashBotUserRegister } from 'src/app/interfaces/clash-bot-user-register';
 import { CreateNewTeamDetails } from 'src/app/interfaces/create-new-team-details';
-import { ClashBotTentativeDetails } from 'src/app/interfaces/clash-bot-tentative-details';
 
 jest.mock("../../../services/application-details.service");
 jest.mock("../../../services/teams-websocket.service");
@@ -43,7 +42,7 @@ describe('TeamsDashboardComponent', () => {
   let teamServiceMock: TeamService;
   let tentativeServiceMock: TentativeService;
   let applicationDetailsMock: any;
-  let teamsWebsocketServiceMock: any;
+  let teamsWebsocketServiceMock: TeamsWebsocketService;
   let snackBarMock: any;
   let testScheduler: TestScheduler;
 
@@ -109,7 +108,7 @@ describe('TeamsDashboardComponent', () => {
           .mockReturnValue(cold('x|', {x: mockClashTentativeDetails}));
         (teamServiceMock.getTeam as any)
           .mockReturnValue(cold('x|', {x: mockClashTeams}));
-        teamsWebsocketServiceMock.getSubject
+        (teamsWebsocketServiceMock.connect as any)
           .mockReturnValue(coldClashTeamsWebsocketObs);
 
         component = fixture.componentInstance;
@@ -161,7 +160,7 @@ describe('TeamsDashboardComponent', () => {
         expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
         expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledTimes(1);
         expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
-        expect(teamsWebsocketServiceMock.getSubject).toHaveBeenCalledTimes(2);
+        expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledTimes(1);
         expect(component.tentativeList).toEqual(mockClashTentativeDetails);
         expect(component.teams).toEqual([...mockMappedTeams])
 
@@ -880,21 +879,16 @@ describe('TeamsDashboardComponent', () => {
           serverName: 'Goon Squad',
           id: '1'
         };
-  
-        const expectedRemovePayload: RemovePlayerFromTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          playerId: `${component.currentApplicationDetails.userDetails.id}`,
-        };
-  
+
         (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('x|', {x: {}}));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
-        expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledWith(expectedRemovePayload);
+        expect(teamServiceMock.removePlayerFromTeam)
+            .toHaveBeenCalledWith('Teamy',
+              'Goon Squad',
+              'awesome_sauce',
+              '1',
+              `${component.currentApplicationDetails.userDetails.id}`);
         flush();
       });
     });
@@ -924,20 +918,15 @@ describe('TeamsDashboardComponent', () => {
           id: '1'
         };
   
-        const expectedRemovePayload: RemovePlayerFromTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          playerId: `${component.currentApplicationDetails.userDetails.id}`,
-        };
-  
         (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('#', undefined, create400HttpError()));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
-        expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledWith(expectedRemovePayload);
+        expect(teamServiceMock.removePlayerFromTeam)
+            .toHaveBeenCalledWith('Teamy',
+                'Goon Squad',
+                'awesome_sauce',
+                '1',
+                `${component.currentApplicationDetails.userDetails.id}`);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Failed to unregister you from the Team.', 'X', { duration: 5000 });
@@ -969,20 +958,15 @@ describe('TeamsDashboardComponent', () => {
           id: '1'
         };
   
-        const expectedRemovePayload: RemovePlayerFromTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          playerId: `${component.currentApplicationDetails.userDetails.id}`,
-        };
-  
         (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('7000ms -x|', {x: []}));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
-        expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledWith(expectedRemovePayload);
+        expect(teamServiceMock.removePlayerFromTeam)
+            .toHaveBeenCalledWith('Teamy',
+                'Goon Squad',
+                'awesome_sauce',
+                '1',
+                `${component.currentApplicationDetails.userDetails.id}`);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
         expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your request timed out, please try again!', 'X', { duration: 5000 });
@@ -1224,7 +1208,9 @@ describe('TeamsDashboardComponent', () => {
         flush();
 
         expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledTimes(1);
-        expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledWith(placePlayerOnTentativeRequest);
+        expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledWith(
+            "Goon Squad", "12312321312", "awesome_sauce", "1"
+        );
 
         expect(component.tentativeList[0].isMember).toBeFalsy();
         expect(component.tentativeList[0].tournamentDetails).toEqual({

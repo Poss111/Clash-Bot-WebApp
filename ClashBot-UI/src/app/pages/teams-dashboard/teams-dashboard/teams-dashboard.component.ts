@@ -16,7 +16,6 @@ import {Tournament} from "clash-bot-service-api/model/tournament";
 import {
     CreateNewTeamRequest,
     PlacePlayerOnTentativeRequest,
-    RemovePlayerFromTeamRequest,
     Role,
     Team,
     TeamService,
@@ -370,16 +369,12 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     unregisterFromTeam($event: TeamUiWrapper) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            const removePlayerFromTeamRequest: RemovePlayerFromTeamRequest = {
-                serverName: $event.serverName ?? '',
-                playerId: `${this.currentApplicationDetails.userDetails.id}`,
-                tournamentDetails: {
-                    tournamentName: $event.tournament?.tournamentName,
-                    tournamentDay: $event.tournament?.tournamentDay
-                },
-                teamName: $event.name ?? ''
-            };
-            this.teamsService.removePlayerFromTeam(removePlayerFromTeamRequest)
+            this.teamsService.removePlayerFromTeam(
+                $event.name ?? '',
+                $event.serverName ?? '',
+                $event.tournament?.tournamentName ?? '',
+                $event.tournament?.tournamentDay ?? '',
+                `${this.currentApplicationDetails.userDetails.id}`)
                 .pipe(
                     timeout(7000),
                     take(1),
@@ -467,7 +462,12 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             };
             let obs = this.tentativeService.placePlayerOnTentative(payload);
             if (!tentativeUserDetails.toBeAdded) {
-                obs = this.tentativeService.removePlayerFromTentative(payload);
+                obs = this.tentativeService.removePlayerFromTentative(
+                    this.currentSelectedGuild,
+                    `${this.currentApplicationDetails.userDetails.id}`,
+                    tentativeUserDetails.tournamentDetails?.tournamentName ?? '',
+                    tentativeUserDetails.tournamentDetails?.tournamentDay ?? ''
+                );
             }
             obs
                 .pipe(take(1),

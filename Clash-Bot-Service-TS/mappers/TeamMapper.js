@@ -15,6 +15,10 @@ const teamEntityToResponse = {
   },
 };
 
+const teamEntityDeletionToResponse = {
+  teamName: 'name',
+};
+
 const userEntityToResponse = {
   key: 'id',
   playerName: 'name',
@@ -24,4 +28,5 @@ const userEntityToResponse = {
 module.exports = {
   teamEntityToResponse,
   userEntityToResponse,
+  teamEntityDeletionToResponse,
 };

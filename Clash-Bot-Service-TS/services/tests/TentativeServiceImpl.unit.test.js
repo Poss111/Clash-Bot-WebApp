@@ -463,7 +463,12 @@ describe('Clash Tentative Service Impl', () => {
       clashTentativeDbImpl.getTentative.mockResolvedValue(tentativeEntity);
       clashTentativeDbImpl.removeFromTentative.mockResolvedValue(updatedTentativeEntity);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
-      return clashTentativeServiceImpl.removePlayerFromTentative({ body: request })
+      return clashTentativeServiceImpl.removePlayerFromTentative({
+        serverName,
+        playerId,
+        tournament: tournament.tournamentName,
+        tournamentDay: tournament.tournamentDay,
+      })
         .then((tentativeDetails) => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.getTentative)
@@ -519,7 +524,12 @@ describe('Clash Tentative Service Impl', () => {
       clashTentativeDbImpl.getTentative.mockResolvedValue(tentativeEntity);
       clashTentativeDbImpl.removeFromTentative.mockResolvedValue(updatedTentativeEntity);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
-      return clashTentativeServiceImpl.removePlayerFromTentative({ body: request })
+      return clashTentativeServiceImpl.removePlayerFromTentative({
+        serverName,
+        playerId,
+        tournament: tournament.tournamentName,
+        tournamentDay: tournament.tournamentDay,
+      })
         .then((tentativeDetails) => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.getTentative)
@@ -559,7 +569,12 @@ describe('Clash Tentative Service Impl', () => {
         },
       };
       clashTentativeDbImpl.getTentative.mockResolvedValue(tentativeEntity);
-      return clashTentativeServiceImpl.removePlayerFromTentative({ body: request })
+      return clashTentativeServiceImpl.removePlayerFromTentative({
+        serverName,
+        playerId,
+        tournament: tournament.tournamentName,
+        tournamentDay: tournament.tournamentDay,
+      })
         .then(() => expect(true).toBeFalsy())
         .catch((tentativeDetails) => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);

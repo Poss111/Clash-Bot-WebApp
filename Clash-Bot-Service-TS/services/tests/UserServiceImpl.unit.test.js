@@ -556,7 +556,10 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: foundUser.preferredChampions,
       };
-      return clashUserServiceImpl.removeFromListOfPreferredChampions({ body: { championName: championToRemove }, id: expectedId }).then((results) => {
+      return clashUserServiceImpl.removeFromListOfPreferredChampions({
+        champion: championToRemove,
+        id: expectedId,
+      }).then((results) => {
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
         expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
@@ -585,7 +588,10 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: updatedUser.preferredChampions,
       };
-      return clashUserServiceImpl.removeFromListOfPreferredChampions({ body: { championName: championToRemove }, id: expectedId }).then((results) => {
+      return clashUserServiceImpl.removeFromListOfPreferredChampions({
+        champion: championToRemove,
+        id: expectedId,
+      }).then((results) => {
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
         expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);

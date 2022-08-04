@@ -1,6 +1,6 @@
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
-const dynamoDbHepler = require('../dynamo-db-helper');
+const dynamoDbHepler = require('../DynamoDbHelper');
 
 jest.mock('dynamodb');
 

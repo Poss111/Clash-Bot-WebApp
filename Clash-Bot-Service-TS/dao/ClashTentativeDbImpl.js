@@ -1,4 +1,4 @@
-const dynamoDbHelper = require('./impl/dynamo-db-helper');
+const dynamoDbHelper = require('./impl/DynamoDbHelper');
 const Joi = require('joi');
 const logger = require('./../logger');
 
