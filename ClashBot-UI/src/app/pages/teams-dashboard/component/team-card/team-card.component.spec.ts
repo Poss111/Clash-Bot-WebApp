@@ -52,13 +52,13 @@ describe('TeamCardComponent', () => {
 
   test('Should add placeholder values for Tournament if no values are given and set the image url.', () => {
     component.team = {
-      name: 'Team',
+      name: 'Abra',
     };
     fixture.detectChanges();
     expect(component.team.tournament).toBeTruthy();
     expect(component.team.tournament?.tournamentName).toEqual('Placeholder');
     expect(component.team.tournament?.tournamentDay).toEqual('1');
-    expect(component.pokemonName).toEqual('team')
+    expect(component.pokemonName).toEqual('Abra')
   })
 
   test('Should not modify tournament Details if they are given', () => {
