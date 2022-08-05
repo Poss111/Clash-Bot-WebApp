@@ -24,7 +24,7 @@ import {
 } from "clash-bot-service-api";
 import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
-import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../clash-bot-team-event";
+import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 
 @Component({
     selector: 'app-teams-dashboard',
@@ -231,7 +231,11 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         switch (clashBotTeamEvent.behavior) {
           case ClashBotTeamEventBehavior.UPDATED:
             this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});
-            Object.assign(clashBotTeamEvent.originalTeam, {...clashBotTeamEvent.mappedEvent});
+            this.teams.forEach(team => {
+                if (team.id === clashBotTeamEvent.mappedEvent?.id) {
+                    Object.assign(team, {...clashBotTeamEvent.mappedEvent});
+                }
+            });
             break;
           case ClashBotTeamEventBehavior.ADDED:
             this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});

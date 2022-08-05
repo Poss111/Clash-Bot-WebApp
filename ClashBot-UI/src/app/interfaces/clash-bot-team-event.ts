@@ -1,5 +1,5 @@
 import {Team} from "clash-bot-service-api";
-import {TeamUiWrapper} from "./interfaces/team-ui-wrapper";
+import {TeamUiWrapper} from "./team-ui-wrapper";
 
 export interface ClashBotTeamEvent {
   behavior: ClashBotTeamEventBehavior,

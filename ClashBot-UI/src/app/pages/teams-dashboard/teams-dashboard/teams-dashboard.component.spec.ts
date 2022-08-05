@@ -38,7 +38,7 @@ import {TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ClashBotUserRegister} from 'src/app/interfaces/clash-bot-user-register';
 import {CreateNewTeamDetails} from 'src/app/interfaces/create-new-team-details';
-import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../clash-bot-team-event";
+import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 
 jest.mock("../../../services/application-details.service");
 jest.mock("../../../services/teams-websocket.service");
@@ -229,8 +229,11 @@ describe('TeamsDashboardComponent', () => {
         behavior: ClashBotTeamEventBehavior.REMOVED,
         event: {}
       }
+      component.teams = [];
       component.handleIncomingTeamsWsEvent(msg);
-      expect(component.teams).toEqual([]);
+      expect(component.teams).toEqual([{
+        error: 'No data'
+      }]);
     });
 
     test( 'handleIncomingTeamsWsEvent - (New Team with User) - it should be added and remove one eligible Tournaments.', () => {
@@ -256,14 +259,27 @@ describe('TeamsDashboardComponent', () => {
         tournamentName: expectedTournamentName,
         tournamentDay: expectedTournamentDay
       };
+
+      const mappedTeam: TeamUiWrapper = {...mockClashTeam[0]};
+      mappedTeam.teamDetails = [{
+        ...mockClashTeam[0].playerDetails,
+        isUser: true
+      }];
+
+      let clashBotEvent: ClashBotTeamEvent = {
+        behavior: ClashBotTeamEventBehavior.ADDED,
+        event: mockClashTeam[0],
+        mappedEvent: mappedTeam,
+        originalTeam: undefined
+      };
       mockAppDetails.currentTournaments = createMockClashTournaments(expectedTournamentName, 2);
       component.currentApplicationDetails = mockAppDetails;
       expect(component.teams.length).toEqual(0);
 
-      component.handleIncomingTeamsWsEvent(mockClashTeam[0]);
+      component.handleIncomingTeamsWsEvent(clashBotEvent);
 
       expect(component.teams.length).toEqual(1);
-      expect(component.teams[0]).toEqual(mockClashTeam[0]);
+      expect(component.teams[0]).toEqual(mappedTeam);
       expect(component.eligibleTournaments).toHaveLength(1);
       expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
     });
@@ -291,15 +307,29 @@ describe('TeamsDashboardComponent', () => {
         tournamentName: expectedTournamentName,
         tournamentDay: expectedTournamentDay
       };
+
+      const mappedTeam: TeamUiWrapper = {...mockClashTeam[0]};
+      mappedTeam.teamDetails = [{
+        ...mockClashTeam[0].playerDetails,
+        isUser: true
+      }];
+
+      let clashBotEvent: ClashBotTeamEvent = {
+        behavior: ClashBotTeamEventBehavior.ADDED,
+        event: mockClashTeam[0],
+        mappedEvent: mappedTeam,
+        originalTeam: undefined
+      };
+
       mockAppDetails.currentTournaments = createMockClashTournaments(expectedTournamentName, 2);
       component.currentApplicationDetails = mockAppDetails;
       component.teams = [{ error: 'No data'}];
       expect(component.teams).toHaveLength(1);
 
-      component.handleIncomingTeamsWsEvent(mockClashTeam[0]);
+      component.handleIncomingTeamsWsEvent(clashBotEvent);
 
       expect(component.teams.length).toEqual(1);
-      expect(component.teams[0]).toEqual(mockClashTeam[0]);
+      expect(component.teams[0]).toEqual(mappedTeam);
       expect(component.eligibleTournaments).toHaveLength(1);
       expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
     });
@@ -330,9 +360,13 @@ describe('TeamsDashboardComponent', () => {
       mockAppDetails.currentTournaments = createMockClashTournaments(expectedTournamentName, 2);
       component.currentApplicationDetails = mockAppDetails;
 
-      component.teams = [...mockClashTeam];
-
-      expect(component.teams.length).toEqual(2);
+      const uiMappedTeams = mockClashTeam.map(team => {
+        let uiWrapper: TeamUiWrapper = {...team};
+        uiWrapper.id = `${uiWrapper.serverName}-${uiWrapper.name}`
+            .replace(new RegExp(/ /, 'g'), '-')
+            .toLowerCase();
+        return uiWrapper;
+      });
 
       const teamUpdate = {...mockClashTeam[0]};
       teamUpdate.playerDetails = {
@@ -373,10 +407,20 @@ describe('TeamsDashboardComponent', () => {
                isUser: false,
                role: "Supp",
              },
-         ]
+         ];
 
+      let clashBotEvent: ClashBotTeamEvent = {
+        behavior: ClashBotTeamEventBehavior.UPDATED,
+        event: mockClashTeam[0],
+        mappedEvent: expectedTeamUiWrapper,
+        originalTeam: {...mockClashTeam[0]}
+      };
 
-      component.handleIncomingTeamsWsEvent(teamUpdate);
+      component.teams = [...uiMappedTeams];
+
+      expect(component.teams.length).toEqual(2);
+
+      component.handleIncomingTeamsWsEvent(clashBotEvent);
 
       expect(component.teams.length).toEqual(2);
       expect(component.teams[0]).toEqual(expectedTeamUiWrapper);
@@ -422,7 +466,13 @@ describe('TeamsDashboardComponent', () => {
       const teamUpdate = {...mockClashTeam[1]};
       teamUpdate.playerDetails = {};
 
-      component.handleIncomingTeamsWsEvent(teamUpdate);
+      let clashBotEvent: ClashBotTeamEvent = {
+        behavior: ClashBotTeamEventBehavior.REMOVED,
+        event: {...mockClashTeam[1]},
+        originalTeam: {...mockClashTeam[1]}
+      };
+
+      component.handleIncomingTeamsWsEvent(clashBotEvent);
 
       expect(component.teams).toHaveLength(1);
       expect(component.teams[0]).toEqual(mockClashTeam[0]);
@@ -1195,15 +1245,6 @@ describe('TeamsDashboardComponent', () => {
           index: 0,
           isMember: true,
           toBeAdded: false
-        };
-
-        const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: 'Goon Squad',
-          tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
-          },
-          playerId: `${component.currentApplicationDetails.userDetails.id}`
         };
 
         const tentativeResponse: Tentative = {
