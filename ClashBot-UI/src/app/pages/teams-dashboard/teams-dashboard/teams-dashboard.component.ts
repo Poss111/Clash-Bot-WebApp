@@ -14,16 +14,17 @@ import {ApplicationDetails} from "../../../interfaces/application-details";
 import {PageLoadingService} from "../../../services/page-loading.service";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {
-    CreateNewTeamRequest,
-    PlacePlayerOnTentativeRequest,
-    Role,
-    Team,
-    TeamService,
-    TentativeService,
-    UpdateTeamRequest
+  CreateNewTeamRequest,
+  PlacePlayerOnTentativeRequest,
+  Role,
+  Team,
+  TeamService,
+  TentativeService,
+  UpdateTeamRequest
 } from "clash-bot-service-api";
 import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
+import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../clash-bot-team-event";
 
 @Component({
     selector: 'app-teams-dashboard',
@@ -184,11 +185,33 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             }
             this.websocketSub = this.teamsWebsocketService.connect(this.currentSelectedGuild)
                 .pipe(
-                    tap(value => console.dir(value)),
-                    retryWhen(errors => {
-                    return errors.pipe(tap(value => console.error(value)),
-                        delay(1000))
-                }))
+                  retryWhen(errors => {
+                  return errors.pipe(tap(value => console.error(value)),
+                      delay(1000))
+                  }),
+                  map((event) => {
+                    let mappedEvent;
+                    let behavior: ClashBotTeamEventBehavior = ClashBotTeamEventBehavior.REMOVED;
+                    let foundTeam = this.teams.find((team) =>
+                      team.name === event.name
+                      && team.tournament?.tournamentName === event.tournament?.tournamentName
+                      && team.tournament?.tournamentDay === event.tournament?.tournamentDay)
+                    if (event.playerDetails) {
+                      behavior = ClashBotTeamEventBehavior.UPDATED;
+                      mappedEvent = this.mapTeamToTeamUiWrapper(event);
+                      if (!foundTeam && event.playerDetails) {
+                        behavior = ClashBotTeamEventBehavior.ADDED;
+                      }
+                    }
+                    const clashBotTeamEvent: ClashBotTeamEvent = {
+                      event: event,
+                      behavior: behavior,
+                      mappedEvent: mappedEvent,
+                      originalTeam: foundTeam
+                    };
+                    return clashBotTeamEvent;
+                  })
+                )
                 .subscribe((msg) => {
                         if (this.currentApplicationDetails.loggedIn) {
                             this.handleIncomingTeamsWsEvent(msg);
@@ -204,36 +227,33 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleIncomingTeamsWsEvent(message: Team | String) {
-        let teamToBeUpdated = <Team>message;
-        if (teamToBeUpdated.name) {
-            let foundTeam = this.teams.find((team) =>
-                team.name === teamToBeUpdated.name
-                && team.tournament?.tournamentName === teamToBeUpdated.tournament?.tournamentName
-                && team.tournament?.tournamentDay === teamToBeUpdated.tournament?.tournamentDay);
-            if (!foundTeam) {
-                if (teamToBeUpdated.name) {
-                    let mappedTeam = this.mapTeamToTeamUiWrapper(teamToBeUpdated);
-                    this.updateTentativeListBasedOnTeam(mappedTeam);
-                    if (this.teams.length === 1
-                        && this.teams.find(team => team.error)) {
-                        this.teams = [mappedTeam];
-                    } else {
-                        this.teams.push(mappedTeam);
-                    }
-                }
-            } else if (teamToBeUpdated.playerDetails
-                && Object.keys(teamToBeUpdated.playerDetails).length > 0) {
-                let mappedTeam = this.mapTeamToTeamUiWrapper(teamToBeUpdated);
-                this.updateTentativeListBasedOnTeam(mappedTeam);
-                if (foundTeam.playerDetails && mappedTeam.playerDetails) {
-                    Object.assign(foundTeam, {...mappedTeam});
-                }
+    handleIncomingTeamsWsEvent(clashBotTeamEvent: ClashBotTeamEvent) {
+        switch (clashBotTeamEvent.behavior) {
+          case ClashBotTeamEventBehavior.UPDATED:
+            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});
+            Object.assign(clashBotTeamEvent.originalTeam, {...clashBotTeamEvent.mappedEvent});
+            break;
+          case ClashBotTeamEventBehavior.ADDED:
+            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});
+            if (this.teams.length === 1
+              && this.teams.find(team => team.error)) {
+              this.teams = [clashBotTeamEvent.mappedEvent ?? {}];
             } else {
-                this.teams = this.teams.filter((team) => team.name !== teamToBeUpdated.name);
+              this.teams.push(clashBotTeamEvent.mappedEvent ?? {});
             }
-            this.repopulateEligibleTournaments(this.teams);
+            break;
+          case ClashBotTeamEventBehavior.REMOVED:
+            this.teams = this.teams
+              .filter((team) => team.name !== clashBotTeamEvent.event.name);
+            break;
+          default:
+            this._snackBar.open(
+              'Unknown Team event occurred. Please report an issue to the Issues Form.',
+              'X',
+              {duration: 5 * 1000}
+            );
         }
+        this.repopulateEligibleTournaments(this.teams);
     }
 
     updateTentativeListBasedOnTeam(mappedTeam: Team) {

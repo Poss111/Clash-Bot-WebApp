@@ -7,16 +7,16 @@ import {Team} from "clash-bot-service-api";
 })
 export class TeamsWebsocketService {
 
-  private subject$: WebSocketSubject<Team|string>| undefined;
+  private subject$: WebSocketSubject<Team>| undefined;
 
   constructor() {}
 
-  connect(serverName: string) : WebSocketSubject<Team|string> {
+  connect(serverName: string) : WebSocketSubject<Team> {
     if (!this.subject$ || this.subject$.closed){
       if (window.location.hostname === 'localhost') {
-        this.subject$ = webSocket<Team|string>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
+        this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
       } else {
-        this.subject$ = webSocket<Team|string>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
+        this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
       }
     }
     return this.subject$;
