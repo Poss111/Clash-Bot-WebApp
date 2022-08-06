@@ -44,7 +44,7 @@ resource "aws_iam_role_policy_attachment" "clash_bot_policy_attachment" {
 }
 
 resource "aws_iam_policy" "clash-bot-iam-policy" {
-  name = "secrets-policy"
+  name = "clash-bot-webapp-secrets-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -58,7 +58,7 @@ resource "aws_iam_policy" "clash-bot-iam-policy" {
 }
 
 resource "aws_iam_policy" "ecr_iam_policy" {
-  name = "ecr-ecs-policy"
+  name = "clash-bot-webapp-ecr-ecs-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -72,7 +72,7 @@ resource "aws_iam_policy" "ecr_iam_policy" {
 }
 
 resource "aws_iam_policy" "webapp_ecr_registry_iam_policy" {
-  name = "ecr-ecs-registry-policy"
+  name = "clash-bot-webapp-ecr-ecs-registry-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -88,7 +88,7 @@ resource "aws_iam_policy" "webapp_ecr_registry_iam_policy" {
 }
 
 resource "aws_iam_policy" "ws_ecr_registry_iam_policy" {
-  name = "ecr-ecs-registry-policy"
+  name = "clash-bot-ws-ecr-ecs-registry-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -104,7 +104,7 @@ resource "aws_iam_policy" "ws_ecr_registry_iam_policy" {
 }
 
 resource "aws_iam_policy" "webapp_logs_iam_policy" {
-  name = "ecs-logs-policy"
+  name = "clash-bot-webapp-ecs-logs-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -120,7 +120,7 @@ resource "aws_iam_policy" "webapp_logs_iam_policy" {
 }
 
 resource "aws_iam_policy" "ws_logs_iam_policy" {
-  name = "ecs-logs-policy"
+  name = "clash-bot-ws-ecs-logs-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -244,7 +244,7 @@ resource "aws_lb" "clash-bot-ws-lb" {
 
 resource "aws_lb_target_group" "clash-bot-webapp-tg" {
   name        = "${var.prefix}-webapp-tg"
-  port        = var.ws_service_port
+  port        = var.service_port
   protocol    = "HTTP"
   vpc_id      = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
   target_type = "ip"
@@ -388,11 +388,6 @@ resource "aws_dynamodb_table" "clash-bot-teams-table" {
   attribute {
     name = "details"
     type = "S"
-  }
-
-  ttl {
-    attribute_name = "ttl"
-    enabled        = false
   }
 }
 
@@ -549,23 +544,10 @@ resource "aws_ecs_service" "clash-bot-ws-service" {
     container_port   = var.ws_service_port
   }
 
-  depends_on = [aws_lb_listener.clash-bot-webapp-lb-listener]
+  depends_on = [aws_lb_listener.clash-bot-ws-lb-listener]
 
   tags = {
-    Name = "${var.prefix}-ecs-service"
-  }
-}
-
-resource "aws_ecs_cluster" "clash-bot-ecs" {
-  name = "${var.prefix}-ecs"
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-  }
-
-  tags = {
-    Name = "${var.prefix}-ecs"
+    Name = "${var.prefix}-ws-ecs-service"
   }
 }
 
