@@ -1,6 +1,5 @@
 const { Router } = require('express');
 const { pathParser } = require('../lib/path');
-const { yellow } = require('../lib/colors');
 const { subscribeToTeamEventsBasedOnServer, publishTeamEventBasedOnServer } = require('./services/teams');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../../logger');
@@ -10,6 +9,14 @@ module.exports = router;
 function heartbeat() {
   this.isAlive = true;
 }
+
+router.get('/api/health', (req, res) => {
+  const loggerContext = { class: 'health', method: 'get'};
+
+  logger.info(loggerContext, 'Health endpoint hit.')
+  res.json({ status: 'Healthy' });
+})
+
 
 router.ws('/ws/teams', async (ws, req) => {
   const loggerContext = { class: 'router', method: 'router.ws' }
@@ -22,7 +29,7 @@ router.ws('/ws/teams', async (ws, req) => {
   }
   loggerContext.wsId = ws.id;
   const path = pathParser(req.path);
-  logger.info(loggerContext, `${yellow(path)} client connected.`);
+  logger.info(loggerContext, `Path ('${path}') client connected.`);
   await subscribeToTeamEventsBasedOnServer(ws);
 
   ws.on('message', async (msg) => {
