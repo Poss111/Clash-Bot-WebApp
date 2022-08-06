@@ -10,9 +10,8 @@ function heartbeat() {
   this.isAlive = true;
 }
 
-router.get('/api/health', (req, res) => {
+router.get('/ws/health', (req, res) => {
   const loggerContext = { class: 'health', method: 'get'};
-
   logger.info(loggerContext, 'Health endpoint hit.')
   res.json({ status: 'Healthy' });
 })
