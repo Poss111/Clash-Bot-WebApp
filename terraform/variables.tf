@@ -55,11 +55,6 @@ variable "prefix" {
   default     = "clash-bot-webapp"
 }
 
-variable "one" {
-  type      = map(string)
-  sensitive = true
-}
-
 variable "webapp_repository_name" {
   default = ""
 }
@@ -90,5 +85,20 @@ variable "registry_ecr_iam_policies" {
 
 variable "ecr_specific_iam_policies" {
   type      = list(string)
+  sensitive = true
+}
+
+variable "clash-bot-teams-dynamo-table" {
+  type      = string
+  sensitive = true
+}
+
+variable "clash-bot-header-key" {
+  type      = string
+  sensitive = true
+}
+
+variable "clash-bot-header-value" {
+  type      = string
   sensitive = true
 }
