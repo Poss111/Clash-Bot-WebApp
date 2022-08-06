@@ -276,7 +276,7 @@ resource "aws_lb_target_group" "clash-bot-ws-tg" {
     unhealthy_threshold = 3
     interval            = 30
     protocol            = "HTTP"
-    path                = "/health"
+    path                = "/ws/health"
     port                = var.ws_service_port
     timeout             = 10
   }
