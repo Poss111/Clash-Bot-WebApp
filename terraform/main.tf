@@ -29,7 +29,7 @@ provider "aws" {
 
 data "tfe_outputs" "clash-bot-discord-bot" {
   organization = "ClashBot"
-  workspace = "ClashBot"
+  workspace    = "ClashBot"
 }
 
 data "aws_caller_identity" "current" {}
@@ -184,24 +184,24 @@ resource "aws_iam_role_policy_attachment" "ecs-logs-policy-attachment" {
   policy_arn = aws_iam_policy.webapp_logs_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-ecr-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-ws-ecr-policy-attachment" {
   role       = aws_iam_role.clash-bot-ws-exec-role.name
   policy_arn = aws_iam_policy.ecr_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-ecr-repository-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-ecr-ws-repository-policy-attachment" {
   role       = aws_iam_role.clash-bot-ws-exec-role.name
   policy_arn = aws_iam_policy.ws_ecr_registry_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-logs-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-ws-logs-policy-attachment" {
   role       = aws_iam_role.clash-bot-ws-exec-role.name
   policy_arn = aws_iam_policy.ws_logs_iam_policy.arn
 }
 
 resource "aws_security_group" "clash-bot-webapp-sg" {
   name   = "${var.prefix}-alb-sg"
-  vpc_id = data.tfe_outputs.clash-bot-discord-bot.vpc_id
+  vpc_id = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
 
   ingress {
     protocol    = "tcp"
@@ -224,7 +224,7 @@ resource "aws_security_group" "clash-bot-webapp-sg" {
 
 resource "aws_lb" "clash-bot-webapp-lb" {
   name            = "${var.prefix}-lb"
-  subnets         = data.tfe_outputs.clash-bot-discord-bot.public_subnet_ids
+  subnets         = data.tfe_outputs.clash-bot-discord-bot.values.public_subnet_ids
   security_groups = [aws_security_group.clash-bot-webapp-sg.id]
 
   tags = {
@@ -234,7 +234,7 @@ resource "aws_lb" "clash-bot-webapp-lb" {
 
 resource "aws_lb" "clash-bot-ws-lb" {
   name            = "${var.prefix}-ws-lb"
-  subnets         = data.tfe_outputs.clash-bot-discord-bot.public_subnet_ids
+  subnets         = data.tfe_outputs.clash-bot-discord-bot.values.public_subnet_ids
   security_groups = [aws_security_group.clash-bot-webapp-sg.id]
 
   tags = {
@@ -246,7 +246,7 @@ resource "aws_lb_target_group" "clash-bot-webapp-tg" {
   name        = "${var.prefix}-webapp-tg"
   port        = var.ws_service_port
   protocol    = "HTTP"
-  vpc_id      = data.tfe_outputs.clash-bot-discord-bot.vpc_id
+  vpc_id      = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
   target_type = "ip"
   health_check {
     enabled             = true
@@ -268,7 +268,7 @@ resource "aws_lb_target_group" "clash-bot-ws-tg" {
   name        = "${var.prefix}-ws-tg"
   port        = var.ws_service_port
   protocol    = "HTTP"
-  vpc_id      = data.tfe_outputs.clash-bot-discord-bot.vpc_id
+  vpc_id      = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
   target_type = "ip"
   health_check {
     enabled             = true
@@ -311,19 +311,19 @@ resource "aws_lb_listener_rule" "safe_traffic" {
 
 resource "aws_lb_listener" "clash-bot-webapp-lb-listener" {
   load_balancer_arn = aws_lb.clash-bot-webapp-lb.id
-  port              = "${var.service_port}"
+  port              = var.service_port
   protocol          = "HTTP"
 
   default_action {
     target_group_arn = aws_lb_target_group.clash-bot-webapp-tg.id
 
-    type             = "forward"
+    type = "forward"
   }
 }
 
 resource "aws_lb_listener" "clash-bot-ws-lb-listener" {
   load_balancer_arn = aws_lb.clash-bot-ws-lb.id
-  port              = "${var.ws_service_port}"
+  port              = var.ws_service_port
   protocol          = "HTTP"
 
   default_action {
@@ -334,7 +334,7 @@ resource "aws_lb_listener" "clash-bot-ws-lb-listener" {
 
 resource "aws_security_group" "clash-bot-webapp-task-sg" {
   name   = "${var.prefix}-ecs-task-sg"
-  vpc_id = data.tfe_outputs.clash-bot-discord-bot.vpc_id
+  vpc_id = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
 
   ingress {
     protocol        = "tcp"
@@ -421,16 +421,20 @@ resource "aws_ecs_task_definition" "clash-bot-webapp-task-def" {
       }
       environment = [
         {
-          name: "WS_SERVICE_HOSTNAME",
-          value: aws_lb.clash-bot-ws-lb.dns_name
+          name : "WS_SERVICE_HOSTNAME",
+          value : aws_lb.clash-bot-ws-lb.dns_name
         },
         {
-          name: "PORT",
-          value: var.service_port
+          name : "PORT",
+          value : "${tostring(var.service_port)}"
         },
         {
-          name: "REGION",
-          value: var.region
+          name : "REGION",
+          value : var.region
+        },
+        {
+          name : "LOGGER_LEVEL",
+          value : var.webapp_logger_level
         }
       ]
       portMappings = [
@@ -474,8 +478,12 @@ resource "aws_ecs_task_definition" "clash-bot-ws-service-task-def" {
       }
       environment = [
         {
-          name: "PORT",
-          value: var.ws_service_port
+          name : "PORT",
+          value : "${tostring(var.ws_service_port)}"
+        },
+        {
+          name : "LOGGER_LEVEL",
+          value : var.ws_logger_level
         }
       ]
       portMappings = [
@@ -496,7 +504,7 @@ resource "aws_ecs_task_definition" "clash-bot-ws-service-task-def" {
 
 resource "aws_ecs_service" "clash-bot-webapp-service" {
   name                               = "${var.prefix}-service"
-  cluster                            = data.tfe_outputs.clash-bot-discord-bot.ecs_id
+  cluster                            = data.tfe_outputs.clash-bot-discord-bot.values.ecs_id
   task_definition                    = aws_ecs_task_definition.clash-bot-webapp-task-def.arn
   desired_count                      = var.app_count
   launch_type                        = "FARGATE"
@@ -505,7 +513,7 @@ resource "aws_ecs_service" "clash-bot-webapp-service" {
 
   network_configuration {
     security_groups = [aws_security_group.clash-bot-webapp-task-sg.id]
-    subnets         = data.tfe_outputs.clash-bot-discord-bot.private_subnet_ids
+    subnets         = data.tfe_outputs.clash-bot-discord-bot.values.private_subnet_ids
   }
 
   load_balancer {
@@ -523,16 +531,16 @@ resource "aws_ecs_service" "clash-bot-webapp-service" {
 
 resource "aws_ecs_service" "clash-bot-ws-service" {
   name                               = "${var.prefix}-ws-service"
-  cluster                            = data.tfe_outputs.clash-bot-discord-bot.ecs_id
+  cluster                            = data.tfe_outputs.clash-bot-discord-bot.values.ecs_id
   task_definition                    = aws_ecs_task_definition.clash-bot-ws-service-task-def.arn
-  desired_count                      = var.app_count
+  desired_count                      = var.ws_app_count
   launch_type                        = "FARGATE"
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
 
   network_configuration {
     security_groups = [aws_security_group.clash-bot-webapp-task-sg.id]
-    subnets         = data.tfe_outputs.clash-bot-discord-bot.private_subnet_ids
+    subnets         = data.tfe_outputs.clash-bot-discord-bot.values.private_subnet_ids
   }
 
   load_balancer {

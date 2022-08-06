@@ -27,6 +27,11 @@ variable "app_count" {
   default = 1
 }
 
+variable "ws_app_count" {
+  type    = number
+  default = 1
+}
+
 variable "service_image_id" {
   type        = string
   description = "Image url to deploy"
@@ -99,6 +104,16 @@ variable "clash-bot-header-key" {
 }
 
 variable "clash-bot-header-value" {
+  type      = string
+  sensitive = true
+}
+
+variable "webapp_logger_level" {
+  type      = string
+  sensitive = true
+}
+
+variable "ws_logger_level" {
   type      = string
   sensitive = true
 }

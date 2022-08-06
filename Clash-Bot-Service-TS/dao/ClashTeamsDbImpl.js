@@ -8,8 +8,7 @@ class ClashTeamsDbImpl {
     Team;
     tableName = 'server-clash-team';
 
-    constructor() {
-    }
+    constructor() {}
 
     initialize() {
         const loggerContext = {class: 'ClashTeamsDbImpl', method: 'initialize'};
