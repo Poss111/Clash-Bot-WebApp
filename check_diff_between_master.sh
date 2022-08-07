@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Running..."
 serviceUpdate=false
-$wsServiceUpdate=false
+wsServiceUpdate=false
 uiUpdate=false
 for i in $(git diff origin/master HEAD --name-only )
 do
