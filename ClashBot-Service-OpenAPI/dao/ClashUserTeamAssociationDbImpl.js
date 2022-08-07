@@ -64,7 +64,7 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  createUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName, role}) {
+  createUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName, role }) {
     const loggerContext = {class: 'ClashUserTeamAssociation', method: 'createUserAssociation'};
     return new Promise((resolve, reject) => {
       const entityToPersist = this.buildAssociationEntity(

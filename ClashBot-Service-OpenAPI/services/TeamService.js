@@ -41,6 +41,7 @@ async function findAssociationsAndRemoveUser({
     logger.info(loggerContext,
       `Found Player ('${userAssociations[0].playerId}') associated, Association ('${userAssociations[0].association}')`);
     if (!userAssociations[0].teamName) {
+      logger.info(loggerContext, `Association is of type 'Tentative', removing ('${userAssociations[0].playerId}') from Tentative Queue record...`);
       const tentativeResponse = await tentativeService.removePlayerFromTentative({
         serverName,
         playerId,
@@ -69,6 +70,13 @@ async function findAssociationsAndRemoveUser({
       );
 
       let event = {};
+      await clashUserTeamAssociationDbImpl.removeUserAssociation({
+        playerId,
+        tournament: tournamentName,
+        tournamentDay,
+        serverName,
+        teamName: team.teamName,
+      });
       if (team.players <= 0) {
         await clashTeamsDbImpl.deleteTeam({
           serverName: team.serverName,
@@ -137,6 +145,20 @@ const createNewTeam = ({ body }) => new Promise(
               tournamentDay: body.tournamentDay,
             },
           });
+          const associations = [];
+          Object.entries(playersWRoles)
+            .forEach((entry) => {
+              associations.push(clashUserTeamAssociationDbImpl.createUserAssociation({
+                playerId: entry[1],
+                tournament: body.tournamentName,
+                tournamentDay: body.tournamentDay,
+                serverName: body.serverName,
+                teamName: createdTeam.teamName,
+                role: entry[0],
+              }));
+            });
+          const persistedAssociations = await Promise.all(associations);
+          logger.info(loggerContext, `Created ('${persistedAssociations.length}') association(s).`);
           const idToPlayerMap = await clashSubscriptionDbImpl
             .retrieveAllUserDetails(createdTeam.players);
           const mappedResponse = objectMapper(createdTeam, teamEntityToResponse);
@@ -247,6 +269,13 @@ const removePlayerFromTeam = ({
             serverName: teamToUpdate.serverName,
             details: teamToUpdate.details,
           });
+          await clashUserTeamAssociationDbImpl.removeUserAssociation({
+            playerId,
+            tournament,
+            tournamentDay,
+            serverName,
+            teamName: teamToUpdate.teamName,
+          });
           logger.debug(
             loggerContext,
             `Server ('${serverName}') Team ('${teamToUpdate.details}') successfully deleted.`,
@@ -259,7 +288,15 @@ const removePlayerFromTeam = ({
             .successResponse(objectMapper(teamToUpdate, teamEntityDeletionToResponse)));
         } else {
           const updatedTeam = await clashTeamsDbImpl.updateTeam(teamToUpdate);
+          await clashUserTeamAssociationDbImpl.removeUserAssociation({
+            playerId,
+            tournament,
+            tournamentDay,
+            serverName,
+            teamName: updatedTeam.teamName,
+          });
           logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
+          logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Team association.`);
           const idToPlayerMap = await clashSubscriptionDbImpl
             .retrieveAllUserDetails(updatedTeam.players);
           const mappedResponse = objectMapper(updatedTeam, teamEntityToResponse);
@@ -324,6 +361,18 @@ const updateTeam = ({ body }) => new Promise(
           updatedTeam.playersWRoles[body.role] = body.playerId;
           updatedTeam.players.push(body.playerId);
           const updatedTeamAfterPersist = await clashTeamsDbImpl.updateTeam(updatedTeam);
+          const association = await clashUserTeamAssociationDbImpl.createUserAssociation({
+            playerId: body.playerId,
+            tournament: body.tournamentDetails.tournamentName,
+            tournamentDay: body.tournamentDetails.tournamentDay,
+            serverName: body.serverName,
+            teamName: updatedTeam.teamName,
+            role: body.role,
+          });
+          logger.info(
+            loggerContext,
+            `Created association for Player ('${body.playerId}') for association ('${association.association}')`,
+          );
           const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
             updatedTeamAfterPersist.players,
           );

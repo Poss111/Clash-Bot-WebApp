@@ -197,6 +197,16 @@ const placePlayerOnTentative = ({ body }) => new Promise(
           updatedTentativeDetails = await clashTentativeDbImpl
             .addToTentative(body.playerId, body.serverName, body.tournamentDetails,
               tentativeDetails);
+          const association = await clashUserTeamAssociationDbImpl.createUserAssociation({
+            playerId: body.playerId,
+            tournament: body.tournamentDetails.tournamentName,
+            tournamentDay: body.tournamentDetails.tournamentDay,
+            serverName: body.serverName,
+          });
+          logger.info(
+            loggerContext,
+            `Added Tentative association ('${association.association}) for Player ('${body.playerId}').`,
+          );
           const idToPlayerMap = await clashSubscriptionDbImpl
             .retrieveAllUserDetails(updatedTentativeDetails.tentativePlayers);
           const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
@@ -225,7 +235,7 @@ const placePlayerOnTentative = ({ body }) => new Promise(
  * returns Tentative
  * */
 const removePlayerFromTentative = ({
-  serverName, playerId, tournament, tournamentDay
+  serverName, playerId, tournament, tournamentDay,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
@@ -247,6 +257,13 @@ const removePlayerFromTentative = ({
           updatedTentativeDetails = await clashTentativeDbImpl
             .removeFromTentative(playerId, tentativeDetails);
         }
+        logger.info(loggerContext, `Removing ('${playerId}') from Tentative Queue User association record...`);
+        await clashUserTeamAssociationDbImpl.removeUserAssociation({
+          playerId,
+          tournament,
+          tournamentDay,
+          serverName,
+        });
         const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
         if (Array.isArray(updatedTentativeDetails.tentativePlayers)
           && updatedTentativeDetails.tentativePlayers.length > 0) {

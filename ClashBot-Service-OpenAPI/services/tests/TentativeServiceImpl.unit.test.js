@@ -19,6 +19,56 @@ beforeEach(() => {
   jest.resetModules();
 });
 
+function validateRemoveFromTentativeAssociation(playerId, tentativeEntity) {
+  expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledTimes(1);
+  expect(clashTentativeDbImpl.removeFromTentative)
+    .toHaveBeenCalledWith(playerId, tentativeEntity);
+  expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
+    .toHaveBeenCalledTimes(1);
+  expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
+    .toHaveBeenCalledWith({
+      playerId,
+      tournament: tentativeEntity.tournamentDetails.tournamentName,
+      tournamentDay: tentativeEntity.tournamentDetails.tournamentDay,
+      serverName: tentativeEntity.serverName,
+    });
+}
+
+function validateCompleteRemoveFromTentativeAssociation(playerId, tentativeEntity) {
+  expect(clashTentativeDbImpl.deleteTentativeQueue).toHaveBeenCalledTimes(1);
+  expect(clashTentativeDbImpl.deleteTentativeQueue)
+    .toHaveBeenCalledWith({ key: tentativeEntity.key });
+  expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
+    .toHaveBeenCalledTimes(1);
+  expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
+    .toHaveBeenCalledWith({
+      playerId,
+      tournament: tentativeEntity.tournamentDetails.tournamentName,
+      tournamentDay: tentativeEntity.tournamentDetails.tournamentDay,
+      serverName: tentativeEntity.serverName,
+    });
+}
+
+function validateTentativeAssociation(playerId, tentativeEntity) {
+  expect(clashTentativeDbImpl.addToTentative).toHaveBeenCalledTimes(1);
+  expect(clashTentativeDbImpl.addToTentative)
+    .toHaveBeenCalledWith(
+      playerId,
+      tentativeEntity.serverName,
+      tentativeEntity.tournamentDetails,
+      tentativeEntity,
+    );
+  expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+    .toHaveBeenCalledTimes(1);
+  expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+    .toHaveBeenCalledWith({
+      playerId,
+      tournament: tentativeEntity.tournamentDetails.tournamentName,
+      tournamentDay: tentativeEntity.tournamentDetails.tournamentDay,
+      serverName: tentativeEntity.serverName,
+    });
+}
+
 describe('Clash Tentative Service Impl', () => {
   describe('Tentative - GET', () => {
     test('getTentativeDetails - if no Tournaments are passed, it should pull all active Tentative details.', () => {
@@ -265,6 +315,10 @@ describe('Clash Tentative Service Impl', () => {
       clashUserTeamAssociationDbImpl
         .getUserAssociation
         .mockResolvedValue([]);
+      clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
+        playerId,
+        association: `${tournament.tournamentName}#${tournament.tournamentDay}#${serverName}#tentative`,
+      });
       clashTentativeDbImpl.getTentative.mockResolvedValue(tentativeEntity);
       clashTimeDbImpl.findTournament.mockResolvedValue([tournament]);
       clashTentativeDbImpl.addToTentative.mockResolvedValue(updatedTentativeEntity);
@@ -286,9 +340,7 @@ describe('Clash Tentative Service Impl', () => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.getTentative)
             .toHaveBeenCalledWith(serverName, tournament);
-          expect(clashTentativeDbImpl.addToTentative).toHaveBeenCalledTimes(1);
-          expect(clashTentativeDbImpl.addToTentative)
-            .toHaveBeenCalledWith(playerId, serverName, tournament, tentativeEntity);
+          validateTentativeAssociation(playerId, tentativeEntity);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
             .toHaveBeenCalledWith(['1', '2']);
@@ -351,6 +403,10 @@ describe('Clash Tentative Service Impl', () => {
       clashTentativeDbImpl.getTentative.mockResolvedValue(undefined);
       clashTimeDbImpl.findTournament.mockResolvedValue([tournament]);
       clashTentativeDbImpl.addToTentative.mockResolvedValue(updatedTentativeEntity);
+      clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
+        playerId,
+        association: `${tournament.tournamentName}#${tournament.tournamentDay}#${serverName}#tentative`,
+      });
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
       return clashTentativeServiceImpl.placePlayerOnTentative({ body: request })
         .then((tentativeDetails) => {
@@ -372,6 +428,15 @@ describe('Clash Tentative Service Impl', () => {
           expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
           expect(clashTimeDbImpl.findTournament)
             .toHaveBeenCalledWith(tournament.tournamentName, tournament.tournamentDay);
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId,
+              tournament: tournament.tournamentName,
+              tournamentDay: tournament.tournamentDay,
+              serverName,
+            });
           expect(clashTentativeDbImpl.addToTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.addToTentative)
             .toHaveBeenCalledWith(playerId, serverName, tournament, undefined);
@@ -458,6 +523,10 @@ describe('Clash Tentative Service Impl', () => {
       clashTentativeDbImpl.getTentative.mockResolvedValue(undefined);
       clashTimeDbImpl.findTournament.mockResolvedValue([tournament]);
       clashTentativeDbImpl.addToTentative.mockResolvedValue(updatedTentativeEntity);
+      clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
+        playerId,
+        association: `${tournament.tournamentName}#${tournament.tournamentDay}#${serverName}#tentative`,
+      });
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
       return clashTentativeServiceImpl.placePlayerOnTentative({ body: request })
         .then((tentativeDetails) => {
@@ -501,6 +570,15 @@ describe('Clash Tentative Service Impl', () => {
           expect(clashTentativeDbImpl.addToTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.addToTentative)
             .toHaveBeenCalledWith(playerId, serverName, tournament, undefined);
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId,
+              tournament: tournament.tournamentName,
+              tournamentDay: tournament.tournamentDay,
+              serverName,
+            });
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
             .toHaveBeenCalledWith(['1', '2']);
@@ -637,9 +715,7 @@ describe('Clash Tentative Service Impl', () => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.getTentative)
             .toHaveBeenCalledWith(serverName, tournament);
-          expect(clashTentativeDbImpl.removeFromTentative).toHaveBeenCalledTimes(1);
-          expect(clashTentativeDbImpl.removeFromTentative)
-            .toHaveBeenCalledWith(playerId, tentativeEntity);
+          validateRemoveFromTentativeAssociation(playerId, tentativeEntity);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
             .toHaveBeenCalledWith(['1']);
@@ -693,9 +769,7 @@ describe('Clash Tentative Service Impl', () => {
           expect(clashTentativeDbImpl.getTentative).toHaveBeenCalledTimes(1);
           expect(clashTentativeDbImpl.getTentative)
             .toHaveBeenCalledWith(serverName, tournament);
-          expect(clashTentativeDbImpl.deleteTentativeQueue).toHaveBeenCalledTimes(1);
-          expect(clashTentativeDbImpl.deleteTentativeQueue)
-            .toHaveBeenCalledWith({ key: tentativeEntity.key });
+          validateCompleteRemoveFromTentativeAssociation(playerId, tentativeEntity);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
           expect(tentativeDetails).toEqual(
             {
