@@ -22,8 +22,3 @@ output "webapp_lb_url" {
   value     = aws_lb.clash-bot-webapp-lb.dns_name
   sensitive = true
 }
-
-output "ws_lb_url" {
-  value     = aws_lb.clash-bot-ws-lb.dns_name
-  sensitive = true
-}

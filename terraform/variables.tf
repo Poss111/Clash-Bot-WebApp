@@ -68,16 +68,6 @@ variable "ws_repository_name" {
   default = ""
 }
 
-variable "iam_secret_policies" {
-  type      = list(string)
-  sensitive = true
-}
-
-variable "ecs_iam_secret_policies" {
-  type      = list(string)
-  sensitive = true
-}
-
 variable "ecs_cloudwatch_policies" {
   type      = list(string)
   sensitive = true
@@ -89,6 +79,11 @@ variable "registry_ecr_iam_policies" {
 }
 
 variable "ecr_specific_iam_policies" {
+  type      = list(string)
+  sensitive = true
+}
+
+variable "dynamodb_specific_iam_policies" {
   type      = list(string)
   sensitive = true
 }

@@ -48,19 +48,24 @@ class ExpressServer {
         errors: err.errors,
       });
     });
-    // View the openapi document in a visual interface. Should be able to test from this page
-    this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(this.schema));
+
+    if (process.env.SWAGGER_UI) {
+      // View the openapi document in a visual interface. Should be able to test from this page
+      this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(this.schema));
+    }
   }
 
   launch() {
+    const loggerContext = { class: 'expressServer', method: 'launch' };
     http.createServer(this.app).listen(this.port);
-    console.log(`Listening on port ${this.port}`);
+    logger.info(loggerContext, `Listening on port ${this.port}`);
   }
 
   async close() {
-    if (this.server !== undefined) {
-      await this.server.close();
-      console.log(`Server on port ${this.port} shut down`);
+    const loggerContext = { class: 'expressServer', method: 'close' };
+    if (this.app !== undefined) {
+      await this.app.close();
+      logger.info(loggerContext, `Server on port ${this.port} shut down`);
     }
   }
 }
