@@ -1,5 +1,5 @@
 {
-  "name": "clash-bot-webapp-service",
+  "name": "clash-bot-ws-service",
   "description": "Clash Bot Webapp Socket Service to support League of Legends Clash tournament scheduling with Discord.",
   "version": "1.0.0",
   "scripts": {
