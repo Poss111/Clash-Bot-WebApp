@@ -327,25 +327,25 @@ paths:
       parameters:
         - name: name
           description: the name of the Team to retrieve.
-          in: header
+          in: query
           required: false
           schema:
             type: string
         - name: server
           description: the name of the Server to filter the Teams by.
-          in: header
+          in: query
           required: true
           schema:
             type: string
         - name: tournament
           description: the name of the Tournament to filter the Teams by.
-          in: header
+          in: query
           required: false
           schema:
             type: string
         - name: day
           description: the day of the Tournament to filter the Teams by.
-          in: header
+          in: query
           required: false
           schema:
             type: string
@@ -630,7 +630,7 @@ paths:
       parameters:
         - name: id
           description: The id of the user to retrieve.
-          in: header
+          in: query
           required: true
           schema:
             type: string

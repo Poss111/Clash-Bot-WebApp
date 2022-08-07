@@ -80,8 +80,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/removePlayerFromTeam_200_response'
-          description: The Team was successfully created.
+                $ref: '#/components/schemas/Team'
+          description: The Player was successfully removed from the Team.
         "400":
           content:
             application/json:
@@ -103,37 +103,37 @@ paths:
       operationId: getTeam
       parameters:
       - description: the name of the Team to retrieve.
-        explode: false
-        in: header
+        explode: true
+        in: query
         name: name
         required: false
         schema:
           type: string
-        style: simple
+        style: form
       - description: the name of the Server to filter the Teams by.
-        explode: false
-        in: header
+        explode: true
+        in: query
         name: server
         required: true
         schema:
           type: string
-        style: simple
+        style: form
       - description: the name of the Tournament to filter the Teams by.
-        explode: false
-        in: header
+        explode: true
+        in: query
         name: tournament
         required: false
         schema:
           type: string
-        style: simple
+        style: form
       - description: the day of the Tournament to filter the Teams by.
-        explode: false
-        in: header
+        explode: true
+        in: query
         name: day
         required: false
         schema:
           type: string
-        style: simple
+        style: form
       responses:
         "200":
           content:
@@ -398,13 +398,13 @@ paths:
       operationId: getUser
       parameters:
       - description: The id of the user to retrieve.
-        explode: false
-        in: header
+        explode: true
+        in: query
         name: id
         required: true
         schema:
           type: string
-        style: simple
+        style: form
       responses:
         "200":
           content:
@@ -1143,16 +1143,6 @@ components:
       - tournamentDay
       - tournamentName
       type: object
-    removePlayerFromTeam_200_response_oneOf:
-      properties:
-        message:
-          description: What occurred during the operation.
-          type: string
-      type: object
-    removePlayerFromTeam_200_response:
-      oneOf:
-      - $ref: '#/components/schemas/Team'
-      - $ref: '#/components/schemas/removePlayerFromTeam_200_response_oneOf'
     updateTeam_request:
       properties:
         serverName:

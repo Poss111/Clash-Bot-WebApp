@@ -22,22 +22,22 @@
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
 
-package.json
 expressServer.js
+logger.js
+index.js
+.eslintrc.json
+README.md
+Dockerfile
+package.json
 controllers/Controller.js
 controllers/UserController.js
 controllers/TeamController.js
 controllers/TournamentController.js
 controllers/TentativeController.js
 controllers/SREController.js
-logger.js
 services/Service.js
 services/UserService.js
 services/TeamService.js
 services/TournamentService.js
 services/TentativeService.js
 services/SREService.js
-index.js
-.eslintrc.json
-README.md
-Dockerfile
