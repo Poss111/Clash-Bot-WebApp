@@ -32,7 +32,7 @@ jobs:
       - name: Check Output for Service
         run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
 
-      - name: Check Output for WS Service
+      - name: Check Output for Websocket Service
         run: echo ${{ steps.check-apps.outputs.wsServiceUpdate }}
 
       - name: Check Output for UI
