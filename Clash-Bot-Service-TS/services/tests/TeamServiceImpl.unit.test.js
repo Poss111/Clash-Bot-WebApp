@@ -1,16 +1,20 @@
 const clashTeamsServiceImpl = require('../TeamService');
 const clashTeamsDbImpl = require('../../dao/ClashTeamsDbImpl');
 const clashSubscriptionDbImpl = require('../../dao/ClashUserDbImpl');
+const clashUserTeamAssociationDbImpl = require('../../dao/ClashUserTeamAssociationDbImpl');
 const clashTimeDbImpl = require('../../dao/ClashTimeDbImpl');
 const socketService = require('../../socket/SocketServices');
+const tentativeService = require('../TentativeService');
 const {
   deepCopy, buildExpectedTeamResponseWithUserMap, createUserDetails, createV3Team,
 } = require('../../utils/tests/test-utility.utility.test');
 
 jest.mock('../../dao/ClashTeamsDbImpl');
 jest.mock('../../dao/ClashUserDbImpl');
+jest.mock('../../dao/ClashUserTeamAssociationDbImpl');
 jest.mock('../../dao/ClashTimeDbImpl');
 jest.mock('../../socket/SocketServices');
+jest.mock('../TentativeService');
 
 function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
   return {
@@ -278,12 +282,22 @@ describe('Clash Teams Service Impl', () => {
       expectedUpdatedTeam.players.push('2');
       const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
         expectedUserMap);
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
       socketService.sendMessage.mockResolvedValue(true);
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then((updatedTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -298,13 +312,313 @@ describe('Clash Teams Service Impl', () => {
           expect(socketService.sendMessage)
             .toHaveBeenCalledWith(expectedResponse.payload);
           expect(updatedTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('updateTeam - (User belongs to another Team) - If user is not on the Team and on another Team, they should be removed from the first team and added.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '2';
+      const expectedUserMap = {
+        2: createUserDetails({ key: '2' }),
+        3: createUserDetails({ key: '3' }),
+        4: createUserDetails({ key: '4' }),
+      };
+      const teamPatchPayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName,
+          tournamentDay,
+        },
+        playerId: '2',
+        role: 'Top',
+      };
+      const returnedFilteredTeams = [createV3Team({
+        serverName,
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Supp: '3' },
+        players: ['3'],
+      })];
+      const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
+      expectedUpdatedTeam.playersWRoles.Top = '2';
+      expectedUpdatedTeam.players.push('2');
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '2',
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        },
+      ]);
+      const currentTeam = createV3Team({
+        serverName,
+        teamName: 'some-team',
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Top: '4', Supp: '2' },
+        players: ['4', '2'],
+      });
+      const expectedUpdateOfCurrentTeam = { ...currentTeam };
+      expectedUpdateOfCurrentTeam.playersWRoles = { Top: '4' };
+      expectedUpdateOfCurrentTeam.players = ['4'];
+      const expectedRemoveEvent = buildExpectedSingleTeamResponseWithUserMap(
+        expectedUpdateOfCurrentTeam,
+        expectedUserMap,
+      );
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce([{ ...currentTeam }]);
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce(deepCopy(returnedFilteredTeams));
+      clashTeamsDbImpl.updateTeam
+        .mockResolvedValueOnce(expectedUpdateOfCurrentTeam);
+      clashTeamsDbImpl.updateTeam
+        .mockResolvedValueOnce(expectedUpdatedTeam);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
+      socketService.sendMessage.mockResolvedValue(true);
+      return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
+        .then((updatedTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: currentTeam.teamName,
+          });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
+          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledTimes(2);
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenNthCalledWith(1, expectedUpdateOfCurrentTeam);
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenNthCalledWith(2, expectedUpdatedTeam);
+          expect(socketService.sendMessage).toHaveBeenCalledTimes(2);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(1, expectedRemoveEvent.payload);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(2, expectedResponse.payload);
+          expect(updatedTeam).toEqual(expectedResponse);
         })
         .catch((err) => {
           expect(err).toBeFalsy();
         });
     });
 
-    test('updateTeam - If user is not on the Team, and name is passeed, they should be added.', () => {
+    test('updateTeam - (User belongs to another Team by themselves) - If user is not on the Team and is on another Team by themselves, the original team should be deleted and then they should added.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '2';
+      const expectedUserMap = {
+        2: createUserDetails({ key: '2' }),
+        3: createUserDetails({ key: '3' }),
+      };
+      const teamPatchPayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName,
+          tournamentDay,
+        },
+        playerId: '2',
+        role: 'Top',
+      };
+      const returnedFilteredTeams = [createV3Team({
+        serverName,
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Supp: '3' },
+        players: ['3'],
+      })];
+      const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
+      expectedUpdatedTeam.playersWRoles.Top = '2';
+      expectedUpdatedTeam.players.push('2');
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '2',
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        },
+      ]);
+      const currentTeam = createV3Team({
+        serverName,
+        teamName: 'some-team',
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Supp: '2' },
+        players: ['2'],
+      });
+      const expectedUpdateOfCurrentTeam = { ...currentTeam };
+      const expectedRemoveEvent = buildExpectedSingleTeamResponseWithUserMap(
+        expectedUpdateOfCurrentTeam,
+        expectedUserMap,
+      );
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce([{ ...currentTeam }]);
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce(deepCopy(returnedFilteredTeams));
+      clashTeamsDbImpl.deleteTeam
+        .mockResolvedValue(true);
+      clashTeamsDbImpl.updateTeam
+        .mockResolvedValue(expectedUpdatedTeam);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
+      socketService.sendMessage.mockResolvedValue(true);
+      return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
+        .then((updatedTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: currentTeam.teamName,
+          });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
+          expect(clashTeamsDbImpl.deleteTeam)
+            .toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.deleteTeam)
+            .toHaveBeenCalledWith({
+              serverName: teamPatchPayload.serverName,
+              details: currentTeam.details,
+            });
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenCalledWith(expectedUpdatedTeam);
+          expect(socketService.sendMessage)
+            .toHaveBeenCalledTimes(2);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(1, {
+              name: expectedRemoveEvent.payload.name,
+              serverName: expectedRemoveEvent.payload.serverName,
+            });
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(2, expectedResponse.payload);
+          expect(updatedTeam).toEqual(expectedResponse);
+        })
+        .catch((err) => {
+          expect(err).toBeFalsy();
+        });
+    });
+
+    test('updateTeam - (User belongs to a Tentative Queue) - If user is not on the Team and on another Tentative Queue, they should be removed from the Tentative Queue then added.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '2';
+      const expectedUserMap = {
+        2: createUserDetails({ key: '2' }),
+        3: createUserDetails({ key: '3' }),
+        4: createUserDetails({ key: '4' }),
+      };
+      const teamPatchPayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName,
+          tournamentDay,
+        },
+        playerId: '2',
+        role: 'Top',
+      };
+      const returnedFilteredTeams = [createV3Team({
+        serverName,
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Supp: '3' },
+        players: ['3'],
+      })];
+      const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
+      expectedUpdatedTeam.playersWRoles.Top = '2';
+      expectedUpdatedTeam.players.push('2');
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '2',
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#tentative`,
+        },
+      ]);
+      tentativeService.removePlayerFromTentative
+        .mockResolvedValue({
+          code: 200,
+          payload: {
+            serverName,
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+            tentativePlayers: [],
+          },
+        });
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce(deepCopy(returnedFilteredTeams));
+      clashTeamsDbImpl.updateTeam
+        .mockResolvedValueOnce(expectedUpdatedTeam);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
+      socketService.sendMessage.mockResolvedValue(true);
+      return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
+        .then((updatedTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
+          expect(tentativeService.removePlayerFromTentative)
+            .toHaveBeenCalledTimes(1);
+          expect(tentativeService.removePlayerFromTentative)
+            .toHaveBeenCalledWith({
+              serverName,
+              playerId: '2',
+              tournament: tournamentName,
+              tournamentDay,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenCalledWith(expectedUpdatedTeam);
+          expect(socketService.sendMessage).toHaveBeenCalledTimes(1);
+          expect(socketService.sendMessage)
+            .toHaveBeenCalledWith(expectedResponse.payload);
+          expect(updatedTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('updateTeam - If user is not on the Team, and name is passed, they should be added.', () => {
       const serverName = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
@@ -336,12 +650,22 @@ describe('Clash Teams Service Impl', () => {
       expectedUpdatedTeam.players.push('2');
       const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
         expectedUserMap);
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       socketService.sendMessage.mockResolvedValue(true);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then((updatedTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -385,10 +709,18 @@ describe('Clash Teams Service Impl', () => {
         playersWRoles: { Supp: '2' },
         players: ['2'],
       })];
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -420,10 +752,18 @@ describe('Clash Teams Service Impl', () => {
         role: 'Supp',
       };
       const returnedFilteredTeams = [];
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -474,10 +814,18 @@ describe('Clash Teams Service Impl', () => {
           '5',
         ],
       })];
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -520,10 +868,18 @@ describe('Clash Teams Service Impl', () => {
           '2',
         ],
       })];
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
+            serverName: teamPatchPayload.serverName,
+            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
+            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+            teamName: teamPatchPayload.teamName,
+          });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -948,12 +1304,390 @@ describe('Clash Teams Service Impl', () => {
           },
         },
       };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTimeDbImpl.findTournament.mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1' }]);
       clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
       socketService.sendMessage.mockResolvedValue(true);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
       return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
         .then((createdTeam) => {
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
+            serverName,
+            players: ['1'],
+            playersWRoles: {
+              Top: '1',
+            },
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+          });
+          expect(socketService.sendMessage).toHaveBeenCalledTimes(1);
+          expect(socketService.sendMessage)
+            .toHaveBeenCalledWith(expectedResponse.payload);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(['1']);
+          expect(createdTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('createNewTeam - (User is on another Team) - should be removed from other Team and then a new team created.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const playerDetails = {
+        id: '1',
+        role: 'Top',
+      };
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+        4: createUserDetails({ key: '4' }),
+      };
+      const teamPostPayload = {
+        playerDetails,
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const persistedTeam = {
+        teamName: 'abra',
+        details: `${tournamentName}#${tournamentDay}#abra`,
+        serverName,
+        tournamentName,
+        tournamentDay,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+        },
+      };
+      const expectedResponse = {
+        code: 200,
+        payload: {
+          name: 'abra',
+          serverName,
+          tournament: {
+            tournamentName,
+            tournamentDay,
+          },
+          playerDetails: {
+            Top: {
+              id: '1',
+              name: idToPlayerMap['1'].playerName,
+              champions: idToPlayerMap['1'].preferredChampions,
+            },
+          },
+        },
+      };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '1',
+          association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+        },
+      ]);
+      const currentTeam = createV3Team({
+        serverName,
+        teamName: 'some-team',
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Top: '1', Supp: '2' },
+        players: ['1', '2'],
+      });
+      const expectedUpdateOfCurrentTeam = { ...currentTeam };
+      expectedUpdateOfCurrentTeam.playersWRoles = { Supp: '2' };
+      expectedUpdateOfCurrentTeam.players = ['2'];
+      const expectedRemoveEvent = buildExpectedSingleTeamResponseWithUserMap(
+        expectedUpdateOfCurrentTeam,
+        idToPlayerMap,
+      );
+      clashTimeDbImpl.findTournament
+        .mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1' }]);
+      clashUserTeamAssociationDbImpl
+        .getUserAssociation
+        .mockResolvedValue([
+          {
+            playerId: '1',
+            association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+          },
+        ]);
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce([{ ...currentTeam }]);
+      clashTeamsDbImpl.updateTeam
+        .mockResolvedValue(expectedUpdateOfCurrentTeam);
+      clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
+      socketService.sendMessage.mockResolvedValue(true);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
+        .then((createdTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: '1',
+              tournament: tournamentName,
+              tournamentDay,
+              serverName,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .toHaveBeenCalledWith({
+              serverName,
+              tournamentName,
+              tournamentDay,
+              teamName: 'some-team',
+            });
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
+            serverName,
+            players: ['1'],
+            playersWRoles: {
+              Top: '1',
+            },
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+          });
+          expect(socketService.sendMessage).toHaveBeenCalledTimes(2);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(1, expectedRemoveEvent.payload);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(2, expectedResponse.payload);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledTimes(2);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenNthCalledWith(1, ['2']);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenNthCalledWith(2, ['1']);
+          expect(createdTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('createNewTeam - (User is on another Team by themselves) - should delete other Team and then a new team created.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const playerDetails = {
+        id: '1',
+        role: 'Top',
+      };
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+        4: createUserDetails({ key: '4' }),
+      };
+      const teamPostPayload = {
+        playerDetails,
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const persistedTeam = {
+        teamName: 'abra',
+        details: `${tournamentName}#${tournamentDay}#abra`,
+        serverName,
+        tournamentName,
+        tournamentDay,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+        },
+      };
+      const expectedResponse = {
+        code: 200,
+        payload: {
+          name: 'abra',
+          serverName,
+          tournament: {
+            tournamentName,
+            tournamentDay,
+          },
+          playerDetails: {
+            Top: {
+              id: '1',
+              name: idToPlayerMap['1'].playerName,
+              champions: idToPlayerMap['1'].preferredChampions,
+            },
+          },
+        },
+      };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '1',
+          association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+        },
+      ]);
+      const currentTeam = createV3Team({
+        serverName,
+        teamName: 'some-team',
+        tournamentName,
+        tournamentDay,
+        playersWRoles: { Top: '1' },
+        players: ['1'],
+      });
+      const expectedUpdateOfCurrentTeam = { ...currentTeam };
+      expectedUpdateOfCurrentTeam.playersWRoles = {};
+      expectedUpdateOfCurrentTeam.players = [];
+      const expectedRemoveEvent = buildExpectedSingleTeamResponseWithUserMap(
+        expectedUpdateOfCurrentTeam,
+        idToPlayerMap,
+      );
+      clashTimeDbImpl.findTournament
+        .mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1' }]);
+      clashUserTeamAssociationDbImpl
+        .getUserAssociation
+        .mockResolvedValue([
+          {
+            playerId: '1',
+            association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+          },
+        ]);
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce([{ ...currentTeam }]);
+      clashTeamsDbImpl.deleteTeam
+        .mockResolvedValue(true);
+      clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
+      socketService.sendMessage.mockResolvedValue(true);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
+        .then((createdTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: '1',
+              tournament: tournamentName,
+              tournamentDay,
+              serverName,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .toHaveBeenCalledWith({
+              serverName,
+              tournamentName,
+              tournamentDay,
+              teamName: 'some-team',
+            });
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
+            serverName,
+            players: ['1'],
+            playersWRoles: {
+              Top: '1',
+            },
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+          });
+          expect(socketService.sendMessage).toHaveBeenCalledTimes(2);
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(1, {
+              name: expectedRemoveEvent.payload.name,
+              serverName: expectedRemoveEvent.payload.serverName,
+            });
+          expect(socketService.sendMessage)
+            .toHaveBeenNthCalledWith(2, expectedResponse.payload);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
+            .toHaveBeenCalledWith(['1']);
+          expect(createdTeam).toEqual(expectedResponse);
+        });
+    });
+
+    test('createNewTeam - (User is on Tentative Queue) - should be removed from Tentative Queue and then a new team created.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '1';
+      const playerDetails = {
+        id: '1',
+        role: 'Top',
+      };
+      const idToPlayerMap = {
+        1: createUserDetails({ key: '1' }),
+        2: createUserDetails({ key: '2' }),
+        4: createUserDetails({ key: '4' }),
+      };
+      const teamPostPayload = {
+        playerDetails,
+        serverName,
+        tournamentName,
+        tournamentDay,
+      };
+      const persistedTeam = {
+        teamName: 'abra',
+        details: `${tournamentName}#${tournamentDay}#abra`,
+        serverName,
+        tournamentName,
+        tournamentDay,
+        players: ['1'],
+        playersWRoles: {
+          Top: '1',
+        },
+      };
+      const expectedResponse = {
+        code: 200,
+        payload: {
+          name: 'abra',
+          serverName,
+          tournament: {
+            tournamentName,
+            tournamentDay,
+          },
+          playerDetails: {
+            Top: {
+              id: '1',
+              name: idToPlayerMap['1'].playerName,
+              champions: idToPlayerMap['1'].preferredChampions,
+            },
+          },
+        },
+      };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '1',
+          association: `${tournamentName}#${tournamentDay}#${serverName}#tentative`,
+        },
+      ]);
+      tentativeService.removePlayerFromTentative
+        .mockResolvedValue({
+          code: 200,
+          payload: {
+            serverName,
+            tournamentDetails: {
+              tournamentName,
+              tournamentDay,
+            },
+            tentativePlayers: [],
+          },
+        });
+      clashTimeDbImpl.findTournament
+        .mockResolvedValue([{ tournamentName: 'valid', tournamentDay: '1' }]);
+      clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
+      socketService.sendMessage.mockResolvedValue(true);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockReturnValue(idToPlayerMap);
+      return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
+        .then((createdTeam) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: '1',
+              tournament: tournamentName,
+              tournamentDay,
+              serverName,
+            });
+          expect(tentativeService.removePlayerFromTentative)
+            .toHaveBeenCalledTimes(1);
+          expect(tentativeService.removePlayerFromTentative)
+            .toHaveBeenCalledWith({
+              serverName,
+              playerId: '1',
+              tournament: tournamentName,
+              tournamentDay,
+            });
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
             serverName,
@@ -995,6 +1729,7 @@ describe('Clash Teams Service Impl', () => {
         code: 400,
         error: 'Tournament given was not valid.',
       };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
       clashTimeDbImpl.findTournament.mockResolvedValue([]);
       return clashTeamsServiceImpl.createNewTeam({ body: teamPostPayload })
         .then(() => expect(true).toBeFalsy())

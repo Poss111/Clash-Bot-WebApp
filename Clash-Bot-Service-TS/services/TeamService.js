@@ -5,14 +5,93 @@ const Service = require('./Service');
 const clashTeamsDbImpl = require('../dao/ClashTeamsDbImpl');
 const clashSubscriptionDbImpl = require('../dao/ClashUserDbImpl');
 const clashTimeDbImpl = require('../dao/ClashTimeDbImpl');
-const { teamEntityToResponse, userEntityToResponse, teamEntityDeletionToResponse} = require('../mappers/TeamMapper');
+const { teamEntityToResponse, userEntityToResponse, teamEntityDeletionToResponse } = require('../mappers/TeamMapper');
 const socketService = require('../socket/SocketServices');
+const tentativeService = require('./TentativeService');
 const logger = require('../logger');
+const clashUserTeamAssociationDbImpl = require('../dao/ClashUserTeamAssociationDbImpl');
 
 function sendAsyncEvent(mappedResponse, loggerContext) {
   socketService.sendMessage(mappedResponse)
     .then(() => logger.debug(loggerContext, 'Successfully sent Team event.'))
     .catch((error) => logger.error({ err: error, ...loggerContext }, 'Failed to fulfill call.'));
+}
+
+function removeUserFromTeam(teamEntity, playerId, loggerContext) {
+  teamEntity.players = teamEntity.players
+    .filter((id) => id !== playerId);
+  const playerRole = Object.entries(teamEntity.playersWRoles)
+    .find((entry) => entry[1] === playerId);
+  logger.debug(loggerContext, `Removing player ('${playerId}') from Role ('${playerRole[0]}')...`);
+  delete teamEntity.playersWRoles[playerRole[0]];
+  return { ...teamEntity };
+}
+
+async function findAssociationsAndRemoveUser({
+  playerId, tournamentName, tournamentDay, serverName,
+}, loggerContext) {
+  const userAssociations = await clashUserTeamAssociationDbImpl.getUserAssociation({
+    playerId,
+    tournament: tournamentName,
+    tournamentDay,
+    serverName,
+  });
+  if (userAssociations.length > 0) {
+    logger.info(loggerContext,
+      `Found Player ('${userAssociations[0].playerId}') associated, Association ('${userAssociations[0].association}')`);
+    const associationType = userAssociations[0].association.split('#').pop();
+    if (associationType === 'tentative') {
+      const response = await tentativeService.removePlayerFromTentative({
+        serverName,
+        playerId,
+        tournament: tournamentName,
+        tournamentDay,
+      });
+      if (response.code !== 200) {
+        logger.error({ error: response.payload, ...loggerContext}, `Failed to remove ('${playerId}') from Tentative.`);
+        throw new Error(`Failed to remove ('${playerId}') from Tentative.`);
+      }
+    } else {
+      const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
+        serverName,
+        tournamentName,
+        tournamentDay,
+        teamName: associationType,
+      });
+      const team = retrievedTeam[0];
+      const updatedTeam = removeUserFromTeam(
+        team,
+        playerId,
+        loggerContext,
+      );
+
+      let event = {};
+      if (team.players <= 0) {
+        await clashTeamsDbImpl.deleteTeam({
+          serverName: team.serverName,
+          details: team.details,
+        });
+        logger.debug(
+          loggerContext,
+          `Server ('${team.serverName}') Team ('${team.details}') successfully deleted.`,
+        );
+        event = objectMapper(updatedTeam, teamEntityDeletionToResponse);
+      } else {
+        const teamAfterUpdate = await clashTeamsDbImpl.updateTeam(updatedTeam);
+        logger.info(loggerContext,
+          `Removed Player from following Server ('${teamAfterUpdate.serverName}') Team ('${teamAfterUpdate.teamName}').`);
+        const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
+          teamAfterUpdate.players,
+        );
+        event = objectMapper(teamAfterUpdate, teamEntityToResponse);
+        Object.keys(event.playerDetails)
+          .forEach((key) => event
+            .playerDetails[key] = objectMapper(idToUserDetails[event
+              .playerDetails[key].id], userEntityToResponse));
+      }
+      sendAsyncEvent(event, { ...loggerContext });
+    }
+  }
 }
 
 /**
@@ -30,6 +109,15 @@ const createNewTeam = ({ body }) => new Promise(
       if (!tournamentTimes || tournamentTimes.length <= 0) {
         reject(Service.rejectResponse('Tournament given was not valid.', 400));
       } else {
+        await findAssociationsAndRemoveUser(
+          {
+            playerId: body.playerDetails.id,
+            tournamentName: body.tournamentName,
+            tournamentDay: body.tournamentDay,
+            serverName: body.serverName,
+          },
+          loggerContext,
+        );
         const playersWRoles = {};
         playersWRoles[body.playerDetails.role] = body.playerDetails.id;
         const createdTeam = await clashTeamsDbImpl.createTeam({
@@ -143,12 +231,7 @@ const removePlayerFromTeam = ({
         logger.debug(loggerContext, `Retrieved Teams Server ('${serverName}') length ('${retrievedTeams.length}')`);
         const teamToUpdate = { ...retrievedTeams[0] };
         logger.debug(loggerContext, `Removing player ('${playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`);
-        teamToUpdate.players = teamToUpdate.players
-          .filter((id) => id !== playerId);
-        const playerRole = Object.entries(teamToUpdate.playersWRoles)
-          .find((entry) => entry[1] === playerId);
-        logger.debug(loggerContext, `Removing player ('${playerId}') from Role ('${playerRole[0]}')...`);
-        delete teamToUpdate.playersWRoles[playerRole[0]];
+        removeUserFromTeam(teamToUpdate, playerId, loggerContext);
         if (teamToUpdate.players <= 0) {
           logger.debug(loggerContext, 'Team will be empty after removal, deleting team instead...');
           await clashTeamsDbImpl.deleteTeam({
@@ -199,6 +282,15 @@ const updateTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'updateTeam' };
     try {
+      await findAssociationsAndRemoveUser(
+        {
+          playerId: body.playerId,
+          tournamentName: body.tournamentDetails.tournamentName,
+          tournamentDay: body.tournamentDetails.tournamentDay,
+          serverName: body.serverName,
+        },
+        loggerContext,
+      );
       const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
         serverName: body.serverName,
         tournamentName: body.tournamentDetails.tournamentName,

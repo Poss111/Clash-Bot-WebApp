@@ -29,7 +29,8 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PageLoadingService} from "./services/page-loading.service";
 import {SharedModule} from "./shared/shared.module";
-import {ApiModule} from "clash-bot-service-api"
+import {ApiModule, BASE_PATH} from "clash-bot-service-api"
+import {environment} from "../environments/environment";
 
 @NgModule({
     declarations: [
@@ -65,11 +66,18 @@ import {ApiModule} from "clash-bot-service-api"
             sanitize: SecurityContext.HTML
         })
     ],
-    providers: [DiscordService, {
-        provide: HTTP_INTERCEPTORS,
-        useClass: DiscordInterceptor,
-        multi: true
-    }, PageLoadingService],
+    providers: [
+        DiscordService,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: DiscordInterceptor,
+            multi: true
+        },
+        PageLoadingService,
+        {
+            provide: BASE_PATH, useValue: environment.basePath
+        }
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {

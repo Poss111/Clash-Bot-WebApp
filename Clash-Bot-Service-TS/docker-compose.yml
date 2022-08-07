@@ -3,7 +3,7 @@ services:
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
+    container_name: dynamodb-local-webapp
     ports:
       - "8000:8000"
     volumes:
@@ -16,39 +16,34 @@ services:
       - LC_ALL=en_US.UTF-8
   dynamodb-local-gui:
     image: 'aaronshaf/dynamodb-admin:latest'
-    container_name: dynamodb-local-gui-2
+    container_name: dynamodb-local-gui-webapp
     ports:
       - "8001:8001"
     environment:
-      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+      - DYNAMO_ENDPOINT=http://dynamodb-local-webapp:8000
   clash-bot-service-data-setup:
-    image: "poss11111/clash-bot-service:latest"
+    image: "poss11111/clash-bot-webapp-service:latest"
     command: "node integration/integration-setup.js"
     container_name: clash-bot-service-data-setup
     environment:
       - INTEGRATION_TEST=true
-      - HOST=dynamodb-local
+      - HOST=dynamodb-local-webapp
   clash-bot-local-service:
     image: 'poss11111/clash-bot-webapp-service:latest'
-    container_name: clash-bot-local-service
+    container_name: clash-bot-webapp-service
     ports:
       - "8080:8080"
     environment:
       - INTEGRATION_TEST=true
-      - HOST=dynamodb-local
-      - WS_SERVICE_HOSTNAME=ws://clash-bot-local-ws-service:8081
+      - HOST=dynamodb-local-webapp
+      - WS_SERVICE_HOSTNAME=ws://clash-bot-ws-service:8081
       - PORT=8080
       - LOGGER_LEVEL=info
   clash-bot-local-ws-service:
     image: 'poss11111/clash-bot-ws-service:latest'
-    container_name: clash-bot-local-ws-service
+    container_name: clash-bot-ws-service
     ports:
       - "8081:8081"
     environment:
       - PORT=8081
       - LOGGER_LEVEL=info
-  clash-bot-ui:
-    image: "poss11111/clash-bot-ui:test"
-    container_name: clash-bot-ui
-    ports:
-      - "0.0.0.0:4200:80"
