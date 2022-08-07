@@ -1,8 +1,7 @@
 const Joi = require('joi');
+const streamTest = require('streamtest');
 const clashUserTeamAssociation = require('../ClashUserTeamAssociationDbImpl');
 const dynamoDbHelper = require('../impl/DynamoDbHelper');
-const streamTest = require("streamtest");
-const clashTeamsDbImpl = require("../ClashTeamsDbImpl");
 
 jest.mock('dynamodb');
 jest.mock('../impl/DynamoDbHelper');
@@ -27,6 +26,8 @@ describe('Clash User Team Association DAO', () => {
               playerId: Joi.string(),
               // <tournament>#<tournamentDay>#<serverName>#<teamName>
               association: Joi.string(),
+              teamName: Joi.string(),
+              role: Joi.string(),
             },
           });
       });
@@ -48,10 +49,13 @@ describe('Clash User Team Association DAO', () => {
         tournamentDay: '1',
         serverName: 'Test Server',
         teamName: 'absol',
+        role: 'Top',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
         association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        teamName: userTeamAssociationRequest.teamName,
+        role: 'Top',
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         create: jest
@@ -66,8 +70,7 @@ describe('Clash User Team Association DAO', () => {
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.create)
             .toHaveBeenCalledWith(expectedEntity, expect.any(Function));
           expect(persistedRecord).toEqual({ attrs: expectedEntity });
-        })
-        .catch((err) => expect(err).toBeFalsy());
+        });
     });
 
     test('createUserAssociation - (Add User with Tentative) - If a user is passed with, team type, tournament, and day, they should have a record created.', () => {
@@ -109,6 +112,7 @@ describe('Clash User Team Association DAO', () => {
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
         association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        teamName: 'absol',
       };
       const expectedError = new Error('Failed to persist. :(');
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
@@ -157,8 +161,7 @@ describe('Clash User Team Association DAO', () => {
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.destroy)
             .toHaveBeenCalledWith(expectedEntity, expect.any(Function));
           expect(response).toBeTruthy();
-        })
-        .catch((err) => expect(err).toBeFalsy());
+        });
     });
 
     test('removeUserAssociation - (Remove User with Tentative) - If a user is passed with, team type, tournament, and day, the record should be removed.', () => {
@@ -185,8 +188,7 @@ describe('Clash User Team Association DAO', () => {
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.destroy)
             .toHaveBeenCalledWith(expectedEntity, expect.any(Function));
           expect(response).toBeTruthy();
-        })
-        .catch((err) => expect(err).toBeFalsy());
+        });
     });
 
     test('removeUserAssociation - (Error) - If an error occurs, it should be rejected.', () => {
@@ -233,6 +235,8 @@ describe('Clash User Team Association DAO', () => {
       const associationEntity = {
         playerId: expectedParameters.playerId,
         association: `${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${expectedParameters.serverName}#absol`,
+        teamName: 'absol',
+        role: 'Top',
       };
       const value = { Items: [{ attrs: associationEntity }] };
       const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));

@@ -1,6 +1,5 @@
 const dynamoDbHelper = require("./impl/DynamoDbHelper");
 const Joi = require("joi");
-const dynamodb = require("dynamodb");
 const logger = require("../logger");
 
 class ClashUserTeamAssociationDbImpl {
@@ -19,6 +18,8 @@ class ClashUserTeamAssociationDbImpl {
           playerId: Joi.string(),
           // <tableType>#<tournament>#<tournamentDay>#<serverName>#<teamName>
           association: Joi.string(),
+          teamName: Joi.string(),
+          role: Joi.string(),
         },
       }).then(data => {
         logger.info(loggerContext, `Successfully setup table def for ('${this.tableName}')`);
@@ -63,7 +64,7 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  createUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName }) {
+  createUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName, role}) {
     const loggerContext = {class: 'ClashUserTeamAssociation', method: 'createUserAssociation'};
     return new Promise((resolve, reject) => {
       const entityToPersist = this.buildAssociationEntity(
@@ -72,7 +73,11 @@ class ClashUserTeamAssociationDbImpl {
         serverName,
         teamName,
         playerId,
+        role,
       );
+      if (teamName) {
+        entityToPersist.teamName = teamName;
+      }
       logger.debug(loggerContext, `Creating new User Association with Player Id ('${entityToPersist.playerId}') Association ('${entityToPersist.association}')...`);
       this.clashUserTeamAssociationTable.create(entityToPersist, (err, response) => {
         if (err) reject(err);
@@ -99,10 +104,10 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  buildAssociationEntity(tournament, tournamentDay, serverName, teamName, playerId) {
+  buildAssociationEntity(tournament, tournamentDay, serverName, teamName, playerId, role) {
     if (!teamName) teamName = 'tentative';
     let association = `${tournament}#${tournamentDay}#${serverName}#${teamName}`;
-    return {playerId, association};
+    return {playerId, association, role};
   }
 }
 

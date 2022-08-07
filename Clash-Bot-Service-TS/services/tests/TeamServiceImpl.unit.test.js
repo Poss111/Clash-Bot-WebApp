@@ -349,6 +349,8 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '2',
           association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+          role: 'Supp',
+          teamName: 'some-team',
         },
       ]);
       const currentTeam = createV3Team({
@@ -417,6 +419,49 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
+    test('updateTeam - (Error, User already belongs to Team) - If user is already associated to the requested Team with the same role, they should be returned 400 as an error.', () => {
+      const serverName = 'Goon Squad';
+      const tournamentName = 'awesome_sauce';
+      const tournamentDay = '2';
+      const teamPatchPayload = {
+        serverName,
+        tournamentDetails: {
+          tournamentName,
+          tournamentDay,
+        },
+        playerId: '2',
+        role: 'Top',
+      };
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '2',
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#abra`,
+          role: 'Top',
+          teamName: 'abra',
+        },
+      ]);
+      return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
+        .then((updatedTeam) => expect(updatedTeam).toBeFalsy())
+        .catch((response) => {
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation)
+            .toHaveBeenCalledWith({
+              playerId: teamPatchPayload.playerId,
+              tournament: teamPatchPayload.tournamentDetails.tournamentName,
+              tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
+              serverName: teamPatchPayload.serverName,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).not.toHaveBeenCalled();
+          expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
+          expect(socketService.sendMessage).not.toHaveBeenCalled();
+          expect(response).toEqual({
+            code: 400,
+            error: 'User already belongs on Team requested with role.',
+          });
+        });
+    });
+
     test('updateTeam - (User belongs to another Team by themselves) - If user is not on the Team and is on another Team by themselves, the original team should be deleted and then they should added.', () => {
       const serverName = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
@@ -450,6 +495,8 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '2',
           association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+          role: 'Supp',
+          teamName: 'some-team',
         },
       ]);
       const currentTeam = createV3Team({
@@ -1382,12 +1429,6 @@ describe('Clash Teams Service Impl', () => {
           },
         },
       };
-      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
-        {
-          playerId: '1',
-          association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
-        },
-      ]);
       const currentTeam = createV3Team({
         serverName,
         teamName: 'some-team',
@@ -1411,6 +1452,8 @@ describe('Clash Teams Service Impl', () => {
           {
             playerId: '1',
             association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+            role: 'Top',
+            teamName: 'some-team',
           },
         ]);
       clashTeamsDbImpl.retrieveTeamsByFilter
@@ -1513,12 +1556,6 @@ describe('Clash Teams Service Impl', () => {
           },
         },
       };
-      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
-        {
-          playerId: '1',
-          association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
-        },
-      ]);
       const currentTeam = createV3Team({
         serverName,
         teamName: 'some-team',
@@ -1542,6 +1579,8 @@ describe('Clash Teams Service Impl', () => {
           {
             playerId: '1',
             association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+            role: 'Top',
+            teamName: 'some-team',
           },
         ]);
       clashTeamsDbImpl.retrieveTeamsByFilter

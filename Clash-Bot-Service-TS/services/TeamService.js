@@ -28,8 +28,9 @@ function removeUserFromTeam(teamEntity, playerId, loggerContext) {
 }
 
 async function findAssociationsAndRemoveUser({
-  playerId, tournamentName, tournamentDay, serverName,
+  playerId, tournamentName, tournamentDay, serverName, role,
 }, loggerContext) {
+  let response;
   const userAssociations = await clashUserTeamAssociationDbImpl.getUserAssociation({
     playerId,
     tournament: tournamentName,
@@ -39,24 +40,26 @@ async function findAssociationsAndRemoveUser({
   if (userAssociations.length > 0) {
     logger.info(loggerContext,
       `Found Player ('${userAssociations[0].playerId}') associated, Association ('${userAssociations[0].association}')`);
-    const associationType = userAssociations[0].association.split('#').pop();
-    if (associationType === 'tentative') {
-      const response = await tentativeService.removePlayerFromTentative({
+    if (!userAssociations[0].teamName) {
+      const tentativeResponse = await tentativeService.removePlayerFromTentative({
         serverName,
         playerId,
         tournament: tournamentName,
         tournamentDay,
       });
-      if (response.code !== 200) {
-        logger.error({ error: response.payload, ...loggerContext}, `Failed to remove ('${playerId}') from Tentative.`);
-        throw new Error(`Failed to remove ('${playerId}') from Tentative.`);
+      if (tentativeResponse.code !== 200) {
+        logger.error(
+          { error: tentativeResponse.payload, ...loggerContext },
+          `Failed to remove ('${playerId}') from Tentative.`,
+        );
+        response = tentativeResponse;
       }
-    } else {
+    } else if (userAssociations[0].role !== role) {
       const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
         serverName,
         tournamentName,
         tournamentDay,
-        teamName: associationType,
+        teamName: userAssociations[0].teamName,
       });
       const team = retrievedTeam[0];
       const updatedTeam = removeUserFromTeam(
@@ -90,8 +93,11 @@ async function findAssociationsAndRemoveUser({
               .playerDetails[key].id], userEntityToResponse));
       }
       sendAsyncEvent(event, { ...loggerContext });
+    } else {
+      response = Service.rejectResponse('User already belongs on Team requested with role.', 400);
     }
   }
+  return response;
 }
 
 /**
@@ -109,7 +115,7 @@ const createNewTeam = ({ body }) => new Promise(
       if (!tournamentTimes || tournamentTimes.length <= 0) {
         reject(Service.rejectResponse('Tournament given was not valid.', 400));
       } else {
-        await findAssociationsAndRemoveUser(
+        const response = await findAssociationsAndRemoveUser(
           {
             playerId: body.playerDetails.id,
             tournamentName: body.tournamentName,
@@ -118,26 +124,29 @@ const createNewTeam = ({ body }) => new Promise(
           },
           loggerContext,
         );
-        const playersWRoles = {};
-        playersWRoles[body.playerDetails.role] = body.playerDetails.id;
-        const createdTeam = await clashTeamsDbImpl.createTeam({
-          serverName: body.serverName,
-          players: [body.playerDetails.id],
-          playersWRoles,
-          tournamentDetails: {
-            tournamentName: body.tournamentName,
-            tournamentDay: body.tournamentDay,
-          },
-        });
-        const idToPlayerMap = await clashSubscriptionDbImpl
-          .retrieveAllUserDetails(createdTeam.players);
-        const mappedResponse = objectMapper(createdTeam, teamEntityToResponse);
-        Object.keys(mappedResponse.playerDetails)
-          .forEach((key) => mappedResponse
-            .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
-              .playerDetails[key].id], userEntityToResponse));
-        sendAsyncEvent(mappedResponse, { ...loggerContext });
-        resolve(Service.successResponse(mappedResponse));
+        if (response) reject(response);
+        else {
+          const playersWRoles = {};
+          playersWRoles[body.playerDetails.role] = body.playerDetails.id;
+          const createdTeam = await clashTeamsDbImpl.createTeam({
+            serverName: body.serverName,
+            players: [body.playerDetails.id],
+            playersWRoles,
+            tournamentDetails: {
+              tournamentName: body.tournamentName,
+              tournamentDay: body.tournamentDay,
+            },
+          });
+          const idToPlayerMap = await clashSubscriptionDbImpl
+            .retrieveAllUserDetails(createdTeam.players);
+          const mappedResponse = objectMapper(createdTeam, teamEntityToResponse);
+          Object.keys(mappedResponse.playerDetails)
+            .forEach((key) => mappedResponse
+              .playerDetails[key] = objectMapper(idToPlayerMap[mappedResponse
+                .playerDetails[key].id], userEntityToResponse));
+          sendAsyncEvent(mappedResponse, { ...loggerContext });
+          resolve(Service.successResponse(mappedResponse));
+        }
       }
     } catch (error) {
       Service.handleException({
@@ -282,46 +291,50 @@ const updateTeam = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'updateTeam' };
     try {
-      await findAssociationsAndRemoveUser(
+      const response = await findAssociationsAndRemoveUser(
         {
           playerId: body.playerId,
           tournamentName: body.tournamentDetails.tournamentName,
           tournamentDay: body.tournamentDetails.tournamentDay,
           serverName: body.serverName,
+          role: body.role,
         },
         loggerContext,
       );
-      const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
-        serverName: body.serverName,
-        tournamentName: body.tournamentDetails.tournamentName,
-        tournamentDay: body.tournamentDetails.tournamentDay,
-        teamName: body.teamName,
-      });
-      if (!retrievedTeams || retrievedTeams.length <= 0) {
-        reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
-      } else if (retrievedTeams[0].players.length >= 5) {
-        reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
-      } else if (retrievedTeams[0].playersWRoles[body.role]) {
-        reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
-      } else {
-        const updatedTeam = { ...retrievedTeams[0] };
-        if (!updatedTeam.playersWRoles) {
-          updatedTeam.playersWRoles = {};
-          updatedTeam.players = [];
+      if (response) reject(response);
+      else {
+        const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
+          serverName: body.serverName,
+          tournamentName: body.tournamentDetails.tournamentName,
+          tournamentDay: body.tournamentDetails.tournamentDay,
+          teamName: body.teamName,
+        });
+        if (!retrievedTeams || retrievedTeams.length <= 0) {
+          reject(Service.rejectResponse(`No team found matching criteria '${body}'.`, 400));
+        } else if (retrievedTeams[0].players.length >= 5) {
+          reject(Service.rejectResponse(`Team requested is already full - '${body}'.`, 400));
+        } else if (retrievedTeams[0].playersWRoles[body.role]) {
+          reject(Service.rejectResponse(`Role is already taken - '${body}'.`, 400));
+        } else {
+          const updatedTeam = { ...retrievedTeams[0] };
+          if (!updatedTeam.playersWRoles) {
+            updatedTeam.playersWRoles = {};
+            updatedTeam.players = [];
+          }
+          updatedTeam.playersWRoles[body.role] = body.playerId;
+          updatedTeam.players.push(body.playerId);
+          const updatedTeamAfterPersist = await clashTeamsDbImpl.updateTeam(updatedTeam);
+          const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
+            updatedTeamAfterPersist.players,
+          );
+          const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
+          Object.keys(mappedResponse.playerDetails)
+            .forEach((key) => mappedResponse
+              .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
+                .playerDetails[key].id], userEntityToResponse));
+          sendAsyncEvent(mappedResponse, { ...loggerContext });
+          resolve(Service.successResponse(mappedResponse));
         }
-        updatedTeam.playersWRoles[body.role] = body.playerId;
-        updatedTeam.players.push(body.playerId);
-        const updatedTeamAfterPersist = await clashTeamsDbImpl.updateTeam(updatedTeam);
-        const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
-          updatedTeamAfterPersist.players,
-        );
-        const mappedResponse = objectMapper(updatedTeamAfterPersist, teamEntityToResponse);
-        Object.keys(mappedResponse.playerDetails)
-          .forEach((key) => mappedResponse
-            .playerDetails[key] = objectMapper(idToUserDetails[mappedResponse
-              .playerDetails[key].id], userEntityToResponse));
-        sendAsyncEvent(mappedResponse, { ...loggerContext });
-        resolve(Service.successResponse(mappedResponse));
       }
     } catch (error) {
       Service.handleException({

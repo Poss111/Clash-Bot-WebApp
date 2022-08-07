@@ -1,7 +1,7 @@
 const deepCopy = (object) => JSON.parse(JSON.stringify(object));
 
 function createV3Team({
-  serverName, teamName = 'Abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
+  serverName, teamName = 'abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
 }) {
   return {
     details: `${tournamentName}#${tournamentDay}#${teamName}`,
