@@ -465,7 +465,7 @@ describe('Clash Tentative Service Impl', () => {
             .toHaveBeenCalledTimes(1);
           expect(clashUserTeamAssociationDbImpl.getUserAssociation)
             .toHaveBeenCalledWith({
-              playerId: playerId,
+              playerId,
               tournament: tournament.tournamentName,
               tournamentDay: tournament.tournamentDay,
               serverName,
