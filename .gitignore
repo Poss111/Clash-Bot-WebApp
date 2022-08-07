@@ -48,7 +48,7 @@ Thumbs.db
 ClashBot-Service/credentials.json
 .env
 *.log
-Clash-Bot-Service-TS/coverage/**
+coverage/**
 dist/**
 gen/*
 
