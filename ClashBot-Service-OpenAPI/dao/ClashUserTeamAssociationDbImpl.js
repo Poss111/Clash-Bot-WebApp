@@ -16,7 +16,7 @@ class ClashUserTeamAssociationDbImpl {
         timestamps: true,
         schema: {
           playerId: Joi.string(),
-          // <tableType>#<tournament>#<tournamentDay>#<serverName>#<teamName>
+          // <tournament>#<tournamentDay>#<serverName>#<teamName>
           association: Joi.string(),
           teamName: Joi.string(),
           role: Joi.string(),

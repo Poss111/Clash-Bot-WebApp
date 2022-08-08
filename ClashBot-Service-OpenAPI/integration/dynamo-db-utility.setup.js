@@ -2,10 +2,12 @@ const clashTimeDb = require('../dao/ClashTimeDbImpl');
 const clashTeamsDb = require('../dao/ClashTeamsDbImpl');
 const clashSubscriptionDb = require('../dao/ClashUserDbImpl');
 const clashTentativeDb = require('../dao/ClashTentativeDbImpl');
+const clashUserTeamAssociationDb = require('../dao/ClashUserTeamAssociationDbImpl');
 const clashTimesData = require('./mock-data/clash-times-sample-data');
 const clashTeamsData = require('./mock-data/clash-teams-sample-data');
 const clashSubscriptionData = require('./mock-data/clash-subscriptions-sample-data');
 const clashTentativeData = require('./mock-data/clash-tentative-sample-data');
+const clashUserTeamAssociationData = require('./mock-data/clash-user-team-association-sample-data');
 const templateBuilder = require('../utils/template-builder');
 const logger = require('../logger');
 
@@ -52,11 +54,13 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
   const clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);
   const clashSubscriptionDynamicData = templateBuilder.buildMessage(clashSubscriptionData, overrides);
   const clashTentativeDynamicData = templateBuilder.buildMessage(clashTentativeData, overrides);
+  const clashUserTeamAssociationDynamicData = templateBuilder.buildMessage(clashUserTeamAssociationData, overrides);
   Promise.all([
     persistSampleData(clashTimeDb, clashTimesDynamicData),
     persistSampleData(clashTeamsDb, clashTeamDynamicData),
     persistSampleData(clashSubscriptionDb, clashSubscriptionDynamicData),
-    persistSampleData(clashTentativeDb, clashTentativeDynamicData)])
+    persistSampleData(clashTentativeDb, clashTentativeDynamicData),
+    persistSampleData(clashUserTeamAssociationDb, clashUserTeamAssociationDynamicData)])
     .then((results) => {
       results.forEach((table) => {
         createdTables.set(table.tableName, {

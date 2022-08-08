@@ -28,7 +28,7 @@ function removeUserFromTeam(teamEntity, playerId, loggerContext) {
 }
 
 async function findAssociationsAndRemoveUser({
-  playerId, tournamentName, tournamentDay, serverName, role,
+  playerId, tournamentName, tournamentDay, serverName, role, teamName,
 }, loggerContext) {
   let response;
   const userAssociations = await clashUserTeamAssociationDbImpl.getUserAssociation({
@@ -55,7 +55,8 @@ async function findAssociationsAndRemoveUser({
         );
         response = tentativeResponse;
       }
-    } else if (userAssociations[0].role !== role) {
+    } else if (!(teamName === userAssociations[0].teamName
+        && userAssociations[0].role === role)) {
       const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
         serverName,
         tournamentName,
@@ -335,6 +336,7 @@ const updateTeam = ({ body }) => new Promise(
           tournamentDay: body.tournamentDetails.tournamentDay,
           serverName: body.serverName,
           role: body.role,
+          teamName: body.teamName,
         },
         loggerContext,
       );
