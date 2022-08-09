@@ -76,9 +76,9 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
         reject(Service.rejectResponse('Resource not found.',
           404));
       } else if (Array.isArray(userDetails.preferredChampions)
-        && userDetails.preferredChampions.length >= 5) {
+        && userDetails.preferredChampions.length > 5) {
         reject(Service
-          .rejectResponse('Too many champions. Must be less than or equal to 5.', 204));
+          .rejectResponse('Too many champions. Must be less than or equal to 5.', 400));
       } else {
         if (!userDetails.preferredChampions) {
           userDetails.preferredChampions = [body.championName];
@@ -113,9 +113,9 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
       if (!userDetails || !userDetails.key) {
         reject(Service.rejectResponse('Resource not found.',
           404));
-      } else if (body.champions.length >= 5) {
+      } else if (body.champions.length > 5) {
         reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
-          204));
+          400));
       } else {
         const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
         userDetailsCopy.preferredChampions = body.champions;

@@ -388,7 +388,7 @@ describe('Clash User Service Impl', () => {
       });
     });
 
-    test('createNewListOfPreferredChampions - If an array with great than 5 champions are passed, it should fail with 204.', () => {
+    test('createNewListOfPreferredChampions - If an array with great than 5 champions are passed, it should fail with 400.', () => {
       const expectedId = '1';
       const championToAdd = 'Taric';
       const foundUser = {
@@ -402,7 +402,7 @@ describe('Clash User Service Impl', () => {
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
-        code: 204,
+        code: 400,
         error: 'Too many champions. Must be less than or equal to 5.',
       };
       return clashUserServiceImpl.createNewListOfPreferredChampions({ body: {
@@ -492,13 +492,13 @@ describe('Clash User Service Impl', () => {
       });
     });
 
-    test('addToListOfPreferredChampions - if User has more than five champions already, then 204 should be returned.', () => {
+    test('addToListOfPreferredChampions - if User has more than five champions already, then 400 should be returned.', () => {
       const expectedId = '1';
       const championToAdd = 'Volibear';
       const foundUser = {
         key: expectedId,
         name: 'Roid',
-        preferredChampions: ['Taric', 'Sejuani', 'Kha\'zix', 'Rengar', 'Ornn'],
+        preferredChampions: ['Taric', 'Sejuani', 'Kha\'zix', 'Rengar', 'Ornn', 'OneTooMany'],
         subscriptions: [{
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
@@ -507,7 +507,7 @@ describe('Clash User Service Impl', () => {
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
-        code: 204,
+        code: 400,
         error: 'Too many champions. Must be less than or equal to 5.',
       };
       return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: championToAdd }, id: expectedId })
