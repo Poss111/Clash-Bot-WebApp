@@ -425,6 +425,7 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '2',
           association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+          serverName: teamPatchPayload.serverName,
           role: 'Supp',
           teamName: 'some-team',
         },
@@ -571,6 +572,7 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([{
         playerId: '2',
         association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        serverName: teamPatchPayload.serverName,
         role: 'Top',
         teamName: 'some-team',
       }]);
@@ -704,6 +706,7 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '2',
           association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+          serverName: teamPatchPayload.serverName,
           role: 'Supp',
           teamName: 'some-team',
         },
@@ -818,6 +821,7 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '2',
           association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#tentative`,
+          serverName: teamPatchPayload.serverName,
         },
       ]);
       tentativeService.removePlayerFromTentative
@@ -1712,6 +1716,7 @@ describe('Clash Teams Service Impl', () => {
           {
             playerId: '1',
             association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+            serverName,
             role: 'Top',
             teamName: 'some-team',
           },
@@ -1853,6 +1858,7 @@ describe('Clash Teams Service Impl', () => {
           {
             playerId: '1',
             association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
+            serverName,
             role: 'Top',
             teamName: 'some-team',
           },
@@ -1975,6 +1981,7 @@ describe('Clash Teams Service Impl', () => {
         {
           playerId: '1',
           association: `${tournamentName}#${tournamentDay}#${serverName}#tentative`,
+          serverName,
         },
       ]);
       tentativeService.removePlayerFromTentative

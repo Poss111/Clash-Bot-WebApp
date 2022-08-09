@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {Subscription, throwError} from "rxjs";
+import {Subject, Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, retryWhen, take, tap, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, map, retryWhen, take, takeUntil, tap, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -48,6 +48,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
     websocketSub: Subscription | undefined = undefined;
+    destroy$ = new Subject();
     private readonly noDataAvailable = {error: 'No data'};
 
     constructor(private _snackBar: MatSnackBar,
@@ -88,6 +89,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.subs.forEach(subscriptions => subscriptions.unsubscribe());
         this.websocketSub?.unsubscribe();
+        this.destroy$.unsubscribe();
     }
 
     updateTentativeList(guildName: string) {
@@ -155,6 +157,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 {duration: 5 * 1000});
             this.teams = [this.noDataAvailable];
         } else {
+            this.destroy$.next();
             this.updateTentativeList(valueToSearchFor);
             this.showInnerSpinner = true;
             this.teamsService
@@ -180,10 +183,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         {duration: 5 * 1000});
                 }
             );
-            if (this.websocketSub && !this.websocketSub.closed) {
-                this.websocketSub.unsubscribe();
-            }
-            this.websocketSub = this.teamsWebsocketService.connect(this.currentSelectedGuild)
+            this.teamsWebsocketService.connect(this.currentSelectedGuild)
                 .pipe(
                   retryWhen(errors => {
                   return errors.pipe(tap(value => console.error(value)),
@@ -210,7 +210,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                       originalTeam: foundTeam
                     };
                     return clashBotTeamEvent;
-                  })
+                  }),
+                  takeUntil(this.destroy$),
                 )
                 .subscribe((msg) => {
                         if (this.currentApplicationDetails.loggedIn) {

@@ -42,7 +42,7 @@ async function findAssociationsAndRemoveUser({
     if (!userAssociations[0].teamName) {
       logger.info(loggerContext, `Association is of type 'Tentative', removing ('${userAssociations[0].playerId}') from Tentative Queue record...`);
       const tentativeResponse = await tentativeService.removePlayerFromTentative({
-        serverName,
+        serverName: userAssociations[0].serverName,
         playerId,
         tournament: tournamentName,
         tournamentDay,
@@ -57,14 +57,14 @@ async function findAssociationsAndRemoveUser({
     } else if (!(teamName === userAssociations[0].teamName
         && userAssociations[0].role === role)) {
       const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
-        serverName,
+        serverName: userAssociations[0].serverName,
         tournamentName,
         tournamentDay,
         teamName: userAssociations[0].teamName,
       });
-      const team = retrievedTeam[0];
+      const teamToBeRemovedFrom = retrievedTeam[0];
       const updatedTeam = removeUserFromTeam(
-        team,
+        teamToBeRemovedFrom,
         playerId,
         loggerContext,
       );
@@ -74,17 +74,17 @@ async function findAssociationsAndRemoveUser({
         playerId,
         tournament: tournamentName,
         tournamentDay,
-        serverName,
-        teamName: team.teamName,
+        serverName: teamToBeRemovedFrom.serverName,
+        teamName: teamToBeRemovedFrom.teamName,
       });
-      if (team.players <= 0) {
+      if (teamToBeRemovedFrom.players <= 0) {
         await clashTeamsDbImpl.deleteTeam({
-          serverName: team.serverName,
-          details: team.details,
+          serverName: teamToBeRemovedFrom.serverName,
+          details: teamToBeRemovedFrom.details,
         });
         logger.debug(
           loggerContext,
-          `Server ('${team.serverName}') Team ('${team.details}') successfully deleted.`,
+          `Server ('${teamToBeRemovedFrom.serverName}') Team ('${teamToBeRemovedFrom.details}') successfully deleted.`,
         );
         event = objectMapper(updatedTeam, teamEntityDeletionToResponse);
       } else {

@@ -508,6 +508,7 @@ describe('Clash Tentative Service Impl', () => {
           {
             playerId,
             association: `${tournament.tournamentName}#${tournament.tournamentDay}#${serverName}#some-team`,
+            serverName,
             role: 'Top',
             teamName: 'some-team',
           },
