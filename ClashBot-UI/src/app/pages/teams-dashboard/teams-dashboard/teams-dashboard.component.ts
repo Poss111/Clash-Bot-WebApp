@@ -113,6 +113,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     map(response => {
                         return response.map((tentative) => {
                             const tentativeRecord: TentativeRecord = tentative as TentativeRecord;
+                            tentativeRecord.playerNames = tentative
+                                .tentativePlayers?.map((player) => player.name ?? '') ?? []
                             if (tentative.tentativePlayers) {
                                 tentativeRecord.isMember = tentative
                                     .tentativePlayers
