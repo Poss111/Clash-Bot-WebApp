@@ -35,7 +35,6 @@ async function findAssociationsAndRemoveUser({
     playerId,
     tournament: tournamentName,
     tournamentDay,
-    serverName,
   });
   if (userAssociations.length > 0) {
     logger.info(loggerContext,

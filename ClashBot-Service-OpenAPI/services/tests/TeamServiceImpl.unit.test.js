@@ -362,7 +362,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
@@ -470,7 +469,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           validateAssociationSwap(
             teamPatchPayload.playerId,
@@ -593,7 +591,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           validateAssociationSwap(
             teamPatchPayload.playerId,
@@ -663,7 +660,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).not.toHaveBeenCalled();
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
@@ -750,7 +746,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
@@ -858,7 +853,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           validateTentativeRemoval(
             serverName, tournamentName, tournamentDay, teamPatchPayload.playerId,
@@ -933,7 +927,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
@@ -1745,7 +1738,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: '1',
               tournament: tournamentName,
               tournamentDay,
-              serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledWith({
@@ -1881,7 +1873,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: '1',
               tournament: tournamentName,
               tournamentDay,
-              serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledWith({
@@ -2012,7 +2003,6 @@ describe('Clash Teams Service Impl', () => {
               playerId: '1',
               tournament: tournamentName,
               tournamentDay,
-              serverName,
             });
           validateTentativeRemoval(serverName, tournamentName, tournamentDay, playerDetails.id);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);

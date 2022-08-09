@@ -332,7 +332,6 @@ describe('Clash Tentative Service Impl', () => {
               playerId,
               tournament: tournament.tournamentName,
               tournamentDay: tournament.tournamentDay,
-              serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .not
@@ -417,7 +416,6 @@ describe('Clash Tentative Service Impl', () => {
               playerId,
               tournament: tournament.tournamentName,
               tournamentDay: tournament.tournamentDay,
-              serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .not
@@ -537,7 +535,6 @@ describe('Clash Tentative Service Impl', () => {
               playerId,
               tournament: tournament.tournamentName,
               tournamentDay: tournament.tournamentDay,
-              serverName,
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledTimes(1);

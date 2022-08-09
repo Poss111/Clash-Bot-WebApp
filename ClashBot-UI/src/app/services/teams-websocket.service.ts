@@ -12,12 +12,10 @@ export class TeamsWebsocketService {
   constructor() {}
 
   connect(serverName: string) : WebSocketSubject<Team> {
-    if (!this.subject$ || this.subject$.closed){
-      if (window.location.hostname === 'localhost') {
-        this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
-      } else {
-        this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
-      }
+    if (window.location.hostname === 'localhost') {
+      this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
+    } else {
+      this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
     }
     return this.subject$;
   }

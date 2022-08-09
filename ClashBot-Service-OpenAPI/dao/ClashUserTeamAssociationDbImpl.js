@@ -16,8 +16,9 @@ class ClashUserTeamAssociationDbImpl {
         timestamps: true,
         schema: {
           playerId: Joi.string(),
-          // <tournament>#<tournamentDay>#<serverName>#<teamName>
+          // <tournament>#<tournamentDay>#<teamName>#<serverName>
           association: Joi.string(),
+          serverName: Joi.string(),
           teamName: Joi.string(),
           role: Joi.string(),
         },
@@ -29,15 +30,15 @@ class ClashUserTeamAssociationDbImpl {
     })
   }
 
-  getUserAssociation({ playerId, tournament, tournamentDay, serverName }) {
+  getUserAssociation({ playerId, tournament, tournamentDay }) {
     const loggerContext = {class: 'ClashUserTeamAssociation', method: 'getUserAssociation'};
     return new Promise((resolve, reject) => {
-      const filteringCriteria = `${tournament}#${tournamentDay}#${serverName}`;
+      const filteringCriteria = `${tournament}#${tournamentDay}`;
       logger.debug(loggerContext, `Searching for Team with criteria ('${filteringCriteria}')...`)
       let stream = this.clashUserTeamAssociationTable
         .query(playerId)
         .where('association')
-        .beginsWith(`${tournament}#${tournamentDay}#${serverName}`)
+        .beginsWith(`${tournament}#${tournamentDay}`)
         .exec();
 
       const results = [];
@@ -78,6 +79,7 @@ class ClashUserTeamAssociationDbImpl {
       if (teamName) {
         entityToPersist.teamName = teamName;
       }
+      entityToPersist.serverName = serverName;
       logger.debug(loggerContext, `Creating new User Association with Player Id ('${entityToPersist.playerId}') Association ('${entityToPersist.association}')...`);
       this.clashUserTeamAssociationTable.create(entityToPersist, (err, response) => {
         if (err) reject(err);
@@ -106,7 +108,7 @@ class ClashUserTeamAssociationDbImpl {
 
   buildAssociationEntity(tournament, tournamentDay, serverName, teamName, playerId, role) {
     if (!teamName) teamName = 'tentative';
-    let association = `${tournament}#${tournamentDay}#${serverName}#${teamName}`;
+    let association = `${tournament}#${tournamentDay}#${teamName}#${serverName}`;
     return {playerId, association, role};
   }
 }

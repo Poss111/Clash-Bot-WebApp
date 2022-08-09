@@ -24,8 +24,9 @@ describe('Clash User Team Association DAO', () => {
             timestamps: true,
             schema: {
               playerId: Joi.string(),
-              // <tournament>#<tournamentDay>#<serverName>#<teamName>
+              // <tournament>#<tournamentDay>#<teamName>#<serverName>
               association: Joi.string(),
+              serverName: Joi.string(),
               teamName: Joi.string(),
               role: Joi.string(),
             },
@@ -53,7 +54,8 @@ describe('Clash User Team Association DAO', () => {
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
+        serverName: userTeamAssociationRequest.serverName,
         teamName: userTeamAssociationRequest.teamName,
         role: 'Top',
       };
@@ -82,7 +84,8 @@ describe('Clash User Team Association DAO', () => {
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#tentative`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverName}`,
+        serverName: userTeamAssociationRequest.serverName,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         create: jest
@@ -108,11 +111,14 @@ describe('Clash User Team Association DAO', () => {
         tournamentDay: '1',
         teamName: 'absol',
         serverName: 'Goon Squad',
+        role: 'Top',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
+        serverName: userTeamAssociationRequest.serverName,
         teamName: 'absol',
+        role: userTeamAssociationRequest.role,
       };
       const expectedError = new Error('Failed to persist. :(');
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
@@ -146,7 +152,7 @@ describe('Clash User Team Association DAO', () => {
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         destroy: jest
@@ -173,7 +179,7 @@ describe('Clash User Team Association DAO', () => {
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#tentative`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverName}`,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         destroy: jest
@@ -201,7 +207,7 @@ describe('Clash User Team Association DAO', () => {
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.serverName}#${userTeamAssociationRequest.teamName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
       };
       const expectedError = new Error('Failed to remove. :(');
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
@@ -226,15 +232,16 @@ describe('Clash User Team Association DAO', () => {
 
   describe('Get user association', () => {
     test('getUserAssociation - (Get Team User Association) - should retrieve user association for given tournament, tournament day, server name, and team name.', () => {
+      const serverName = 'Goon Squad';
       const expectedParameters = {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Test Server',
       };
       const associationEntity = {
         playerId: expectedParameters.playerId,
-        association: `${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${expectedParameters.serverName}#absol`,
+        association: `${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${serverName}#absol`,
+        serverName,
         teamName: 'absol',
         role: 'Top',
       };
@@ -257,10 +264,10 @@ describe('Clash User Team Association DAO', () => {
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.beginsWith)
             .toBeCalledTimes(1);
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.beginsWith)
-            .toBeCalledWith(`${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${expectedParameters.serverName}`);
+            .toBeCalledWith(`${expectedParameters.tournament}#${expectedParameters.tournamentDay}`);
           expect(response)
             .toEqual([{ ...associationEntity }]);
-        }).catch((err) => expect(err).toBeFalsy());
+        });
     });
 
     test('getUserAssociation - (Error) - If an error occurs, it should respond with one.', () => {
@@ -268,7 +275,6 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Test Server',
       };
       const error = new Error('Failed to query.');
       const mockStream = jest.fn()
@@ -291,7 +297,7 @@ describe('Clash User Team Association DAO', () => {
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.beginsWith)
             .toBeCalledTimes(1);
           expect(clashUserTeamAssociation.clashUserTeamAssociationTable.beginsWith)
-            .toBeCalledWith(`${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${expectedParameters.serverName}`);
+            .toBeCalledWith(`${expectedParameters.tournament}#${expectedParameters.tournamentDay}`);
           expect(err).toEqual(error);
         });
     });
