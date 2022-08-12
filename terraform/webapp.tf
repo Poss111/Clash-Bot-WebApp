@@ -315,7 +315,7 @@ resource "aws_ecs_service" "clash-bot-webapp-service" {
     container_port   = var.service_port
   }
 
-  depends_on = [aws_lb_listener.clash-bot-webapp-lb-listener, aws_dynamodb_table.clash-bot-teams-table, aws_dynamodb_table.clash-bot-association-table ]
+  depends_on = [aws_lb_listener.clash-bot-webapp-lb-listener, aws_dynamodb_table.clash-bot-teams-table, aws_dynamodb_table.clash-bot-association-table]
 
   tags = {
     Name = "${var.prefix}-ecs-service"
