@@ -93,6 +93,11 @@ variable "clash-bot-teams-dynamo-table" {
   sensitive = true
 }
 
+variable "clash-bot-association-dynamo-table" {
+  type      = string
+  sensitive = true
+}
+
 variable "clash-bot-header-key" {
   type      = string
   sensitive = true

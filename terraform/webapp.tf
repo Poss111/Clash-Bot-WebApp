@@ -218,6 +218,25 @@ resource "aws_dynamodb_table" "clash-bot-teams-table" {
   }
 }
 
+resource "aws_dynamodb_table" "clash-bot-association-table" {
+  name           = var.clash-bot-association-dynamo-table
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 10
+  write_capacity = 1
+  hash_key       = "playerId"
+  range_key      = "association"
+
+  attribute {
+    name = "playerId"
+    type = "S"
+  }
+
+  attribute {
+    name = "association"
+    type = "S"
+  }
+}
+
 resource "aws_ecs_task_definition" "clash-bot-webapp-task-def" {
   family                   = "${var.prefix}-service"
   requires_compatibilities = ["FARGATE"]
@@ -296,7 +315,7 @@ resource "aws_ecs_service" "clash-bot-webapp-service" {
     container_port   = var.service_port
   }
 
-  depends_on = [aws_lb_listener.clash-bot-webapp-lb-listener, aws_dynamodb_table.clash-bot-teams-table]
+  depends_on = [aws_lb_listener.clash-bot-webapp-lb-listener, aws_dynamodb_table.clash-bot-teams-table, aws_dynamodb_table.clash-bot-association-table ]
 
   tags = {
     Name = "${var.prefix}-ecs-service"
