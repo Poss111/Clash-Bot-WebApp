@@ -75,5 +75,4 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get(MAT_CHIP_LOCATORS).should('have.length', '5');
   })
 
-
 })

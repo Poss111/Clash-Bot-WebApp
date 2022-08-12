@@ -16,7 +16,7 @@ module.exports = {
     },
     {
       playerId: '299370234228506627',
-      association: ':tournamentName#:tournamentDayTwo#ho-oh#:serverName',
+      association: ':tournamentNameTwo#:tournamentDayFive#ho-oh#:serverName',
       serverName: ':serverName',
       teamName: 'ho-oh',
       role: 'Top',

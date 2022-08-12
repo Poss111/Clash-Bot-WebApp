@@ -80,12 +80,16 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
         reject(Service
           .rejectResponse('Too many champions. Must be less than or equal to 5.', 400));
       } else {
+        const updateUserDetails = {
+          key: userDetails.key,
+          preferredChampions: userDetails.preferredChampions,
+        };
         if (!userDetails.preferredChampions) {
-          userDetails.preferredChampions = [body.championName];
+          updateUserDetails.preferredChampions = [body.championName];
         } else {
-          userDetails.preferredChampions.push(body.championName);
+          updateUserDetails.preferredChampions.push(body.championName);
         }
-        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(userDetails);
+        const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(updateUserDetails);
         resolve(Service.successResponse(updatedUserDetails.preferredChampions));
       }
     } catch (error) {
@@ -117,8 +121,10 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
         reject(Service.rejectResponse('Too many champions. Must be less than or equal to 5.',
           400));
       } else {
-        const userDetailsCopy = JSON.parse(JSON.stringify(userDetails));
-        userDetailsCopy.preferredChampions = body.champions;
+        const userDetailsCopy = {
+          key: userDetails.key,
+          preferredChampions: body.champions,
+        };
         const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(userDetailsCopy);
         resolve(Service.successResponse(updatedUserDetails.preferredChampions));
       }
@@ -176,7 +182,10 @@ const removeFromListOfPreferredChampions = ({ id, champion }) => new Promise(
         .length <= 0) {
         resolve(Service.successResponse([]));
       } else {
-        const updatedUserDetails = JSON.parse(JSON.stringify(userDetails));
+        const updatedUserDetails = {
+          key: userDetails.key,
+          preferredChampions: userDetails.preferredChampions,
+        };
         updatedUserDetails.preferredChampions = userDetails
           .preferredChampions
           .filter((record) => record.toLowerCase() !== champion.toLowerCase());
@@ -279,8 +288,10 @@ const subscribeUser = ({ id }) => new Promise(
           objectMapper(userDetails, userEntityToResponse).subscriptions,
         ));
       } else {
-        const updatedUser = { ...userDetails };
-        updatedUser.subscribed = 'true';
+        const updatedUser = {
+          key: userDetails.key,
+          subscribed: 'true',
+        };
         const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(updatedUser);
         resolve(Service.successResponse(
           objectMapper(updatedUserDetails, userEntityToResponse).subscriptions,
@@ -314,8 +325,10 @@ const unsubscribeUser = ({ id }) => new Promise(
           objectMapper(userDetails, userEntityToResponse).subscriptions,
         ));
       } else {
-        const updatedUser = { ...userDetails };
-        updatedUser.subscribed = '';
+        const updatedUser = {
+          key: userDetails.key,
+          subscribed: '',
+        };
         const updatedUserDetails = await clashSubscriptionDbImpl.updateUser(updatedUser);
         resolve(Service.successResponse(
           objectMapper(updatedUserDetails, userEntityToResponse).subscriptions,

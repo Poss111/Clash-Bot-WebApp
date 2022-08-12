@@ -173,11 +173,13 @@ describe('Clash User Service Impl', () => {
         code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
-      return clashUserServiceImpl.retrieveUserSubscriptions({ id: expectedUserId }).catch((userDetails) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
-        expect(userDetails).toEqual(expectedUserDetails);
-      });
+      return clashUserServiceImpl
+        .retrieveUserSubscriptions({ id: expectedUserId })
+        .catch((userDetails) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
+          expect(userDetails).toEqual(expectedUserDetails);
+        });
     });
   });
 
@@ -189,7 +191,7 @@ describe('Clash User Service Impl', () => {
         playerName: 'Roid',
         serverName: 'Goon Squad',
       };
-      let updatedUser = deepCopy(returnedUser);
+      const updatedUser = deepCopy(returnedUser);
       updatedUser.subscribed = 'true';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(updatedUser);
@@ -198,7 +200,10 @@ describe('Clash User Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
           expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: updatedUser.key,
+            subscribed: 'true',
+          });
           expect(updatedSubscriptions).toEqual({
             code: 200,
             payload: [
@@ -263,7 +268,7 @@ describe('Clash User Service Impl', () => {
         serverName: 'Goon Squad',
         subscribed: 'true',
       };
-      let updatedUser = deepCopy(returnedUser);
+      const updatedUser = deepCopy(returnedUser);
       updatedUser.subscribed = '';
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(updatedUser);
@@ -272,7 +277,10 @@ describe('Clash User Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
           expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: expectedUserId,
+            subscribed: '',
+          });
           expect(updatedSubscriptions).toEqual({
             code: 200,
             payload: [
@@ -348,12 +356,20 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: updatedUser.preferredChampions,
       };
-      return clashUserServiceImpl.createNewListOfPreferredChampions({ body: { champions: [championToAdd] }, id: expectedId })
-        .then((results) => {
+      return clashUserServiceImpl
+        .createNewListOfPreferredChampions(
+          {
+            body: { champions: [championToAdd] },
+            id: expectedId,
+          },
+        ).then((results) => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
           expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: updatedUser.key,
+            preferredChampions: updatedUser.preferredChampions,
+          });
           expect(results).toEqual(expectedResponse);
         });
     });
@@ -379,13 +395,23 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: [championToAdd],
       };
-      return clashUserServiceImpl.createNewListOfPreferredChampions({ body: { champions: [championToAdd] }, id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .createNewListOfPreferredChampions(
+          {
+            body: { champions: [championToAdd] },
+            id: expectedId,
+          },
+        )
+        .then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: updatedUser.key,
+            preferredChampions: updatedUser.preferredChampions,
+          });
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('createNewListOfPreferredChampions - If an array with great than 5 champions are passed, it should fail with 400.', () => {
@@ -405,9 +431,19 @@ describe('Clash User Service Impl', () => {
         code: 400,
         error: 'Too many champions. Must be less than or equal to 5.',
       };
-      return clashUserServiceImpl.createNewListOfPreferredChampions({ body: {
-        champions: [championToAdd, championToAdd, championToAdd, championToAdd, championToAdd, championToAdd] },
-      id: expectedId })
+      return clashUserServiceImpl.createNewListOfPreferredChampions({
+        body: {
+          champions: [
+            championToAdd,
+            championToAdd,
+            championToAdd,
+            championToAdd,
+            championToAdd,
+            championToAdd,
+          ],
+        },
+        id: expectedId,
+      })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
           expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
@@ -453,13 +489,22 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: updatedUser.preferredChampions,
       };
-      return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: championToAdd }, id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .addToListOfPreferredChampions(
+          {
+            body: { championName: championToAdd },
+            id: expectedId,
+          },
+        ).then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: updatedUser.key,
+            preferredChampions: updatedUser.preferredChampions,
+          });
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('addToListOfPreferredChampions - if User already has preferred champions, then add to the existing list. ', () => {
@@ -483,13 +528,22 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: updatedUser.preferredChampions,
       };
-      return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: championToAdd }, id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .addToListOfPreferredChampions(
+          {
+            body: { championName: championToAdd },
+            id: expectedId,
+          },
+        ).then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+            key: updatedUser.key,
+            preferredChampions: updatedUser.preferredChampions,
+          });
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('addToListOfPreferredChampions - if User has more than five champions already, then 400 should be returned.', () => {
@@ -510,7 +564,13 @@ describe('Clash User Service Impl', () => {
         code: 400,
         error: 'Too many champions. Must be less than or equal to 5.',
       };
-      return clashUserServiceImpl.addToListOfPreferredChampions({ body: { championName: championToAdd }, id: expectedId })
+      return clashUserServiceImpl
+        .addToListOfPreferredChampions(
+          {
+            body: { championName: championToAdd },
+            id: expectedId,
+          },
+        )
         .then(() => {
           expect(true).toBeFalsy();
         })
@@ -595,7 +655,10 @@ describe('Clash User Service Impl', () => {
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
         expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
         expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith(updatedUser);
+        expect(clashSubscriptionDbImpl.updateUser).toHaveBeenCalledWith({
+          key: updatedUser.key,
+          preferredChampions: updatedUser.preferredChampions,
+        });
         expect(results).toEqual(expectedResponse);
       });
     });
@@ -617,12 +680,18 @@ describe('Clash User Service Impl', () => {
         code: 200,
         payload: [],
       };
-      return clashUserServiceImpl.removeFromListOfPreferredChampions({ body: { championName: championToRemove }, id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .removeFromListOfPreferredChampions(
+          {
+            body: { championName: championToRemove },
+            id: expectedId,
+          },
+        ).then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(clashSubscriptionDbImpl.updateUser).not.toHaveBeenCalled();
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('If user does not exist, return with a 404', () => {
@@ -660,11 +729,13 @@ describe('Clash User Service Impl', () => {
         payload: foundUser.preferredChampions,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
-      return clashUserServiceImpl.retrieveListOfUserPreferredChampions({ id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .retrieveListOfUserPreferredChampions({ id: expectedId })
+        .then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('If user preferred champion list is undefined, return an empty array.', () => {
@@ -683,11 +754,13 @@ describe('Clash User Service Impl', () => {
         payload: [],
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
-      return clashUserServiceImpl.retrieveListOfUserPreferredChampions({ id: expectedId }).then((results) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
-        expect(results).toEqual(expectedResponse);
-      });
+      return clashUserServiceImpl
+        .retrieveListOfUserPreferredChampions({ id: expectedId })
+        .then((results) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedId);
+          expect(results).toEqual(expectedResponse);
+        });
     });
 
     test('If user does not exist, return with a 404', () => {
@@ -697,11 +770,13 @@ describe('Clash User Service Impl', () => {
         code: 404,
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(undefined);
-      return clashUserServiceImpl.retrieveListOfUserPreferredChampions({ id: expectedUserId }).catch((userDetails) => {
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
-        expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
-        expect(userDetails).toEqual(expectedUserDetails);
-      });
+      return clashUserServiceImpl
+        .retrieveListOfUserPreferredChampions({ id: expectedUserId })
+        .catch((userDetails) => {
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledTimes(1);
+          expect(clashSubscriptionDbImpl.retrieveUserDetails).toHaveBeenCalledWith(expectedUserId);
+          expect(userDetails).toEqual(expectedUserDetails);
+        });
     });
   });
 });

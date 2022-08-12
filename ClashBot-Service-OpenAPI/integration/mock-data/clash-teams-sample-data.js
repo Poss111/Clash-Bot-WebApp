@@ -27,10 +27,10 @@ module.exports = {
         Mid: '299370234228506627',
       },
       teamName: 'ho-oh',
-      tournamentName: ':tournamentName',
+      tournamentName: ':tournamentNameTwo',
       updatedAt: '2021-07-18T09:25:42.680Z',
-      tournamentDay: ':tournamentDayTwo',
-      details: ':tournamentName#:tournamentDayTwo#ho-oh',
+      tournamentDay: ':tournamentDayFive',
+      details: ':tournamentNameTwo#:tournamentDayFive#ho-oh',
     },
     {
       startTime: ':datePlusOneDay',

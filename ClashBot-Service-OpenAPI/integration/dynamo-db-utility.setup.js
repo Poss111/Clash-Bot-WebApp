@@ -33,12 +33,15 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
   const datePlusOneDay = new Date().addDays(1);
   const datePlusFiveDays = new Date().addDays(5);
   const datePlusSixDays = new Date().addDays(6);
+  const datePlusSevenDays = new Date().addDays(7);
   const formattedDatePlusOneHour = new Intl.DateTimeFormat('en-US', options).format(datePlusOneHour);
   const formattedDatePlusOneDay = new Intl.DateTimeFormat('en-US', options).format(datePlusOneDay);
   const formattedDatePlusFiveDays = new Intl.DateTimeFormat('en-US', options).format(datePlusFiveDays);
   const formattedDatePlusSixDays = new Intl.DateTimeFormat('en-US', options).format(datePlusSixDays);
+  const formattedDatePlusSevenDays = new Intl.DateTimeFormat('en-US', options).format(datePlusSevenDays);
   const overrides = {
     tournamentName: 'awesome_sauce',
+    tournamentNameTwo: 'pleasent_ville',
     currentDateOne: formattedDatePlusOneHour,
     tournamentDayOne: '1',
     datePlusOneDay: formattedDatePlusOneDay,
@@ -47,6 +50,8 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
     tournamentDayThree: '3',
     datePlusThreeDays: formattedDatePlusSixDays,
     tournamentDayFour: '4',
+    datePlusFourDays: formattedDatePlusSevenDays,
+    tournamentDayFive: '5',
     serverName: 'LoL-ClashBotSupport',
   };
   logger.info(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
