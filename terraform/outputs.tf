@@ -19,6 +19,5 @@ output "ws_task_definition_version" {
 }
 
 output "webapp_lb_url" {
-  value     = aws_lb.clash-bot-webapp-lb.dns_name
-  sensitive = true
+  value = aws_lb.clash-bot-webapp-lb.dns_name
 }
