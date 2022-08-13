@@ -12,10 +12,12 @@ erDiagram
         string subscribed
         array preferredChampions
     }
-    PLAYERWTEAMS {
+    ASSOCIATION {
         string playerId
-        string details
-        object teamName
+        string association
+        string teamName
+        string serverName
+        string role
     }
     TEAMS {
         string serverName
@@ -40,11 +42,11 @@ erDiagram
         string serverName
         object tournamentDetails
     }
-    PLAYER |o--o{ PLAYERWTEAMS: has
-    PLAYERWTEAMS }o--o| TEAMS: has
+    PLAYER |o--o{ ASSOCIATION: has
+    ASSOCIATION }o--o| TEAMS: has
     TOURNAMENT |o--o{ TEAMS: has
     TOURNAMENT |o--o| TENTATIVE: has
     PLAYER |o--o{ TENTATIVE: has
     TOURNAMENT |o--o| TEAMS: has
-    TOURNAMENT |o--o{ PLAYERWTEAMS: has
+    TOURNAMENT |o--o{ ASSOCIATION: has
 ```
