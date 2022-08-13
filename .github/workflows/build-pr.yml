@@ -146,17 +146,17 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./ClashBot-UI
-        run: |
-          node -v
-          npm -v 
-          npm i
+        run: npm i
+
+      - name: Zip
+        run: zip -r ui.zip ClashBot-UI
 
       - name: Archive service artifact
         uses: actions/upload-artifact@v2
         with:
           name: ui
           if-no-files-found: error
-          path: ClashBot-UI
+          path: ui.zip
 
   test-ui:
     name: "Run Tests for Clash Bot UI"
@@ -179,6 +179,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ui
+
+      - name: Unzip
+        run: unzip ui.zip -d ClashBot-UI
 
       - name: Run Tests
         working-directory: ./ClashBot-UI
@@ -215,6 +218,9 @@ jobs:
         with:
           name: ui
 
+      - name: Unzip
+        run: unzip ui.zip -d ClashBot-UI
+
       - name: Run Linting
         working-directory: ./ClashBot-UI
         run: npm run-script lint
@@ -249,6 +255,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ui
+
+      - name: Unzip
+        run: unzip ui.zip -d ClashBot-UI
 
       - name: Run Prod Build Check
         working-directory: ./ClashBot-UI

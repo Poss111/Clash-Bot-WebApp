@@ -14,13 +14,6 @@ services:
       - locale-gen=en_US.UTF-8
       - LANGUAGE=en_US:en
       - LC_ALL=en_US.UTF-8
-  dynamodb-local-gui:
-    image: 'aaronshaf/dynamodb-admin:latest'
-    container_name: dynamodb-local-gui-webapp
-    ports:
-      - "8001:8001"
-    environment:
-      - DYNAMO_ENDPOINT=http://dynamodb-local-test:8000
   clash-bot-webapp-data-setup:
     image: "poss11111/clash-bot-webapp-service:test"
     command: "node integration/integration-setup.js"
@@ -47,3 +40,8 @@ services:
     environment:
       - PORT=8081
       - LOGGER_LEVEL=info
+  clash-bot-ui:
+    image: "poss11111/clash-bot-ui:test"
+    container_name: clash-bot-ui
+    ports:
+      - "0.0.0.0:4200:80"
