@@ -11,7 +11,7 @@ jest.mock('../../dao/ClashTentativeDbImpl');
 jest.mock('../../dao/ClashUserDbImpl');
 jest.mock('../../dao/ClashTimeDbImpl');
 jest.mock('../../dao/ClashUserTeamAssociationDbImpl');
-jest.mock('../../dao/clashTeamsDbImpl');
+jest.mock('../../dao/ClashTeamsDbImpl');
 jest.mock('../../socket/SocketServices');
 
 beforeEach(() => {
