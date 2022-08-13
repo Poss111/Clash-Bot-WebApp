@@ -52,4 +52,6 @@ coverage/**
 dist/**
 gen/*
 
+# Terraform files
 *.tfvars
+.terraform*
