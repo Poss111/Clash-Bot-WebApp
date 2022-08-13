@@ -140,9 +140,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
+        working-directory: ./ClashBot-UI
         with:
           node-version: 16.14.0
-        working-directory: ./ClashBot-UI
         run: |
           node -v
           npm -v 
