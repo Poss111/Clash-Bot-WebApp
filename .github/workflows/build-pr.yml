@@ -292,6 +292,7 @@ jobs:
       - lint-ui
       - prod-build-check
       - test-service
+      - test-ws-service
     if: ${{ always() }}
     runs-on: ubuntu-latest
 
