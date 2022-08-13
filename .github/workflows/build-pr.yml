@@ -181,7 +181,7 @@ jobs:
           name: ui
 
       - name: Unzip
-        run: unzip ui.zip -d ClashBot-UI
+        run: unzip ui.zip
 
       - name: Run Tests
         working-directory: ./ClashBot-UI
@@ -219,7 +219,7 @@ jobs:
           name: ui
 
       - name: Unzip
-        run: unzip ui.zip -d ClashBot-UI
+        run: unzip ui.zip
 
       - name: Run Linting
         working-directory: ./ClashBot-UI
@@ -257,7 +257,7 @@ jobs:
           name: ui
 
       - name: Unzip
-        run: unzip ui.zip -d ClashBot-UI
+        run: unzip ui.zip
 
       - name: Run Prod Build Check
         working-directory: ./ClashBot-UI
