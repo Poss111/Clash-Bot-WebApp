@@ -141,7 +141,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./ClashBot-UI
-        run: npm i
+        run: |
+          node -v
+          npm -v 
+          npm i
 
       - name: Archive service artifact
         uses: actions/upload-artifact@v2
