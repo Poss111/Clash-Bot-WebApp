@@ -10,6 +10,7 @@ on:
 
 jobs:
   check-applications:
+    name: "Check to see which Applications need to be built for PR"
     runs-on: ubuntu-latest
 
     outputs:
@@ -39,6 +40,7 @@ jobs:
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
   test-ws-service:
+    name: "Test Clash Bot Websocket Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ws-service == 'true'}}
     runs-on: ubuntu-latest
@@ -58,10 +60,6 @@ jobs:
       - name: Build Service
         working-directory: ./ClashBot-WS-Service
         run: npm i
-
-      - name: Test Service
-        working-directory: ./ClashBot-WS-Service
-        run: npm test
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -85,6 +83,7 @@ jobs:
           message-color: '16711680'
 
   test-service:
+    name: "Test Clash Bot OpenApi Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
@@ -130,8 +129,32 @@ jobs:
           message: 'Service Test Failed!'
           message-color: '16711680'
 
-  test-ui:
+  checkout-ui:
+    name: "Check UI and install dependencies"
     needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
+
+      - name: Archive service artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ui
+          if-no-files-found: error
+          path: ClashBot-UI
+
+  test-ui:
+    name: "Run Tests for Clash Bot UI"
+    needs:
+      - check-applications
+      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -144,12 +167,10 @@ jobs:
           message: 'Test in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install depedencies
-        working-directory: ./ClashBot-UI
-        run: npm i
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ui
 
       - name: Run Tests
         working-directory: ./ClashBot-UI
@@ -165,7 +186,10 @@ jobs:
           message-color: '16711680'
 
   lint-ui:
-    needs: check-applications
+    name: "Run linting for Clash Bot UI"
+    needs:
+      - check-applications
+      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -178,12 +202,10 @@ jobs:
           message: 'Linting in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ui
 
       - name: Run Linting
         working-directory: ./ClashBot-UI
@@ -199,7 +221,10 @@ jobs:
           message-color: '16711680'
 
   prod-build-check:
-    needs: check-applications
+    name: "Run Production build check for Clash Bot UI"
+    needs:
+      - check-applications
+      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -212,12 +237,10 @@ jobs:
           message: 'Prod build check in progress...'
           message-color: '16750902'
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ui
 
       - name: Run Prod Build Check
         working-directory: ./ClashBot-UI
@@ -245,6 +268,7 @@ jobs:
           message-color: '16711680'
 
   integration-ui:
+    name: "Run integration test cases for Clash Bot Webapp"
     needs:
       - check-applications
       - test-ui
@@ -300,6 +324,7 @@ jobs:
           path: ClashBot-UI/cypress/screenshots
 
   concluded-testing:
+    name: "Pull Request Hook"
     needs:
       - integration-ui
       - test-ws-service
