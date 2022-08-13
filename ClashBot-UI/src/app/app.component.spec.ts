@@ -1,7 +1,7 @@
-import {fakeAsync, TestBed, tick} from '@angular/core/testing';
-import {Location} from '@angular/common';
-import {RouterTestingModule} from '@angular/router/testing';
-import {AppComponent} from './app.component';
+import {fakeAsync, TestBed, tick} from "@angular/core/testing";
+import {Location} from "@angular/common";
+import {RouterTestingModule} from "@angular/router/testing";
+import {AppComponent} from "./app.component";
 import {of} from "rxjs";
 import {UserDetails} from "./interfaces/user-details";
 import {MatButtonModule} from "@angular/material/button";
@@ -36,11 +36,11 @@ import {
 } from "./dialogs/release-notification-dialog/release-notification-dialog.component";
 import {SharedModule} from "./shared/shared.module";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import * as mocks from './shared/shared-test-mocks.spec';
+import * as mocks from "./shared/shared-test-mocks.spec";
 
-jest.mock('./services/application-details.service');
-jest.mock('./google-analytics.service');
-jest.mock('./services/riot-ddragon.service');
+jest.mock("./services/application-details.service");
+jest.mock("./google-analytics.service");
+jest.mock("./services/riot-ddragon.service");
 
 @NgModule({
     declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
@@ -50,7 +50,7 @@ jest.mock('./services/riot-ddragon.service');
 class WelcomeDashboardTestModule {
 }
 
-describe('AppComponent', () => {
+describe("AppComponent", () => {
     let applicationDetailsMock: any;
     let googleAnalyticsService: any;
     let riotDdragonServiceMock: any;
@@ -64,9 +64,9 @@ describe('AppComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 RouterTestingModule.withRoutes([
-                    {path: '', component: WelcomeDashboardComponent},
-                    {path: 'teams', component: TeamsDashboardComponent},
-                    {path: '**', redirectTo: ''}
+                    {path: "", component: WelcomeDashboardComponent},
+                    {path: "teams", component: TeamsDashboardComponent},
+                    {path: "**", redirectTo: ""}
                 ]),
                 MatButtonModule,
                 MatIconModule,
@@ -107,13 +107,13 @@ describe('AppComponent', () => {
         window.localStorage.clear();
     });
 
-    test('should create the app', () => {
+    test("should create the app", () => {
         const fixture = TestBed.createComponent(AppComponent);
         const app = fixture.componentInstance;
         expect(app).toBeTruthy();
     });
 
-    test('should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.', () => {
+    test("should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
         const fixture = TestBed.createComponent(AppComponent);
         const app = fixture.componentInstance;
         testScheduler.run(helper => {
@@ -129,26 +129,26 @@ describe('AppComponent', () => {
                 "12.8.1"
             ];
 
-            let applicationObs = cold('x----z|', {x: mockApplicationDetails, z: mockApplicationDetails});
-            let riotVersionObs = cold('x|', {x: mockLeagueVersion});
+            let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
+            let riotVersionObs = cold("x|", {x: mockLeagueVersion});
 
             applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationObs);
             riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
 
-            expect(window.localStorage.getItem('leagueApiVersion')).toBeFalsy();
+            expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
             expect(app.routingArray).toEqual([]);
 
             fixture.detectChanges();
 
             flush();
 
-            expect(window.localStorage.getItem('leagueApiVersion')).toEqual('12.8.2');
+            expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
             expect(app.routingArray).toEqual(app.defaultRoutingArray);
             expect(app.username).toBeFalsy();
         })
     });
 
-    test('If the user is logged in, it should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.', () => {
+    test("If the user is logged in, it should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
         const fixture = TestBed.createComponent(AppComponent);
         const app = fixture.componentInstance;
         testScheduler.run(helper => {
@@ -164,32 +164,32 @@ describe('AppComponent', () => {
                 "12.8.1"
             ];
 
-            let applicationObs = cold('x----z|', {x: mockApplicationDetails, z: mockApplicationDetails});
-            let riotVersionObs = cold('x|', {x: mockLeagueVersion});
+            let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
+            let riotVersionObs = cold("x|", {x: mockLeagueVersion});
 
             applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationObs);
             riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
 
-            expect(window.localStorage.getItem('leagueApiVersion')).toBeFalsy();
+            expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
             expect(app.routingArray).toEqual([]);
 
             fixture.detectChanges();
 
             flush();
 
-            expect(window.localStorage.getItem('leagueApiVersion')).toEqual('12.8.2');
+            expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
             expect(app.routingArray).toEqual(app.loggedInArray);
             expect(app.username).toEqual(mockUserDetails.username);
         })
     });
 
-    test('When navigate is called, it should invoke the router to navigate to /', fakeAsync(() => {
+    test("When navigate is called, it should invoke the router to navigate to /", fakeAsync(() => {
         const fixture = TestBed.createComponent(AppComponent);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
-        riotDdragonServiceMock.getVersions.mockReturnValue(of(['12.8.1']));
+        riotDdragonServiceMock.getVersions.mockReturnValue(of(["12.8.1"]));
         const app = fixture.componentInstance;
         fixture.detectChanges();
-        let route = '/teams';
+        let route = "/teams";
         app.navigate(route);
         tick();
         expect(location.path()).toBe(route);
@@ -197,7 +197,7 @@ describe('AppComponent', () => {
         expect(googleAnalyticsService.sendPageNavigationEvent).toHaveBeenCalledWith(route);
     }))
 
-    test('If the version is set via the environment file, then it should be displayed.', () => {
+    test("If the version is set via the environment file, then it should be displayed.", () => {
         const fixture = TestBed.createComponent(AppComponent);
         applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
         const app = fixture.componentInstance;

@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { SpinnerComponent } from './spinner.component';
+import {SpinnerComponent} from "./spinner.component";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
-describe('SpinnerComponent', () => {
+describe("SpinnerComponent", () => {
   let component: SpinnerComponent;
   let fixture: ComponentFixture<SpinnerComponent>;
 
@@ -21,7 +21,7 @@ describe('SpinnerComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

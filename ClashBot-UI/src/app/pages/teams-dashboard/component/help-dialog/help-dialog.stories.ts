@@ -1,6 +1,6 @@
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
-import { Story, Meta } from '@storybook/angular/types-6-0';
-import { moduleMetadata } from '@storybook/angular';
+import {Story, Meta} from "@storybook/angular/types-6-0";
+import {moduleMetadata} from "@storybook/angular";
 import {HelpDialogComponent} from "./help-dialog.component";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
@@ -9,7 +9,7 @@ import {TeamsDashboardHelpDialogComponent} from "../teams-dashboard-help-dialog/
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 export default {
-    title: 'Shared/TeamDashboardHelpDialog',
+    title: "Shared/TeamDashboardHelpDialog",
     component: HelpDialogComponent,
     argTypes: {},
     decorators: [

@@ -1,4 +1,4 @@
-import { Team, Player} from "clash-bot-service-api";
+import {Team, Player} from "clash-bot-service-api";
 
 export interface PlayerUiWrapper extends Player {
     isUser: boolean;

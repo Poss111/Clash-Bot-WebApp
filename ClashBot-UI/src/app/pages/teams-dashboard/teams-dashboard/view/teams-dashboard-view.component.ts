@@ -1,15 +1,15 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
 import {TeamFilter} from "../../../../interfaces/team-filter";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
 import {Tournament} from "clash-bot-service-api/model/tournament";
-import { TeamUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
+import {TeamUiWrapper} from "src/app/interfaces/team-ui-wrapper";
 import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
-  selector: 'app-teams-dashboard-view',
-  templateUrl: './teams-dashboard-view.component.html',
-  styleUrls: ['./teams-dashboard-view.component.scss']
+  selector: "app-teams-dashboard-view",
+  templateUrl: "./teams-dashboard-view.component.html",
+  styleUrls: ["./teams-dashboard-view.component.scss"]
 })
 export class TeamsDashboardViewComponent {
 
@@ -29,7 +29,7 @@ export class TeamsDashboardViewComponent {
   defaultServer?: string;
 
   @Input()
-  tentativeDataStatus: string = 'NOT_LOADED';
+  tentativeDataStatus: string = "NOT_LOADED";
 
   @Input()
   showSpinner?: boolean;

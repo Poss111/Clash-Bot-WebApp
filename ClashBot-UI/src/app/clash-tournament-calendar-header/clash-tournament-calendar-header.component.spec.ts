@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { ClashTournamentCalendarHeaderComponent } from './clash-tournament-calendar-header.component';
+import {ClashTournamentCalendarHeaderComponent} from "./clash-tournament-calendar-header.component";
 import {MatCalendar} from "@angular/material/datepicker";
 import {MatIconModule} from "@angular/material/icon";
 import {ChangeDetectorRef} from "@angular/core";
 import {DateAdapter, MatNativeDateModule} from "@angular/material/core";
 
-jest.mock('@angular/material/datepicker')
+jest.mock("@angular/material/datepicker")
 
-describe('ClashTournamentCalendarHeaderComponent', () => {
+describe("ClashTournamentCalendarHeaderComponent", () => {
   let component: ClashTournamentCalendarHeaderComponent;
   let fixture: ComponentFixture<ClashTournamentCalendarHeaderComponent>;
   let calendar: MatCalendar<any>;
@@ -30,19 +30,19 @@ describe('ClashTournamentCalendarHeaderComponent', () => {
     fixture.detectChanges();
   });
 
-  test('should create', () => {
+  test("should create", () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Previous Clicked', () => {
-    test('When prevClicked is called and the monthsPast is 0, it should not update the calendar current view.', () => {
+  describe("Previous Clicked", () => {
+    test("When prevClicked is called and the monthsPast is 0, it should not update the calendar current view.", () => {
       fixture = TestBed.createComponent(ClashTournamentCalendarHeaderComponent);
       component = fixture.componentInstance;
       component.prevClicked();
       expect(calendar._goToDateInView).not.toHaveBeenCalled();
     })
 
-    test('When prevClicked is called and the monthsPast is greater than 0, it should update the calendar current view.', () => {
+    test("When prevClicked is called and the monthsPast is greater than 0, it should update the calendar current view.", () => {
       fixture = TestBed.createComponent(ClashTournamentCalendarHeaderComponent);
       component = fixture.componentInstance;
       component.monthsPastDate = 1;
@@ -52,9 +52,9 @@ describe('ClashTournamentCalendarHeaderComponent', () => {
     })
   })
 
-  describe('Next Clicked', () => {
+  describe("Next Clicked", () => {
 
-    test('When nextClicked is called and the monthsPast, it should update the calendar current view by one.', () => {
+    test("When nextClicked is called and the monthsPast, it should update the calendar current view by one.", () => {
       fixture = TestBed.createComponent(ClashTournamentCalendarHeaderComponent);
       component = fixture.componentInstance;
       component.monthsPastDate = 0;

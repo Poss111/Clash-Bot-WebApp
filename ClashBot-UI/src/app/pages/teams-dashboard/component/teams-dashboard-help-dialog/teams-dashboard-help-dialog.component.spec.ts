@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { TeamsDashboardHelpDialogComponent } from './teams-dashboard-help-dialog.component';
+import {TeamsDashboardHelpDialogComponent} from "./teams-dashboard-help-dialog.component";
 import {MatIconModule} from "@angular/material/icon";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatDialogModule} from "@angular/material/dialog";
 
-describe('TeamsDashboardHelpDialogComponent', () => {
+describe("TeamsDashboardHelpDialogComponent", () => {
   let component: TeamsDashboardHelpDialogComponent;
   let fixture: ComponentFixture<TeamsDashboardHelpDialogComponent>;
 
@@ -23,7 +23,7 @@ describe('TeamsDashboardHelpDialogComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

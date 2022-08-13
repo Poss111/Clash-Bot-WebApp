@@ -1,16 +1,14 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from "@angular/core";
 import {MatTable} from "@angular/material/table";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {take} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
-import {Tentative} from "clash-bot-service-api/model/tentative";
 import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
-    selector: 'app-teams-tentative-table',
-    templateUrl: './teams-tentative-table.component.html',
-    styleUrls: ['./teams-tentative-table.component.scss']
+    selector: "app-teams-tentative-table",
+    templateUrl: "./teams-tentative-table.component.html",
+    styleUrls: ["./teams-tentative-table.component.scss"]
 })
 export class TeamsTentativeTableComponent implements OnChanges {
 
@@ -20,7 +18,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
     tentativeList?: TentativeRecord[] = [];
 
     @Input()
-    tentativeDataStatus: string = 'NOT_LOADED';
+    tentativeDataStatus: string = "NOT_LOADED";
 
     @Output()
     register: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
@@ -30,10 +28,10 @@ export class TeamsTentativeTableComponent implements OnChanges {
     constructor(private dialog: MatDialog) {}
 
     tentativeRegister(element: TentativeRecord, index: number) {
-        let actionMessage = 'added to';
+        let actionMessage = "added to";
         element.toBeAdded = true;
         if (element.isMember) {
-            actionMessage = 'removed from';
+            actionMessage = "removed from";
             element.toBeAdded = false;
         }
         let dialogRef = this.dialog.open(ConfirmationDialogComponent,
@@ -45,7 +43,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
         dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
             if (result) {
                 element.index = index;
-                
+
                 this.register.emit(element)
             }
         });

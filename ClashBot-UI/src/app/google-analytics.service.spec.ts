@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 
-import { GoogleAnalyticsService } from './google-analytics.service';
+import {GoogleAnalyticsService} from "./google-analytics.service";
 
-describe('GoogleAnalyticsServiceService', () => {
+describe("GoogleAnalyticsServiceService", () => {
   let service: GoogleAnalyticsService;
 
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe('GoogleAnalyticsServiceService', () => {
     service = TestBed.inject(GoogleAnalyticsService);
   });
 
-  test('should be created', () => {
+  test("should be created", () => {
     expect(service).toBeTruthy();
   });
 

@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { TeamsDashboardViewComponent } from './teams-dashboard-view.component';
+import {TeamsDashboardViewComponent} from "./teams-dashboard-view.component";
 import {CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA} from "@angular/core";
 
-describe('TeamsDashboardViewComponent', () => {
+describe("TeamsDashboardViewComponent", () => {
   let component: TeamsDashboardViewComponent;
   let fixture: ComponentFixture<TeamsDashboardViewComponent>;
 
@@ -21,7 +21,7 @@ describe('TeamsDashboardViewComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

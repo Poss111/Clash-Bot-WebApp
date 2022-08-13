@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {Observable, of, throwError, EMPTY, forkJoin} from "rxjs";
 import {AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn} from "@angular/forms";
 import {COMMA, ENTER} from "@angular/cdk/keycodes";
@@ -10,12 +10,12 @@ import {UserDetails} from "../../interfaces/user-details";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {PageLoadingService} from "../../services/page-loading.service";
-import {UserService} from 'clash-bot-service-api';
+import {UserService} from "clash-bot-service-api";
 
 @Component({
-    selector: 'app-user-profile',
-    templateUrl: './user-profile.component.html',
-    styleUrls: ['./user-profile.component.scss']
+    selector: "app-user-profile",
+    templateUrl: "./user-profile.component.html",
+    styleUrls: ["./user-profile.component.scss"]
 })
 export class UserProfileComponent implements OnInit {
 
@@ -28,11 +28,11 @@ export class UserProfileComponent implements OnInit {
     listOfChampions: string[] = [];
     initialFormControlState: any = {};
     initialAutoCompleteArray: string[] = [];
-    defaultGuild: string = '';
+    defaultGuild: string = "";
     userDetails?: UserDetails;
     guilds: DiscordGuild[] = [];
 
-    @ViewChild('championInput') championInput: any = '';
+    @ViewChild("championInput") championInput: any = "";
     userDetailsForm?: FormGroup;
 
     constructor(private riotDdragonService: RiotDdragonService,
@@ -60,8 +60,8 @@ export class UserProfileComponent implements OnInit {
                             timeout(4000),
                             catchError((err) => {
                                 console.error(err);
-                                this.matSnackBar.open('Oops! Failed to retrieve your User Information. Please try again later.',
-                                    'X',
+                                this.matSnackBar.open("Oops! Failed to retrieve your User Information. Please try again later.",
+                                    "X",
                                     {duration: 5000});
                                 return throwError(err);
                             }),
@@ -77,8 +77,8 @@ export class UserProfileComponent implements OnInit {
                         .pipe(take(1),
                             timeout(7000),
                             catchError((err) => {
-                                this.matSnackBar.open('Oops! Failed to retrieve League Champion names. Please try again later.',
-                                    'X',
+                                this.matSnackBar.open("Oops! Failed to retrieve League Champion names. Please try again later.",
+                                    "X",
                                     {duration: 5000});
                                 return throwError(err);
                             }),
@@ -92,15 +92,15 @@ export class UserProfileComponent implements OnInit {
                 finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe((userProfileDetails) => {
-                let defaultGuild = '';
+                let defaultGuild = "";
                 if (userProfileDetails.appDetails.userGuilds) {
                     defaultGuild = userProfileDetails.appDetails.userGuilds[0].name;
                     userProfileDetails.appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
                 }
                 if (!userProfileDetails.appDetails.loggedIn) {
                     this.matSnackBar.open(
-                        'Oops! You are not logged in. Please navigate back to the home screen and log in.',
-                        'X',
+                        "Oops! You are not logged in. Please navigate back to the home screen and log in.",
+                        "X",
                         {duration: 5000})
                 } else if (userProfileDetails.clashBotUserDetails) {
                     this.userDetails = userProfileDetails.appDetails.userDetails;
@@ -112,7 +112,7 @@ export class UserProfileComponent implements OnInit {
                             isOn: false
                         }];
                     }
-                    this.defaultGuild = userProfileDetails.clashBotUserDetails.serverName === undefined ? '' : userProfileDetails.clashBotUserDetails.serverName;
+                    this.defaultGuild = userProfileDetails.clashBotUserDetails.serverName === undefined ? "" : userProfileDetails.clashBotUserDetails.serverName;
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
@@ -161,7 +161,7 @@ export class UserProfileComponent implements OnInit {
 
     selected(event: MatAutocompleteSelectedEvent): void {
         this.syncChampionsList(event.option.viewValue);
-        this.championInput.nativeElement.value = '';
+        this.championInput.nativeElement.value = "";
         this.championAutoCompleteCtrl.setValue(null);
     }
 
@@ -227,7 +227,7 @@ export class UserProfileComponent implements OnInit {
                         })
                 }, (err) => {
                     console.error(err);
-                    this.matSnackBar.open('Oops! Failed to persist your requested update. Please try again.', 'X', {duration: 5000});
+                    this.matSnackBar.open("Oops! Failed to persist your requested update. Please try again.", "X", {duration: 5000});
                 });
         }
     }

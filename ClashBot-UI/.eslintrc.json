@@ -34,7 +34,21 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "no-duplicate-imports": "warn",
+        "block-spacing": [
+          "warn",
+          "always"
+        ],
+        "keyword-spacing": [
+          "error",
+          {
+            "before": true
+          }
+        ],
+        "no-trailing-spaces": "error",
+        "object-curly-spacing": "error",
+        "quotes": "error"
       }
     },
     {

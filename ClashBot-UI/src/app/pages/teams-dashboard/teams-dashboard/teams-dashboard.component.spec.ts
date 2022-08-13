@@ -1,5 +1,5 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TeamsDashboardComponent} from './teams-dashboard.component';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {TeamsDashboardComponent} from "./teams-dashboard.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {TestScheduler} from "rxjs/testing";
 import {FilterType} from "../../../interfaces/filter-type";
@@ -36,8 +36,8 @@ import {DiscordGuild} from "../../../interfaces/discord-guild";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
 import {ClashTournaments} from "../../../interfaces/clash-tournaments";
-import {ClashBotUserRegister} from 'src/app/interfaces/clash-bot-user-register';
-import {CreateNewTeamDetails} from 'src/app/interfaces/create-new-team-details';
+import {ClashBotUserRegister} from "src/app/interfaces/clash-bot-user-register";
+import {CreateNewTeamDetails} from "src/app/interfaces/create-new-team-details";
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 
 jest.mock("../../../services/application-details.service");
@@ -45,7 +45,7 @@ jest.mock("../../../services/teams-websocket.service");
 jest.mock("@angular/material/snack-bar");
 jest.mock("clash-bot-service-api");
 
-describe('TeamsDashboardComponent', () => {
+describe("TeamsDashboardComponent", () => {
   let component: TeamsDashboardComponent;
   let fixture: ComponentFixture<TeamsDashboardComponent>;
   let userServiceMock: UserService;
@@ -79,19 +79,19 @@ describe('TeamsDashboardComponent', () => {
     fixture = TestBed.createComponent(TeamsDashboardComponent);
   });
 
-  describe('On Init', () => {
-    test('ngOnInit - (create, logged in, and default guild) - a call to the Application Details should be made and if the User has a default guild it will be set and then a call to retrieve the teams will be made.', (done) => {
+  describe("On Init", () => {
+    test("ngOnInit - (create, logged in, and default guild) - a call to the Application Details should be made and if the User has a default guild it will be set and then a call to retrieve the teams will be made.", (done) => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         const mockUserDetails: UserDetails = createMockUserDetails();
         let mockGuilds = mockDiscordGuilds();
         let mockClashTournaments =
-          createMockClashTournaments('awesome_sauce', 2);
+          createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockMappedTeams = mapClashTeams(mockClashTeams);
         const expectedTeamsFilter = mockGuilds.map((record) => {
           let id = record.name
-            .replace(new RegExp(/ /, 'g'), '-')
+            .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
           return {
             value: record.name,
@@ -103,21 +103,21 @@ describe('TeamsDashboardComponent', () => {
         let mockApplicationsDetails: ApplicationDetails =
           createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
-        mockApplicationsDetails.defaultGuild = 'Clash Bot';
+        mockApplicationsDetails.defaultGuild = "Clash Bot";
         let mockClashTentativeDetails: Tentative[] =
           createEmptyMockClashTentativeDetails();
         mockClashTentativeDetails?.[0].tentativePlayers?.push({
-          name: 'Sample User',
-          id: '1234'
+          name: "Sample User",
+          id: "1234"
         });
         let coldClashTeamsWebsocketObs = new Subject<ClashTeam | String>();
 
         applicationDetailsMock.getApplicationDetails
-          .mockReturnValue(cold('x|', {x: mockApplicationsDetails}));
+          .mockReturnValue(cold("x|", {x: mockApplicationsDetails}));
         (tentativeServiceMock.getTentativeDetails as any)
-          .mockReturnValue(cold('x|', {x: mockClashTentativeDetails}));
+          .mockReturnValue(cold("x|", {x: mockClashTentativeDetails}));
         (teamServiceMock.getTeam as any)
-          .mockReturnValue(cold('x|', {x: mockClashTeams}));
+          .mockReturnValue(cold("x|", {x: mockClashTeams}));
         (teamsWebsocketServiceMock.connect as any)
           .mockReturnValue(coldClashTeamsWebsocketObs);
 
@@ -136,24 +136,24 @@ describe('TeamsDashboardComponent', () => {
         mockTentativeRecords[2].isMember = false;
 
         let msg: Team = {
-          name: 'Team toBeAdded',
+          name: "Team toBeAdded",
           playerDetails: {
             Top: {
-              name: 'PlayerOne',
-              id: '1',
-              role: 'Top',
+              name: "PlayerOne",
+              id: "1",
+              role: "Top",
               champions: []
             },
           },
           tournament: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
         };
 
         coldClashTeamsWebsocketObs.subscribe((msg) => {
-          if (typeof msg === 'string') {
+          if (typeof msg === "string") {
             expect(msg).toEqual(mockApplicationsDetails.defaultGuild);
           }
         });
@@ -175,7 +175,7 @@ describe('TeamsDashboardComponent', () => {
         expect(component.teams).toEqual([...mockMappedTeams])
 
         coldClashTeamsWebsocketObs.subscribe((msg) => {
-          if (typeof msg !== 'string') {
+          if (typeof msg !== "string") {
             expect(component.teams.length).toEqual(mockMappedTeams.length + 1);
             expect(component.teams).toEqual([...mockMappedTeams, msg]);
             coldClashTeamsWebsocketObs.unsubscribe();
@@ -187,12 +187,12 @@ describe('TeamsDashboardComponent', () => {
       })
     })
 
-    test('ngOnInit - (create, logged in, no default guild) - a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.', () => {
+    test("ngOnInit - (create, logged in, no default guild) - a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         let mockObservableGuilds = mockDiscordGuilds();
         const expectedTeamsFilter = mockObservableGuilds.map((record) => {
-          let id = record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase();
+          let id = record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase();
           return {
             value: record.name,
             type: FilterType.SERVER,
@@ -205,7 +205,7 @@ describe('TeamsDashboardComponent', () => {
           userGuilds: mockObservableGuilds
         }
 
-        let coldApplicationDetailsObs = cold('x|', {x: mockApplicationsDetails});
+        let coldApplicationDetailsObs = cold("x|", {x: mockApplicationsDetails});
 
         applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
 
@@ -222,8 +222,8 @@ describe('TeamsDashboardComponent', () => {
     })
   });
 
-  describe('Handling Incoming Websocket Event', () => {
-    test('handleIncomingTeamsWsEvent - (empty) - I should not do anything.', () => {
+  describe("Handling Incoming Websocket Event", () => {
+    test("handleIncomingTeamsWsEvent - (empty) - I should not do anything.", () => {
       component = fixture.componentInstance;
       let msg: ClashBotTeamEvent = {
         behavior: ClashBotTeamEventBehavior.REMOVED,
@@ -232,14 +232,14 @@ describe('TeamsDashboardComponent', () => {
       component.teams = [];
       component.handleIncomingTeamsWsEvent(msg);
       expect(component.teams).toEqual([{
-        error: 'No data'
+        error: "No data"
       }]);
     });
 
-    test( 'handleIncomingTeamsWsEvent - (New Team with User) - it should be added and remove one eligible Tournaments.', () => {
+    test( "handleIncomingTeamsWsEvent - (New Team with User) - it should be added and remove one eligible Tournaments.", () => {
       component = fixture.componentInstance;
-      const expectedTournamentName = 'awesome_sauce';
-      const expectedTournamentDay = '1';
+      const expectedTournamentName = "awesome_sauce";
+      const expectedTournamentDay = "1";
       let mockClashTournaments: Tournament[] = createMockClashTournaments(expectedTournamentName, 2);
       let mockUserDetails = createMockUserDetails();
       let mockAppDetails = createMockAppDetails(
@@ -284,10 +284,10 @@ describe('TeamsDashboardComponent', () => {
       expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
     });
 
-    test( 'handleIncomingTeamsWsEvent - (New Team with User, only one Team with error) - Team with error, it should create a new array.', () => {
+    test( "handleIncomingTeamsWsEvent - (New Team with User, only one Team with error) - Team with error, it should create a new array.", () => {
       component = fixture.componentInstance;
-      const expectedTournamentName = 'awesome_sauce';
-      const expectedTournamentDay = '1';
+      const expectedTournamentName = "awesome_sauce";
+      const expectedTournamentDay = "1";
       let mockClashTournaments: Tournament[] = createMockClashTournaments(expectedTournamentName, 2);
       let mockUserDetails = createMockUserDetails();
       let mockAppDetails = createMockAppDetails(
@@ -323,7 +323,7 @@ describe('TeamsDashboardComponent', () => {
 
       mockAppDetails.currentTournaments = createMockClashTournaments(expectedTournamentName, 2);
       component.currentApplicationDetails = mockAppDetails;
-      component.teams = [{ error: 'No data'}];
+      component.teams = [{error: "No data"}];
       expect(component.teams).toHaveLength(1);
 
       component.handleIncomingTeamsWsEvent(clashBotEvent);
@@ -334,10 +334,10 @@ describe('TeamsDashboardComponent', () => {
       expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
     });
 
-    test( 'handleIncomingTeamsWsEvent - (Team that already exists) - it should be updated and remove one eligible Tournaments.', () => {
+    test( "handleIncomingTeamsWsEvent - (Team that already exists) - it should be updated and remove one eligible Tournaments.", () => {
       component = fixture.componentInstance;
-      const expectedTournamentName = 'awesome_sauce';
-      const expectedTournamentDay = '1';
+      const expectedTournamentName = "awesome_sauce";
+      const expectedTournamentDay = "1";
       let mockClashTournaments: Tournament[] = createMockClashTournaments(expectedTournamentName, 2);
       let mockUserDetails = createMockUserDetails();
       let mockAppDetails = createMockAppDetails(
@@ -363,7 +363,7 @@ describe('TeamsDashboardComponent', () => {
       const uiMappedTeams = mockClashTeam.map(team => {
         let uiWrapper: TeamUiWrapper = {...team};
         uiWrapper.id = `${uiWrapper.serverName}-${uiWrapper.name}`
-            .replace(new RegExp(/ /, 'g'), '-')
+            .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
         return uiWrapper;
       });
@@ -378,7 +378,7 @@ describe('TeamsDashboardComponent', () => {
       };
 
       const expectedTeamUiWrapper : TeamUiWrapper = {...teamUpdate};
-      expectedTeamUiWrapper.id = 'test-server-team-abra';
+      expectedTeamUiWrapper.id = "test-server-team-abra";
       expectedTeamUiWrapper.teamDetails =  [
             {
               id: "0",
@@ -428,10 +428,10 @@ describe('TeamsDashboardComponent', () => {
       expect(component.eligibleTournaments[0]).toEqual(mockClashTournaments[1]);
     });
 
-    test( 'handleIncomingTeamsWsEvent - (Team should be removed that has no players) - should remove Team and add back the eligible Tournament.', () => {
+    test( "handleIncomingTeamsWsEvent - (Team should be removed that has no players) - should remove Team and add back the eligible Tournament.", () => {
       component = fixture.componentInstance;
-      const expectedTournamentName = 'awesome_sauce';
-      const expectedTournamentDay = '1';
+      const expectedTournamentName = "awesome_sauce";
+      const expectedTournamentDay = "1";
       let mockClashTournaments: Tournament[] = createMockClashTournaments(expectedTournamentName, 2);
       let mockUserDetails = createMockUserDetails();
       let mockAppDetails = createMockAppDetails(
@@ -447,8 +447,8 @@ describe('TeamsDashboardComponent', () => {
           champions: []
         },
         Bot: {
-          name: 'ThisGuy',
-          id: '0',
+          name: "ThisGuy",
+          id: "0",
           champions: []
         },
       };
@@ -480,52 +480,52 @@ describe('TeamsDashboardComponent', () => {
     });
   });
 
-  describe('Map Team Service Response', () => {
-    test('mapDynamicValues - When there is only one Team and one valid member.', () => {
+  describe("Map Team Service Response", () => {
+    test("mapDynamicValues - When there is only one Team and one valid member.", () => {
       component = fixture.componentInstance;
       component
         .currentApplicationDetails
         .userDetails = createMockUserDetails();
       let mockTeam: Team = {
-        name: 'Oooooogi',
-        serverName: 'Goon Squad',
+        name: "Oooooogi",
+        serverName: "Goon Squad",
         playerDetails: {
           Top: {
-            name: 'Roid',
-            id: '1',
+            name: "Roid",
+            id: "1",
           }
         },
         tournament: {
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1"
         }
       };
       const expectedMappedTeam: TeamUiWrapper = ({...mockTeam} as TeamUiWrapper);
-      expectedMappedTeam.id = 'goon-squad-oooooogi';
+      expectedMappedTeam.id = "goon-squad-oooooogi";
       expectedMappedTeam.teamDetails = [
         {
-          name: 'Roid',
-          id: '1',
+          name: "Roid",
+          id: "1",
           role: Role.Top,
           isUser: false
         },
         {
-          id: '0',
+          id: "0",
           role: Role.Mid,
           isUser: false
         },
         {
-          id: '0',
+          id: "0",
           role: Role.Jg,
           isUser: false
         },
         {
-          id: '0',
+          id: "0",
           role: Role.Bot,
           isUser: false
         },
         {
-          id: '0',
+          id: "0",
           role: Role.Supp,
           isUser: false
         },
@@ -533,71 +533,71 @@ describe('TeamsDashboardComponent', () => {
       expect(component.mapTeamToTeamUiWrapper(mockTeam)).toEqual(expectedMappedTeam);
     });
 
-    test('mapDynamicValues - When there is a Team that has a full roster.', () => {
+    test("mapDynamicValues - When there is a Team that has a full roster.", () => {
       component = fixture.componentInstance;
       component
         .currentApplicationDetails
         .userDetails = createMockUserDetails();
       let mockTeam: Team = {
-        name: 'Oooooogi',
-        serverName: 'Goon Squad',
+        name: "Oooooogi",
+        serverName: "Goon Squad",
         playerDetails: {
           Top: {
-            name: 'Roid',
-            id: '1',
+            name: "Roid",
+            id: "1",
           },
           Jg: {
-            name: 'PepeConrad',
-            id: '2',
+            name: "PepeConrad",
+            id: "2",
           },
           Bot: {
-            name: 'TheIncentive',
-            id: '5',
+            name: "TheIncentive",
+            id: "5",
           },
           Supp: {
-            name: 'MrSir',
-            id: '4',
+            name: "MrSir",
+            id: "4",
           },
           Mid: {
-            name: 'Shiragaku',
-            id: '3'
+            name: "Shiragaku",
+            id: "3"
           },
         },
         tournament: {
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1"
         }
       };
       const expectedMappedTeam: TeamUiWrapper = ({...mockTeam} as TeamUiWrapper);
-      expectedMappedTeam.id = 'goon-squad-oooooogi';
+      expectedMappedTeam.id = "goon-squad-oooooogi";
       expectedMappedTeam.teamDetails = [
         {
-          name: 'Roid',
-          id: '1',
+          name: "Roid",
+          id: "1",
           role: Role.Top,
           isUser: false
         },
         {
-          id: '3',
-          name: 'Shiragaku',
+          id: "3",
+          name: "Shiragaku",
           role: Role.Mid,
           isUser: false
         },
         {
-          id: '2',
-          name: 'PepeConrad',
+          id: "2",
+          name: "PepeConrad",
           role: Role.Jg,
           isUser: false
         },
         {
-          id: '5',
-          name: 'TheIncentive',
+          id: "5",
+          name: "TheIncentive",
           role: Role.Bot,
           isUser: false
         },
         {
-          id: '4',
-          name: 'MrSir',
+          id: "4",
+          name: "MrSir",
           role: Role.Supp,
           isUser: false
         },
@@ -606,12 +606,12 @@ describe('TeamsDashboardComponent', () => {
     });
   });
 
-  describe('Sync Users eligible Tournaments', () => {
-    test('repopulateEligibleTournaments - If a User has does not belong to any team, they should have all tournaments as eligible and should be able to create a new Team.', () =>{
+  describe("Sync Users eligible Tournaments", () => {
+    test("repopulateEligibleTournaments - If a User has does not belong to any team, they should have all tournaments as eligible and should be able to create a new Team.", () =>{
       component = fixture.componentInstance;
       const userDetails = createMockUserDetails();
       const tournaments
-          = createMockClashTournaments('awesome_sauce', 2);
+          = createMockClashTournaments("awesome_sauce", 2);
       const mockTeams = createMockClashTeams(tournaments, userDetails);
 
       component.currentApplicationDetails.currentTournaments = tournaments;
@@ -624,16 +624,16 @@ describe('TeamsDashboardComponent', () => {
       expect(component.canCreateNewTeam).toBeTruthy();
     });
 
-    test('repopulateEligibleTournaments - If a User belongs to a team by themselves, they should not create a new Team for that Tournament.', () =>{
+    test("repopulateEligibleTournaments - If a User belongs to a team by themselves, they should not create a new Team for that Tournament.", () =>{
       component = fixture.componentInstance;
       const userDetails = createMockUserDetails();
       const tournaments
-          = createMockClashTournaments('awesome_sauce', 2);
+          = createMockClashTournaments("awesome_sauce", 2);
       const mockTeams = createMockClashTeams(tournaments, userDetails);
       mockTeams[0].tournament = tournaments[0];
       mockTeams[0].playerDetails = {
         Top: {
-          name: 'Me',
+          name: "Me",
           id: `${userDetails.id}`,
         }
       }
@@ -649,23 +649,23 @@ describe('TeamsDashboardComponent', () => {
       expect(component.canCreateNewTeam).toBeTruthy();
     });
 
-    test('repopulateEligibleTournaments - If a User belongs to all teams by themselves, they should not be able to create a new Team.', () =>{
+    test("repopulateEligibleTournaments - If a User belongs to all teams by themselves, they should not be able to create a new Team.", () =>{
       component = fixture.componentInstance;
       const userDetails = createMockUserDetails();
       const tournaments
-          = createMockClashTournaments('awesome_sauce', 2);
+          = createMockClashTournaments("awesome_sauce", 2);
       const mockTeams = createMockClashTeams(tournaments, userDetails);
       mockTeams[0].tournament = tournaments[0];
       mockTeams[0].playerDetails = {
         Top: {
-          name: 'Me',
+          name: "Me",
           id: `${userDetails.id}`,
         }
       }
       mockTeams[1].tournament = tournaments[1];
       mockTeams[1].playerDetails = {
         Top: {
-          name: 'Me',
+          name: "Me",
           id: `${userDetails.id}`,
         }
       }
@@ -682,10 +682,10 @@ describe('TeamsDashboardComponent', () => {
     });
   });
 
-  describe('Tournament to Clash Team Map', () => {
-    test('As a user, I should know all Tournaments I am scheduled with and which Teams I am assigned to.', () => {
-      const expectedTournamentName = 'awesome_sauce';
-      const expectedTournamentDay = '1';
+  describe("Tournament to Clash Team Map", () => {
+    test("As a user, I should know all Tournaments I am scheduled with and which Teams I am assigned to.", () => {
+      const expectedTournamentName = "awesome_sauce";
+      const expectedTournamentDay = "1";
       const expectedUserId = 1;
       let mockClashTournaments: ClashTournaments[] = [
         {
@@ -697,72 +697,72 @@ describe('TeamsDashboardComponent', () => {
       ];
       let mockClashTeams: Team[] = [
         {
-          name: 'Abra',
-          serverName: 'Special Server',
+          name: "Abra",
+          serverName: "Special Server",
           tournament: {
-            tournamentName: 'dne',
+            tournamentName: "dne",
             tournamentDay: expectedTournamentDay
           },
           playerDetails: {
             Top: {
-              id: '0',
-              name: 'User 1',
-              role: 'Top'
+              id: "0",
+              name: "User 1",
+              role: "Top"
             },
             Mid: {
-              id: '2',
-              name: 'User 2',
-              role: 'Mid'
+              id: "2",
+              name: "User 2",
+              role: "Mid"
             },
             Jg: {
-              id: '3',
-              name: 'User 3',
-              role: 'Jg'
+              id: "3",
+              name: "User 3",
+              role: "Jg"
             },
             Bot: {
-              id: '4',
-              name: 'User 4',
-              role: 'Bot'
+              id: "4",
+              name: "User 4",
+              role: "Bot"
             },
             Supp: {
-              id: '5',
-              name: 'User 5',
-              role: 'Supp'
+              id: "5",
+              name: "User 5",
+              role: "Supp"
             },
           }
         },
         {
-          name: 'Abra2',
-          serverName: 'Special Server',
+          name: "Abra2",
+          serverName: "Special Server",
           tournament: {
             tournamentName: expectedTournamentName,
             tournamentDay: expectedTournamentDay
           },
           playerDetails: {
             Top: {
-              id: '1',
-              name: 'User 1',
-              role: 'Top'
+              id: "1",
+              name: "User 1",
+              role: "Top"
             },
             Mid: {
-              id: '2',
-              name: 'User 2',
-              role: 'Mid'
+              id: "2",
+              name: "User 2",
+              role: "Mid"
             },
             Jg: {
-              id: '3',
-              name: 'User 3',
-              role: 'Jg'
+              id: "3",
+              name: "User 3",
+              role: "Jg"
             },
             Bot: {
-              id: '4',
-              name: 'User 4',
-              role: 'Bot'
+              id: "4",
+              name: "User 4",
+              role: "Bot"
             },
             Supp: {
-              id: '5',
-              name: 'User 5',
-              role: 'Supp'
+              id: "5",
+              name: "User 5",
+              role: "Supp"
             },
           }
         }
@@ -776,15 +776,15 @@ describe('TeamsDashboardComponent', () => {
     })
   });
 
-  describe('Update Tentative List Based on Team', () => {
-    test('updateTentativeListBasedOnTeam - (Remove from Tentative List) - A player should be removed from Tentative when they belong to a Team for a tournament.', () => {
+  describe("Update Tentative List Based on Team", () => {
+    test("updateTentativeListBasedOnTeam - (Remove from Tentative List) - A player should be removed from Tentative when they belong to a Team for a tournament.", () => {
       component = fixture.componentInstance;
       const tentativeDetails : TentativeRecord[] = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
       tentativeDetails[0].isMember = false;
       tentativeDetails[0].tentativePlayers?.push(
         {
-          id: '1',
-          name: 'Roid',
+          id: "1",
+          name: "Roid",
         }
       );
       tentativeDetails
@@ -798,8 +798,8 @@ describe('TeamsDashboardComponent', () => {
     });
   });
 
-  describe('Register for Team', () => {
-    test('registerForTeam - (Register for Team) - If a user is logged in and has details, they should be able to invoke to update Team.', () => {
+  describe("Register for Team", () => {
+    test("registerForTeam - (Register for Team) - If a user is logged in and has details, they should be able to invoke to update Team.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -808,28 +808,28 @@ describe('TeamsDashboardComponent', () => {
         component.currentApplicationDetails.userDetails = createMockUserDetails();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
-          teamName: 'Teamy',
-          role: 'Top',
+          teamName: "Teamy",
+          role: "Top",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
+          serverName: "Goon Squad",
+          teamName: "Teamy",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`,
           role: Role.Top
         };
 
-        (teamServiceMock.updateTeam as any).mockReturnValue(cold('x|', {x: {}}));
+        (teamServiceMock.updateTeam as any).mockReturnValue(cold("x|", {x: {}}));
         component.registerForTeam(clashBotUserRegisterPayload);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledWith(expectedUpdatedPayload);
@@ -837,7 +837,7 @@ describe('TeamsDashboardComponent', () => {
       });
     });
 
-    test('registerForTeam - (API Error) - If an API Error occurs it should trigger a snackbar.', () => {
+    test("registerForTeam - (API Error) - If an API Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -846,38 +846,38 @@ describe('TeamsDashboardComponent', () => {
         component.currentApplicationDetails.userDetails = createMockUserDetails();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
-          teamName: 'Teamy',
-          role: 'Top',
+          teamName: "Teamy",
+          role: "Top",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
+          serverName: "Goon Squad",
+          teamName: "Teamy",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`,
           role: Role.Top
         };
 
-        (teamServiceMock.updateTeam as any).mockReturnValue(cold('#', undefined, create400HttpError()));
+        (teamServiceMock.updateTeam as any).mockReturnValue(cold("#", undefined, create400HttpError()));
         component.registerForTeam(clashBotUserRegisterPayload);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledWith(expectedUpdatedPayload);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Failed to register you to the Team, missing required details.', 'X', { duration: 5000 });
+        expect(snackBarMock.open).toHaveBeenCalledWith("Oops! Failed to register you to the Team, missing required details.", "X", {duration: 5000});
       });
     });
 
-    test('registerForTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.', () => {
+    test("registerForTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -886,40 +886,40 @@ describe('TeamsDashboardComponent', () => {
         component.currentApplicationDetails.userDetails = createMockUserDetails();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
-          teamName: 'Teamy',
-          role: 'Top',
+          teamName: "Teamy",
+          role: "Top",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: 'Goon Squad',
-          teamName: 'Teamy',
+          serverName: "Goon Squad",
+          teamName: "Teamy",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`,
           role: Role.Top
         };
 
-        (teamServiceMock.updateTeam as any).mockReturnValue(cold('7000ms -x|', {x: []}));
+        (teamServiceMock.updateTeam as any).mockReturnValue(cold("7000ms -x|", {x: []}));
         component.registerForTeam(clashBotUserRegisterPayload);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.updateTeam).toHaveBeenCalledWith(expectedUpdatedPayload);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your registration timed out, please try again!', 'X', { duration: 5000 });
+        expect(snackBarMock.open).toHaveBeenCalledWith("Oops! Your registration timed out, please try again!", "X", {duration: 5000});
       });
     });
   });
 
-  describe('Unregister for Team', () => {
-    test('unregissterFromTeam - (Unregister for Team) - If a user is logged in and has details, they should be able to invoke to unregister from a Team.', () => {
+  describe("Unregister for Team", () => {
+    test("unregissterFromTeam - (Unregister for Team) - If a user is logged in and has details, they should be able to invoke to unregister from a Team.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -928,35 +928,35 @@ describe('TeamsDashboardComponent', () => {
         component.currentApplicationDetails.userDetails = createMockUserDetails();
 
         const teamUiWrapperEvent: TeamUiWrapper = {
-          name: 'Teamy',
+          name: "Teamy",
           playerDetails: {
             Top: {
-              id: '1',
-              name: 'Roid',
+              id: "1",
+              name: "Roid",
             }
           },
           tournament: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
-        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('x|', {x: {}}));
+        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold("x|", {x: {}}));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
-            .toHaveBeenCalledWith('Teamy',
-              'Goon Squad',
-              'awesome_sauce',
-              '1',
+            .toHaveBeenCalledWith("Teamy",
+              "Goon Squad",
+              "awesome_sauce",
+              "1",
               `${component.currentApplicationDetails.userDetails.id}`);
         flush();
       });
     });
 
-    test('unregisterFromTeam - (API Error) - If an API Error occurs it should trigger a snackbar.', () => {
+    test("unregisterFromTeam - (API Error) - If an API Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -966,37 +966,37 @@ describe('TeamsDashboardComponent', () => {
 
 
         const teamUiWrapperEvent: TeamUiWrapper = {
-          name: 'Teamy',
+          name: "Teamy",
           playerDetails: {
             Top: {
-              id: '1',
-              name: 'Roid',
+              id: "1",
+              name: "Roid",
             }
           },
           tournament: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
-        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('#', undefined, create400HttpError()));
+        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold("#", undefined, create400HttpError()));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
-            .toHaveBeenCalledWith('Teamy',
-                'Goon Squad',
-                'awesome_sauce',
-                '1',
+            .toHaveBeenCalledWith("Teamy",
+                "Goon Squad",
+                "awesome_sauce",
+                "1",
                 `${component.currentApplicationDetails.userDetails.id}`);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Failed to unregister you from the Team.', 'X', { duration: 5000 });
+        expect(snackBarMock.open).toHaveBeenCalledWith("Oops! Failed to unregister you from the Team.", "X", {duration: 5000});
       });
     });
 
-    test('unregisterFromTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.', () => {
+    test("unregisterFromTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
@@ -1006,64 +1006,64 @@ describe('TeamsDashboardComponent', () => {
 
 
         const teamUiWrapperEvent: TeamUiWrapper = {
-          name: 'Teamy',
+          name: "Teamy",
           playerDetails: {
             Top: {
-              id: '1',
-              name: 'Roid',
+              id: "1",
+              name: "Roid",
             }
           },
           tournament: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
-          serverName: 'Goon Squad',
-          id: '1'
+          serverName: "Goon Squad",
+          id: "1"
         };
 
-        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold('7000ms -x|', {x: []}));
+        (teamServiceMock.removePlayerFromTeam as any).mockReturnValue(cold("7000ms -x|", {x: []}));
         component.unregisterFromTeam(teamUiWrapperEvent);
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
-            .toHaveBeenCalledWith('Teamy',
-                'Goon Squad',
-                'awesome_sauce',
-                '1',
+            .toHaveBeenCalledWith("Teamy",
+                "Goon Squad",
+                "awesome_sauce",
+                "1",
                 `${component.currentApplicationDetails.userDetails.id}`);
         flush();
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! Your request timed out, please try again!', 'X', { duration: 5000 });
+        expect(snackBarMock.open).toHaveBeenCalledWith("Oops! Your request timed out, please try again!", "X", {duration: 5000});
       });
     });
   });
 
-  describe('Create New Team', () => {
-    test('createNewTeam - (Create New Team) - Create a new Team if the user is logged in.', () => {
+  describe("Create New Team", () => {
+    test("createNewTeam - (Create New Team) - Create a new Team if the user is logged in.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         const createNewTeamDetails: CreateNewTeamDetails = {
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
-          role: 'Top'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
+          role: "Top"
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: 'Goon Squad',
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
+          serverName: "Goon Squad",
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
           playerDetails: {
             id: `${component.currentApplicationDetails.userDetails.id}`,
             role: Role.Top
           }
         };
 
-        (teamServiceMock.createNewTeam as any).mockReturnValue(cold('x|', { x: {}}));
+        (teamServiceMock.createNewTeam as any).mockReturnValue(cold("x|", {x: {}}));
 
         component.createNewTeam(createNewTeamDetails);
         flush();
@@ -1073,32 +1073,32 @@ describe('TeamsDashboardComponent', () => {
       });
     });
 
-    test('createNewTeam - (API Error) - If an API Error occurs it should trigger a snackbar.', () => {
+    test("createNewTeam - (API Error) - If an API Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         const createNewTeamDetails: CreateNewTeamDetails = {
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
-          role: 'Top'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
+          role: "Top"
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: 'Goon Squad',
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
+          serverName: "Goon Squad",
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
           playerDetails: {
             id: `${component.currentApplicationDetails.userDetails.id}`,
             role: Role.Top
           }
         };
 
-        (teamServiceMock.createNewTeam as any).mockReturnValue(cold('#', undefined, create400HttpError()));
+        (teamServiceMock.createNewTeam as any).mockReturnValue(cold("#", undefined, create400HttpError()));
 
         component.createNewTeam(createNewTeamDetails);
         flush();
@@ -1106,29 +1106,29 @@ describe('TeamsDashboardComponent', () => {
         expect(teamServiceMock.createNewTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.createNewTeam).toHaveBeenCalledWith(expectedCreateNewTeamPayload);
         expect(snackBarMock.open).toHaveBeenCalledTimes(1);
-        expect(snackBarMock.open).toHaveBeenCalledWith('Oops! An error occurred while creating a new team.', 'X', { duration: 5000 });
+        expect(snackBarMock.open).toHaveBeenCalledWith("Oops! An error occurred while creating a new team.", "X", {duration: 5000});
       });
     });
 
-    test('createNewTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.', () => {
+    test("createNewTeam - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         const createNewTeamDetails: CreateNewTeamDetails = {
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
-          role: 'Top'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
+          role: "Top"
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: 'Goon Squad',
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1',
+          serverName: "Goon Squad",
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1",
           playerDetails: {
             id: `${component.currentApplicationDetails.userDetails.id}`,
             role: Role.Top
@@ -1136,7 +1136,7 @@ describe('TeamsDashboardComponent', () => {
         };
 
         (teamServiceMock.createNewTeam as any)
-        .mockReturnValue(cold('7000ms x|', {}));
+        .mockReturnValue(cold("7000ms x|", {}));
 
         component.createNewTeam(createNewTeamDetails);
         flush();
@@ -1148,32 +1148,32 @@ describe('TeamsDashboardComponent', () => {
         expect(snackBarMock.open)
           .toHaveBeenCalledTimes(1);
         expect(snackBarMock.open)
-          .toHaveBeenCalledWith('Oops! Your request to create a new Team has timed out. Please try again.',
-          'X',
-          { duration: 5000 });
+          .toHaveBeenCalledWith("Oops! Your request to create a new Team has timed out. Please try again.",
+          "X",
+          {duration: 5000});
       });
     });
   });
 
-  describe('Tentative Register', () => {
-    test('tentativeRegister - (Register for Tentative) - If user is logged in, they should be able to register as tentative for an eligible Tournament.', () => {
+  describe("Tentative Register", () => {
+    test("tentativeRegister - (Register for Tentative) - If user is logged in, they should be able to register as tentative for an eligible Tournament.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           index: 0,
           isMember: true,
@@ -1181,27 +1181,27 @@ describe('TeamsDashboardComponent', () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`
         };
 
         const tentativeResponse: Tentative = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           tentativePlayers: [{
             id: `${component.currentApplicationDetails.userDetails.id}`,
-            name: 'Tentative Player'
+            name: "Tentative Player"
           }]
         };
 
-        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold('x|', { x: tentativeResponse}))
+        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold("x|", {x: tentativeResponse}))
         component.tentativeRegister(clashBotTentativeDetails);
 
         flush();
@@ -1211,36 +1211,36 @@ describe('TeamsDashboardComponent', () => {
 
         expect(component.tentativeList[0].isMember).toBeTruthy();
         expect(component.tentativeList[0].tournamentDetails).toEqual({
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1"
         });
         expect(component.tentativeList[0].tentativePlayers).toHaveLength(1);
-        expect(component.tentativeList[0].playerNames?.[0]).toEqual('Tentative Player');
+        expect(component.tentativeList[0].playerNames?.[0]).toEqual("Tentative Player");
         expect(component.tentativeList?.[0].tentativePlayers?.[0]).toEqual({
           id: `${component.currentApplicationDetails.userDetails.id}`,
-          name: 'Tentative Player'
+          name: "Tentative Player"
         })
       });
     });
 
-    test('tentativeRegister - (Unregister for Tentative) - If user is logged in, and already belongs to a Tentative list they should be able to unregister from the tentative for an eligible Tournament.', () => {
+    test("tentativeRegister - (Unregister for Tentative) - If user is logged in, and already belongs to a Tentative list they should be able to unregister from the tentative for an eligible Tournament.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tentativePlayers: [],
-          playerNames: ['Tentative Player'],
+          playerNames: ["Tentative Player"],
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           index: 0,
           isMember: true,
@@ -1248,15 +1248,15 @@ describe('TeamsDashboardComponent', () => {
         };
 
         const tentativeResponse: Tentative = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           tentativePlayers: []
         };
 
-        (tentativeServiceMock.removePlayerFromTentative as any).mockReturnValue(cold('x|', { x: tentativeResponse}))
+        (tentativeServiceMock.removePlayerFromTentative as any).mockReturnValue(cold("x|", {x: tentativeResponse}))
         component.tentativeRegister(clashBotTentativeDetails);
 
         flush();
@@ -1268,32 +1268,32 @@ describe('TeamsDashboardComponent', () => {
 
         expect(component.tentativeList[0].isMember).toBeFalsy();
         expect(component.tentativeList[0].tournamentDetails).toEqual({
-          tournamentName: 'awesome_sauce',
-          tournamentDay: '1'
+          tournamentName: "awesome_sauce",
+          tournamentDay: "1"
         });
         expect(component.tentativeList[0].tentativePlayers).toHaveLength(0);
         expect(component.tentativeList[0].playerNames).toHaveLength(0);
       });
     });
 
-    test('tentativeRegister - (API Error) - If an API Error occurs it should trigger a snackbar.', () => {
+    test("tentativeRegister - (API Error) - If an API Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           index: 0,
           isMember: true,
@@ -1301,15 +1301,15 @@ describe('TeamsDashboardComponent', () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`
         };
 
-        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold('#', undefined, create400HttpError()))
+        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold("#", undefined, create400HttpError()))
         component.tentativeRegister(clashBotTentativeDetails);
 
         flush();
@@ -1320,31 +1320,31 @@ describe('TeamsDashboardComponent', () => {
         expect(snackBarMock.open)
           .toHaveBeenCalledTimes(1);
         expect(snackBarMock.open)
-          .toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!',
-          'X',
-          { duration: 5000 });
+          .toHaveBeenCalledWith("Oops, we were unable to update the tentative list. Please try again later!",
+          "X",
+          {duration: 5000});
       });
     });
 
 
-    test('tentativeRegister - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.', () => {
+    test("tentativeRegister - (Timeout Error) - If a Timeout Error occurs it should trigger a snackbar.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         component = fixture.componentInstance;
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = 'Goon Squad';
+        component.currentSelectedGuild = "Goon Squad";
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           index: 0,
           isMember: true,
@@ -1352,15 +1352,15 @@ describe('TeamsDashboardComponent', () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: 'Goon Squad',
+          serverName: "Goon Squad",
           tournamentDetails: {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1'
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1"
           },
           playerId: `${component.currentApplicationDetails.userDetails.id}`
         };
 
-        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold('7000ms x|', {x: {}}))
+        (tentativeServiceMock.placePlayerOnTentative as any).mockReturnValue(cold("7000ms x|", {x: {}}))
         component.tentativeRegister(clashBotTentativeDetails);
 
         flush();
@@ -1371,9 +1371,9 @@ describe('TeamsDashboardComponent', () => {
         expect(snackBarMock.open)
           .toHaveBeenCalledTimes(1);
         expect(snackBarMock.open)
-          .toHaveBeenCalledWith('Oops, we were unable to update the tentative list. Please try again later!',
-          'X',
-          { duration: 5000 });
+          .toHaveBeenCalledWith("Oops, we were unable to update the tentative list. Please try again later!",
+          "X",
+          {duration: 5000});
       });
     });
   });
@@ -1399,7 +1399,7 @@ function mockDiscordGuilds(): DiscordGuild[] {
   }, {
     "id": "837685892885512202",
     "name": "LoL-ClashBotSupport",
-    "icon": '123123123',
+    "icon": "123123123",
     "owner": true,
     "permissions": 2147483647,
     "features": [],
@@ -1410,43 +1410,43 @@ function mockDiscordGuilds(): DiscordGuild[] {
 function createMockClashTeams(mockClashTournaments: Tournament[], mockUserDetails: UserDetails): Team[] {
   return [
     {
-      name: 'Team Abra',
-      serverName: 'Test Server',
+      name: "Team Abra",
+      serverName: "Test Server",
       tournament: {
         tournamentName: mockClashTournaments[0].tournamentName,
-        tournamentDay: '2'
+        tournamentDay: "2"
       },
       playerDetails: {
         Top: {
-          id: '1',
-          name: 'Roïdräge',
-          champions: ['Volibear', 'Ornn', 'Sett'],
+          id: "1",
+          name: "Roïdräge",
+          champions: ["Volibear", "Ornn", "Sett"],
         },
         Mid: {
-          id: '4',
-          name: 'Pepe Conrad',
-          champions: ['Lucian'],
+          id: "4",
+          name: "Pepe Conrad",
+          champions: ["Lucian"],
         },
         Jg: {
-          id: '3',
-          name: 'Pepe Conrad',
-          champions: ['Lucian'],
+          id: "3",
+          name: "Pepe Conrad",
+          champions: ["Lucian"],
         },
         Bot: {
-          id: '2',
-          name: 'TheIncentive',
-          champions: ['Lucian'],
+          id: "2",
+          name: "TheIncentive",
+          champions: ["Lucian"],
         },
         Supp: {
-          id: '5',
-          name: 'Pepe Conrad',
-          champions: ['Lucian']
+          id: "5",
+          name: "Pepe Conrad",
+          champions: ["Lucian"]
         }
       }
     },
     {
-      name: 'Team Bangok',
-      serverName: 'Test Server',
+      name: "Team Bangok",
+      serverName: "Test Server",
       tournament: {
         tournamentName: mockClashTournaments[0].tournamentName,
         tournamentDay: mockClashTournaments[0].tournamentDay
@@ -1455,7 +1455,7 @@ function createMockClashTeams(mockClashTournaments: Tournament[], mockUserDetail
         Top: {
           id: `${mockUserDetails.id}`,
           name: mockUserDetails.username,
-          champions: ['Volibear', 'Ornn', 'Sett'],
+          champions: ["Volibear", "Ornn", "Sett"],
         },
       }
     }
@@ -1466,7 +1466,7 @@ function mapClashTeams(mockClashTeams: Team[]): TeamUiWrapper[] {
   return mockClashTeams.map(record => {
     let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper
     teamUiWrapper.id = `${record.serverName}-${record.name}`
-      .replace(new RegExp(/ /, 'g'), '-')
+      .replace(new RegExp(/ /, "g"), "-")
       .toLowerCase();
     return teamUiWrapper;
   })

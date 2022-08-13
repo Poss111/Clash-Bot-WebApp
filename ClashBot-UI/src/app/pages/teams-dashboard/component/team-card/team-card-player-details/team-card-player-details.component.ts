@@ -4,19 +4,19 @@ import {
     Input,
     OnInit,
     Output
-} from '@angular/core';
+} from "@angular/core";
 import {Observable} from "rxjs";
-import { PlayerUiWrapper } from 'src/app/interfaces/team-ui-wrapper';
+import {PlayerUiWrapper} from "src/app/interfaces/team-ui-wrapper";
 
 @Component({
-    selector: 'app-team-card-player-details',
-    templateUrl: './team-card-player-details.component.html',
-    styleUrls: ['./team-card-player-details.component.scss']
+    selector: "app-team-card-player-details",
+    templateUrl: "./team-card-player-details.component.html",
+    styleUrls: ["./team-card-player-details.component.scss"]
 })
 export class TeamCardPlayerDetailsComponent implements OnInit {
 
     @Input()
-    player: PlayerUiWrapper = {name: 'Hello', id: '1', role: 'Top', champions: [], isUser: false};
+    player: PlayerUiWrapper = {name: "Hello", id: "1", role: "Top", champions: [], isUser: false};
 
     @Input()
     event: Observable<boolean> = new Observable<boolean>();
@@ -34,9 +34,9 @@ export class TeamCardPlayerDetailsComponent implements OnInit {
 
     ngOnInit() {
         if (!this.player.role) {
-            this.player.role = 'Top';   
+            this.player.role = "Top";
         }
-        const lsApiVersion = window.localStorage.getItem('leagueApiVersion');
+        const lsApiVersion = window.localStorage.getItem("leagueApiVersion");
         if (lsApiVersion && !this.apiVersion) {
             this.apiVersion = lsApiVersion;
         }

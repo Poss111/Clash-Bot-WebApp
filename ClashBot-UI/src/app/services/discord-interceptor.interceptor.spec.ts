@@ -1,15 +1,15 @@
-import {TestBed} from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 
-import {DiscordInterceptor} from './discord-interceptor.service';
+import {DiscordInterceptor} from "./discord-interceptor.service";
 import {OAuthService} from "angular-oauth2-oidc";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {DiscordService} from "./discord.service";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import { TeamService } from 'clash-bot-service-api';
+import {TeamService} from "clash-bot-service-api";
 
-jest.mock('angular-oauth2-oidc');
+jest.mock("angular-oauth2-oidc");
 
-describe('DiscordInterceptorInterceptor', () => {
+describe("DiscordInterceptorInterceptor", () => {
   let mockDiscordService: DiscordService;
   let mockOAuthService: OAuthService;
   let mockTeamService: TeamService;
@@ -37,7 +37,7 @@ describe('DiscordInterceptorInterceptor', () => {
     mockOAuthService.getAccessToken = getAccessToken;
   });
 
-  test('When a call is made for discord, it should add the Bearer token from the OAuthService to it.', () => {
+  test("When a call is made for discord, it should add the Bearer token from the OAuthService to it.", () => {
     mockDiscordService.getGuilds().subscribe(response => {
       expect(response).toBeTruthy();
     })
@@ -66,13 +66,13 @@ describe('DiscordInterceptorInterceptor', () => {
       "features": [],
       "permissions_new": "274877906943"
     }];
-    const request = httpMock.expectOne('https://discord.com/api/users/@me/guilds');
+    const request = httpMock.expectOne("https://discord.com/api/users/@me/guilds");
     request.flush(mockGuilds);
-    expect(request.request.headers.has('Authorization')).toBeTruthy();
+    expect(request.request.headers.has("Authorization")).toBeTruthy();
   })
 
-  test('When a call is made for Clash Bot Service, it should not add anything.', () => {
-    mockTeamService.getTeam('Goon Squad').subscribe(response => {
+  test("When a call is made for Clash Bot Service, it should not add anything.", () => {
+    mockTeamService.getTeam("Goon Squad").subscribe(response => {
       expect(response).toBeTruthy();
     })
     const mockResponse = [
@@ -89,8 +89,8 @@ describe('DiscordInterceptorInterceptor', () => {
         "registrationTime": "August 22 2021 04:15 pm PDT"
       }
     ];
-    const request = httpMock.expectOne(`http://localhost:8080/api/v2/team`);
+    const request = httpMock.expectOne("http://localhost:8080/api/v2/team");
     request.flush(mockResponse);
-    expect(request.request.headers.has('Authorization')).toBeFalsy();
+    expect(request.request.headers.has("Authorization")).toBeFalsy();
   })
 });

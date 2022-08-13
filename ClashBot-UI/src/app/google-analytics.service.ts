@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from "@angular/core";
 import {environment} from "../environments/environment";
 declare let gtag: Function;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class GoogleAnalyticsService {
 
@@ -11,7 +11,7 @@ export class GoogleAnalyticsService {
 
   sendPageNavigationEvent(pageUrl: string): void {
     if (environment.gTag) {
-          gtag('config', environment.gTag, {'page_path': pageUrl});
+          gtag("config", environment.gTag, {"page_path": pageUrl});
     }
   }
 

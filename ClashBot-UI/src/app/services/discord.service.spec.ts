@@ -1,8 +1,8 @@
-import {TestBed} from '@angular/core/testing';
-import {DiscordService} from './discord.service';
+import {TestBed} from "@angular/core/testing";
+import {DiscordService} from "./discord.service";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 
-describe('DiscordService', () => {
+describe("DiscordService", () => {
   let service: DiscordService;
   let httpMock: HttpTestingController;
 
@@ -16,11 +16,11 @@ describe('DiscordService', () => {
     httpMock.verify();
   });
 
-  test('should be created', () => {
+  test("should be created", () => {
     expect(service).toBeTruthy();
   });
 
-  test('When discords guilds for the user is called, it should return an Observable<Guild>', () => {
+  test("When discords guilds for the user is called, it should return an Observable<Guild>", () => {
     const mockGuilds = [{
       "id": "136278926191362058",
       "name": "Garret's Discord",
@@ -50,12 +50,12 @@ describe('DiscordService', () => {
       expect(guilds).toHaveLength(mockGuilds.length);
       expect(guilds).toEqual(mockGuilds);
     })
-    const request = httpMock.expectOne('https://discord.com/api/users/@me/guilds');
-    expect(request.request.method).toEqual('GET');
+    const request = httpMock.expectOne("https://discord.com/api/users/@me/guilds");
+    expect(request.request.method).toEqual("GET");
     request.flush(mockGuilds);
   })
 
-  test('When discords user details for the user is called, it should return an Observable<UserDetails>', () => {
+  test("When discords user details for the user is called, it should return an Observable<UserDetails>", () => {
     const mockUserDetails = {
       "id": "321312312",
       "username": "SomeUser",
@@ -72,8 +72,8 @@ describe('DiscordService', () => {
     service.getUserDetails().subscribe((userDetails) => {
       expect(userDetails).toEqual(mockUserDetails);
     })
-    const request = httpMock.expectOne('https://discord.com/api/users/@me');
-    expect(request.request.method).toEqual('GET');
+    const request = httpMock.expectOne("https://discord.com/api/users/@me");
+    expect(request.request.method).toEqual("GET");
     request.flush(mockUserDetails);
   })
 });

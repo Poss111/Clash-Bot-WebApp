@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from "@angular/core";
 import {webSocket, WebSocketSubject} from "rxjs/webSocket";
 import {Team} from "clash-bot-service-api";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class TeamsWebsocketService {
 
@@ -12,7 +12,7 @@ export class TeamsWebsocketService {
   constructor() {}
 
   connect(serverName: string) : WebSocketSubject<Team> {
-    if (window.location.hostname === 'localhost') {
+    if (window.location.hostname === "localhost") {
       this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
     } else {
       this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);

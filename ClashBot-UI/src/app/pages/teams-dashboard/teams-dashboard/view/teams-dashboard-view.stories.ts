@@ -1,6 +1,6 @@
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
-import {Meta, Story} from '@storybook/angular/types-6-0';
-import {moduleMetadata} from '@storybook/angular';
+import {Meta, Story} from "@storybook/angular/types-6-0";
+import {moduleMetadata} from "@storybook/angular";
 import {TeamsDashboardViewComponent} from "./teams-dashboard-view.component";
 import {TeamCardComponent} from "../../component/team-card/team-card.component";
 import {NewTeamCardComponent} from "../../component/new-team-card/new-team-card.component";
@@ -32,7 +32,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {SharedModule} from "../../../../shared/shared.module";
 
 export default {
-    title: 'Pages/TeamsDashboard',
+    title: "Pages/TeamsDashboard",
     component: TeamsDashboardViewComponent,
     argTypes: {},
     decorators: [
@@ -71,250 +71,250 @@ export default {
 const Template: Story<TeamsDashboardViewComponent> = (args: TeamsDashboardViewComponent) => ({
     props: {
         ...args,
-        createTeamEvent: action('createTeamEvent'),
-        unregisterFromTeamEvent: action('unregisterFromTeamEvent'),
-        registerForTeamEvent: action('registerForTeamEvent'),
-        tentativeRegisterEvent: action('tentativeRegisterEvent'),
-        filterTeamEvent: action('filterTeamEvent'),
+        createTeamEvent: action("createTeamEvent"),
+        unregisterFromTeamEvent: action("unregisterFromTeamEvent"),
+        registerForTeamEvent: action("registerForTeamEvent"),
+        tentativeRegisterEvent: action("tentativeRegisterEvent"),
+        filterTeamEvent: action("filterTeamEvent"),
     },
 });
 
 export const Primary = Template.bind({});
 Primary.args = {
     eligibleTournaments: [],
-    defaultServer: 'Clash Bot',
-    tentativeDataStatus: 'SUCCESSFUL',
+    defaultServer: "Clash Bot",
+    tentativeDataStatus: "SUCCESSFUL",
     tentativeList: [
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "2"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '3'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "3"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '4'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "4"
             }
         }
     ],
     teamFilters: [
         {
-            value: 'Goon Squad',
+            value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: '1'
+            id: "1"
         },
         {
-            value: 'Clash Bot',
+            value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: '2'
+            id: "2"
         },
         {
-            value: 'Extro',
+            value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: '3'
+            id: "3"
         }
     ],
     teams: [
         {
-            name: 'Abra',
+            name: "Abra",
             teamDetails: [
                 {
-                    name: 'Roidrage',
-                    id: '1',
-                    role: 'Top',
-                    champions: ['Sett'],
+                    name: "Roidrage",
+                    id: "1",
+                    role: "Top",
+                    champions: ["Sett"],
                     isUser: true
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Mid',
+                    name: "",
+                    id: "0",
+                    role: "Mid",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Jg',
+                    name: "",
+                    id: "0",
+                    role: "Jg",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Bot',
+                    name: "",
+                    id: "0",
+                    role: "Bot",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Supp',
+                    name: "",
+                    id: "0",
+                    role: "Supp",
                     isUser: false
                 },
             ],
             tournament: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             },
-            serverName: 'Clash Bot',
-            id: '1'
+            serverName: "Clash Bot",
+            id: "1"
         },
         {
-            name: 'Blastoise',
+            name: "Blastoise",
             teamDetails: [
                 {
-                    name: 'Roidrage',
-                    id: '1',
-                    role: 'Top',
-                    champions: ['Sett'],
+                    name: "Roidrage",
+                    id: "1",
+                    role: "Top",
+                    champions: ["Sett"],
                     isUser: true
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Mid',
+                    name: "",
+                    id: "0",
+                    role: "Mid",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Jg',
+                    name: "",
+                    id: "0",
+                    role: "Jg",
                     isUser: false
                 },
                 {
-                    name: 'PepeConrad',
-                    id: '2',
-                    role: 'Bot',
-                    champions: ['Aphelios', 'Xayah', 'Kaisa'],
+                    name: "PepeConrad",
+                    id: "2",
+                    role: "Bot",
+                    champions: ["Aphelios", "Xayah", "Kaisa"],
                     isUser: false
                 },
                 {
-                    name: 'Shiragaku',
-                    id: '3',
-                    role: 'Supp',
-                    champions: ['Nami', 'Lulu', 'Leona'],
+                    name: "Shiragaku",
+                    id: "3",
+                    role: "Supp",
+                    champions: ["Nami", "Lulu", "Leona"],
                     isUser: false
                 },
             ],
             tournament: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "2"
             },
-            serverName: 'Clash Bot',
-            id: '2'
+            serverName: "Clash Bot",
+            id: "2"
         },
         {
-            name: 'Charizard',
+            name: "Charizard",
             teamDetails: [
                 {
-                    name: 'Roidrage',
-                    id: '1',
-                    role: 'Top',
-                    champions: ['Sett'],
+                    name: "Roidrage",
+                    id: "1",
+                    role: "Top",
+                    champions: ["Sett"],
                     isUser: true
                 },
                 {
-                    name: 'Coair',
-                    id: '2',
-                    role: 'Mid',
-                    champions: ['Malzahar', 'Kassadin', 'Viktor'],
+                    name: "Coair",
+                    id: "2",
+                    role: "Mid",
+                    champions: ["Malzahar", "Kassadin", "Viktor"],
                     isUser: false
                 },
                 {
-                    name: 'Drone123',
-                    id: '3',
-                    role: 'Jg',
-                    champions: ['Lillia', 'Nidalee', 'Hecarim'],
+                    name: "Drone123",
+                    id: "3",
+                    role: "Jg",
+                    champions: ["Lillia", "Nidalee", "Hecarim"],
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Bot',
+                    name: "",
+                    id: "0",
+                    role: "Bot",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Supp',
+                    name: "",
+                    id: "0",
+                    role: "Supp",
                     isUser: false
                 }
             ],
             tournament: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '3'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "3"
             },
-            serverName: 'Clash Bot',
-            id: '3'
+            serverName: "Clash Bot",
+            id: "3"
         },
         {
-            name: 'Venusaur',
+            name: "Venusaur",
             teamDetails: [
                 {
-                    name: 'Roidrage',
-                    id: '1',
-                    role: 'Top',
-                    champions: ['Sett'],
+                    name: "Roidrage",
+                    id: "1",
+                    role: "Top",
+                    champions: ["Sett"],
                     isUser: true
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Mid',
+                    name: "",
+                    id: "0",
+                    role: "Mid",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Jg',
+                    name: "",
+                    id: "0",
+                    role: "Jg",
                     isUser: false
                 },
                 {
-                    name: 'TheIncentive',
-                    id: '2',
-                    role: 'Bot',
-                    champions: ['Xayah', 'Tristana', 'Draven'],
+                    name: "TheIncentive",
+                    id: "2",
+                    role: "Bot",
+                    champions: ["Xayah", "Tristana", "Draven"],
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Supp',
+                    name: "",
+                    id: "0",
+                    role: "Supp",
                     isUser: false
                 }
             ],
             tournament: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '4'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "4"
             },
-            serverName: 'Clash Bot',
-            id: '4'
+            serverName: "Clash Bot",
+            id: "4"
         }
     ]
 };
@@ -323,133 +323,133 @@ export const CreateNewTeam = Template.bind({});
 CreateNewTeam.args = {
     eligibleTournaments: [
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '2',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "2",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '3',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "3",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '4',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "4",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         }
     ],
-    defaultServer: 'Clash Bot',
-    tentativeDataStatus: 'SUCCESSFUL',
+    defaultServer: "Clash Bot",
+    tentativeDataStatus: "SUCCESSFUL",
     canCreateNewTeam: true,
     tentativeList: [
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "2"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '3'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "3"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '4'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "4"
             }
         }
     ],
     teamFilters: [
         {
-            value: 'Goon Squad',
+            value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: '1'
+            id: "1"
         },
         {
-            value: 'Clash Bot',
+            value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: '2'
+            id: "2"
         },
         {
-            value: 'Extro',
+            value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: '3'
+            id: "3"
         }
     ],
     teams: [
         {
-            name: 'Abra',
+            name: "Abra",
             teamDetails: [
                 {
-                    name: 'Roidrage',
-                    id: '1',
-                    role: 'Top',
-                    champions: ['Sett'],
+                    name: "Roidrage",
+                    id: "1",
+                    role: "Top",
+                    champions: ["Sett"],
                     isUser: true
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Mid',
+                    name: "",
+                    id: "0",
+                    role: "Mid",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Jg',
+                    name: "",
+                    id: "0",
+                    role: "Jg",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Bot',
+                    name: "",
+                    id: "0",
+                    role: "Bot",
                     isUser: false
                 },
                 {
-                    name: '',
-                    id: '0',
-                    role: 'Supp',
+                    name: "",
+                    id: "0",
+                    role: "Supp",
                     isUser: false
                 },
             ],
             tournament: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             },
-            serverName: 'Clash Bot',
-            id: '1'
+            serverName: "Clash Bot",
+            id: "1"
         }
     ]
 };
@@ -457,136 +457,136 @@ CreateNewTeam.args = {
 export const NoData = Template.bind({});
 NoData.args = {
     eligibleTournaments: [],
-    defaultServer: 'Clash Bot',
-    tentativeDataStatus: 'SUCCESSFUL',
+    defaultServer: "Clash Bot",
+    tentativeDataStatus: "SUCCESSFUL",
     tentativeList: [
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "2"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '3'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "3"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '4'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "4"
             }
         }
     ],
     teamFilters: [
         {
-            value: 'Goon Squad',
+            value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: '1'
+            id: "1"
         },
         {
-            value: 'Clash Bot',
+            value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: '2'
+            id: "2"
         },
         {
-            value: 'Extro',
+            value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: '3'
+            id: "3"
         }
     ],
     teams: [{
-        error: 'Failed to load'
+        error: "Failed to load"
     }]
 };
 
 export const Loading = Template.bind({});
 Loading.args = {
     eligibleTournaments: [],
-    defaultServer: 'Clash Bot',
-    tentativeDataStatus: 'SUCCESSFUL',
+    defaultServer: "Clash Bot",
+    tentativeDataStatus: "SUCCESSFUL",
     showSpinner: true,
     tentativeList: [
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "1"
             },
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "2"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '3'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "3"
             }
         },
         {
-            serverName: 'Clash Bot',
+            serverName: "Clash Bot",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '4'
+                tournamentName: "awesome_sauce",
+                tournamentDay: "4"
             }
         }
     ],
     teamFilters: [
         {
-            value: 'Goon Squad',
+            value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: '1'
+            id: "1"
         },
         {
-            value: 'Clash Bot',
+            value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: '2'
+            id: "2"
         },
         {
-            value: 'Extro',
+            value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: '3'
+            id: "3"
         }
     ],
     teams: [{
-        error: 'Failed to load'
+        error: "Failed to load"
     }]
 };

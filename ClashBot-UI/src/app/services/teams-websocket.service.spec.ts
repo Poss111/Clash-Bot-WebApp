@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 
-import { TeamsWebsocketService } from './teams-websocket.service';
+import {TeamsWebsocketService} from "./teams-websocket.service";
 
-describe('TeamsWebsocketService', () => {
+describe("TeamsWebsocketService", () => {
   let service: TeamsWebsocketService;
 
   beforeEach(() => {
@@ -10,11 +10,11 @@ describe('TeamsWebsocketService', () => {
     service = TestBed.inject(TeamsWebsocketService);
   });
 
-  it('should be created', () => {
+  it("should be created", () => {
     expect(service).toBeTruthy();
   });
 
-  test('getSubject - (Subscribe) - should subscribe to a websocket subject with a query param of serverName.', () => {
+  test("getSubject - (Subscribe) - should subscribe to a websocket subject with a query param of serverName.", () => {
 
   });
 });
