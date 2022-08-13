@@ -469,9 +469,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install Dependencies
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 16.14.0
+          node-version: '16.14.0'
+
+      - name: Install Dependencies
         working-directory: ./ClashBot-UI
         run: npm install --omit=dev
 
