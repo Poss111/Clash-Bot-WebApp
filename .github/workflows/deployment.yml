@@ -7,6 +7,7 @@ on:
 
 jobs:
   check-applications:
+    name: "Check Applications that needed to be deployed"
     runs-on: ubuntu-latest
 
     outputs:
@@ -40,6 +41,7 @@ jobs:
         run: echo ${{ steps.check-apps.outputs.parsedTag }}
 
   build-service:
+    name: "Build Clash Bot OpenApi Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
@@ -64,6 +66,7 @@ jobs:
           path: ClashBot-OpenAPI
 
   ws-build-service:
+    name: "Build Clash Bot Websocket Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ws-service == 'true'}}
     runs-on: ubuntu-latest
@@ -88,6 +91,7 @@ jobs:
           path: ClashBot-WS-Service
 
   service-update-latest-docker-image:
+    name: "Docker build for latest Clash Bot OpenApi Service"
     needs: build-service
     runs-on: ubuntu-latest
 
@@ -109,6 +113,7 @@ jobs:
           docker push poss11111/clash-bot-service:latest
 
   ws-service-update-latest-docker-image:
+    name: "Docker build for latest Clash Bot Websocket Service"
     needs: ws-build-service
     runs-on: ubuntu-latest
 
@@ -130,6 +135,7 @@ jobs:
           docker push poss11111/clash-bot-ws-service:latest
 
   deploy-service:
+    name: "Publish Clash Bot OpenApi Service to ECR"
     needs: build-service
     runs-on: ubuntu-latest
 
@@ -188,6 +194,7 @@ jobs:
           message-color: '16711680'
 
   deploy-ws-service:
+    name: "Publish Clash Bot Websocket Service to ECR"
     needs: ws-build-service
     runs-on: ubuntu-latest
 
@@ -203,7 +210,7 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
-          name: service
+          name: ws-service
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -246,6 +253,8 @@ jobs:
           message-color: '16711680'
 
   terraform-apply:
+    name: "Run Terraform Apply for infrastructure"
+    if: ${{ always() }}
     needs:
       - ws-service-build
       - service-build
@@ -331,6 +340,7 @@ jobs:
           TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
           TF_VAR_dynamodb_specific_iam_policies: ${{ secrets.DYNAMODB_POLICIES }}
           TF_VAR_clash-bot-teams-dynamo-table: "server-clash-teams"
+          TF_VAR_clash-bot-association-dynamo-table: "clash-user-team-associations"
           TF_VAR_clash-bot-header-key: ${{ secrets.HEADER_KEY }}
           TF_VAR_clash-bot-header-value: ${{ secrets.HEADER_VALUE }}
           TF_VAR_webapp_logger_level: "info"
@@ -366,6 +376,7 @@ jobs:
           message-color: '65345'
 
   build-ui:
+    name: "Build Clash Bot UI for Deployment"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
@@ -405,6 +416,7 @@ jobs:
           path: ClashBot-UI/dist/Clash-Bot-gzip
 
   deploy-ui:
+    name: "Deploy out Clash Bot UI"
     needs: build-ui
     runs-on: ubuntu-latest
 
