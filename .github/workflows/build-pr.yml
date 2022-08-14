@@ -208,7 +208,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./ClashBot-UI
-        run: npm i
+        run: |
+          npm -v
+          npm install -g npm@8.5.1
+          npm -v
+          npm i
 
       - name: Run Linting
         working-directory: ./ClashBot-UI
