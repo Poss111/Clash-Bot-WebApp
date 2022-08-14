@@ -348,7 +348,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         with:
-          name: failures
+          name: failure-logs
           path: ClashBot-Service-OpenAPI/failure-logs.log
 
       - uses: actions/upload-artifact@v2
