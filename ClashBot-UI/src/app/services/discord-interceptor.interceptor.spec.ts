@@ -89,7 +89,7 @@ describe("DiscordInterceptorInterceptor", () => {
         "registrationTime": "August 22 2021 04:15 pm PDT"
       }
     ];
-    const request = httpMock.expectOne("http://localhost:8080/api/v2/team");
+    const request = httpMock.expectOne("http://localhost:8080/api/v2/team?server=Goon%20Squad");
     request.flush(mockResponse);
     expect(request.request.headers.has("Authorization")).toBeFalsy();
   })
