@@ -129,40 +129,10 @@ jobs:
           message: 'Service Test Failed!'
           message-color: '16711680'
 
-  checkout-ui:
-    name: "Check UI and install dependencies"
-    needs: check-applications
-    if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16.14.0'
-
-      - name: Install dependencies
-        working-directory: ./ClashBot-UI
-        run: npm i
-
-      - name: Zip
-        run: zip -r ui.zip ClashBot-UI
-
-      - name: Archive service artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ui
-          if-no-files-found: error
-          path: ui.zip
-
   test-ui:
     name: "Run Tests for Clash Bot UI"
     needs:
       - check-applications
-      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -175,13 +145,29 @@ jobs:
           message: 'Test in progress...'
           message-color: '16750902'
 
-      - name: Download a single artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ui
+      - name: Checkout repo
+        uses: actions/checkout@v2
 
-      - name: Unzip
-        run: unzip ui.zip
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.14.0'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: .npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
 
       - name: Run Tests
         working-directory: ./ClashBot-UI
@@ -200,7 +186,6 @@ jobs:
     name: "Run linting for Clash Bot UI"
     needs:
       - check-applications
-      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -213,13 +198,29 @@ jobs:
           message: 'Linting in progress...'
           message-color: '16750902'
 
-      - name: Download a single artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ui
+      - name: Checkout repo
+        uses: actions/checkout@v2
 
-      - name: Unzip
-        run: unzip ui.zip
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.14.0'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: .npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
 
       - name: Run Linting
         working-directory: ./ClashBot-UI
@@ -238,7 +239,6 @@ jobs:
     name: "Run Production build check for Clash Bot UI"
     needs:
       - check-applications
-      - checkout-ui
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
 
@@ -251,13 +251,29 @@ jobs:
           message: 'Prod build check in progress...'
           message-color: '16750902'
 
-      - name: Download a single artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ui
+      - name: Checkout repo
+        uses: actions/checkout@v2
 
-      - name: Unzip
-        run: unzip ui.zip
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.14.0'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: .npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: ./ClashBot-UI
+        run: npm i
 
       - name: Run Prod Build Check
         working-directory: ./ClashBot-UI
