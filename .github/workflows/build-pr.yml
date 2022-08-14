@@ -206,18 +206,6 @@ jobs:
         with:
           node-version: '14.20.0'
 
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: .npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
       - name: Install dependencies
         working-directory: ./ClashBot-UI
         run: npm i
@@ -351,11 +339,23 @@ jobs:
           message: 'UI Integration Test Failed!'
           message-color: '16711680'
 
+      - name: Output failure logs
+        if: ${{ failure() }}
+        working-directory: ./ClashBot-Service-OpenAPI
+        run: |
+          docker compose logs > failure-logs.log
+
       - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         with:
           name: failures
-          path: ClashBot-UI/cypress/screenshots
+          path: ClashBot-Service-OpenAPI/failure-logs.log
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: failures
+          path: ClashBot-E2E/cypress/screenshots
 
   concluded-testing:
     name: "Pull Request Hook"
