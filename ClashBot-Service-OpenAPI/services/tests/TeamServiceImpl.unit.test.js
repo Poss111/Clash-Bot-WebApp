@@ -107,10 +107,6 @@ beforeEach(() => {
 
 describe('Clash Teams Service Impl', () => {
   describe('Team - GET', () => {
-    test('This should fail', () => {
-      expect(true).toBeFalsy();
-    });
-
     test('getTeam - Retrieve all teams based on serverName.', () => {
       const serverName = 'Goon Squad';
       const mockUserDetails = {
