@@ -298,11 +298,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          if ! [[ WEBAPP_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.WEBAPP_REPOSITORY_NAME }}:.+$ ]]; then
+          if ! [[ $WEBAPP_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.WEBAPP_REPOSITORY_NAME }}:.+$ ]]; then
             echo "Invalid Webapp Image Url"
             exit 1
           fi
-          if ! [[ WS_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.WS_REPOSITORY_NAME }}:.+$ ]]; then
+          if ! [[ $WS_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.WS_REPOSITORY_NAME }}:.+$ ]]; then
             echo "Invalid WS Image Url"
             exit 1
           fi
