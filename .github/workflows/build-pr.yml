@@ -140,7 +140,7 @@ jobs:
         continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
         run: |
-          OUTPUT=$(npm test -- --silent)
+          OUTPUT=$(npm test -- --no-color 2>&1 >/dev/null)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -240,7 +240,7 @@ jobs:
         continue-on-error: true
         working-directory: ./ClashBot-UI
         run: |
-          OUTPUT=$(npm run-script test -- --silent)
+          OUTPUT=$(npm run-script test -- --no-color --silent 2>&1 >/dev/null)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -470,7 +470,7 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          OUTPUT=$(npm run-script cy)
+          OUTPUT=$(npm run-script cy >&1 >/dev/null)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -485,7 +485,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `Clash Bot Webapp - Integration
-            #### Linting 🖌\`${{ steps.integration.outcome }}\`
+            #### Integration 🖌\`${{ steps.integration.outcome }}\`
 
             <details><summary>Show Integration Results</summary>
 
