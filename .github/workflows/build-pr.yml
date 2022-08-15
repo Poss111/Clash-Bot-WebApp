@@ -520,19 +520,18 @@ jobs:
           message-color: '16711680'
 
       - name: Output failure logs
-        if: ${{ failure() }}
+        if: steps.integration.outcome == 'failure'
         working-directory: ./ClashBot-Service-OpenAPI
-        run: |
-          docker compose logs > failure-logs.log
+        run: docker compose logs > failure-logs.log
 
       - uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
+        if: steps.integration.outcome == 'failure'
         with:
           name: failure-logs
           path: ClashBot-Service-OpenAPI/failure-logs.log
 
       - uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
+        if: steps.integration.outcome == 'failure'
         with:
           name: failures
           path: ClashBot-E2E/cypress/screenshots
