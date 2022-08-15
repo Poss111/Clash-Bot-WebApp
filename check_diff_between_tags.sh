@@ -11,7 +11,7 @@ do
   fi
   if [[ "$i" == *"ClashBot-WS-Service/"*  && !$wsServiceUpdate ]];
   then
-    serviceUpdate=true
+    wsServiceUpdate=true
   fi
   if [[ "$i" == *"ClashBot-UI/"* && !$uiUpdate ]];
   then
