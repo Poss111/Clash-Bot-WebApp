@@ -46,23 +46,21 @@ jobs:
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          SERVICE: "Service Changes\n${{ steps.check-apps.outputs.serviceUpdate }}"
-          WS_SERVICE: "Websocket Service Changes\n${{ steps.check-apps.outputs.wsServiceUpdate }}"
-          UI: "UI Changes\n${{ steps.check-apps.outputs.uiUpdate }}"
+          SERVICE: "${{ steps.check-apps.outputs.serviceUpdate }}"
+          WS_SERVICE: "${{ steps.check-apps.outputs.wsServiceUpdate }}"
+          UI: ${{ steps.check-apps.outputs.uiUpdate }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `Clash Bot Webapp - Changes Pushed
-            <details><summary>Changes being pushed affect?</summary>
-
+            const output = `# Clash Bot Webapp
+            ## Changes Pushed
+            
             | Project | Changed? |
             | ------- | :------: |
             | Service | ${process.env.SERVICE} |
             | Websocket Service | ${process.env.WS_SERVICE} |
             | UI | ${process.env.UI} |
-
-            </details>
-
+            
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             github.rest.issues.createComment({
@@ -141,13 +139,13 @@ jobs:
         id: service-test
         continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
-        run: echo "::set-output name=test::$(npm test -- --silent)"
+        run: echo "SERVICE_OUTPUT=$(npm test -- --silent)" >> $GITHUB_ENV
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          TEST: "Service Test\n${{ steps.service-test.outputs.test }}"
+          TEST: "Service Test\n${{ env.SERVICE_OUTPUT }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -236,13 +234,13 @@ jobs:
         id: ui-test
         continue-on-error: true
         working-directory: ./ClashBot-UI
-        run: echo "::set-output name=uitest::$(npm run-script test -- --silent)"
+        run: echo "UI_OUTPUT=$(npm run-script test -- --silent)" >> $GITHUB_ENV
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          TEST: "UI Test\n${{ steps.ui-test.outputs.uitest }}"
+          TEST: "UI Test\n${{ env.UI_OUTPUT }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -311,13 +309,13 @@ jobs:
         id: linting
         working-directory: ./ClashBot-UI
         continue-on-error: true
-        run: echo "::set-output name=lint::$(npm run-script lint)"
+        run: echo "LINTING_OUTPUT=$(npm run-script lint)" >> $GITHUB_ENV
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          LINTING: "UI Linting\n${{ steps.linting.outputs.lint }}"
+          LINTING: "UI Linting\n${{ env.LINTING_OUTPUT }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -457,13 +455,13 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          echo "::set-output name=integration::$(npm run-script cy)"
+          echo "INTEGRATION_OUTPUT=$(npm run-script cy)" >> $GITHUB_ENV
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          INTEGRATION: "Integration Test\n${{ steps.integration.outputs.integration }}"
+          INTEGRATION: "Integration Test\n${{ env.INTEGRATION_OUTPUT }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
