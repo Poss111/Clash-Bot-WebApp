@@ -40,7 +40,7 @@ jobs:
       - name: Check Tag
         run: echo ${{ steps.check-apps.outputs.parsedTag }}
 
-  build-service:
+  service-build:
     name: "Build Clash Bot OpenApi Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
@@ -92,7 +92,7 @@ jobs:
 
   service-update-latest-docker-image:
     name: "Docker build for latest Clash Bot OpenApi Service"
-    needs: build-service
+    needs: service-build
     runs-on: ubuntu-latest
 
     steps:
@@ -136,7 +136,7 @@ jobs:
 
   deploy-service:
     name: "Publish Clash Bot OpenApi Service to ECR"
-    needs: build-service
+    needs: service-build
     runs-on: ubuntu-latest
 
     steps:
@@ -256,8 +256,8 @@ jobs:
     name: "Run Terraform Apply for Services"
     if: ${{ always() }}
     needs:
-      - ws-service-build
-      - service-build
+      - deploy-service
+      - deploy-ws-service
     runs-on: ubuntu-latest
     defaults:
       run:
