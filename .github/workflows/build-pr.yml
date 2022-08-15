@@ -31,13 +31,46 @@ jobs:
           ./check_diff_between_master.sh
 
       - name: Check Output for Service
+        id: service-check
         run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
 
       - name: Check Output for Websocket Service
+        id: ws-service-check
         run: echo ${{ steps.check-apps.outputs.wsServiceUpdate }}
 
       - name: Check Output for UI
+        id: ui-check
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6.1.0
+        if: github.event_name == 'pull_request'
+        env:
+          SERVICE: "Service Changes\n${{ steps.service-check.outputs.stdout }}"
+          WS_SERVICE: "Websocket Service Changes\n${{ steps.ws-service-check.outputs.stdout }}"
+          UI: "UI Changes\n${{ steps.ui-check.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `Clash Bot Webapp - Changes Pushed
+            <details><summary>Changes being pushed affect?</summary>
+
+            \`\`\`\n
+            Service: ${process.env.SERVICE}
+            Websocket Service: ${process.env.WS_SERVICE}
+            UI: ${process.env.UI}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
   test-ws-service:
     name: "Test Clash Bot Websocket Service"
@@ -105,8 +138,38 @@ jobs:
         run: npm i
 
       - name: Test Service
+        id: service-test
+        continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
         run: npm test
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6.1.0
+        if: github.event_name == 'pull_request'
+        env:
+          TEST: "Service Test\n${{ steps.service-test.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `Clash Bot Webapp - Service Test
+            #### Service Test 🖌\`${{ steps.service-test.outcome }}\`
+
+            <details><summary>Show Service Test</summary>
+
+            \`\`\`\n
+            ${process.env.TEST}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -170,8 +233,38 @@ jobs:
         run: npm i
 
       - name: Run Tests
+        id: ui-test
+        continue-on-error: true
         working-directory: ./ClashBot-UI
         run: npm run-script test
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6.1.0
+        if: github.event_name == 'pull_request'
+        env:
+          TEST: "UI Test\n${{ steps.ui-test.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `Clash Bot Webapp - UI Test
+            #### UI Test 🖌\`${{ steps.ui-test.outcome }}\`
+
+            <details><summary>Show UI Test</summary>
+
+            \`\`\`\n
+            ${process.env.TEST}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
       - name: Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
@@ -215,8 +308,38 @@ jobs:
           npm i
 
       - name: Run Linting
+        id: linting
         working-directory: ./ClashBot-UI
+        continue-on-error: true
         run: npm run-script lint
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6.1.0
+        if: github.event_name == 'pull_request'
+        env:
+          LINTING: "UI Linting\n${{ steps.linting.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `Clash Bot Webapp - UI Test
+            #### Service Test 🖌\`${{ steps.linting.outcome }}\`
+
+            <details><summary>Show UI Linting</summary>
+
+            \`\`\`\n
+            ${process.env.LINTING}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
       - name: Linting Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
@@ -325,14 +448,44 @@ jobs:
         run: docker-compose up -d
 
       - name: Run Integration Tests
+        id: integration
         working-directory: ./ClashBot-E2E
         timeout-minutes: 5
+        continue-on-error: true
         run: |
           export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
           npm run-script cy
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6.1.0
+        if: github.event_name == 'pull_request'
+        env:
+          INTEGRATION: "Integration Test\n${{ steps.integration.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `Clash Bot Webapp - Integration
+            #### Linting 🖌\`${{ steps.integration.outcome }}\`
+
+            <details><summary>Show Integration Results</summary>
+
+            \`\`\`\n
+            ${process.env.INTEGRATION}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
       - name: Integration Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
