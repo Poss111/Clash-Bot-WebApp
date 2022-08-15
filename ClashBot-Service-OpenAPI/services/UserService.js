@@ -76,7 +76,7 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
         reject(Service.rejectResponse('Resource not found.',
           404));
       } else if (Array.isArray(userDetails.preferredChampions)
-        && userDetails.preferredChampions.length > 5) {
+        && userDetails.preferredChampions.length >= 5) {
         reject(Service
           .rejectResponse('Too many champions. Must be less than or equal to 5.', 400));
       } else {

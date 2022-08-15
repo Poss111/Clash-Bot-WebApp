@@ -552,7 +552,7 @@ describe('Clash User Service Impl', () => {
       const foundUser = {
         key: expectedId,
         name: 'Roid',
-        preferredChampions: ['Taric', 'Sejuani', 'Kha\'zix', 'Rengar', 'Ornn', 'OneTooMany'],
+        preferredChampions: ['Taric', 'Sejuani', 'Kha\'zix', 'Rengar', 'Ornn'],
         subscriptions: [{
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
