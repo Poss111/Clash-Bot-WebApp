@@ -141,7 +141,7 @@ jobs:
         id: service-test
         continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
-        run: echo $(npm test -- --silent)
+        run: echo ":set-output name=stdout::$(npm test -- --silent)"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -236,7 +236,7 @@ jobs:
         id: ui-test
         continue-on-error: true
         working-directory: ./ClashBot-UI
-        run: echo $(npm run-script test -- --silent)
+        run: echo ":set-output name=stdout::$(npm run-script test -- --silent)"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -311,7 +311,7 @@ jobs:
         id: linting
         working-directory: ./ClashBot-UI
         continue-on-error: true
-        run: echo $(npm run-script lint)
+        run: echo ":set-output name=stdout::$(npm run-script lint)"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -457,7 +457,7 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          echo $(npm run-script cy)
+          echo ":set-output name=stdout::$(npm run-script cy)"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
