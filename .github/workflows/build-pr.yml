@@ -248,18 +248,23 @@ jobs:
         id: ui-test
         continue-on-error: true
         working-directory: ./ClashBot-UI
+        run: npm run-script test -- --no-color --silent 2> ../output.txt
+
+      - name: Parse Integration output
+        id: parse-output
+        working-directory: ./ClashBot-UI
         run: |
-          OUTPUT=$(npm run-script test -- --no-color --silent 2>&1 >/dev/null)
+          OUTPUT=$(cat ../output.txt)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=uitest::$OUTPUT"
+          echo "::set-output name=stdout::$OUTPUT"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          TEST: "UI Test\n${{ steps.ui-test.outputs.uitest }}"
+          TEST: "UI Test\n${{ steps.parse-output.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -332,18 +337,23 @@ jobs:
         id: linting
         working-directory: ./ClashBot-UI
         continue-on-error: true
+        run: npm run-script lint >> ../output.txt 2>&1
+
+      - name: Parse Test output
+        id: parse-output
+        working-directory: ./ClashBot-UI
         run: |
-          OUTPUT=$(npm run-script lint)
+          OUTPUT=$(cat ../output.txt)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=lint::$OUTPUT"
+          echo "::set-output name=stdout::$OUTPUT"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          LINTING: "UI Linting\n${{ steps.linting.outputs.lint }}"
+          LINTING: "UI Linting\n${{ steps.parse-output.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -487,11 +497,23 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          npm run-script cy
+          npm run-script cy  >> ../output.txt 2>&1
+
+      - name: Parse Integration output
+        id: parse-output
+        working-directory: ./ClashBot-E2E
+        run: |
+          OUTPUT=$(cat ../output.txt)
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=stdout::$OUTPUT"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
+        env:
+            INTEGRATION: "Integration/n${{ steps.parse-output.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -501,7 +523,7 @@ jobs:
             <details><summary>Show Integration Results</summary>
 
             \`\`\`\n
-            Check artifacts.
+            ${process.env.INTEGRATION}
             \`\`\`
 
             </details>
