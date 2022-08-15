@@ -174,6 +174,10 @@ jobs:
               body: output
             })
 
+      - name: Service Test Status
+        if: steps.service-test.outcome == 'failure'
+        run: exit 1
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -274,6 +278,10 @@ jobs:
               body: output
             })
 
+      - name: UI Test Status
+        if: steps.ui-test.outcome == 'failure'
+        run: exit 1
+
       - name: Test Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         if: ${{ failure() }}
@@ -353,6 +361,10 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
+      - name: UI Lint Status
+        if: steps.linting.outcome == 'failure'
+        run: exit 1
 
       - name: Linting Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
@@ -470,11 +482,11 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          OUTPUT=$(npm run-script cy >&1 >/dev/null)
+          OUTPUT=$(npm run-script cy)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=integration::OUTPUT"
+          echo "::set-output name=integration::$OUTPUT"
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -530,6 +542,10 @@ jobs:
         with:
           name: failures
           path: ClashBot-E2E/cypress/screenshots
+
+      - name: Integration Status
+        if: steps.integration.outcome == 'failure'
+        run: exit 1
 
   concluded-testing:
     name: "Pull Request Hook"
