@@ -482,17 +482,11 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          OUTPUT=$(npm run-script cy)
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=integration::$OUTPUT"
+          npm run-script cy
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
-        env:
-          INTEGRATION: "Integration Test\n${{ steps.integration.outputs.integration }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -502,7 +496,7 @@ jobs:
             <details><summary>Show Integration Results</summary>
 
             \`\`\`\n
-            ${process.env.INTEGRATION}
+            Check artifacts.
             \`\`\`
 
             </details>
