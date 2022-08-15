@@ -57,7 +57,7 @@ class ClashUserTeamAssociationDbImpl {
       stream.on('end', () => resolve(results));
       stream.on('error', (err) => {
         logger.error(
-          { error: err, ...loggerContext },
+          { loggerContext, error: { message: err.message, stack: err.stack } },
           'Failed to filter for User Associations.',
         );
         reject(err)

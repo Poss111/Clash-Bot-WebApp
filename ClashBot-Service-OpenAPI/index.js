@@ -23,9 +23,14 @@ const launchServer = async () => {
     try {
       socketService.waitForConnection(1)
         .then(() => logger.info(loggerContext, 'Connected to Websocket Service.'))
-        .catch((err) => logger.error(err));
-    } catch (error) {
-      logger.error({ err: error, ...loggerContext }, 'Unable to connect to Websocket service.');
+        .catch((err) => logger.error(
+          { loggerContext, error: { message: err.message, stack: err.stack } },
+        ));
+    } catch (err) {
+      logger.error(
+        { loggerContext, error: { message: err.message, stack: err.stack } },
+        'Unable to connect to Websocket service.'
+      );
     }
 
     const port = process.env.PORT === undefined ? 8080 : process.env.PORT;
@@ -36,10 +41,15 @@ const launchServer = async () => {
     );
     this.expressServer.launch();
     logger.info(loggerContext, `Express server running on Port ('${port}')`);
-  } catch (error) {
-    logger.error({ err: error, ...loggerContext }, 'Express Server failure');
+  } catch (err) {
+    logger.error(
+      { loggerContext, error: { message: err.message, stack: err.stack } },
+      'Express Server failure',
+    );
     await this.expressServer.close();
   }
 };
 
-launchServer().catch((e) => logger.error(e));
+launchServer()
+  .catch((err) => logger
+    .error({ error: { message: err.message, stack: err.stack } }));

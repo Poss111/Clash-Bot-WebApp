@@ -121,8 +121,10 @@ class ClashTentativeDbImpl {
         return new Promise((resolve, reject) => {
             this.Tentative.destroy({ key }, (err) => {
                 if (err) {
-                    loggerContext.err = err;
-                    logger.error(loggerContext, `Failed to delete Tentative Queue ('${key}').`);
+                    logger.error(
+                      { loggerContext, error: { message: err.message, stack: err.stack } },
+                      `Failed to delete Tentative Queue ('${key}').`
+                    );
                     reject(err);
                 }
                 else {

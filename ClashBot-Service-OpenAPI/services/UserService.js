@@ -29,7 +29,7 @@ const getUser = ({ id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -53,7 +53,7 @@ const updateUser = ({ body }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -95,7 +95,7 @@ const addToListOfPreferredChampions = ({ body, id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -131,7 +131,7 @@ const createNewListOfPreferredChampions = ({ body, id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -155,7 +155,7 @@ const createUser = ({ body }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -207,7 +207,7 @@ const removeFromListOfPreferredChampions = ({ id, champion }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -235,7 +235,7 @@ const retrieveListOfUserPreferredChampions = ({ id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -263,7 +263,7 @@ const retrieveUserSubscriptions = ({ id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -300,7 +300,7 @@ const subscribeUser = ({ id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -337,7 +337,7 @@ const unsubscribeUser = ({ id }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }

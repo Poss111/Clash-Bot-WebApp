@@ -9,9 +9,8 @@ class Service {
     return { payload, code };
   }
 
-  static handleException({ error, reject, loggerContext = { class: 'Unknown', method: 'Unknown' } }) {
-    loggerContext.err = error;
-    logger.error(loggerContext, 'Failed to fulfill call.');
+  static handleException({ err, reject, loggerContext = { class: 'Unknown', method: 'Unknown' } }) {
+    logger.error({ loggerContext, error: { message: err.message, stack: err.stack } }, 'Failed to fulfill call.');
     reject(Service.rejectResponse(
       'Something went wrong.',
       500,

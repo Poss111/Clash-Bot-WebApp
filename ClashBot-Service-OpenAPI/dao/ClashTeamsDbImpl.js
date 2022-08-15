@@ -58,8 +58,10 @@ class ClashTeamsDbImpl {
             logger.debug(loggerContext, `New Team to be persisted Server ('${serverName}') Team('${builtTeam.details}')...`);
             this.Team.create(builtTeam, (err, data) => {
                 if (err) {
-                    loggerContext.err = err;
-                    logger.error(loggerContext, `ClashTeamsDbImpl.createTeam - Failed to persist Error.`)
+                    logger.error(
+                      { loggerContext, error: { message: err.message, stack: err.stack } },
+                      `ClashTeamsDbImpl.createTeam - Failed to persist Error.`,
+                      )
                     reject(err);
                 } else {
                     logger.debug(loggerContext, `Successfully created new Server ('${data.attrs.serverName}') Team ('${data.attrs.details}')`);
@@ -74,7 +76,10 @@ class ClashTeamsDbImpl {
         return new Promise((resolve, reject) => {
             this.Team.update(updatedTeam, (err, data) => {
                if (err) {
-                   logger.error(loggerContext, `Failed to update Team - ${err.message}`);
+                   logger.error(
+                     { loggerContext, error: { message: err.message, stack: err.stack } },
+                     'Failed to update Team'
+                   );
                    reject(err);
                } else {
                    resolve(data.attrs);
@@ -127,8 +132,10 @@ class ClashTeamsDbImpl {
                 resolve(teams);
             });
             stream.on('error', (err) => {
-                loggerContext.err = err;
-                logger.error(loggerContext, 'Failed to filter for Clash Teams.');
+                logger.error(
+                  { loggerContext, error: { message: err.message, stack: err.stack } },
+                  'Failed to filter for Clash Teams.',
+                );
                 reject(err)
             });
         });
@@ -140,8 +147,10 @@ class ClashTeamsDbImpl {
         return new Promise((resolve, reject) => {
            this.Team.destroy(expectedDestroyPayload, (err) => {
                if (err) {
-                   loggerContext.err = err;
-                   logger.error(loggerContext, `Failed to delete Team due to ('${err.message}')`);
+                   logger.error(
+                     { loggerContext, error: { message: err.message, stack: err.stack } },
+                     'Failed to delete Team.',
+                   );
                    reject(err);
                } else {
                    logger.debug(loggerContext, `Successfully deleted team '${expectedDestroyPayload}'...`);

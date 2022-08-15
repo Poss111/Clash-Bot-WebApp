@@ -14,7 +14,8 @@ const clashUserTeamAssociationDbImpl = require('../dao/ClashUserTeamAssociationD
 function sendAsyncEvent(mappedResponse, loggerContext) {
   socketService.sendMessage(mappedResponse)
     .then(() => logger.debug(loggerContext, 'Successfully sent Team event.'))
-    .catch((error) => logger.error({ err: error, ...loggerContext }, 'Failed to fulfill call.'));
+    .catch((err) => logger
+      .error({ error: { message: err.message, stack: err.stack }, loggerContext }, 'Failed to fulfill call.'));
 }
 
 function removeUserFromTeam(teamEntity, playerId, loggerContext) {
@@ -173,7 +174,7 @@ const createNewTeam = ({ body }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -224,7 +225,7 @@ const getTeam = ({
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -311,7 +312,7 @@ const removePlayerFromTeam = ({
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -389,7 +390,7 @@ const updateTeam = ({ body }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }

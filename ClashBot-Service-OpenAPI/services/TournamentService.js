@@ -22,7 +22,7 @@ const getTournaments = ({ tournament, day }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }

@@ -18,7 +18,9 @@ const socketService = require('../socket/SocketServices');
 function sendAsyncEvent(mappedResponse, loggerContext) {
   socketService.sendMessage(mappedResponse)
     .then(() => logger.debug(loggerContext, 'Successfully sent Team event.'))
-    .catch((error) => logger.error({ err: error, ...loggerContext }, 'Failed to fulfill call.'));
+    .catch((err) => logger
+      .error({ error: { message: err.message, stack: err.stack }, loggerContext },
+        'Failed to fulfill call.'));
 }
 
 function removeUserFromTeam(teamEntity, playerId, loggerContext) {
@@ -149,7 +151,7 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -217,7 +219,7 @@ const placePlayerOnTentative = ({ body }) => new Promise(
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }
@@ -276,7 +278,7 @@ const removePlayerFromTentative = ({
     } catch (error) {
       Service.handleException({
         loggerContext,
-        error,
+        err: error,
         reject,
       });
     }

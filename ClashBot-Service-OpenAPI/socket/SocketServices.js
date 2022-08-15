@@ -16,8 +16,8 @@ class SocketService {
       setTimeout(() => this.waitForConnection(attemptNumber+=1), 1000 * 3);
     });
     this.ws.on('error', (err) => {
-      loggerContext.err = err;
-      logger.error(loggerContext, 'Error connecting.');
+      logger
+        .error({ error: { message: err.message, stack: err.stack } }, 'Error connecting.');
     });
     return new Promise((resolve) => {
       this.ws.on('open', () => {

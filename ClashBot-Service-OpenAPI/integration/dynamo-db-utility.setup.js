@@ -80,7 +80,10 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
       logger.info(`Built: ${JSON.stringify(keys)}`);
       resolve(createdTables);
     }).catch((err) => {
-      logger.error('Failed to load table data.', err);
+      logger.error(
+        { error: { message: err.message, stack: err.stack } },
+        'Failed to load table data.',
+      );
       reject(err);
     });
 });
@@ -107,7 +110,10 @@ function persistSampleData(module, data) {
         logger.info(`Creating table ('${module.tableName}')...`);
         table.createTable((err) => {
           if (err) {
-            logger.error(`Failed to create ${module.tableName}.`, err);
+            logger.error(
+              { error: { message: err.message, stack: err.stack } },
+              `Failed to create ${module.tableName}.`
+            );
             reject(err);
           } else {
             let successful = 0;
@@ -118,7 +124,10 @@ function persistSampleData(module, data) {
               console.debug(`Inserting record into ('${module.tableName}')...`);
               table.create(recordToInsert, (err) => {
                 if (err) {
-                  logger.error('Failed to load data', err);
+                  logger.error(
+                    { error: { message: err.message, stack: err.stack } },
+                    'Failed to load data',
+                  );
                   failed += 1;
                 } else {
                   dataPersisted.push(recordToInsert);
@@ -135,8 +144,14 @@ function persistSampleData(module, data) {
             });
           }
         });
-      }).catch((err) => logger.error(`Failed to delete table ('${module.tableName}')`, err));
-    }).catch((err) => logger.error(`Failed to load data for ('${module.tableName}').`, err));
+      }).catch((err) => logger.error(
+        { error: { message: err.message, stack: err.stack } },
+        `Failed to delete table ('${module.tableName}')`,
+      ));
+    }).catch((err) => logger.error(
+      { error: { message: err.message, stack: err.stack } },
+      `Failed to load data for ('${module.tableName}').`,
+    ));
   });
 }
 
@@ -144,8 +159,14 @@ function cleanUpTable(tableName, table) {
   return new Promise((resolve) => {
     logger.info(`Attempting to delete table ('${tableName}')...`);
     table.deleteTable((err) => {
-      if (err) logger.error('Table was unable to be deleted.', err);
-      resolve(`Successfully deleted ${tableName}.`);
+      if (err) {
+        logger.error(
+          { error: { message: err.message, stack: err.stack } },
+          'Table was unable to be deleted.',
+        );
+      } else {
+        resolve(`Successfully deleted ${tableName}.`);
+      }
     });
   });
 }
@@ -153,7 +174,7 @@ function cleanUpTable(tableName, table) {
 function clearAllTables() {
   createdTables.forEach((record, key) => cleanUpTable(key.tableName, record.table)
     .then((data) => logger.info(data))
-    .catch((err) => logger.error(err)));
+    .catch((err) => logger.error({ error: { message: err.message, stack: err.stack } })));
 }
 
 module.exports.loadAllTables = loadAllTables;

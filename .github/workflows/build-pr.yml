@@ -141,7 +141,7 @@ jobs:
         id: service-test
         continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
-        run: npm test
+        run: echo $(npm test -- --silent)
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -236,7 +236,7 @@ jobs:
         id: ui-test
         continue-on-error: true
         working-directory: ./ClashBot-UI
-        run: npm run-script test
+        run: echo $(npm run-script test -- --silent)
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -311,7 +311,7 @@ jobs:
         id: linting
         working-directory: ./ClashBot-UI
         continue-on-error: true
-        run: npm run-script lint
+        run: echo $(npm run-script lint)
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0
@@ -321,8 +321,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `Clash Bot Webapp - UI Test
-            #### Service Test 🖌\`${{ steps.linting.outcome }}\`
+            const output = `Clash Bot Webapp - UI Linting
+            #### Linting 🖌\`${{ steps.linting.outcome }}\`
 
             <details><summary>Show UI Linting</summary>
 
@@ -457,7 +457,7 @@ jobs:
           export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          npm run-script cy
+          echo $(npm run-script cy)
 
       - name: Update Pull Request
         uses: actions/github-script@v6.1.0

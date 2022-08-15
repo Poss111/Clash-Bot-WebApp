@@ -22,7 +22,10 @@ const promise = new Promise((resolve, reject) => {
       resolve(data);
     }).catch((err) => {
       clearTimeout(timer);
-      logger.error('Failed to setup data', err);
+      logger.error(
+        { error: { message: err.message, stack: err.stack } },
+        'Failed to setup data',
+      );
       reject(err);
     });
 });
@@ -32,6 +35,9 @@ promise.then(() => {
     logger.info(`${key} => ${JSON.stringify(value)}`);
   });
 }).catch((err) => {
-  logger.error('Failed to load DB data for setup.', err);
+  logger.error(
+    { error: { message: err.message, stack: err.stack } },
+    'Failed to load DB data for setup.',
+  );
   process.exit(1);
 });
