@@ -1,6 +1,6 @@
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
-import { Story, Meta } from '@storybook/angular/types-6-0';
-import { moduleMetadata } from '@storybook/angular';
+import {Story, Meta} from "@storybook/angular/types-6-0";
+import {moduleMetadata} from "@storybook/angular";
 import {MatCardModule} from "@angular/material/card";
 import {ClashTournamentCalendarComponent} from "./clash-tournament-calendar.component";
 import {MatDatepickerModule} from "@angular/material/datepicker";
@@ -12,7 +12,7 @@ import {
 import {MatIconModule} from "@angular/material/icon";
 
 export default {
-    title: 'Cards/ClashTournamentCalendarCard',
+    title: "Cards/ClashTournamentCalendarCard",
     component: ClashTournamentCalendarComponent,
     // More on argTypes: https://storybook.js.org/docs/angular/api/argtypes
     argTypes: {},

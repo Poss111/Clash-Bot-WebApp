@@ -1,11 +1,11 @@
 <div class="clash-bot-player-details-container">
     <div class="player-role-player-details-inner-container">
-        <ng-container *ngIf="player.name === '' || player.name === null; else elseBlock">
+        <ng-container *ngIf="!player.name || player.name === ''; else elseBlock">
             <div class="player-role-join-container">
                 <button mat-raised-button
                         class="player-role-join-btn"
-                        id="clash-bot-team-card-join-{{player.role | kebabcase}}-register-button"
-                        (click)="registerToTeam(player.role)">
+                        id="clash-bot-team-card-join-{{player.role ?? '' | kebabcase}}-register-button"
+                        (click)="registerToTeam(player.role ?? '')">
                     <div class="player-join-button-inner-container">
                         {{player.role}}
                         <mat-icon svgIcon="league-{{player.role | lowercase}}"></mat-icon>
@@ -19,7 +19,7 @@
                     <div class="clash-bot-button-container">
                         <button mat-icon-button
                                 color="warn"
-                                id="clash-bot-team-card-{{player.role | kebabcase}}-unregister-button"
+                                id="clash-bot-team-card-{{player.role  ?? ''| kebabcase}}-unregister-button"
                                 (click)="unregisterFromTeam()"
                                 aria-label="Unregister with this Team">
                             <mat-icon>remove</mat-icon>
@@ -30,13 +30,13 @@
                     <mat-expansion-panel id="clash-bot-team-card-registered-player"
                                          class="player-details-player-inner-container">
                         <mat-expansion-panel-header
-                                id="clash-bot-team-card-registered-player-{{player.role | kebabcase}}">
+                                id="clash-bot-team-card-registered-player-{{player.role  ?? ''| kebabcase}}">
                             <mat-panel-title>{{player.name}}</mat-panel-title>
                             <mat-panel-description>{{player.role}}
                                 <mat-icon svgIcon="league-{{player.role | lowercase}}"></mat-icon>
                             </mat-panel-description>
                         </mat-expansion-panel-header>
-                        <div id="clash-bott-team-card-registered-player-{{player.role | kebabcase}}-champion-list"
+                        <div id="clash-bott-team-card-registered-player-{{player.role  ?? ''| kebabcase}}-champion-list"
                              class="player-champion-list-container">
                             <h4>Preferred Champions</h4>
                             <ng-container *ngIf="player.champions && player.champions.length > 0">

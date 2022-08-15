@@ -1,18 +1,19 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {ClashTeam} from "../../../../interfaces/clash-team";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
+import {TeamUiWrapper} from "src/app/interfaces/team-ui-wrapper";
 
 @Component({
-  selector: 'app-team-card',
-  templateUrl: './team-card.component.html',
-  styleUrls: ['./team-card.component.scss']
+  selector: "app-team-card",
+  templateUrl: "./team-card.component.html",
+  styleUrls: ["./team-card.component.scss"]
 })
 export class TeamCardComponent implements OnInit {
 
   @Input()
-  team: ClashTeam = {};
+  team: TeamUiWrapper = {};
 
   @Output()
   registerUser: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
@@ -20,37 +21,35 @@ export class TeamCardComponent implements OnInit {
   @Output()
   unregisterUser: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
 
-  pokemonName: string = '';
-  dateFormat: string = 'MMM d, y h:mm a';
-  timezoneOffset: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  pokemonName: string = "";
 
   constructor(private dialog: MatDialog) {}
 
   ngOnInit(): void {
     if (this.team
-        && !this.team.tournamentDetails) {
-      this.team.tournamentDetails = {
-        tournamentName: 'Placeholder',
-        tournamentDay: '1'
+        && !this.team.tournament) {
+      this.team.tournament = {
+        tournamentName: "Placeholder",
+        tournamentDay: "1"
       };
     }
-    if(this.team && this.team.teamName) {
-      this.pokemonName = this.team.teamName.split(' ')[1].toLowerCase();
+    if (this.team && this.team.name) {
+      this.pokemonName = this.team.name;
     }
   }
 
   registerToTeam(role?: string) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent,
-      {data: { message: `Are you sure you want to register to this Team as ${role}?`}});
+      {data: {message: `Are you sure you want to register to this Team as ${role}?`}});
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const clashBotUserRegister: ClashBotUserRegister = {
           role: role,
-          teamName: this.team.teamName,
+          teamName: this.team.name,
           serverName: this.team.serverName,
           tournamentDetails: {
-            tournamentName: this.team.tournamentDetails?.tournamentName,
-            tournamentDay: this.team.tournamentDetails?.tournamentDay,
+            tournamentName: this.team.tournament?.tournamentName,
+            tournamentDay: this.team.tournament?.tournamentDay,
           }
         };
         this.registerUser.emit(clashBotUserRegister);
@@ -60,7 +59,7 @@ export class TeamCardComponent implements OnInit {
 
   unregisterFromTeam() {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent,
-      {data: { message: 'Are you sure you want to unregister from this Team?'}});
+      {data: {message: "Are you sure you want to unregister from this Team?"}});
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.unregisterUser.emit(this.team);

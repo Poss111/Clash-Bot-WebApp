@@ -1,36 +1,38 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from "@angular/core";
 import {MatTable} from "@angular/material/table";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {take} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
-    selector: 'app-teams-tentative-table',
-    templateUrl: './teams-tentative-table.component.html',
-    styleUrls: ['./teams-tentative-table.component.scss']
+    selector: "app-teams-tentative-table",
+    templateUrl: "./teams-tentative-table.component.html",
+    styleUrls: ["./teams-tentative-table.component.scss"]
 })
 export class TeamsTentativeTableComponent implements OnChanges {
 
     showTentative: boolean = false;
 
     @Input()
-    tentativeList?: ClashBotTentativeDetails[] = [];
+    tentativeList?: TentativeRecord[] = [];
 
     @Input()
-    tentativeDataStatus: string = 'NOT_LOADED';
+    tentativeDataStatus: string = "NOT_LOADED";
 
     @Output()
-    register: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
+    register: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
 
-    @ViewChild(MatTable) table?: MatTable<ClashBotTentativeDetails>;
+    @ViewChild(MatTable) table?: MatTable<TentativeRecord>;
 
     constructor(private dialog: MatDialog) {}
 
-    tentativeRegister(element: ClashBotTentativeDetails, index: number) {
-        let actionMessage = 'added to';
+    tentativeRegister(element: TentativeRecord, index: number) {
+        let actionMessage = "added to";
+        element.toBeAdded = true;
         if (element.isMember) {
-            actionMessage = 'removed from';
+            actionMessage = "removed from";
+            element.toBeAdded = false;
         }
         let dialogRef = this.dialog.open(ConfirmationDialogComponent,
             {
@@ -41,6 +43,7 @@ export class TeamsTentativeTableComponent implements OnChanges {
         dialogRef.afterClosed().pipe(take(1)).subscribe((result) => {
             if (result) {
                 element.index = index;
+
                 this.register.emit(element)
             }
         });

@@ -7,11 +7,13 @@ on:
 
 jobs:
   check-applications:
+    name: "Check Applications that needed to be deployed"
     runs-on: ubuntu-latest
 
     outputs:
       deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
       deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
+      deploy-ws-service: ${{ steps.check-apps.outputs.wsServiceUpdate }}
       tag: ${{ steps.check-apps.outputs.parsedTag }}
 
     steps:
@@ -29,6 +31,9 @@ jobs:
       - name: Check Output for Service
         run: echo ${{ steps.check-apps.outputs.serviceUpdate }}
 
+      - name: Check Output for Websocket Service
+        run: echo ${{ steps.check-apps.outputs.wsServiceUpdate }}
+
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
 
@@ -36,6 +41,7 @@ jobs:
         run: echo ${{ steps.check-apps.outputs.parsedTag }}
 
   build-service:
+    name: "Build Clash Bot OpenApi Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-service == 'true'}}
     runs-on: ubuntu-latest
@@ -57,9 +63,35 @@ jobs:
         with:
           name: service
           if-no-files-found: error
-          path: ClashBot-Service
+          path: ClashBot-OpenAPI
+
+  ws-build-service:
+    name: "Build Clash Bot Websocket Service"
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-ws-service == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Websocket Service Build - Notification'
+          message: 'Build in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Archive service artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ws-service
+          if-no-files-found: error
+          path: ClashBot-WS-Service
 
   service-update-latest-docker-image:
+    name: "Docker build for latest Clash Bot OpenApi Service"
     needs: build-service
     runs-on: ubuntu-latest
 
@@ -80,7 +112,30 @@ jobs:
           docker build -t poss11111/clash-bot-service:latest .
           docker push poss11111/clash-bot-service:latest
 
+  ws-service-update-latest-docker-image:
+    name: "Docker build for latest Clash Bot Websocket Service"
+    needs: ws-build-service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ws-service
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker Image
+        run: |
+          docker build -t poss11111/clash-bot-ws-service:latest .
+          docker push poss11111/clash-bot-ws-service:latest
+
   deploy-service:
+    name: "Publish Clash Bot OpenApi Service to ECR"
     needs: build-service
     runs-on: ubuntu-latest
 
@@ -89,8 +144,8 @@ jobs:
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Service Deployment - Notification'
-          message: 'Deployment in progress...'
+          title: 'Clash Bot Web App - Service Image Publish - Notification'
+          message: 'Image publishing in progress...'
           message-color: '16750902'
 
       - name: Download a single artifact
@@ -113,36 +168,20 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: poss11111/clash-bot-service
+          ECR_REPOSITORY: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Update task-definition file for deployment
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: server-config/task-def.json
-          container-name: clash-bot-service
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Clash-Bot
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: clash-bot-service
-          cluster: clash-bot
-          wait-for-service-stability: true
-
-      - name: Deployment Succeeded Discord Webhook
+      - name: Published Service Image Succeeded Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         if: ${{ success() }}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Service Deployment - Notification'
-          message: 'Successfully deployed Clash Bot WebApp - Service!'
+          title: 'Clash Bot Web App - Service Image Publish - Notification'
+          message: 'Successfully published Clash Bot Service Image!'
           message-color: '65345'
 
       - name: Deployment Failed Discord Webhook
@@ -150,11 +189,270 @@ jobs:
         if: ${{ failure() }}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Web App - Service Deployment - Notification'
-          message: 'Failed to deploy Clash Bot WebApp - Service!'
+          title: 'Clash Bot Web App - Service Image Publish - Notification'
+          message: 'Failed to published Clash Bot Service Image!'
           message-color: '16711680'
 
+  deploy-ws-service:
+    name: "Publish Clash Bot Websocket Service to ECR"
+    needs: ws-build-service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployment In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Websocket Service Image Publish - Notification'
+          message: 'Image publishing in progress...'
+          message-color: '16750902'
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ws-service
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push Clash-Bot image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.WS_REPOSITORY_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Published Service Image Succeeded Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Websocket Service Image Publish - Notification'
+          message: 'Successfully published Clash Bot Websocket Service Image!'
+          message-color: '65345'
+
+      - name: Deployment Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Websocket Service Image Publish - Notification'
+          message: 'Failed to published Clash Bot Websocket Service Image!'
+          message-color: '16711680'
+
+  terraform-apply:
+    name: "Run Terraform Apply for Services"
+    if: ${{ always() }}
+    needs:
+      - ws-service-build
+      - service-build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: FranzDiebold/github-env-vars-action@v2.1.0
+
+      - name: Starting Terraform Apply
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Webapp Terraform Apply Notification'
+          message: 'Apply starting...'
+          message-color: '15258703'
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull latest clash bot service ecr image
+        id: get-latest
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          chmod 755 ./get_latest_image.sh
+          ./get_latest_image.sh ${{ secrets.WEBAPP_REPOSITORY_NAME }} 'WEBAPP_IMAGE_ID'
+          ./get_latest_image.sh ${{ secrets.WS_REPOSITORY_NAME }} 'WS_IMAGE_ID'
+
+      - name: Check image to be pushed
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          if ! [[ WEBAPP_IMAGE_ID =~ ^$ECR_REGISTRY\/$ECR_REPOSITORY:.+$ ]]; then
+            echo "Invalid Image Url"
+            exit 1
+          fi
+          if ! [[ WS_IMAGE_ID =~ ^$ECR_REGISTRY\/$ECR_REPOSITORY:.+$ ]]; then
+            echo "Invalid Image Url"
+            exit 1
+          fi
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Apply
+        id: apply
+        env:
+          TF_VAR_access_key: ${{ secrets.AWS_SECRET_ID }}
+          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          TF_VAR_region: "us-east-1"
+          TF_VAR_release_title: ${{ needs.check-applications.outputs.tag }}
+          TF_VAR_app_count: 1
+          TF_VAR_ws_app_count: 1
+          TF_VAR_service_image_id: ${{ env.WEBAPP_IMAGE_ID }}
+          TF_VAR_service_port: ${{ secrets.WEBAPP_PORT }}
+          TF_VAR_ws_service_image_id: ${{ env.WS_IMAGE_ID }}
+          TF_VAR_ws_service_port: ${{ secrets.WS_PORT }}
+          TF_VAR_webapp_repository_name: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
+          TF_VAR_ws_repository_name: ${{ secrets.WS_REPOSITORY_NAME }}
+          TF_VAR_ecs_cloudwatch_policies: ${{ secrets.CLOUDWATCH_POLICIES }}
+          TF_VAR_registry_ecr_iam_policies: ${{ secrets.ECR_POLICIES }}
+          TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
+          TF_VAR_dynamodb_specific_iam_policies: ${{ secrets.DYNAMODB_POLICIES }}
+          TF_VAR_clash-bot-teams-dynamo-table: "server-clash-teams"
+          TF_VAR_clash-bot-association-dynamo-table: "clash-user-team-associations"
+          TF_VAR_clash-bot-header-key: ${{ secrets.HEADER_KEY }}
+          TF_VAR_clash-bot-header-value: ${{ secrets.HEADER_VALUE }}
+          TF_VAR_webapp_logger_level: "info"
+          TF_VAR_ws_logger_level: "info"
+        run: terraform apply -auto-approve -input=false
+
+      - name: Build Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Webapp Terraform Apply Notification'
+          message: |
+            Github Terraform apply failed!
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.apply.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          message-color: '16711680'
+
+      - name: Build Success Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Webapp Terraform Apply Notification'
+          message: |
+            Github Terraform apply succeeded!
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.apply.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          message-color: '65345'
+
+  terraform-ui-apply:
+    name: "Run Terraform Apply for UI"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: FranzDiebold/github-env-vars-action@v2.1.0
+
+      - name: Starting Terraform Apply
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot UI Terraform Apply Notification'
+          message: 'Apply starting...'
+          message-color: '15258703'
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Apply
+        id: apply
+        env:
+          TF_VAR_access_key: ${{ secrets.AWS_SECRET_ID }}
+          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          TF_VAR_region: "us-east-1"
+          TF_VAR_s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
+          TF_VAR_domain: ${{ secrets.DOMAIN }}
+        run: terraform apply -auto-approve -input=false
+
+      - name: Build Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot UI Terraform Apply Notification'
+          message: |
+            Github Terraform apply failed!
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.apply.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          message-color: '16711680'
+
+      - name: Build Success Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot UI Terraform Apply Notification'
+          message: |
+            Github Terraform apply succeeded!
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.apply.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          message-color: '65345'
+
   build-ui:
+    name: "Build Clash Bot UI for Deployment"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ui == 'true'}}
     runs-on: ubuntu-latest
@@ -171,9 +469,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.20.0'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: .npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
       - name: Install Dependencies
         working-directory: ./ClashBot-UI
-        run: npm i
+        run: npm install --omit=dev
 
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@master
@@ -194,7 +509,10 @@ jobs:
           path: ClashBot-UI/dist/Clash-Bot-gzip
 
   deploy-ui:
-    needs: build-ui
+    name: "Deploy out Clash Bot UI"
+    needs:
+      - build-ui
+      - terraform-ui-apply
     runs-on: ubuntu-latest
 
     steps:
@@ -236,7 +554,7 @@ jobs:
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Web App - UI Deployment - Notification'
-          message: 'Successfully deployed Clash Bot WebApp - UI!'
+          message: "Successfully deployed Clash Bot WebApp - UI!"
           message-color: '65345'
 
       - name: Deployment Failed Discord Webhook

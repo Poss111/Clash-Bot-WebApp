@@ -1,4 +1,4 @@
-import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {environment} from "../environments/environment";
@@ -13,14 +13,14 @@ import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+    selector: "app-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit, OnDestroy {
     appVersion: string = environment.version;
     subscriptions: Subscription[] = [];
-    darkModeFormControl = new FormControl(localStorage.getItem('darkMode') === 'true');
+    darkModeFormControl = new FormControl(localStorage.getItem("darkMode") === "true");
     username?: string;
     pageLoadingObs$ = this.pageLoadingService.getSubject();
 
@@ -28,32 +28,32 @@ export class AppComponent implements OnInit, OnDestroy {
 
     defaultRoutingArray: RoutingDetails[] = [
         {
-            name: 'Welcome Page',
-            route: '/',
-            icon: 'house',
-            id: 'clash-bot-menu-welcome-page'
+            name: "Welcome Page",
+            route: "/",
+            icon: "house",
+            id: "clash-bot-menu-welcome-page"
         }
     ];
 
     loggedInArray: RoutingDetails[] = [
         this.defaultRoutingArray[0],
         {
-            name: 'Teams',
-            route: '/teams',
-            icon: 'groups',
-            id: 'clash-bot-menu-teams-page'
+            name: "Teams",
+            route: "/teams",
+            icon: "groups",
+            id: "clash-bot-menu-teams-page"
         },
         {
-            name: 'Settings',
-            route: '/user-profile',
-            icon: 'settings',
-            id: 'clash-bot-menu-user-profile-page'
+            name: "Settings",
+            route: "/user-profile",
+            icon: "settings",
+            id: "clash-bot-menu-user-profile-page"
         }
     ];
 
-    assets = ['top', 'mid', 'jg', 'bot', 'supp'];
+    assets = ["top", "mid", "jg", "bot", "supp"];
 
-    @HostBinding('class') className = '';
+    @HostBinding("class") className = "";
 
     constructor(private router: Router,
                 private applicationDetailsService: ApplicationDetailsService,
@@ -91,14 +91,14 @@ export class AppComponent implements OnInit, OnDestroy {
             })
         );
         this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
-            window.localStorage.setItem('leagueApiVersion', versions[0]);
+            window.localStorage.setItem("leagueApiVersion", versions[0]);
         });
     }
 
     toggleDarkMode(turnDarkModeOn: boolean) {
-        const darkModeClassName = 'dark';
-        this.className = turnDarkModeOn ? darkModeClassName : '';
-        localStorage.setItem('darkMode', JSON.stringify(turnDarkModeOn));
+        const darkModeClassName = "dark";
+        this.className = turnDarkModeOn ? darkModeClassName : "";
+        localStorage.setItem("darkMode", JSON.stringify(turnDarkModeOn));
     }
 
     ngOnDestroy() {

@@ -1,0 +1,876 @@
+openapi: '3.0.1'
+info:
+  title: 'clash-bot-webapp-service'
+  description: Clash Bot Webapp Service to support League of Legends Clash tournament scheduling with Discord.
+  contact:
+    name: ClashBot-API-Support
+    email: rixxroid@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}/{basePath}
+    description: The local API server.
+    variables:
+      port:
+        default: '8080'
+      basePath:
+        default: api/v2
+tags:
+  - name: Team
+    description: A Clash Bot team for a League of Legends Clash tournament.
+  - name: Tentative
+    description: A tentative queue for upcoming League of Legends Clash tournaments.
+  - name: User
+    description: A Discord user that is leveraging the Clash Bot.
+  - name: SRE
+    description: Site reliability Engineering (SRE).
+  - name: Tournament
+    description: A League of Legends Clash Tournament.
+components:
+  schemas:
+    Team:
+      description: A League of Legends Clash Team
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the Team.
+        playerDetails:
+          type: object
+          properties:
+            Top:
+              $ref: '#/components/schemas/Player'
+            Mid:
+              $ref: '#/components/schemas/Player'
+            Jg:
+              $ref: '#/components/schemas/Player'
+            Bot:
+              $ref: '#/components/schemas/Player'
+            Supp:
+              $ref: '#/components/schemas/Player'
+        serverName:
+          description: The Discord server that the Team belongs to.
+          type: string
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+    Tournament:
+      description: A League of Legends Clash Tournament
+      type: object
+      properties:
+        tournamentName:
+          description: The name of the Tournament.
+          type: string
+        tournamentDay:
+          description: The day number of the Tournament. [1-4]
+          example: 1
+          type: string
+        startTime:
+          description: When the Tournament starts.
+          type: string
+          format: date-time
+        registrationTime:
+          description: When you can register for the Tournament.
+          type: string
+          format: date-time
+    Tentative:
+      description: A queue for Players unsure if they will play Clash for a given Tournament.
+      type: object
+      properties:
+        serverName:
+          description: 'The Server that the tentative queue belongs to.'
+          type: string
+        tournamentDetails:
+          $ref: '#/components/schemas/Tournament'
+        tentativePlayers:
+          items:
+            $ref: '#/components/schemas/Player'
+    Player:
+      description: A Clash Bot Player
+      type: object
+      properties:
+        id:
+          description: Unique identifier for Player
+          type: string
+        name:
+          description: The Players discord name
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        champions:
+          description: A list of the Users preferred champions.
+          type: array
+          items:
+            type: string
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        serverName:
+          type: string
+    Subscription:
+      description: A map of subscriptions a player has for Clash Bot
+      type: object
+      properties:
+        key:
+          type: string
+        isOn:
+          type: boolean
+    Role:
+      description: A League of Legends role.
+      type: string
+      enum:
+        - Top
+        - Mid
+        - Jg
+        - Bot
+        - Supp
+    Error:
+      description: The base error object.
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  requestBodies:
+    TeamCreateBody:
+      description: All necessary parameters to create a Clash Bot League of Legends Clash Team
+      content:
+        application/json:
+          examples:
+            simple:
+              summary: A base sample object.
+              value: { "serverName": "LoL-ClashBotSupport", "tournamentName": "awesome_sauce", "tournamentDay": "4", "playerDetails": { "id": "1", "role": "Top" }}
+          schema:
+            type: object
+            required:
+              - serverName
+              - tournamentName
+              - tournamentDay
+              - playerDetails
+            properties:
+              serverName:
+                description: The dedicated for the server team
+                type: string
+              tournamentName:
+                description: The League of Legends Clash Tournament to sign up for
+                type: string
+              tournamentDay:
+                description: The Tournament day to sign up for
+                type: string
+              playerDetails:
+                type: object
+                properties:
+                  id:
+                    description: Unique identifier for Player
+                    type: string
+                  role:
+                    $ref: '#/components/schemas/Role'
+    TeamPatchBody:
+      description: The Team details to use to update a specific Team
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - tournamentDetails
+              - playerId
+              - role
+              - teamName
+            properties:
+              serverName:
+                type: string
+              teamName:
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              playerId:
+                description: Player id to add to Team.
+                type: string
+              role:
+                $ref: '#/components/schemas/Role'
+    TeamRemovalBody:
+      description: Payload necessary to remove a player from a Team.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - playerId
+              - tournamentDetails
+              - teamName
+            properties:
+              serverName:
+                type: string
+              playerId:
+                description: The id of the player to be removed from a given Team.
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              teamName:
+                description: The name of the Team to be removed from.
+                type: string
+    PlayerCreateBody:
+      description: All necessary parameters to create a new Player
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - name
+              - serverName
+            properties:
+              id:
+                description: The id of the player
+                type: string
+              name:
+                description: The name of the player
+                type: string
+              serverName:
+                description: The server the player is from.
+                type: string
+    PlayerUpdateBody:
+      description: Parameters to update a new Player
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: The id of the player
+                type: string
+              name:
+                description: The name of the player
+                type: string
+              serverName:
+                description: The server the player is from.
+                type: string
+    ChampionPostBody:
+      description: A list of champions.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - champions
+            properties:
+              champions:
+                type: array
+                items:
+                  type: string
+    ChampionUpdateBody:
+      description: A League of Legends Champion to updated or remove with.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - championName
+            properties:
+              championName:
+                type: string
+    TentativeBody:
+      description: Parameters to place a Player into the tentative queue
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - serverName
+              - playerId
+              - tournamentDetails
+            properties:
+              serverName:
+                description: 'The Server that the tentative queue belongs to.'
+                type: string
+              tournamentDetails:
+                $ref: '#/components/schemas/Tournament'
+              playerId:
+                description: 'The Player id to be placed on tentative with.'
+                type: string
+  responses:
+    NotFound:
+      description: Unable to find requested resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoneFound:
+      description: No results found matching the criteria.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadInput:
+      description: Input given is invalid.
+    ClashBotException:
+      description: Default error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+paths:
+  /team:
+    summary: 'Teams that will participate in a specific League of Legends Clash tournament.'
+    get:
+      description: 'Returns a single Team or multiple Teams that match the filtering criteria.'
+      tags:
+        - Team
+      parameters:
+        - name: name
+          description: the name of the Team to retrieve.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: server
+          description: the name of the Server to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournament
+          description: the name of the Tournament to filter the Teams by.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: day
+          description: the day of the Tournament to filter the Teams by.
+          in: query
+          required: false
+          schema:
+            type: string
+      operationId: getTeam
+      responses:
+        '200':
+          description: the Teams that match the passed filtering criteria.
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Team'
+        '204':
+          description: no Teams match the passed filtering criteria.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: If no teams can be found with the name given.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Create a new Team
+      operationId: createNewTeam
+      tags:
+        - Team
+      requestBody:
+        $ref: '#/components/requestBodies/TeamCreateBody'
+      responses:
+        '200':
+          description: The Team was successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Bad details were given to create the Team with.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Something went wrong while creating the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      description: Updates the Team that matches the details passed.
+      operationId: updateTeam
+      tags:
+        - Team
+      requestBody:
+        $ref: '#/components/requestBodies/TeamPatchBody'
+      responses:
+        '200':
+          description: The Team was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '204':
+          description: No update can be made to the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: User is not able to join the given Team
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          $ref: "#/components/responses/ClashBotException"
+    delete:
+      description: Removes a Player from a Team
+      operationId: removePlayerFromTeam
+      tags:
+        - Team
+      parameters:
+        - name: name
+          description: the name of the Team to retrieve.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: serverName
+          description: the name of the Server to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournament
+          description: the name of the Tournament to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournamentDay
+          description: the day of the Tournament to filter the Teams by.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          description: the player id to remove from the Team.
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The Player was successfully removed from the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Bad details were given to create the Team with.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Something went wrong while creating the Team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tentative:
+    summary: To place a User into a tentative queue for upcoming Tournaments.
+    get:
+      description: A list of people on the tentative queue for upcoming Tournaments.
+      operationId: getTentativeDetails
+      parameters:
+        - name: serverName
+          description: The Server to filter the tentative queue by.
+          in: query
+          style: form
+          required: true
+          schema:
+            type: string
+        - name: tournamentName
+          description: The Tournament name to filter by.
+          in: query
+          style: form
+          required: false
+          schema:
+            type: string
+        - name: tournamentDay
+          description: The Tournament day to filter by.
+          in: query
+          style: form
+          required: false
+          schema:
+            type: string
+      tags:
+        - Tentative
+      responses:
+        200:
+          description: 'A tentative queue for a specific Tournament.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tentative'
+        204:
+          $ref: '#/components/responses/NoneFound'
+        500:
+          $ref: '#/components/schemas/Error'
+    post:
+      description: 'Places a player on the tentative queue for an upcoming Tournament.'
+      operationId: placePlayerOnTentative
+      tags:
+        - Tentative
+      requestBody:
+        $ref: '#/components/requestBodies/TentativeBody'
+      responses:
+        200:
+          description: Successfully placed the requested player on the Tentative queue for the give Server and Tournament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tentative'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadInput'
+        500:
+          $ref: '#/components/schemas/Error'
+    delete:
+      description: 'Remove a player from the tentative queue for an upcoming Tournament.'
+      operationId: removePlayerFromTentative
+      tags:
+        - Tentative
+      parameters:
+        - name: serverName
+          description: the name of the Server the queue falls under.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: playerId
+          description: the player id to remove from the tentative queue with.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournament
+          description: the Tournament that the tentative queue belongs to.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: tournamentDay
+          description: the Tournament day that the tentative queue belongs to.
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Player has been removed from queue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tentative'
+        404:
+          $ref: '#/components/responses/NotFound'
+        4XX:
+          $ref: '#/components/responses/BadInput'
+        5XX:
+          $ref: '#/components/schemas/Error'
+  /tournaments:
+    summary: 'APIs to interact with Clash Tournaments.'
+    get:
+      operationId: getTournaments
+      parameters:
+        - name: tournament
+          description: The Tournament name to filter by.
+          in: query
+          style: form
+          required: false
+          schema:
+            type: string
+        - name: day
+          description: The tournament day to filter by.
+          in: query
+          style: form
+          required: false
+          schema:
+            type: string
+      tags:
+        - Tournament
+      responses:
+        200:
+          description: return a tournament or Tournaments
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Tournament'
+        400:
+          description: If no Tournaments can be found with a name.
+          content:
+            application/json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/Error'
+  /user:
+    get:
+      description: Retrieve a Clash Bot Player Details
+      operationId: getUser
+      parameters:
+        - name: id
+          description: The id of the user to retrieve.
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - User
+      responses:
+        200:
+          description: The Clash Bot Player details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ClashBotException'
+        default:
+          $ref: "#/components/responses/ClashBotException"
+    post:
+      description: Create a new Clash Bot Player.
+      operationId: createUser
+      tags:
+        - User
+      requestBody:
+        $ref: '#/components/requestBodies/PlayerCreateBody'
+      responses:
+        200:
+          description: Created a new Clash Bot Player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ClashBotException'
+        default:
+          $ref: "#/components/responses/ClashBotException"
+    patch:
+      description: Update an existing Clash Bot Player.
+      operationId: updateUser
+      tags:
+        - User
+      requestBody:
+        $ref: '#/components/requestBodies/PlayerCreateBody'
+      responses:
+        200:
+          description: Created a new Clash Bot Player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ClashBotException'
+        default:
+          $ref: "#/components/responses/ClashBotException"
+  /user/{id}/champions:
+    parameters:
+      - name: id
+        description: The Clash bot Player's id
+        required: true
+        in: path
+        schema:
+          type: string
+        style: simple
+    get:
+      description: Returns a list of preferred champions that the User has.
+      operationId: retrieveListOfUserPreferredChampions
+      tags:
+        - User
+      responses:
+        200:
+          description: A list of preferred champions that the user has.
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+    post:
+      description: Updates the users preferred champions with an entirely new list. Cannot be greater than a length of 5.
+      operationId: createNewListOfPreferredChampions
+      tags:
+        - User
+      requestBody:
+        $ref: '#/components/requestBodies/ChampionPostBody'
+      responses:
+        200:
+          description: The new list of preferred champions that the user has.
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+        204:
+          $ref: '#/components/responses/NoneFound'
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+    patch:
+      description: Adds the requested champion to the users preferred champions. Cannot be greater than a length of 5.
+      operationId: addToListOfPreferredChampions
+      tags:
+        - User
+      requestBody:
+        $ref: "#/components/requestBodies/ChampionUpdateBody"
+      responses:
+        200:
+          description: The updated list of preferred champions that the user has.
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+        204:
+          $ref: '#/components/responses/NoneFound'
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+    delete:
+      description: Removes the requested champion to the users preferred champions.
+      operationId: removeFromListOfPreferredChampions
+      tags:
+        - User
+      parameters:
+        - name: champion
+          description: the champion name to remove from the user's list of champions
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The updated list of preferred champions that the user has.
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+  /user/{id}/subscriptions:
+    parameters:
+      - name: id
+        description: The Clash bot Player's id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      description: Returns if the user is subscribed to receive Monday morning Discord DMs.
+      operationId: retrieveUserSubscriptions
+      tags:
+        - User
+      responses:
+        200:
+          description: A list of subscriptions that the user has.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Subscription"
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+    post:
+      description: Adds user to Monday morning subscription
+      operationId: subscribeUser
+      tags:
+        - User
+      responses:
+        200:
+          description: The user was successfully subscribed.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Subscription"
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+    delete:
+      description: Removes user from Monday morning subscription.
+      operationId: unsubscribeUser
+      tags:
+        - User
+      responses:
+        200:
+          description: The user was successfully unsubscribed.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Subscription"
+        400:
+          $ref: '#/components/responses/BadInput'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/schemas/Error'
+  /health:
+    description: 'Returns if the application is healthy.'
+    get:
+      operationId: getApplicationHealth
+      tags:
+        - SRE
+      responses:
+        200:
+          description: 'Returns if the instance is healthy.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    description: Is the instance healthy
+                    type: string
+                    example: Healthy

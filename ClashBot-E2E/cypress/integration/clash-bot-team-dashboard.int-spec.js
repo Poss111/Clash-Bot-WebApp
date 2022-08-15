@@ -20,6 +20,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     }
   }
 
+  // Needs a Team named 'Pikachu'
   it('Check to see if welcome message is displayed and can navigate to Team Dashboard', () => {
     cy.get('#WelcomeMessage-Title').should('have.text', 'Welcome to Clash-Bot!');
     cy.get('#WelcomeMessage-LoginMessage').should('not.exist');
@@ -33,11 +34,12 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
     cy.get('app-team-card>#clash-bot-team-card').should('have.length.greaterThan', 4);
     cy.get('#clash-bot-teams-card-create-new-team-card').should('exist');
-    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-title').should('have.text', 'LoL-ClashBotSupport - Team Pikachu');
-    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-subtitle-tournament').should('have.text', 'Awesome Sauce - Day 2');
-    cy.get('#clash-bot-team-card-lol-clashbotsupport-team-pikachu-players mat-accordion').should('have.length.greaterThan', 4);
+    cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-title').should('have.text', 'Pikachu');
+    cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-subtitle-tournament').should('have.text', 'Awesome Sauce - Day 2');
+    cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-players mat-accordion').should('have.length.greaterThan', 4);
   })
 
+  // Using 'awesome_sauce' with day '2' on server 'Goon Squad'
   it('Check to see if User is able to create a new Team on a Server that does not have any Clash Teams', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-goon-squad').click();
@@ -62,31 +64,34 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-menu-teams-page').click();
   }
 
+  // Needs a team with name 'Charizard' that User is not registered to
   it('User should be able to register for an existing Team', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    let id = getTeamCard('LoL ClashBotSupport', 'Team Charizard');
+    let id = getTeamCard('LoL ClashBotSupport', 'Charizard');
     verifyCard(id, 1, undefined, "Roïdräge");
     cy.get(`#clash-bot-teams-card-${id} #clash-bot-team-card-join-top-register-button`).click();
     cy.get(`#clash-bot-dialog-box-yes-button`).click();
     verifyCard(id, 2, "Roïdräge");
   })
 
+  // Needs to unregister from a Team named 'Ho-oh' that User is registered to
   it('User should be able to unregister from an existing Team', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    let id = getTeamCard('LoL ClashBotSupport', 'Team Ho-oh');
+    let id = getTeamCard('LoL ClashBotSupport', 'Ho-oh');
     verifyCard(id, 2, "Roïdräge");
     cy.get('#clash-bot-team-card-mid-unregister-button').click();
     cy.get(`#clash-bot-dialog-box-yes-button`).click();
     verifyCard(id, 1, undefined, "Roïdräge");
     })
 
-  it('If a User belongs to another Team for the same tournament, they should be able to unregister from then existing Team and registered to the expected Team', () => {
+  // Uses 'awesome_sauce' day '3', teams 'Blastoise' and 'Blaziken'
+  it('If a User belongs to another Team for the same tournament, they should be able to unregister from the existing Team and registered to the expected Team', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
-    let startTeamId = getTeamCard('LoL ClashBotSupport', 'Team Blastoise');
-    let endTeamId = getTeamCard('LoL ClashBotSupport', 'Team Blaziken');
+    let startTeamId = getTeamCard('LoL ClashBotSupport', 'Blastoise');
+    let endTeamId = getTeamCard('LoL ClashBotSupport', 'Blaziken');
     verifyCard(startTeamId, 1, "Roïdräge");
     verifyCard(endTeamId, 1, undefined, "Roïdräge");
     cy.get(`#clash-bot-teams-card-${endTeamId} #clash-bot-team-card-join-top-register-button`).click();
@@ -95,6 +100,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get(`#clash-bot-teams-card-${startTeamId}`).should('not.exist');
   })
 
+  // User needs to exist on Team 'Blaziken' for 'awesome_sauce' day 3 to start
   it('If a user requests to be on tentative, they should be able to see their name show in the tentative column.', () => {
     navigateToTeamsPage();
     cy.get('#clash-bot-teams-lol-clashbotsupport').click();
@@ -102,13 +108,13 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players').should('not.text', 'Roïdräge');
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('exist');
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('not.exist');
-    let startingCardStateId = getTeamCard('LoL ClashBotSupport', 'Team Blaziken');
+    let startingCardStateId = getTeamCard('LoL ClashBotSupport', 'Blaziken');
     verifyCard(startingCardStateId, 2, "Roïdräge");
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').click();
     cy.get(`#clash-bot-dialog-box-yes-button`).click();
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('exist');
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('not.exist');
-    let endingCardStateId = getTeamCard('LoL ClashBotSupport', 'Team Blaziken');
+    let endingCardStateId = getTeamCard('LoL ClashBotSupport', 'Blaziken');
     verifyCard(endingCardStateId, 1, undefined, "Roïdräge");
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players').should('contain.text', 'Roïdräge');
     cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').click();

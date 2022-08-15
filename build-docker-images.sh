@@ -1,10 +1,9 @@
-docker compose stop
-pushd ClashBot-UI/
-npm run-script build-int
-docker build -t poss11111/clash-bot-ui:test .
+#docker compose stop
+pushd ClashBot-WS-Service/
+docker build -t poss11111/clash-bot-ws-service:test .
 popd
-pushd ClashBot-Service/
-docker build -t poss11111/clash-bot-service:test .
-docker compose up -d
+pushd ClashBot-Service-OpenAPI/
+docker build -t poss11111/clash-bot-webapp-service:test .
+#docker compose up -d
 popd
 

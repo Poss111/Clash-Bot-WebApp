@@ -3,7 +3,8 @@ export interface ClashBotTentativeDetails {
   tentativePlayers: string[],
   tournamentDetails: TournamentDetails
   isMember?: boolean,
-  index?: number
+  index?: number,
+  toBeAdded: boolean
 }
 
 

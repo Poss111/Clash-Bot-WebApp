@@ -1,9 +1,9 @@
-import {TestBed} from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 
-import {RiotDdragonService} from './riot-ddragon.service';
+import {RiotDdragonService} from "./riot-ddragon.service";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 
-describe('RiotDdragonService', () => {
+describe("RiotDdragonService", () => {
     let service: RiotDdragonService;
     let httpMock: HttpTestingController;
 
@@ -16,12 +16,12 @@ describe('RiotDdragonService', () => {
         httpMock = TestBed.inject(HttpTestingController);
     });
 
-    test('should be created', () => {
+    test("should be created", () => {
         expect(service).toBeTruthy();
     });
 
-    test('Should make a call to retrieve the list of valid champion names.', (done) => {
-        window.localStorage.setItem('leagueApiVersion', '12.8.1');
+    test("Should make a call to retrieve the list of valid champion names.", (done) => {
+        window.localStorage.setItem("leagueApiVersion", "12.8.1");
         const mockChampionsList = {
             type: "champion",
             format: "standAloneComplex",
@@ -40,12 +40,12 @@ describe('RiotDdragonService', () => {
             expect(data).toBeTruthy();
             done();
         });
-        const request = httpMock.expectOne('https://ddragon.leagueoflegends.com/cdn/12.8.1/data/en_US/champion.json');
-        expect(request.request.method).toEqual('GET');
+        const request = httpMock.expectOne("https://ddragon.leagueoflegends.com/cdn/12.8.1/data/en_US/champion.json");
+        expect(request.request.method).toEqual("GET");
         request.flush(mockChampionsList);
     })
 
-    test('Should make a call to get version that the Riot API offers for their ddragon library.', () => {
+    test("Should make a call to get version that the Riot API offers for their ddragon library.", () => {
         let mockVersions = [
             "12.8.1",
             "12.4.1",
@@ -63,8 +63,8 @@ describe('RiotDdragonService', () => {
         service.getVersions().subscribe((data) => {
             expect(data).toEqual(mockVersions);
         })
-        const request = httpMock.expectOne('https://ddragon.leagueoflegends.com/api/versions.json');
-        expect(request.request.method).toEqual('GET');
+        const request = httpMock.expectOne("https://ddragon.leagueoflegends.com/api/versions.json");
+        expect(request.request.method).toEqual("GET");
         request.flush(mockVersions);
     })
 

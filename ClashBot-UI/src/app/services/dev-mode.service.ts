@@ -1,7 +1,7 @@
-import { Injectable, isDevMode } from '@angular/core';
+import {Injectable, isDevMode} from "@angular/core";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class DevModeService {
 

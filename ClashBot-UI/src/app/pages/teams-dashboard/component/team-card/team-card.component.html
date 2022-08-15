@@ -4,34 +4,30 @@
             <img mat-card-avatar
                  [src]="'https://img.pokemondb.net/sprites/black-white/anim/normal/' + pokemonName + '.gif'"
             appImageFallback/>
-            <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.serverName}}
-                - {{team.teamName}}</mat-card-title>
+            <mat-card-title [id]="'clash-bot-team-card-' + team.id + '-title'">{{team.name | titlecase}}</mat-card-title>
             <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-tournament'"
-                               *ngIf="team.tournamentDetails">{{ team.tournamentDetails.tournamentName | tournamentNameTransformer }} -
-                Day {{team.tournamentDetails.tournamentDay}}</mat-card-subtitle>
-            <mat-card-subtitle [id]="'clash-bot-team-card-' + team.id + '-subtitle-start'">Start
-                Time: {{team.startTime | date:dateFormat:timezoneOffset }}
-            </mat-card-subtitle>
+                               *ngIf="team.tournament">{{ team.tournament.tournamentName | tournamentNameTransformer }} -
+                Day {{team.tournament.tournamentDay}}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content [id]="'clash-bot-team-card-' + team.id + '-players'">
-              <app-team-card-player-details *ngIf="team.playersDetails"
-                                            [player]="team.playersDetails[0]"
+              <app-team-card-player-details *ngIf="team.teamDetails"
+                                            [player]="team.teamDetails[0]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
-              <app-team-card-player-details *ngIf="team.playersDetails"
-                                            [player]="team.playersDetails[1]"
+              <app-team-card-player-details *ngIf="team.teamDetails"
+                                            [player]="team.teamDetails[1]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
-              <app-team-card-player-details *ngIf="team.playersDetails"
-                                            [player]="team.playersDetails[2]"
+              <app-team-card-player-details *ngIf="team.teamDetails"
+                                            [player]="team.teamDetails[2]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
-              <app-team-card-player-details *ngIf="team.playersDetails"
-                                            [player]="team.playersDetails[3]"
+              <app-team-card-player-details *ngIf="team.teamDetails"
+                                            [player]="team.teamDetails[3]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
-              <app-team-card-player-details *ngIf="team.playersDetails"
-                                            [player]="team.playersDetails[4]"
+              <app-team-card-player-details *ngIf="team.teamDetails"
+                                            [player]="team.teamDetails[4]"
               (registerUserForRole)="registerToTeam($event)"
               (unregisterUserForRole)="unregisterFromTeam()"></app-team-card-player-details>
         </mat-card-content>

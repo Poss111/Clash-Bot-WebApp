@@ -1,16 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { TeamsTentativeTableComponent } from './teams-tentative-table.component';
+import {TeamsTentativeTableComponent} from "./teams-tentative-table.component";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTableModule} from "@angular/material/table";
 import {MatDialog} from "@angular/material/dialog";
-import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
-import { of } from 'rxjs';
+import {of} from "rxjs";
 import {ConfirmationDialogComponent} from "../../../../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 jest.mock("@angular/material/dialog");
 
-describe('TeamsTentativeTableComponent', () => {
+describe("TeamsTentativeTableComponent", () => {
   let component: TeamsTentativeTableComponent;
   let fixture: ComponentFixture<TeamsTentativeTableComponent>;
   let matDialogMock: MatDialog;
@@ -36,13 +36,13 @@ describe('TeamsTentativeTableComponent', () => {
     fixture.detectChanges();
   });
 
-  test('should create', () => {
+  test("should create", () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Tentative Register', () => {
+  describe("Tentative Register", () => {
 
-    test('When tentative Register is called and the user is a member, there should be a MatDialog called asking to be removed from the tentative list.', (done) => {
+    test("When tentative Register is called and the user is a member, there should be a MatDialog called asking to be removed from the tentative list.", (done) => {
       afterClosedMock = jest.fn().mockReturnValueOnce({
         pipe: jest.fn().mockReturnValue(of(true))
       });
@@ -50,25 +50,29 @@ describe('TeamsTentativeTableComponent', () => {
         afterClosed:  afterClosedMock
       })
       matDialogMock.open = openMock;
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: "0",
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: true
+        isMember: true,
+        toBeAdded: false
       };
       component.register.subscribe((event) => {
         mockClashBotTentativeDetails.index = 1;
-        expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: { message:`Are you sure you want to be removed from the Tentative list for this tournament?`}});
+        expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: {message:"Are you sure you want to be removed from the Tentative list for this tournament?"}});
         expect(event).toEqual(mockClashBotTentativeDetails);
         done();
       });
       component.tentativeRegister(mockClashBotTentativeDetails, 1);
     })
 
-    test('When tentative Register is called and the user is not a member, there should be a MatDialog called asking to be added to the tentative list.', (done) => {
+    test("When tentative Register is called and the user is not a member, there should be a MatDialog called asking to be added to the tentative list.", (done) => {
       afterClosedMock = jest.fn().mockReturnValueOnce({
         pipe: jest.fn().mockReturnValue(of(true))
       });
@@ -76,25 +80,29 @@ describe('TeamsTentativeTableComponent', () => {
         afterClosed:  afterClosedMock
       })
       matDialogMock.open = openMock;
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: "0",
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: false
+        isMember: false,
+        toBeAdded: true
       };
       component.register.subscribe((event) => {
         mockClashBotTentativeDetails.index = 1;
-        expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: { message:`Are you sure you want to be added to the Tentative list for this tournament?`}});
+        expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: {message:"Are you sure you want to be added to the Tentative list for this tournament?"}});
         expect(event).toEqual(mockClashBotTentativeDetails);
         done();
       });
       component.tentativeRegister(mockClashBotTentativeDetails, 1);
     })
 
-    test('When tentative Register is called and the user selects not to be placed on tentative, there should not be an event emitted.', () => {
+    test("When tentative Register is called and the user selects not to be placed on tentative, there should not be an event emitted.", () => {
       afterClosedMock = jest.fn().mockReturnValueOnce({
         pipe: jest.fn().mockReturnValue(of(false))
       });
@@ -103,30 +111,33 @@ describe('TeamsTentativeTableComponent', () => {
       })
       matDialogMock.open = openMock;
       component.register.emit = jest.fn().mockImplementation();
-      const mockClashBotTentativeDetails : ClashBotTentativeDetails = {
+      const mockClashBotTentativeDetails : TentativeRecord = {
         serverName: "ClashBot",
-        tentativePlayers: ["Roidrage"],
+        tentativePlayers: [{
+          id: "0",
+          name: "Roidrage"
+        }],
         tournamentDetails: {
           tournamentName: "awesome_sauce",
           tournamentDay: "1"
         },
-        isMember: false
+        isMember: false,
+        toBeAdded: false
       };
       component.tentativeRegister(mockClashBotTentativeDetails, 1);
-      expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: { message:`Are you sure you want to be added to the Tentative list for this tournament?`}});
+      expect(openMock).toHaveBeenCalledWith(ConfirmationDialogComponent, {data: {message:"Are you sure you want to be added to the Tentative list for this tournament?"}});
       expect(component.register.emit).not.toHaveBeenCalled();
     })
 
   })
 
-  describe('OnChanges', () => {
-    test('When on changes is called, it should make a call to render the rows again for the mat-table.', () => {
+  describe("OnChanges", () => {
+    test("When on changes is called, it should make a call to render the rows again for the mat-table.", () => {
       const mock: any = jest.fn();
-      const renderRowMock: any = {
+
+      (component.table as any) = {
         renderRows: jest.fn().mockImplementation()
       };
-
-      component.table = renderRowMock;
       component.ngOnChanges(mock);
       expect(component.table?.renderRows).toHaveBeenCalledTimes(1);
     })

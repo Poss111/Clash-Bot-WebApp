@@ -1,10 +1,10 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from "@angular/core/testing";
 
-import { ApplicationDetailsService } from './application-details.service';
+import {ApplicationDetailsService} from "./application-details.service";
 import {ApplicationDetails} from "../interfaces/application-details";
 import {take} from "rxjs/operators";
 
-describe('ApplicationDetailsService', () => {
+describe("ApplicationDetailsService", () => {
   let service: ApplicationDetailsService;
 
   beforeEach(() => {
@@ -12,19 +12,19 @@ describe('ApplicationDetailsService', () => {
     service = TestBed.inject(ApplicationDetailsService);
   });
 
-  test('should be created', () => {
+  test("should be created", () => {
     expect(service).toBeTruthy();
   });
 
-  test('getApplicationDetails should return a Subject.', () => {
+  test("getApplicationDetails should return a Subject.", () => {
     expect(service.getApplicationDetails()).toBeTruthy()
   })
 
-  test('When setApplicationDetails are set, it should emit to all subscribed.', (done) => {
+  test("When setApplicationDetails are set, it should emit to all subscribed.", (done) => {
     let applicationDetails: ApplicationDetails = {
       currentTournaments: [{
-        tournamentName: 'awesome_sauce',
-        tournamentDay: '1',
+        tournamentName: "awesome_sauce",
+        tournamentDay: "1",
         startTime: new Date().toISOString(),
         registrationTime: new Date().toISOString()
       }]

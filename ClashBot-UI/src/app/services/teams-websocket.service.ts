@@ -1,28 +1,27 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from "@angular/core";
 import {webSocket, WebSocketSubject} from "rxjs/webSocket";
-import {ClashTeam} from "../interfaces/clash-team";
+import {Team} from "clash-bot-service-api";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class TeamsWebsocketService {
 
-  private readonly subject;
+  private subject$: WebSocketSubject<Team>| undefined;
 
-  constructor() {
-    if (window.location.hostname === 'localhost') {
-      this.subject = webSocket<ClashTeam|string>(`ws://${this.buildLocalhostUrl('/api/ws/teams')}`);
+  constructor() {}
+
+  connect(serverName: string) : WebSocketSubject<Team> {
+    if (window.location.hostname === "localhost") {
+      this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
     } else {
-      this.subject = webSocket<ClashTeam|string>(`wss://${window.location.hostname}/api/ws/teams`);
+      this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
     }
-  }
-
-  getSubject() : WebSocketSubject<ClashTeam|string>{
-   return this.subject;
+    return this.subject$;
   }
 
   buildLocalhostUrl(url: string): string {
-      return `${window.location.hostname}:80${url}`;
+      return `${window.location.hostname}:8081${url}`;
   }
 
 }

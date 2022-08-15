@@ -1,0 +1,64 @@
+{
+  "name": "clashbot-service-openapi",
+  "version": "2.0.0",
+  "description": "The Clash Bot backend service supporting the different needs for League of Legends Clash Tournament planning.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js | pino-pretty -t",
+    "db-test": "node dao/tests/db-test.utility.test.js | pino-pretty -t",
+    "integration-setup": "node integration/integration-setup.js | pino-pretty -t",
+    "test": "jest unit",
+    "local-test": "jest unit --silent | pino-pretty -t",
+    "ws": "node test.js"
+  },
+  "keywords": [
+    "openapi-generator",
+    "openapi"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "camelcase": "^5.3.1",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "dynamodb": "^1.3.0",
+    "express": "^4.18.1",
+    "express-openapi-validator": "^4.13.8",
+    "joi": "^17.4.2",
+    "js-yaml": "^3.3.0",
+    "moment-timezone": "^0.5.33",
+    "object-mapper": "^6.2.0",
+    "ono": "^5.0.1",
+    "openapi-sampler": "^1.0.0-beta.15",
+    "pino": "^7.6.5",
+    "pino-http": "^6.6.0",
+    "swagger-ui-express": "^4.0.2",
+    "uuid": "^8.3.2",
+    "ws": "^8.8.1"
+  },
+  "devDependencies": {
+    "axios": "^0.19.0",
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jest": "^26.6.0",
+    "forever": "^4.0.1",
+    "jest": "^27.0.6",
+    "jest-each": "^27.0.6",
+    "jest-silent-reporter": "^0.5.0",
+    "jest-standard-reporter": "^2.0.0",
+    "nodemon": "^2.0.12",
+    "pino-pretty": "^7.5.1",
+    "stream-mock": "^2.0.5",
+    "streamtest": "^2.0.0",
+    "supertest": "^6.1.5",
+    "wait-on": "^6.0.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    }
+  }
+}

@@ -31,7 +31,7 @@
         <mat-header-cell *matHeaderCellDef> Tentative Players</mat-header-cell>
         <mat-cell
                 id="clash-bot-teams-dashboard-{{element.tournamentDetails.tournamentName}}-{{element.tournamentDetails.tournamentDay}}-tentative-players"
-                *matCellDef="let element"> {{element.tentativePlayers}} </mat-cell>
+                *matCellDef="let element"> {{element.playerNames}} </mat-cell>
     </ng-container>
     <ng-container matColumnDef="action" stickyEnd>
         <th mat-header-cell *matHeaderCellDef>+/-</th>

@@ -9,19 +9,19 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.loginThroughOAuth();
     cy.get('#clash-bot-discord-username').should('have.text', 'Roïdräge');
-    cy.request('get', 'http://localhost:80/api/user?id=299370234228506627')
-        .then((response) => {
-          initialUserData = response.body;
-          initialUserData.playerName = 'Roïdräge';
-        });
   })
 
   beforeEach(() => {
     localStorage.setItem('leagueApiVersion', '12.8.1');
-  })
-
-  after(() => {
-    cy.request('post', 'http://localhost:80/api/user', initialUserData);
+    cy.request('patch', 'http://localhost:8080/api/v2/user', {
+      id: '299370234228506627',
+      serverName: 'LoL-ClashBotSupport',
+      name: 'Roïdräge'
+    });
+    cy.request('post', 'http://localhost:8080/api/v2/user/299370234228506627/champions', {
+      champions: ['Volibear','Ornn','Mordekaiser']
+    });
+    cy.request('delete', 'http://localhost:8080/api/v2/user/299370234228506627/subscriptions');
   })
 
   function searchForChampion(searchTeam, championName) {
@@ -74,6 +74,5 @@ describe('Validate User Profile of Clash Bot', () => {
     searchForChampion('Jhin', 'Jhin');
     cy.get(MAT_CHIP_LOCATORS).should('have.length', '5');
   })
-
 
 })

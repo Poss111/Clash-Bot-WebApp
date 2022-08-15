@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {UserDetails} from "../interfaces/user-details";
@@ -6,7 +6,7 @@ import {UserDetails} from "../interfaces/user-details";
 @Injectable()
 export class DiscordService {
 
-  hostName: string = 'https://discord.com/api';
+  hostName: string = "https://discord.com/api";
 
   constructor(private httpClient: HttpClient) { }
 

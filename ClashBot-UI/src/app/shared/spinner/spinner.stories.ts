@@ -3,7 +3,7 @@ import {Meta, Story} from "@storybook/angular/types-6-0";
 import {SpinnerComponent} from "./spinner.component";
 
 export default {
-    title: 'Shared/Spinner',
+    title: "Shared/Spinner",
     component: SpinnerComponent,
     argTypes: {},
     decorators: [

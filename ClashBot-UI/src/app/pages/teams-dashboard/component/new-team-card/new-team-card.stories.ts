@@ -1,6 +1,6 @@
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
-import { Story, Meta } from '@storybook/angular/types-6-0';
-import { moduleMetadata } from '@storybook/angular';
+import {Story, Meta} from "@storybook/angular/types-6-0";
+import {moduleMetadata} from "@storybook/angular";
 import {NewTeamCardComponent} from "./new-team-card.component";
 import {MatCardModule} from "@angular/material/card";
 import {MatButtonModule} from "@angular/material/button";
@@ -14,7 +14,7 @@ import {CommonModule} from "@angular/common";
 import {action} from "@storybook/addon-actions";
 
 export default {
-    title: 'Cards/NewTeamCard',
+    title: "Cards/NewTeamCard",
     component: NewTeamCardComponent,
     argTypes: {},
     decorators: [
@@ -38,10 +38,10 @@ export default {
 const Template: Story<NewTeamCardComponent> = (args: NewTeamCardComponent) => ({
     props: {
       eligibleTournaments: args.eligibleTournaments,
-      tournamentControl: new FormControl('', Validators.required),
-      roleControl: new FormControl('', Validators.required),
-      rolesAsString: ['Top', 'Mid', 'Jg', 'Bot', 'Supp'],
-      createNewTeamEvent: action('createNewTeamEvent')
+      tournamentControl: new FormControl("", Validators.required),
+      roleControl: new FormControl("", Validators.required),
+      rolesAsString: ["Top", "Mid", "Jg", "Bot", "Supp"],
+      createNewTeamEvent: action("createNewTeamEvent")
     },
 });
 
@@ -49,26 +49,26 @@ export const Primary = Template.bind({});
 Primary.args = {
     eligibleTournaments: [
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '1',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "1",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '2',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "2",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '3',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "3",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         },
         {
-            tournamentName: 'awesome_sauce',
-            tournamentDay: '4',
+            tournamentName: "awesome_sauce",
+            tournamentDay: "4",
             startTime: new Date().toISOString(),
             registrationTime: new Date().toISOString()
         }

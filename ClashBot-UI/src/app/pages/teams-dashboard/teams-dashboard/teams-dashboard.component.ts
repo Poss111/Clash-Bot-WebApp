@@ -1,50 +1,63 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ClashTeam, PlayerDetails} from "../../../interfaces/clash-team";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {Subscription, throwError} from "rxjs";
-import {ClashBotService} from "../../../services/clash-bot.service";
+import {Subject, Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, retryWhen, take, timeout} from "rxjs/operators";
+import {catchError, delay, finalize, map, retryWhen, take, takeUntil, tap, timeout} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
-import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
-import {ClashBotTentativeDetails} from "../../../interfaces/clash-bot-tentative-details";
 import {ClashBotUserRegister} from "../../../interfaces/clash-bot-user-register";
 import {TeamsWebsocketService} from "../../../services/teams-websocket.service";
 import {CreateNewTeamDetails} from "../../../interfaces/create-new-team-details";
 import {ApplicationDetails} from "../../../interfaces/application-details";
 import {PageLoadingService} from "../../../services/page-loading.service";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {
+  CreateNewTeamRequest,
+  PlacePlayerOnTentativeRequest,
+  Role,
+  Team,
+  TeamService,
+  TentativeService,
+  UpdateTeamRequest
+} from "clash-bot-service-api";
+import {TentativeRecord} from "../../../interfaces/tentative-record";
+import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
+import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 
 @Component({
-    selector: 'app-teams-dashboard',
-    templateUrl: './teams-dashboard.component.html',
-    styleUrls: ['./teams-dashboard.component.scss']
+    selector: "app-teams-dashboard",
+    templateUrl: "./teams-dashboard.component.html",
+    styleUrls: ["./teams-dashboard.component.scss"]
 })
 export class TeamsDashboardComponent implements OnInit, OnDestroy {
-    currentSelectedGuild: string = '';
+    currentSelectedGuild: string = "";
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
-    teams: ClashTeam[] = [];
+    teams: TeamUiWrapper[] = [];
     teamFilters: TeamFilter[] = [];
     currentApplicationDetails: ApplicationDetails = {loggedIn: false};
     private readonly MAX_TIMEOUT = 4000;
-    eligibleTournaments: ClashTournaments[] = [];
-    tentativeList?: ClashBotTentativeDetails[];
+    eligibleTournaments: Tournament[] = [];
+    tentativeList?: TentativeRecord[];
     $teamsSub: Subscription | undefined;
-    tentativeDataStatus: string = 'NOT_LOADED';
+    tentativeDataStatus: string = "NOT_LOADED";
     canCreateNewTeam: boolean = false;
     defaultServer?: string;
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
+    websocketSub: Subscription | undefined = undefined;
+    destroy$ = new Subject();
+    private readonly noDataAvailable = {error: "No data"};
 
-    constructor(private clashBotService: ClashBotService,
-                private _snackBar: MatSnackBar,
+    constructor(private _snackBar: MatSnackBar,
                 private applicationDetailsService: ApplicationDetailsService,
                 private dialog: MatDialog,
                 private teamsWebsocketService: TeamsWebsocketService,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private tentativeService: TentativeService,
+                private teamsService: TeamService) {
         this.showSpinner = false;
     }
 
@@ -60,24 +73,9 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             value: record.name,
                             type: FilterType.SERVER,
                             state: record.name === appDetails.defaultGuild,
-                            id: record.name.replace(new RegExp(/ /, 'g'), '-').toLowerCase()
+                            id: record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase()
                         });
-                    })
-                    this.subs.push(this.teamsWebsocketService.getSubject()
-                        .pipe(retryWhen(errors => errors.pipe(delay(1000))))
-                        .subscribe((msg) => {
-                                if (this.currentApplicationDetails.loggedIn) {
-                                    this.handleIncomingTeamsWsEvent(msg);
-                                }
-                            },
-                            () => {
-                                this._snackBar.open(
-                                    'Oops! Failed to connect to server for Team updates, please try refreshing.',
-                                    'X',
-                                    {duration: 5 * 1000});
-                                this.teams = [{error: 'No data'}];
-                            }));
-
+                    });
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
                         this.currentSelectedGuild = appDetails.defaultGuild;
@@ -90,36 +88,53 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subs.forEach(subscriptions => subscriptions.unsubscribe());
+        this.websocketSub?.unsubscribe();
+        this.destroy$.unsubscribe();
     }
 
     updateTentativeList(guildName: string) {
         if (this.currentApplicationDetails.loggedIn) {
-            this.tentativeDataStatus = 'LOADING';
+            this.tentativeDataStatus = "LOADING";
 
-            this.clashBotService.getServerTentativeList(guildName)
+            this.tentativeService.getTentativeDetails(guildName)
                 .pipe(take(1),
                     timeout(this.MAX_TIMEOUT),
                     catchError((err: HttpErrorResponse) => {
-                        this._snackBar.open('Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.',
-                            'X',
+                        this._snackBar.open("Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.",
+                            "X",
                             {duration: 5 * 1000}
                         );
-                        this.tentativeDataStatus = 'FAILED';
+                        this.tentativeDataStatus = "FAILED";
                         return throwError(err);
                     }),
-                  map(response => {return response.slice(0,4)}),
-                  map(response => {
-                    response.forEach(tentativeRecord => tentativeRecord.isMember
-                      = tentativeRecord.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?? ''))
-                    return response;
-                  }))
-                .subscribe((response) => {
-                    this.tentativeList = response;
-                    this.tentativeDataStatus = 'SUCCESSFUL';
+                    map(response => {
+                        return response.slice(0, 4)
+                    }),
+                    map(response => {
+                        return response.map((tentative) => {
+                            const tentativeRecord: TentativeRecord = tentative as TentativeRecord;
+                            tentativeRecord.playerNames = tentative
+                                .tentativePlayers?.map((player) => player.name ?? "") ?? []
+                            if (tentative.tentativePlayers) {
+                                tentativeRecord.isMember = tentative
+                                    .tentativePlayers
+                                    .some((record) => record
+                                        .id === this
+                                        .currentApplicationDetails.userDetails?.id ?? "")
+                            } else {
+                                tentativeRecord.isMember = false;
+                            }
+                            return tentativeRecord;
+                        });
+                    })
+                )
+                .subscribe((mappedResponse) => {
+                    this.tentativeList = mappedResponse;
+                    this.tentativeDataStatus = "SUCCESSFUL";
                 });
         } else {
-            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+            this._snackBar.open("Oops! You are not logged in, please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
 
         }
@@ -138,86 +153,135 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     private filterForTeamsByServer(valueToSearchFor: string) {
         if (!this.currentApplicationDetails.loggedIn) {
             this._snackBar.open(
-                'Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+                "Oops! You are not logged in, " +
+                "please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
-            this.teams = [{error: 'No data'}];
+            this.teams = [this.noDataAvailable];
         } else {
+            this.destroy$.next();
             this.updateTentativeList(valueToSearchFor);
             this.showInnerSpinner = true;
-            this.clashBotService
-                .getClashTeams(valueToSearchFor)
+            this.teamsService
+                .getTeam(valueToSearchFor)
                 .pipe(
+                    map((records) => records.map((team) => this.mapTeamToTeamUiWrapper(team))),
                     take(1),
                     timeout(7000),
                     catchError((err: HttpErrorResponse) => {
-                        this._snackBar.open('Failed to retrieve Teams. Please try again later.',
-                            'X',
-                            {duration: 5 * 1000});
-                        this.teams.push({error: 'Failed to make call.'});
                         return throwError(err);
                     }),
                     finalize(() => this.showInnerSpinner = false)
                 ).subscribe(response => {
-                if (this.currentApplicationDetails.loggedIn) {
-                    this.syncTeamInformation(response);
+                    if (this.currentApplicationDetails.loggedIn) {
+                        this.teams = response;
+                        this.repopulateEligibleTournaments(response);
+                    }
+                }, () => {
+                    this.teams = [{error: "Failed to make call."}];
+                    this._snackBar.open("Failed to retrieve Teams. " +
+                        "Please try again later.",
+                        "X",
+                        {duration: 5 * 1000});
+                }
+            );
+            this.teamsWebsocketService.connect(this.currentSelectedGuild)
+                .pipe(
+                  retryWhen(errors => {
+                  return errors.pipe(tap(value => console.error(value)),
+                      delay(1000))
+                  }),
+                  map((event) => {
+                    let mappedEvent;
+                    let behavior: ClashBotTeamEventBehavior = ClashBotTeamEventBehavior.REMOVED;
+                    let foundTeam = this.teams.find((team) =>
+                      team.name === event.name
+                      && team.tournament?.tournamentName === event.tournament?.tournamentName
+                      && team.tournament?.tournamentDay === event.tournament?.tournamentDay)
+                    if (event.playerDetails) {
+                      behavior = ClashBotTeamEventBehavior.UPDATED;
+                      mappedEvent = this.mapTeamToTeamUiWrapper(event);
+                      if (!foundTeam && event.playerDetails) {
+                        behavior = ClashBotTeamEventBehavior.ADDED;
+                      }
+                    }
+                    const clashBotTeamEvent: ClashBotTeamEvent = {
+                      event: event,
+                      behavior: behavior,
+                      mappedEvent: mappedEvent,
+                      originalTeam: foundTeam
+                    };
+                    return clashBotTeamEvent;
+                  }),
+                  takeUntil(this.destroy$),
+                )
+                .subscribe((msg) => {
+                        if (this.currentApplicationDetails.loggedIn) {
+                            this.handleIncomingTeamsWsEvent(msg);
+                        }
+                    },
+                    () => {
+                        this._snackBar.open(
+                            "Oops! Failed to connect to server for Team updates, please try refreshing.",
+                            "X",
+                            {duration: 5 * 1000});
+                        this.teams = [this.noDataAvailable];
+                    });
+        }
+    }
+
+    handleIncomingTeamsWsEvent(clashBotTeamEvent: ClashBotTeamEvent) {
+        switch (clashBotTeamEvent.behavior) {
+          case ClashBotTeamEventBehavior.UPDATED:
+            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});
+            this.teams.forEach(team => {
+                if (team.id === clashBotTeamEvent.mappedEvent?.id) {
+                    Object.assign(team, {...clashBotTeamEvent.mappedEvent});
                 }
             });
-            this.teamsWebsocketService.getSubject().next(valueToSearchFor);
-        }
-    }
-
-    handleIncomingTeamsWsEvent(message: ClashTeam | String) {
-        let teamToBeUpdated = <ClashTeam>message;
-        if (teamToBeUpdated.teamName) {
-            let foundTeam = this.teams.find((team) =>
-                team.teamName === teamToBeUpdated.teamName
-                && team.tournamentDetails?.tournamentName === teamToBeUpdated.tournamentDetails?.tournamentName
-                && team.tournamentDetails?.tournamentDay === teamToBeUpdated.tournamentDetails?.tournamentDay);
-            if (!foundTeam) {
-                if (teamToBeUpdated.teamName) {
-                    let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
-                    this.updateTentativeListBasedOnTeam(mappedTeam[0]);
-                    if (this.teams.length === 1 && this.teams.find(team => team.error)) {
-                        this.teams = [...mappedTeam];
-                    } else {
-                        this.teams.push(...mappedTeam);
-                    }
-                }
-            } else if (teamToBeUpdated.playersDetails && teamToBeUpdated.playersDetails.length > 0) {
-                let mappedTeam = this.mapDynamicValues([teamToBeUpdated]);
-                this.updateTentativeListBasedOnTeam(mappedTeam[0]);
-                if (foundTeam.playersDetails && mappedTeam[0].playersDetails) {
-                    for (let i = 0; i < 5; i++) {
-                        let roleDetailsToUpdate = foundTeam.playersDetails[i];
-                        if (roleDetailsToUpdate) {
-                            let foundRecord = mappedTeam[0].playersDetails
-                                .find(record => record.role === roleDetailsToUpdate.role);
-                            if (foundRecord && roleDetailsToUpdate.name !== foundRecord.name) {
-                                foundTeam.playersDetails[i] = foundRecord;
-                            }
-                        }
-                    }
-                }
+            break;
+          case ClashBotTeamEventBehavior.ADDED:
+            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});
+            if (this.teams.length === 1
+              && this.teams.find(team => team.error)) {
+              this.teams = [clashBotTeamEvent.mappedEvent ?? {}];
             } else {
-                this.teams = this.teams.filter((team) => team.teamName !== teamToBeUpdated.teamName);
+              this.teams.push(clashBotTeamEvent.mappedEvent ?? {});
             }
-            this.syncTournaments(this.teams);
+            break;
+          case ClashBotTeamEventBehavior.REMOVED:
+            this.teams = this.teams
+              .filter((team) => team.name !== clashBotTeamEvent.event.name);
+            break;
+          default:
+            this._snackBar.open(
+              "Unknown Team event occurred. Please report an issue to the Issues Form.",
+              "X",
+              {duration: 5 * 1000}
+            );
         }
+        this.repopulateEligibleTournaments(this.teams);
     }
 
-    updateTentativeListBasedOnTeam(mappedTeam: ClashTeam) {
+    updateTentativeListBasedOnTeam(mappedTeam: Team) {
         let playerNames: string[] = [];
-        if (mappedTeam.playersDetails) {
-            playerNames = mappedTeam.playersDetails?.map(details => details.name);
+        if (mappedTeam.playerDetails) {
+            playerNames = Object
+                .entries(mappedTeam.playerDetails)
+                .map((entry) => entry[1].id);
         }
         if (this.tentativeList && playerNames.length > 0) {
             for (let i = 0; i < this.tentativeList?.length; i++) {
-                if (this.tentativeList[i].tournamentDetails.tournamentName === mappedTeam.tournamentDetails?.tournamentName
-                    && this.tentativeList[i].tournamentDetails.tournamentDay === mappedTeam.tournamentDetails?.tournamentDay) {
-                    let updatedTentative =
-                        this.tentativeList[i].tentativePlayers
-                            .filter((name) => !playerNames.includes(name));
+                if (this.tentativeList[i].tournamentDetails?.tournamentName === mappedTeam.tournament?.tournamentName
+                    && this.tentativeList[i].tournamentDetails?.tournamentDay === mappedTeam.tournament?.tournamentDay) {
+                    let updatedTentative = this.tentativeList[i]
+                        .tentativePlayers?.filter((player) => {
+                            if (player.name) {
+                                return !playerNames.includes(player.name);
+                            } else {
+                                return true;
+                            }
+                        });
                     if (updatedTentative !== this.tentativeList[i].tentativePlayers
                         && this.tentativeList[i].isMember) {
                         this.tentativeList[i].isMember = false;
@@ -228,123 +292,156 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    syncTeamInformation(data: ClashTeam[]) {
-        this.teams = this.mapDynamicValues(data);
-        this.syncTournaments(data);
-    }
-
-    private syncTournaments(clashTeams: ClashTeam[]) {
-        const currentTournaments = this.currentApplicationDetails.currentTournaments ?? [];
+    repopulateEligibleTournaments(clashTeams: Team[]) {
+        const currentTournaments = this.currentApplicationDetails
+            .currentTournaments ?? [];
         if (clashTeams.length < 1) {
-            this.teams = [{error: 'No data'}];
+            this.teams = [this.noDataAvailable];
             this.eligibleTournaments = currentTournaments;
-            this.canCreateNewTeam = this.eligibleTournaments && this.eligibleTournaments.length != 0;
+            this.canCreateNewTeam = this
+                .eligibleTournaments && this
+                .eligibleTournaments.length != 0;
         } else {
             let map = this.createUserToTournamentMap(
                 this.currentApplicationDetails.userDetails?.id ?? 0,
                 currentTournaments,
                 this.teams
             );
-            let newEligibleTournaments: ClashTournaments[] = [];
+            let newEligibleTournaments: Tournament[] = [];
             map.forEach((value, key) => {
-                if (!value) {
+                if (!value
+                    || Object.keys(value.playerDetails).length != 1) {
                     newEligibleTournaments.push(key);
                 }
             });
             this.eligibleTournaments = newEligibleTournaments;
-            this.canCreateNewTeam = this.eligibleTournaments && this.eligibleTournaments.length != 0;
+            this.canCreateNewTeam = this.eligibleTournaments
+                && this.eligibleTournaments.length != 0;
         }
     }
 
-    private mapDynamicValues(data: ClashTeam[]) {
-        return data.map(record => {
-            record.id = `${record.serverName}-${record.teamName}`
-                .replace(new RegExp(/ /, 'g'), '-').toLowerCase();
-            let rolesMissing: string[] = [...Object.keys(this.roles)];
-            if (record.playersDetails) {
-                record.playersDetails.map((record) => {
-                    record.isUser = record.id === this.currentApplicationDetails.userDetails?.id;
-                    rolesMissing = rolesMissing.filter(role => role !== record.role);
-                    return record;
+    mapTeamToTeamUiWrapper(record: Team): TeamUiWrapper {
+        let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper;
+        teamUiWrapper.id = `${record.serverName}-${record.name}`
+            .replace(new RegExp(/ /, "g"), "-")
+            .toLowerCase();
+        let rolesMissing: string[] = [...Object.keys(this.roles)];
+        if (record.playerDetails) {
+            teamUiWrapper.teamDetails = Object.entries(record.playerDetails)
+                .map((record) => {
+                    let playerUiWrapper: PlayerUiWrapper = record[1] as PlayerUiWrapper;
+                    playerUiWrapper
+                        .isUser = record[1].id === this
+                        .currentApplicationDetails.userDetails?.id;
+                    playerUiWrapper.role = this.getKeyByValue(record[0]);
+                    rolesMissing = rolesMissing
+                        .filter(role => role !== record[0]);
+                    return playerUiWrapper;
                 });
+        }
+        if (!record.playerDetails
+            || Object.keys(record.playerDetails).length === 0) {
+            teamUiWrapper.teamDetails = [];
+        }
+        for (let role in rolesMissing) {
+            teamUiWrapper
+                .teamDetails?.push({
+                id: "0",
+                isUser: false,
+                role: this.getKeyByValue(rolesMissing[role])
+            });
+        }
+        teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {
+            if (a.role && b.role) {
+                return this.roles[a.role] - this.roles[b.role]
+                    || a.role.localeCompare(b.role);
+            } else if (a.role) {
+                return 1;
             }
-            if (!Array.isArray(record.playersDetails)
-                || record.playersDetails.length === 0) {
-                record.playersDetails = [];
-            }
-            for (let role in rolesMissing) {
-                record.playersDetails.push({name: '', id: 0, isUser: false, role: rolesMissing[role]});
-            }
-            record.playersDetails.sort((a: PlayerDetails, b: PlayerDetails) =>
-                this.roles[a.role] - this.roles[b.role] || a.role.localeCompare(b.role));
-            return record;
-        });
+            return -1;
+        })
+        return teamUiWrapper;
     }
 
     registerForTeam($event: ClashBotUserRegister) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.registerUserForTeam(this.currentApplicationDetails.userDetails, $event)
+            let updateTeamRequest: UpdateTeamRequest = {
+                playerId: `${this.currentApplicationDetails.userDetails.id}`,
+                role: this.getKeyByValue($event.role),
+                serverName: $event.serverName ?? "",
+                teamName: $event.teamName ?? "",
+                tournamentDetails: $event.tournamentDetails ?? {}
+            };
+            this.teamsService.updateTeam(updateTeamRequest)
                 .pipe(
                     timeout(7000),
                     catchError((err) => {
-                        let errorMessage = 'Oops! Failed to register you to the Team, missing required details.';
-                        if (err.name === 'TimeoutError') {
-                            errorMessage = 'Oops! Your registration timed out, please try again!';
+                        let errorMessage = "Oops! Failed to register you to the Team, missing required details.";
+                        if (err.name === "TimeoutError") {
+                            errorMessage = "Oops! Your registration timed out, please try again!";
                         }
-                        this._snackBar.open(errorMessage,
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
+                        return throwError(errorMessage);
                     }),
                     take(1)
-                ).subscribe(() => {});
+                ).subscribe(() => {
+                },
+                (err) => {
+                    this._snackBar.open(err,
+                        "X",
+                        {duration: 5 * 1000});
+                });
         } else {
-            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+            this._snackBar.open("Oops! You are not logged in, please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
         }
     }
 
-    unregisterFromTeam($event: ClashTeam) {
+    unregisterFromTeam($event: TeamUiWrapper) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.unregisterUserFromTeam(this.currentApplicationDetails.userDetails, $event)
+            this.teamsService.removePlayerFromTeam(
+                $event.name ?? "",
+                $event.serverName ?? "",
+                $event.tournament?.tournamentName ?? "",
+                $event.tournament?.tournamentDay ?? "",
+                `${this.currentApplicationDetails.userDetails.id}`)
                 .pipe(
                     timeout(7000),
                     take(1),
                     catchError((err) => {
-                        let errorMessage = 'Oops! Failed to unregister you from the Team.';
-                        if (err.name === 'TimeoutError') {
-                            errorMessage = 'Oops! Your request timed out, please try again!';
+                        let errorMessage = "Oops! Failed to unregister you from the Team.";
+                        if (err.name === "TimeoutError") {
+                            errorMessage = "Oops! Your request timed out, please try again!";
                         }
                         this._snackBar.open(errorMessage,
-                            'X',
+                            "X",
                             {duration: 5 * 1000});
                         return throwError(err);
                     })
-                ).subscribe(() => {});
+                ).subscribe(() => {
+            });
         } else {
-            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+            this._snackBar.open("Oops! You are not logged in, please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
         }
     }
 
-    createUserToTournamentMap(currentUserId: number, clashTournaments: ClashTournaments[], clashTeams: ClashTeam[]) {
-        let tournamentToTeamUserMap = new Map<ClashTournaments, any>();
+    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: Team[]) {
+        let tournamentToTeamUserMap = new Map<Tournament, any>();
         clashTournaments.forEach((tournament) =>
             tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {
                 let reducedMap;
-                if (team.playersDetails) {
-                    reducedMap = new Set(team.playersDetails.map(object => object.id));
+                if (team.playerDetails) {
+                    reducedMap = new Set(Object.entries(team.playerDetails).map(object => object[1].id));
                 }
-                return team.tournamentDetails
-                    && team.tournamentDetails.tournamentName === tournament.tournamentName
-                    && team.tournamentDetails.tournamentDay === tournament.tournamentDay
+                return team.tournament
+                    && team.tournament.tournamentName === tournament.tournamentName
+                    && team.tournament.tournamentDay === tournament.tournamentDay
                     && reducedMap
-                    && reducedMap.size === 2
-                    && reducedMap.has(currentUserId)
+                    && reducedMap.has(`${currentUserId}`);
             })));
         return tournamentToTeamUserMap;
     }
@@ -352,71 +449,107 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     createNewTeam(createNewTeamEvent: CreateNewTeamDetails) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            const clashTournament = this.eligibleTournaments.find(item => item.tournamentName === createNewTeamEvent.tournamentName
-                && item.tournamentDay === createNewTeamEvent.tournamentDay);
-            const newTeamRequest: ClashTeam = {
+            const createNewTeamRequest: CreateNewTeamRequest = {
                 serverName: this.currentSelectedGuild,
-                startTime: clashTournament?.startTime,
-                tournamentDetails: {
-                    tournamentName: createNewTeamEvent.tournamentName,
-                    tournamentDay: createNewTeamEvent.tournamentDay
+                tournamentName: createNewTeamEvent.tournamentName,
+                tournamentDay: createNewTeamEvent.tournamentDay,
+                playerDetails: {
+                    id: `${this.currentApplicationDetails.userDetails.id}`,
+                    role: this.getKeyByValue(createNewTeamEvent.role)
                 }
             };
-            this.clashBotService.createNewTeam(this.currentApplicationDetails.userDetails,
-                newTeamRequest,
-                createNewTeamEvent.role)
+            this.teamsService.createNewTeam(createNewTeamRequest)
                 .pipe(
                     timeout(7000),
                     catchError((err) => {
-                        let message = 'Oops! An error occurred while creating a new team.';
-                        if (err.name === 'TimeoutError') {
-                            message = 'Oops! Your request to create a new Team has timed out. Please try again.'
+                        let message = "Oops! An error occurred while creating a new team.";
+                        if (err.name === "TimeoutError") {
+                            message = "Oops! Your request to create a new Team has timed out. Please try again."
                         }
-                        this._snackBar.open(message,
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
+                        return throwError(message);
                     }),
                     take(1),
-                ).subscribe(() => {});
+                ).subscribe(() => {
+                },
+                (err) => {
+                    this._snackBar.open(err,
+                        "X",
+                        {duration: 5 * 1000});
+                });
         } else {
-            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+            this._snackBar.open("Oops! You are not logged in, please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
-            this.teams = [{error: "No data"}];
+            this.teams = [this.noDataAvailable];
         }
     }
 
-    tentativeRegister(tentativeUserDetails: ClashBotTentativeDetails) {
+    tentativeRegister(tentativeUserDetails: TentativeRecord) {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
-            this.clashBotService.postTentativeList(
-                `${this.currentApplicationDetails.userDetails.id}`,
-                tentativeUserDetails.serverName,
-                tentativeUserDetails.tournamentDetails.tournamentName,
-                tentativeUserDetails.tournamentDetails.tournamentDay)
+            const payload: PlacePlayerOnTentativeRequest = {
+                playerId: `${this.currentApplicationDetails.userDetails.id}`,
+                serverName: this.currentSelectedGuild,
+                tournamentDetails: tentativeUserDetails.tournamentDetails ?? {}
+            };
+            let obs = this.tentativeService.placePlayerOnTentative(payload);
+            if (!tentativeUserDetails.toBeAdded) {
+                obs = this.tentativeService.removePlayerFromTentative(
+                    this.currentSelectedGuild,
+                    `${this.currentApplicationDetails.userDetails.id}`,
+                    tentativeUserDetails.tournamentDetails?.tournamentName ?? "",
+                    tentativeUserDetails.tournamentDetails?.tournamentDay ?? ""
+                );
+            }
+            obs
                 .pipe(take(1),
+                    map(response => {
+                        const tentativeRecord: TentativeRecord = {
+                            serverName: response.serverName,
+                            tournamentDetails: response.tournamentDetails,
+                            tentativePlayers: response.tentativePlayers,
+                            playerNames: response.tentativePlayers?.map((player) => player.name ?? "") ?? [],
+                            isMember: response.tentativePlayers?.some((player) => {
+                                return player.id === `${this.currentApplicationDetails.userDetails?.id}`
+                            }) ?? false
+                        };
+                        return tentativeRecord;
+                    }),
                     timeout(7000),
-                    catchError(err => {
-                        console.error(err);
-                        this._snackBar.open('Oops, we were unable to update the tentative list. Please try again later!',
-                            'X',
-                            {duration: 5 * 1000});
-                        return throwError(err);
+                    catchError(() => {
+                        return throwError("Oops, we were unable to update the tentative list. Please try again later!");
                     })
                 ).subscribe((response) => {
-                response.isMember = response.tentativePlayers
-                    && response.tentativePlayers.includes(this.currentApplicationDetails.userDetails?.username ?
-                        this.currentApplicationDetails.userDetails.username : '');
                 if (this.tentativeList && tentativeUserDetails.index !== undefined) {
                     this.tentativeList[tentativeUserDetails.index] = response;
-                    this.tentativeList = JSON.parse(JSON.stringify(this.tentativeList));
+                    this.tentativeList = [...this.tentativeList];
                 }
+            }, (err) => {
+                this._snackBar.open(err,
+                    "X",
+                    {duration: 5 * 1000});
             });
         } else {
-            this._snackBar.open('Oops! You are not logged in, please navigate to the Welcome page and login.',
-                'X',
+            this._snackBar.open("Oops! You are not logged in, please navigate to the Welcome page and login.",
+                "X",
                 {duration: 5 * 1000});
+        }
+    }
+
+    getKeyByValue(value?: string): Role {
+        switch (value) {
+            case "Top":
+                return Role.Top;
+            case "Bot":
+                return Role.Bot;
+            case "Mid":
+                return Role.Mid;
+            case "Supp":
+                return Role.Supp;
+            case "Jg":
+                return Role.Jg;
+            default:
+                return Role.Jg;
         }
     }
 }

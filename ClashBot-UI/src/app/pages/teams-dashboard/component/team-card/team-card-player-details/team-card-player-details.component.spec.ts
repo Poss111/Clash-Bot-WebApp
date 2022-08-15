@@ -1,17 +1,16 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import {TeamCardPlayerDetailsComponent} from './team-card-player-details.component';
+import {TeamCardPlayerDetailsComponent} from "./team-card-player-details.component";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {SharedModule} from "../../../../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RiotDdragonService} from "../../../../../services/riot-ddragon.service";
-import Mock = jest.Mock;
 
-jest.mock('../../../../../services/riot-ddragon.service')
+jest.mock("../../../../../services/riot-ddragon.service")
 
-describe('TeamCardPlayerDetailsComponent', () => {
+describe("TeamCardPlayerDetailsComponent", () => {
   let component: TeamCardPlayerDetailsComponent;
   let fixture: ComponentFixture<TeamCardPlayerDetailsComponent>;
   let riotDdragonService: any;
@@ -40,13 +39,13 @@ describe('TeamCardPlayerDetailsComponent', () => {
     fixture.detectChanges();
   });
 
-  test('should create', () => {
+  test("should create", () => {
     expect(component).toBeTruthy();
   });
 
   describe("OnInit", () => {
     test("If the player champion array is empty, then it should populate with an empty array.", () => {
-      component.player = { name: 'Hi', id: 2, role: 'Mid'}
+      component.player =  {name: "Hi", id: "2", role: "Mid", isUser: true};
 
       component.ngOnInit();
 
@@ -54,21 +53,21 @@ describe('TeamCardPlayerDetailsComponent', () => {
     })
 
     test("If the riotDdragonService has a baseUrl, then it should populate the baseUrl property.", () => {
-      window.localStorage.setItem('leagueApiVersion', '12.8.1');
+      window.localStorage.setItem("leagueApiVersion", "12.8.1");
 
       component.ngOnInit();
 
-      expect(component.apiVersion).toEqual('12.8.1')
+      expect(component.apiVersion).toEqual("12.8.1")
     })
   })
 
   describe("Register Team", () => {
     test("When registerToTeam is called, it should be emitted with the player role.", (done) => {
       component.registerUserForRole.subscribe((value) => {
-        expect(value).toEqual('Top');
+        expect(value).toEqual("Top");
         done();
       })
-      component.registerToTeam('Top');
+      component.registerToTeam("Top");
     })
   })
 

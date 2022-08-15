@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { ReleaseNotificationDialogComponent } from './release-notification-dialog.component';
+import {ReleaseNotificationDialogComponent} from "./release-notification-dialog.component";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MarkdownModule} from "ngx-markdown";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {HttpClientModule} from "@angular/common/http";
 
-describe('ReleaseNotificationDialogComponent', () => {
+describe("ReleaseNotificationDialogComponent", () => {
   let component: ReleaseNotificationDialogComponent;
   let fixture: ComponentFixture<ReleaseNotificationDialogComponent>;
 
@@ -23,7 +23,7 @@ describe('ReleaseNotificationDialogComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

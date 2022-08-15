@@ -8,7 +8,7 @@
 /bazel-out
 
 # dependencies
-/node_modules
+*/node_modules
 
 # profiling files
 chrome-profiler-events*.json
@@ -47,3 +47,11 @@ Thumbs.db
 *.iml
 ClashBot-Service/credentials.json
 .env
+*.log
+coverage/**
+dist/**
+gen/*
+
+# Terraform files
+*.tfvars
+.terraform*

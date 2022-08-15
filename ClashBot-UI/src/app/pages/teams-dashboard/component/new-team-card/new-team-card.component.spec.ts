@@ -1,6 +1,6 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import {NewTeamCardComponent} from './new-team-card.component';
+import {NewTeamCardComponent} from "./new-team-card.component";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -10,7 +10,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {KebabCasePipe} from "../../../../shared/kebab-case.pipe";
 import {MatCardModule} from "@angular/material/card";
 
-describe('NewTeamCardComponent', () => {
+describe("NewTeamCardComponent", () => {
   let component: NewTeamCardComponent;
   let fixture: ComponentFixture<NewTeamCardComponent>;
 
@@ -40,12 +40,12 @@ describe('NewTeamCardComponent', () => {
     fixture.detectChanges();
   });
 
-  test('should create', () => {
+  test("should create", () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Create New Team', () => {
-    test ('When createNewTeam is called, it should select the matOption given and should emit only if Tournament and Role are populated.', () => {
+  describe("Create New Team", () => {
+    test ("When createNewTeam is called, it should select the matOption given and should emit only if Tournament and Role are populated.", () => {
       const mockMatOption : any = {
         select: jest.fn().mockImplementation(),
         deselect: jest.fn().mockImplementation()
@@ -61,7 +61,7 @@ describe('NewTeamCardComponent', () => {
       expect(mockMatOption.select).toHaveBeenCalledTimes(1);
     })
 
-    test ('When createNewTeam is called, it should select the matOption given and should not emit if Tournament and not Role are populated.', () => {
+    test ("When createNewTeam is called, it should select the matOption given and should not emit if Tournament and not Role are populated.", () => {
       const mockMatOption : any = {
         select: jest.fn().mockImplementation(),
         deselect: jest.fn().mockImplementation()
@@ -70,7 +70,7 @@ describe('NewTeamCardComponent', () => {
       component.createNewTeamEvent = {
         emit: jest.fn().mockImplementation()
       } as any;
-      component.tournamentControl.setValue('awesome_sauce 1');
+      component.tournamentControl.setValue("awesome_sauce 1");
 
       component.createNewTeam(mockMatOption);
 
@@ -78,7 +78,7 @@ describe('NewTeamCardComponent', () => {
       expect(mockMatOption.select).toHaveBeenCalledTimes(1);
     })
 
-    test ('When createNewTeam is called, it should select the matOption given and should emit if Tournament and Role are populated.', () => {
+    test ("When createNewTeam is called, it should select the matOption given and should emit if Tournament and Role are populated.", () => {
       const mockMatOption : any = {
         select: jest.fn().mockImplementation(),
         deselect: jest.fn().mockImplementation()
@@ -87,15 +87,15 @@ describe('NewTeamCardComponent', () => {
       component.createNewTeamEvent = {
         emit: jest.fn().mockImplementation()
       } as any;
-      component.tournamentControl.setValue('awesome_sauce 1');
-      component.roleControl.setValue('Top');
+      component.tournamentControl.setValue("awesome_sauce 1");
+      component.roleControl.setValue("Top");
 
       component.createNewTeam(mockMatOption);
 
       expect(component.createNewTeamEvent.emit).toHaveBeenCalledWith({
-        tournamentName: 'awesome_sauce',
-        tournamentDay: '1',
-        role: 'Top'
+        tournamentName: "awesome_sauce",
+        tournamentDay: "1",
+        role: "Top"
       });
       expect(mockMatOption.select).toHaveBeenCalledTimes(1);
       expect(mockMatOption.deselect).toHaveBeenCalledTimes(1);

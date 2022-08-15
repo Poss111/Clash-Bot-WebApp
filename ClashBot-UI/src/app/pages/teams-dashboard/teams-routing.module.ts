@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
+import {NgModule} from "@angular/core";
 import {TeamsDashboardComponent} from "./teams-dashboard/teams-dashboard.component";
 import {RouterModule, Routes} from "@angular/router";
 
 const routes: Routes = [
   {
-    path: '',
+    path: "",
     component: TeamsDashboardComponent
   }
 ]

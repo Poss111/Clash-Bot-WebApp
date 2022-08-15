@@ -1,26 +1,26 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {ClashTournaments} from "../../../../interfaces/clash-tournaments";
-import {ClashBotTentativeDetails} from "../../../../interfaces/clash-bot-tentative-details";
-import {ClashTeam} from "../../../../interfaces/clash-team";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
 import {TeamFilter} from "../../../../interfaces/team-filter";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
+import {Tournament} from "clash-bot-service-api/model/tournament";
+import {TeamUiWrapper} from "src/app/interfaces/team-ui-wrapper";
+import {TentativeRecord} from "../../../../interfaces/tentative-record";
 
 @Component({
-  selector: 'app-teams-dashboard-view',
-  templateUrl: './teams-dashboard-view.component.html',
-  styleUrls: ['./teams-dashboard-view.component.scss']
+  selector: "app-teams-dashboard-view",
+  templateUrl: "./teams-dashboard-view.component.html",
+  styleUrls: ["./teams-dashboard-view.component.scss"]
 })
 export class TeamsDashboardViewComponent {
 
   @Input()
-  eligibleTournaments: ClashTournaments[] = [];
+  eligibleTournaments: Tournament[] = [];
 
   @Input()
-  teams: ClashTeam[] = [];
+  teams: TeamUiWrapper[] = [];
 
   @Input()
-  tentativeList?: ClashBotTentativeDetails[] = [];
+  tentativeList?: TentativeRecord[] = [];
 
   @Input()
   teamFilters: TeamFilter[] = [];
@@ -29,7 +29,7 @@ export class TeamsDashboardViewComponent {
   defaultServer?: string;
 
   @Input()
-  tentativeDataStatus: string = 'NOT_LOADED';
+  tentativeDataStatus: string = "NOT_LOADED";
 
   @Input()
   showSpinner?: boolean;
@@ -41,13 +41,13 @@ export class TeamsDashboardViewComponent {
   createTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();
 
   @Output()
-  unregisterFromTeamEvent: EventEmitter<ClashTeam> = new EventEmitter<ClashTeam>();
+  unregisterFromTeamEvent: EventEmitter<TeamUiWrapper> = new EventEmitter<TeamUiWrapper>();
 
   @Output()
   registerForTeamEvent: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();
 
   @Output()
-  tentativeRegisterEvent: EventEmitter<ClashBotTentativeDetails> = new EventEmitter<ClashBotTentativeDetails>();
+  tentativeRegisterEvent: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
 
   @Output()
   filterTeamEvent: EventEmitter<string> = new EventEmitter<string>();
@@ -58,7 +58,7 @@ export class TeamsDashboardViewComponent {
     this.createTeamEvent.emit($event);
   }
 
-  unregisterFromTeam($event: ClashTeam) {
+  unregisterFromTeam($event: TeamUiWrapper) {
     this.unregisterFromTeamEvent.emit($event);
   }
 
@@ -66,7 +66,7 @@ export class TeamsDashboardViewComponent {
     this.registerForTeamEvent.emit($event);
   }
 
-  tentativeRegister($event: ClashBotTentativeDetails) {
+  tentativeRegister($event: TentativeRecord) {
     this.tentativeRegisterEvent.emit($event)
   }
 
