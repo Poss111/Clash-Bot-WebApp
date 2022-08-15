@@ -139,8 +139,13 @@ jobs:
         id: service-test
         continue-on-error: true
         working-directory: ./ClashBot-Service-OpenAPI
+        run: npm test -- --no-color --silent 2> ../output.txt
+
+      - name: Parse Test output
+        id: parse-output
+        working-directory: ./ClashBot-Service-OpenAPI
         run: |
-          OUTPUT=$(npm test -- --no-color 2>&1 >/dev/null)
+          OUTPUT=$(cat ../output.txt)
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -150,7 +155,7 @@ jobs:
         uses: actions/github-script@v6.1.0
         if: github.event_name == 'pull_request'
         env:
-          TEST: "Service Test\n${{ steps.service-test.outputs.test }}"
+          TEST: "Service Test\n${{ steps.parse-output.outputs.test }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
