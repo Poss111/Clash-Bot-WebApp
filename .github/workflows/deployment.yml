@@ -65,7 +65,7 @@ jobs:
           if-no-files-found: error
           path: ClashBot-OpenAPI
 
-  ws-build-service:
+  ws-service-build:
     name: "Build Clash Bot Websocket Service"
     needs: check-applications
     if: ${{ needs.check-applications.outputs.deploy-ws-service == 'true'}}
@@ -114,7 +114,7 @@ jobs:
 
   ws-service-update-latest-docker-image:
     name: "Docker build for latest Clash Bot Websocket Service"
-    needs: ws-build-service
+    needs: ws-service-build
     runs-on: ubuntu-latest
 
     steps:
@@ -195,7 +195,7 @@ jobs:
 
   deploy-ws-service:
     name: "Publish Clash Bot Websocket Service to ECR"
-    needs: ws-build-service
+    needs: ws-service-build
     runs-on: ubuntu-latest
 
     steps:
