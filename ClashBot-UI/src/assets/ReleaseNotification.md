@@ -1,3 +1,11 @@
+# Release v5.2.1
+### Quality of Life
+- No changes for you guys today but these changes are large for me :). I will hopefully be able to support feature enhancements going forward from here.
+- Look for new features in the future!
+  - Notifications when players join your Team.
+  - A Clash Tournament Planning page for your Team.
+  - Arrrrghhh matey, who said they want a Captain to lead a Clash Team?
+
 # Release v5.2.0
 ### Quality of Life
 - Added a progress bar to show page navigation.
