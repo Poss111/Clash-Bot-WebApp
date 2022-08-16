@@ -109,8 +109,8 @@ jobs:
 
       - name: Build and push Docker Image
         run: |
-          docker build -t poss11111/clash-bot-service:latest .
-          docker push poss11111/clash-bot-service:latest
+          docker build -t poss11111/clash-bot-webapp-service:latest .
+          docker push poss11111/clash-bot-webapp-service:latest
 
   ws-service-update-latest-docker-image:
     name: "Docker build for latest Clash Bot Websocket Service"
