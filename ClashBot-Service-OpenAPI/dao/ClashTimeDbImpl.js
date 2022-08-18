@@ -42,7 +42,7 @@ class ClashTimeDbImpl {
                 }
             });
             stream.on('end', function () {
-                clashTimes.sort((a, b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
+                clashTimes.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
                 resolve(clashTimes);
             });
             stream.on('error', (err) => reject(err));
