@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "generate-rest-server": "openapi-generator-cli generate -i open-api.yml -g nodejs-express-server -o ../ClashBot-Service-OpenAPI --minimal-update -s",
+    "generate-auth-rest-server": "openapi-generator-cli generate -i auth-open-api.yml -g nodejs-express-server -o ../ClashBot-Auth-OpenAPI --minimal-update -s",
     "generate-socket-server": "ag async-api.yml @asyncapi/nodejs-ws-template -o ../ClashBot-WS-Service -p server=localhost --force-write",
     "generate-socket-server-documentation": "ag async-api.yml @asyncapi/html-template -o output --force-write",
     "generate-angular-client": "openapi-generator-cli generate -i open-api.yml -g typescript-angular -o ../../ClashBot-AngularClient/angular-client --additional-properties npmName=clash-bot-service-api,snapshot=false,ngVersion=12.2.0,npmVersion=1.0.0",

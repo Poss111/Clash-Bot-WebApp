@@ -1,0 +1,65 @@
+openapi: '3.0.1'
+info:
+  title: 'clash-bot-auth-service'
+  description: Clash Bot Auth Service to support League of Legends Clash tournament scheduling with Discord.
+  contact:
+    name: ClashBot-API-Support
+    email: rixxroid@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}/{basePath}
+    description: The local API server.
+    variables:
+      port:
+        default: '8082'
+      basePath:
+        default: auth
+tags:
+  - name: Auth
+    description: Dealing with user session management with Discord.
+paths:
+  /token:
+    summary: 'Retrieve Access Token from discord based on user details.'
+    post:
+      description: 'Post for a new Access Token for the logged in User.'
+      tags:
+        - Auth
+      operationId: getAccessToken
+      requestBody:
+        description: The User details for retrieving an access token.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - client_id
+                - redirect_uri
+              properties:
+                client_id:
+                  type: string
+                code:
+                  type: string
+                token:
+                  type: string
+                redirect_uri:
+                  type: string
+      responses:
+        '200':
+          description: A new access token for the user to leverage
+          content:
+            application/json:
+              schema:
+                description: The new access details
+                type: object
+                required:
+                  - expires_in
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: number
+                  refresh_token:
+                    type: string

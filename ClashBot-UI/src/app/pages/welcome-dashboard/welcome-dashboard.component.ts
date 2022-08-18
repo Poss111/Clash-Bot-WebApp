@@ -5,7 +5,7 @@ import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
-import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
+import {catchError, delay, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
 import {of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
@@ -58,6 +58,10 @@ export class WelcomeDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+
+      this.oauthService.events.subscribe(event => {
+        console.log(event);
+      });
         if (localStorage.getItem("version") !== environment.version) {
             this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});
             localStorage.setItem("version", environment.version);
@@ -86,21 +90,25 @@ export class WelcomeDashboardComponent implements OnInit {
         }
         this.oauthService.configure(this.authCodeFlowConfig);
         if (sessionStorage.getItem("LoginAttempt")) {
-            this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-            this.oauthService.tryLogin()
-                .then(() => {
-                    this.setUserDetails();
-                })
-                .catch(() => {
-                    this.loggedIn = "NOT_LOGGED_IN";
-                    this._snackBar.open("Failed to login to discord.",
-                        "X",
-                        {duration: 5 * 1000});
-                });
+          this.oauthService.getAccessToken();
+          this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+           
         } else {
             if (this.oauthService.hasValidAccessToken()) {
                 this.loggedIn = "LOGGED_IN";
             }
+            of(delay(5000))
+              .subscribe(() => {
+                console.log("Refresh triggered.");
+                this.oauthService.refreshToken()
+                  .then(() => {
+                    console.log("Success!")
+                  })
+                  .catch((err) => {
+                    console.log("Failed");
+                    console.error(err);
+                  })
+              })
         }
     }
 
