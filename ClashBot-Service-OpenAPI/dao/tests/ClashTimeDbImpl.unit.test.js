@@ -65,6 +65,7 @@ describe('Find Tournament', () => {
       );
       expectedTournaments.push(tournament);
     }
+    tournaments.sort((a, b) => b.attrs.tournamentDay.localeCompare(a.attrs.tournamentDay));
     const value = { Items: tournaments };
 
     const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
@@ -75,7 +76,7 @@ describe('Find Tournament', () => {
       expressionAttributeNames: jest.fn().mockReturnThis(),
       exec: mockStream,
     };
-    return expectedTournaments;
+    return [...expectedTournaments].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
   }
 
   test('I should be able to search for a tournament by its exact name and it should be returned if matching.', () => {
