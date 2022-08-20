@@ -5,7 +5,7 @@ import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
-import {catchError, delay, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
+import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
 import {of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
@@ -18,6 +18,7 @@ import {PageLoadingService} from "../../services/page-loading.service";
 import {UserService,TournamentService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Player} from "clash-bot-service-api/model/player";
+import {LoginStatus} from "../../login-status";
 
 @Component({
     selector: "app-welcome-dashboard",
@@ -29,14 +30,15 @@ export class WelcomeDashboardComponent implements OnInit {
     tournamentDays: any[] = [];
     tournaments?: Tournament[];
     dataLoaded: boolean = false;
-    loggedIn: string = "NOT_LOGGED_IN";
+    loggedIn: LoginStatus = "NOT_LOGGED_IN";
 
     authCodeFlowConfig: AuthConfig = {
         loginUrl: "https://discord.com/api/oauth2/authorize",
-        tokenEndpoint: "https://discord.com/api/oauth2/token",
+        tokenEndpoint: "http://localhost:8082/auth/token",
         revocationEndpoint: "https://discord.com/api/oauth2/revoke",
         redirectUri: window.location.origin,
         clientId: environment.discordClientId,
+        timeoutFactor: 0.02,
         responseType: "code",
         scope: "identify guilds",
         showDebugInformation: true,
@@ -58,10 +60,8 @@ export class WelcomeDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
-      this.oauthService.events.subscribe(event => {
-        console.log(event);
-      });
+        this.oauthService.configure(this.authCodeFlowConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
         if (localStorage.getItem("version") !== environment.version) {
             this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});
             localStorage.setItem("version", environment.version);
@@ -86,30 +86,24 @@ export class WelcomeDashboardComponent implements OnInit {
                     })
             });
         if (this.oauthService.hasValidAccessToken()) {
-            this.loggedIn = "LOGGED_IN";
+            this.setUserDetails();
+        } else if (localStorage.getItem("LoginAttempt")) {
+            this.oauthService.tryLogin()
+                .then(() => this.setUserDetails())
+                .catch(() => {
+                    this.loggedIn = "NOT_LOGGED_IN";
+                    this._snackBar.open("Failed to login to discord.",
+                        "X",
+                        {duration: 5 * 1000});
+                });
         }
-        this.oauthService.configure(this.authCodeFlowConfig);
-        if (sessionStorage.getItem("LoginAttempt")) {
-          this.oauthService.getAccessToken();
-          this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-           
-        } else {
-            if (this.oauthService.hasValidAccessToken()) {
-                this.loggedIn = "LOGGED_IN";
-            }
-            of(delay(5000))
-              .subscribe(() => {
-                console.log("Refresh triggered.");
-                this.oauthService.refreshToken()
-                  .then(() => {
-                    console.log("Success!")
-                  })
-                  .catch((err) => {
-                    console.log("Failed");
-                    console.error(err);
-                  })
-              })
-        }
+        this.applicationDetailsService.getApplicationDetails()
+            .pipe(map(appDetails => appDetails.loggedIn))
+            .subscribe((userIsLoggedIn) => {
+                if (!userIsLoggedIn) {
+                    this.loggedIn = "NOT_LOGGED_IN";
+                }
+            });
     }
 
     setUserDetails() {
@@ -255,9 +249,13 @@ export class WelcomeDashboardComponent implements OnInit {
             .subscribe(value => {
                 this.loggedIn = "LOGGED_IN";
                 this.applicationDetailsService.setApplicationDetails(value);
-            }, (err) => {
-                console.error(err);
-            });
+            }, () => this._snackBar
+                .open(
+                    "Failed to log you in.",
+                    "X",
+                    {duration: 5 * 1000}
+                )
+            );
     }
 
     mapLoggedInApplicationDetails(appDetails: ApplicationDetails,
@@ -274,7 +272,7 @@ export class WelcomeDashboardComponent implements OnInit {
 
     loginToDiscord(): void {
         this.oauthService.initLoginFlow();
-        sessionStorage.setItem("LoginAttempt", "true");
+        localStorage.setItem("LoginAttempt", "true");
     }
 
 }

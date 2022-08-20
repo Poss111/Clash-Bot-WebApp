@@ -9,5 +9,5 @@ export interface ApplicationDetails {
   userGuilds?: DiscordGuild[],
   userDetails?: UserDetails,
   clashBotUserDetails?: Player,
-  loggedIn?: boolean
+  loggedIn: boolean
 }

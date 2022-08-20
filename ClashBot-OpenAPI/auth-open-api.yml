@@ -31,20 +31,25 @@ paths:
       requestBody:
         description: The User details for retrieving an access token.
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
               required:
                 - client_id
-                - redirect_uri
               properties:
                 client_id:
                   type: string
+                  description: The client id to be used.
                 code:
                   type: string
-                token:
+                  description: If needing to request an access token, this must be passed.
+                refresh_token:
                   type: string
+                  description: If needing to request a refreshed access token and a new refresh token, this must be passed.
                 redirect_uri:
+                  type: string
+                  description: Only necessary to be passed when requesting an initial access token.
+                code_verifier:
                   type: string
       responses:
         '200':

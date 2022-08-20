@@ -60,12 +60,12 @@ class Controller {
     return uploadedFileName;
   }
 
-  static getRequestBodyName(request) {
+  static getRequestBodyName(request, contentType) {
     const codeGenDefinedBodyName = request.openapi.schema['x-codegen-request-body-name'];
     if (codeGenDefinedBodyName !== undefined) {
       return codeGenDefinedBodyName;
     }
-    const refObjectPath = request.openapi.schema.requestBody.content['application/json'].schema.$ref;
+    const refObjectPath = request.openapi.schema.requestBody.content[contentType].schema.$ref;
     if (refObjectPath !== undefined && refObjectPath.length > 0) {
       return (refObjectPath.substr(refObjectPath.lastIndexOf('/') + 1));
     }
@@ -77,7 +77,10 @@ class Controller {
     if (request.openapi.schema.requestBody !== undefined) {
       const { content } = request.openapi.schema.requestBody;
       if (content['application/json'] !== undefined) {
-        const requestBodyName = camelCase(this.getRequestBodyName(request));
+        const requestBodyName = camelCase(this.getRequestBodyName(request, 'application/json'));
+        requestParams[requestBodyName] = request.body;
+      } if (content['application/x-www-form-urlencoded'] !== undefined) {
+        const requestBodyName = camelCase(this.getRequestBodyName(request,'application/x-www-form-urlencoded'));
         requestParams[requestBodyName] = request.body;
       } else if (content['multipart/form-data'] !== undefined) {
         Object.keys(content['multipart/form-data'].schema.properties).forEach(

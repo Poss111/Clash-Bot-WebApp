@@ -8,9 +8,10 @@ import {FormControl} from "@angular/forms";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import {take} from "rxjs/operators";
+import {map, take} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
+import {OAuthService} from "angular-oauth2-oidc";
 
 @Component({
     selector: "app-root",
@@ -20,9 +21,10 @@ import {PageLoadingService} from "./services/page-loading.service";
 export class AppComponent implements OnInit, OnDestroy {
     appVersion: string = environment.version;
     subscriptions: Subscription[] = [];
-    darkModeFormControl = new FormControl(localStorage.getItem("darkMode") === "true");
+    darkMode;
     username?: string;
     pageLoadingObs$ = this.pageLoadingService.getSubject();
+    $applicationDetailsObs = this.applicationDetailsService.getApplicationDetails().asObservable();
 
     routingArray: RoutingDetails[] = [];
 
@@ -61,16 +63,17 @@ export class AppComponent implements OnInit, OnDestroy {
                 private riotDdragonService: RiotDdragonService,
                 private matIconRegistry: MatIconRegistry,
                 private sanitizer: DomSanitizer,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private oauthService: OAuthService) {
         this.assets.forEach((id) => {
             this.matIconRegistry.addSvgIcon(`league-${id}`,
                 this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));
         });
+        this.darkMode = localStorage.getItem("darkMode") === "true";
     }
 
     ngOnInit(): void {
-        this.toggleDarkMode(this.darkModeFormControl.value);
-        this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
+        this.toggleDarkMode(this.darkMode);
         this.subscriptions.push(
             this.router.events.subscribe(event => {
                 if (event instanceof NavigationEnd) {
@@ -99,6 +102,31 @@ export class AppComponent implements OnInit, OnDestroy {
         const darkModeClassName = "dark";
         this.className = turnDarkModeOn ? darkModeClassName : "";
         localStorage.setItem("darkMode", JSON.stringify(turnDarkModeOn));
+    }
+
+    toggleDarkModeForUser(darkModeCurrentStatus: boolean) {
+        const darkModeClassName = "dark";
+        this.className = !darkModeCurrentStatus ? darkModeClassName : "";
+        localStorage.setItem("darkMode", JSON.stringify(!darkModeCurrentStatus));
+        this.darkMode = !darkModeCurrentStatus;
+    }
+
+    logUserOut() {
+        console.log("Log Out");
+        this.oauthService.logOut();
+        this.applicationDetailsService.getApplicationDetails()
+            .pipe(
+                take(1),
+                map(appDetails => {
+                    return {
+                        currentTournaments: appDetails.currentTournaments,
+                        loggedIn: false
+                    };
+                })
+            )
+            .subscribe((appDetails) => {
+                this.applicationDetailsService.setApplicationDetails(appDetails);
+            });
     }
 
     ngOnDestroy() {

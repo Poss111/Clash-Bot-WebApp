@@ -4,8 +4,7 @@
   "description": "Clash Bot Auth Service to support League of Legends Clash tournament scheduling with Discord.",
   "main": "index.js",
   "scripts": {
-    "prestart": "npm install",
-    "start": "node index.js",
+    "start": "node index.js | pino-pretty -t",
     "test": "jest unit"
   },
   "keywords": [
@@ -15,6 +14,7 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "camelcase": "^5.3.1",
     "cookie-parser": "^1.4.4",
@@ -27,9 +27,9 @@
     "openapi-sampler": "^1.0.0-beta.15",
     "pino": "^7.6.5",
     "pino-http": "^6.6.0",
+    "querystring": "^0.2.1",
     "swagger-ui-express": "^4.0.2",
-    "winston": "^3.2.1",
-    "axios": "^0.19.2"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",

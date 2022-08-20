@@ -7,7 +7,7 @@ import {ApplicationDetails} from "../interfaces/application-details";
 })
 export class ApplicationDetailsService {
 
-    applicationDetails: BehaviorSubject<ApplicationDetails> = new BehaviorSubject<ApplicationDetails>({});
+    applicationDetails: BehaviorSubject<ApplicationDetails> = new BehaviorSubject<ApplicationDetails>({loggedIn: false});
 
     constructor() {}
 

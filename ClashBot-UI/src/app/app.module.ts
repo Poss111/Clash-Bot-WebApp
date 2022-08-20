@@ -31,6 +31,7 @@ import {PageLoadingService} from "./services/page-loading.service";
 import {SharedModule} from "./shared/shared.module";
 import {ApiModule, BASE_PATH} from "clash-bot-service-api"
 import {environment} from "../environments/environment";
+import { ProfileIconComponent } from './profile-icon/profile-icon.component';
 
 export function storageFactory(): OAuthStorage {
   return localStorage;
@@ -43,7 +44,8 @@ export function storageFactory(): OAuthStorage {
         ClashTournamentCalendarComponent,
         ClashTournamentCalendarHeaderComponent,
         UpcomingTournamentDetailsCardComponent,
-        ReleaseNotificationDialogComponent
+        ReleaseNotificationDialogComponent,
+        ProfileIconComponent
     ],
     imports: [
         ApiModule,

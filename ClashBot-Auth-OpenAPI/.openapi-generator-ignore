@@ -25,3 +25,10 @@
 package.json
 logger.js
 README.md
+services/AuthService.js
+services/Service.js
+controllers/Controller.js
+expressServer.js
+index.js
+
+

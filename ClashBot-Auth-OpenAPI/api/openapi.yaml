@@ -28,7 +28,7 @@ paths:
       operationId: getAccessToken
       requestBody:
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/getAccessToken_request'
         description: The User details for retrieving an access token.
@@ -64,14 +64,21 @@ components:
     getAccessToken_request:
       properties:
         client_id:
+          description: The client id to be used.
           type: string
         code:
+          description: "If needing to request an access token, this must be passed."
           type: string
-        token:
+        refresh_token:
+          description: "If needing to request a refreshed access token and a new refresh\
+            \ token, this must be passed."
           type: string
         redirect_uri:
+          description: Only necessary to be passed when requesting an initial access
+            token.
+          type: string
+        code_verifier:
           type: string
       required:
       - client_id
-      - redirect_uri
       type: object

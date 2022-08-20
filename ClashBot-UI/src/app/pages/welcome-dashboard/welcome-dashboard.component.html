@@ -14,7 +14,7 @@
     <mat-divider inset></mat-divider>
     <mat-card-actions class="clash-bot-welcome-dashboard-buttons-container">
       <button mat-raised-button id="WelcomeMessage-DiscordLogin-Btn" (click)="loginToDiscord()"
-              *ngIf="loggedIn === 'NOT_LOGGED_IN'" color="primary" align="end">
+              *ngIf="loggedIn === LoginStatus.NOT_LOGGED_IN" color="primary" align="end">
         <mat-icon>discord</mat-icon>
         <span>Login to Discord</span>
       </button>
