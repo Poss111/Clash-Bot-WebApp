@@ -318,7 +318,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -360,7 +360,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -398,7 +398,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -432,7 +432,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -457,7 +457,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -483,7 +483,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -509,7 +509,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -537,7 +537,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -569,7 +569,7 @@ describe("WelcomeDashboardComponent", () => {
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 

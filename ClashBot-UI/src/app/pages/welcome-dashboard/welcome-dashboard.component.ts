@@ -6,16 +6,16 @@ import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {of, throwError, timer} from "rxjs";
+import {Observable, of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
 import {
-    ReleaseNotificationDialogComponent
+  ReleaseNotificationDialogComponent
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 import {UserDetails} from "../../interfaces/user-details";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {PageLoadingService} from "../../services/page-loading.service";
-import {UserService,TournamentService} from "clash-bot-service-api";
+import {TournamentService, UserService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Player} from "clash-bot-service-api/model/player";
 import {LoginStatus} from "../../login-status";
@@ -27,10 +27,14 @@ import {LoginStatus} from "../../login-status";
     encapsulation: ViewEncapsulation.None
 })
 export class WelcomeDashboardComponent implements OnInit {
+    readonly NOT_LOGGED_IN: LoginStatus = LoginStatus.NOT_LOGGED_IN;
+    readonly LOGGING_IN: LoginStatus = LoginStatus.LOGGING_IN;
+    readonly LOGGED_IN: LoginStatus = LoginStatus.LOGGED_IN;
     tournamentDays: any[] = [];
     tournaments?: Tournament[];
     dataLoaded: boolean = false;
-    loggedIn: LoginStatus = "NOT_LOGGED_IN";
+    $applicationDetailsServiceObs: Observable<ApplicationDetails> = this
+      .applicationDetailsService.getApplicationDetails().asObservable();
 
     authCodeFlowConfig: AuthConfig = {
         loginUrl: "https://discord.com/api/oauth2/authorize",
@@ -38,10 +42,8 @@ export class WelcomeDashboardComponent implements OnInit {
         revocationEndpoint: "https://discord.com/api/oauth2/revoke",
         redirectUri: window.location.origin,
         clientId: environment.discordClientId,
-        timeoutFactor: 0.02,
         responseType: "code",
         scope: "identify guilds",
-        showDebugInformation: true,
         oidc: false,
         sessionChecksEnabled: true,
         customQueryParams: {
@@ -60,6 +62,18 @@ export class WelcomeDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.applicationDetailsService.applicationDetails
+          .subscribe((applicationDetails) => {
+            if (applicationDetails.loginStatus === LoginStatus.NOT_LOGGED_IN) {
+              console.log("Not Logged In");
+            } else if (applicationDetails.loginStatus === LoginStatus.LOGGING_IN) {
+              console.log("Logging In");
+            } else if (applicationDetails.loginStatus === LoginStatus.LOGGED_IN) {
+              console.log("Logged In");
+            } else {
+              console.dir(applicationDetails.loginStatus);
+            }
+          });
         this.oauthService.configure(this.authCodeFlowConfig);
         this.oauthService.tokenValidationHandler = new JwksValidationHandler();
         if (localStorage.getItem("version") !== environment.version) {
@@ -86,28 +100,21 @@ export class WelcomeDashboardComponent implements OnInit {
                     })
             });
         if (this.oauthService.hasValidAccessToken()) {
-            this.setUserDetails();
+            this.initUserDetails();
         } else if (localStorage.getItem("LoginAttempt")) {
+            this.applicationDetailsService.loggingIn();
             this.oauthService.tryLogin()
-                .then(() => this.setUserDetails())
+                .then(() => this.initUserDetails())
                 .catch(() => {
-                    this.loggedIn = "NOT_LOGGED_IN";
+                    this.applicationDetailsService.logOutUser();
                     this._snackBar.open("Failed to login to discord.",
                         "X",
                         {duration: 5 * 1000});
                 });
         }
-        this.applicationDetailsService.getApplicationDetails()
-            .pipe(map(appDetails => appDetails.loggedIn))
-            .subscribe((userIsLoggedIn) => {
-                if (!userIsLoggedIn) {
-                    this.loggedIn = "NOT_LOGGED_IN";
-                }
-            });
     }
 
-    setUserDetails() {
-        this.loggedIn = "LOGGING_IN";
+    initUserDetails() {
         this.discordService.getUserDetails()
             .pipe(
                 retryWhen(error =>
@@ -130,10 +137,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             }
                         })
                     )),
-                catchError(error => {
-                    this.loggedIn = "NOT_LOGGED_IN";
-                    return throwError(error)
-                }),
+                catchError(error => throwError(error)),
                 mergeMap(userDetails => this.discordService.getGuilds()
                     .pipe(retryWhen(error =>
                             error.pipe(
@@ -168,7 +172,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                  const player: Player = {}
                                 return of(player);
                             } else {
-                                this.loggedIn = "NOT_LOGGED_IN";
                                 this._snackBar.open("Oops, we failed to pull your userDetails from our Servers :( Please try again later.",
                                     "X",
                                     {duration: 5 * 1000});
@@ -247,7 +250,6 @@ export class WelcomeDashboardComponent implements OnInit {
                 finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe(value => {
-                this.loggedIn = "LOGGED_IN";
                 this.applicationDetailsService.setApplicationDetails(value);
             }, () => this._snackBar
                 .open(
@@ -267,6 +269,7 @@ export class WelcomeDashboardComponent implements OnInit {
         appDetails.clashBotUserDetails = clashBotUserDetails;
         appDetails.defaultGuild = clashBotUserDetails.serverName;
         appDetails.loggedIn = true;
+        appDetails.loginStatus = LoginStatus.LOGGED_IN;
         return appDetails;
     }
 

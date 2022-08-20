@@ -25,6 +25,7 @@ import {
 import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
+import {LoginStatus} from "../../../login-status";
 
 @Component({
     selector: "app-teams-dashboard",
@@ -36,7 +37,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
     teams: TeamUiWrapper[] = [];
     teamFilters: TeamFilter[] = [];
-    currentApplicationDetails: ApplicationDetails = {loggedIn: false};
+    currentApplicationDetails: ApplicationDetails = {loginStatus: LoginStatus.NOT_LOGGED_IN, loggedIn: false};
     private readonly MAX_TIMEOUT = 4000;
     eligibleTournaments: Tournament[] = [];
     tentativeList?: TentativeRecord[];

@@ -4,11 +4,10 @@ import {Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
-import {FormControl} from "@angular/forms";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import {map, take} from "rxjs/operators";
+import {take} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
 import {OAuthService} from "angular-oauth2-oidc";
@@ -114,19 +113,7 @@ export class AppComponent implements OnInit, OnDestroy {
     logUserOut() {
         console.log("Log Out");
         this.oauthService.logOut();
-        this.applicationDetailsService.getApplicationDetails()
-            .pipe(
-                take(1),
-                map(appDetails => {
-                    return {
-                        currentTournaments: appDetails.currentTournaments,
-                        loggedIn: false
-                    };
-                })
-            )
-            .subscribe((appDetails) => {
-                this.applicationDetailsService.setApplicationDetails(appDetails);
-            });
+        this.applicationDetailsService.logOutUser();
     }
 
     ngOnDestroy() {
