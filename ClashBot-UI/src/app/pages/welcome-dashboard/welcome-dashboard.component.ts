@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewEncapsulation} from "@angular/core";
-import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
+import {AuthConfig, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {environment} from "../../../environments/environment";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
@@ -58,22 +58,11 @@ export class WelcomeDashboardComponent implements OnInit {
                 private matDialog: MatDialog,
                 private pageLoadingService: PageLoadingService,
                 private userService: UserService,
-                private tournamentService: TournamentService) {
+                private tournamentService: TournamentService,
+                private urlHelperService: UrlHelperService) {
     }
 
     ngOnInit(): void {
-        this.applicationDetailsService.applicationDetails
-          .subscribe((applicationDetails) => {
-            if (applicationDetails.loginStatus === LoginStatus.NOT_LOGGED_IN) {
-              console.log("Not Logged In");
-            } else if (applicationDetails.loginStatus === LoginStatus.LOGGING_IN) {
-              console.log("Logging In");
-            } else if (applicationDetails.loginStatus === LoginStatus.LOGGED_IN) {
-              console.log("Logged In");
-            } else {
-              console.dir(applicationDetails.loginStatus);
-            }
-          });
         this.oauthService.configure(this.authCodeFlowConfig);
         this.oauthService.tokenValidationHandler = new JwksValidationHandler();
         if (localStorage.getItem("version") !== environment.version) {
@@ -84,9 +73,8 @@ export class WelcomeDashboardComponent implements OnInit {
             .pipe(
                 take(1),
                 map(tournaments => {
-                    tournaments.sort((a, b) =>
-                        new Date(a.startTime === undefined ? "": a.startTime).getTime() - new Date(b.startTime === undefined ? "": b.startTime).getTime());
-                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime === undefined ? "": tournament.startTime)));
+                    tournaments.forEach(tournament => this.tournamentDays
+                        .push(new Date(tournament.startTime === undefined ? "": tournament.startTime)));
                     return tournaments;
                 }))
             .subscribe((data) => {
@@ -99,19 +87,36 @@ export class WelcomeDashboardComponent implements OnInit {
                         this.applicationDetailsService.setApplicationDetails(appDetails);
                     })
             });
+        this.getCodePartsFromUrl(window.location.search);
         if (this.oauthService.hasValidAccessToken()) {
             this.initUserDetails();
-        } else if (localStorage.getItem("LoginAttempt")) {
-            this.applicationDetailsService.loggingIn();
-            this.oauthService.tryLogin()
-                .then(() => this.initUserDetails())
-                .catch(() => {
-                    this.applicationDetailsService.logOutUser();
-                    this._snackBar.open("Failed to login to discord.",
-                        "X",
-                        {duration: 5 * 1000});
-                });
+        } else {
+            const parts: any = this.getCodePartsFromUrl(window.location.search);
+            if (parts["code"] && parts["state"]) {
+                this.applicationDetailsService.loggingIn();
+                this.oauthService.tryLogin()
+                    .then(() => this.initUserDetails())
+                    .catch(() => {
+                        this.applicationDetailsService.logOutUser();
+                        this._snackBar.open("Failed to login to discord.",
+                            "X",
+                            {duration: 5 * 1000});
+                    });
+            }
         }
+    }
+
+    private getCodePartsFromUrl(queryString: string): object {
+        if (!queryString || queryString.length === 0) {
+            return this.urlHelperService.getHashFragmentParams();
+        }
+
+        // normalize query string
+        if (queryString.charAt(0) === "?") {
+            queryString = queryString.substr(1);
+        }
+
+        return this.urlHelperService.parseQueryString(queryString);
     }
 
     initUserDetails() {
@@ -275,7 +280,6 @@ export class WelcomeDashboardComponent implements OnInit {
 
     loginToDiscord(): void {
         this.oauthService.initLoginFlow();
-        localStorage.setItem("LoginAttempt", "true");
     }
 
 }

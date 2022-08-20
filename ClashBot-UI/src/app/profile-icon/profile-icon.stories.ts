@@ -9,7 +9,6 @@ import {Meta, Story} from "@storybook/angular/types-6-0";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDialogModule} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
-import {MatSliderModule} from "@angular/material/slider";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {action} from "@storybook/addon-actions";
 
@@ -37,6 +36,7 @@ export default {
 const Template: Story<ProfileIconComponent> = (args: ProfileIconComponent) => ({
     props: {
         ...args,
+        goToSettingsEvent: action("goToSettingsEvent"),
         logOutEvent: action("logOutEvent"),
         toggleDarkModeEvent: action("toggleDarkModeEvent")
     },

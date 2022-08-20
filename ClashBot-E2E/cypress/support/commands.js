@@ -20,8 +20,7 @@ Cypress.Commands.add('loginThroughOAuth', () => {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         }).then(({body}) => {
-            window.sessionStorage.setItem('access_token', body.access_token)
-            window.sessionStorage.setItem('LoginAttempt', 'true')
+            window.sessionStorage.setItem('access_token', body.access_token);
             cy.visit('/')
         })
     } else {

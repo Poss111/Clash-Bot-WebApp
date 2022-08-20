@@ -124,12 +124,12 @@
     "interfaces": [
         {
             "name": "ApplicationDetails",
-            "id": "interface-ApplicationDetails-2e7423e212c40b6e12d3cd051bf790a54f93b0e5b2dc981daa2c18c56c5a9558a1df2f7d231e1a2bb4e1f8d04dc46e2c5efa965c6a661576ebcf49121b2bff59",
+            "id": "interface-ApplicationDetails-8b8cf4a96d8e7b2441647fc1b71972e3ad5a06062384593e7b0d1e0f6ba38109c7ed3539d4137ee64c4970ea1e8012de991202141e0b24fd5b40d967f0f2caf2",
             "file": "src/app/interfaces/application-details.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "import {DiscordGuild} from \"./discord-guild\";\nimport {UserDetails} from \"./user-details\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {Player} from \"clash-bot-service-api/model/player\";\n\nexport interface ApplicationDetails {\n  currentTournaments?: Tournament[],\n  defaultGuild?: string,\n  userGuilds?: DiscordGuild[],\n  userDetails?: UserDetails,\n  clashBotUserDetails?: Player,\n  loggedIn: boolean\n}\n",
+            "sourceCode": "import {DiscordGuild} from \"./discord-guild\";\nimport {UserDetails} from \"./user-details\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {Player} from \"clash-bot-service-api/model/player\";\nimport {LoginStatus} from \"../login-status\";\n\nexport interface ApplicationDetails {\n  currentTournaments?: Tournament[],\n  defaultGuild?: string,\n  userGuilds?: DiscordGuild[],\n  userDetails?: UserDetails,\n  clashBotUserDetails?: Player,\n  loggedIn: boolean\n  loginStatus: LoginStatus\n}\n",
             "properties": [
                 {
                     "name": "clashBotUserDetails",
@@ -138,7 +138,7 @@
                     "type": "Player",
                     "optional": true,
                     "description": "",
-                    "line": 11
+                    "line": 12
                 },
                 {
                     "name": "currentTournaments",
@@ -147,7 +147,7 @@
                     "type": "Tournament[]",
                     "optional": true,
                     "description": "",
-                    "line": 7
+                    "line": 8
                 },
                 {
                     "name": "defaultGuild",
@@ -156,7 +156,7 @@
                     "type": "string",
                     "optional": true,
                     "description": "",
-                    "line": 8
+                    "line": 9
                 },
                 {
                     "name": "loggedIn",
@@ -165,7 +165,16 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 13
+                },
+                {
+                    "name": "loginStatus",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "LoginStatus",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
                 },
                 {
                     "name": "userDetails",
@@ -174,7 +183,7 @@
                     "type": "UserDetails",
                     "optional": true,
                     "description": "",
-                    "line": 10
+                    "line": 11
                 },
                 {
                     "name": "userGuilds",
@@ -183,7 +192,7 @@
                     "type": "DiscordGuild[]",
                     "optional": true,
                     "description": "",
-                    "line": 9
+                    "line": 10
                 }
             ],
             "indexSignatures": [],
@@ -1415,18 +1424,31 @@
     "injectables": [
         {
             "name": "ApplicationDetailsService",
-            "id": "injectable-ApplicationDetailsService-9eaa1189800eebee158af60994ba556f9361c003cf9d713ee1c417ca710d160e8642835bb0f0a6bf0a86935039eec122a3d80bdfc87d2b08740010cb7d142d0c",
+            "id": "injectable-ApplicationDetailsService-dee53887cf14b31a2c578626c3aa37f3e684a93a3f06e7a451a8fd9d94fd4e10bc679a847cc0a2dc3a0b12762ac6a79869d6718f162114dbb2aeb382d9ae9c94",
             "file": "src/app/services/application-details.service.ts",
             "properties": [
                 {
                     "name": "applicationDetails",
-                    "defaultValue": "new BehaviorSubject<ApplicationDetails>({loggedIn: false})",
+                    "defaultValue": "new BehaviorSubject<ApplicationDetails>(this.defaultStatus)",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "BehaviorSubject<ApplicationDetails>",
                     "optional": false,
                     "description": "",
-                    "line": 10
+                    "line": 15
+                },
+                {
+                    "name": "defaultStatus",
+                    "defaultValue": "{\n      loggedIn: false,\n      loginStatus: LoginStatus.NOT_LOGGED_IN,\n    }",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplicationDetails",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        121
+                    ]
                 }
             ],
             "methods": [
@@ -1436,7 +1458,27 @@
                     "optional": false,
                     "returnType": "BehaviorSubject<ApplicationDetails>",
                     "typeParameters": [],
-                    "line": 14,
+                    "line": 19,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "loggingIn",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "logOutUser",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 36,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -1453,7 +1495,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 18,
+                    "line": 23,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1473,14 +1515,14 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import {Injectable} from \"@angular/core\";\nimport {BehaviorSubject} from \"rxjs\";\nimport {ApplicationDetails} from \"../interfaces/application-details\";\n\n@Injectable({\n    providedIn: \"root\"\n})\nexport class ApplicationDetailsService {\n\n    applicationDetails: BehaviorSubject<ApplicationDetails> = new BehaviorSubject<ApplicationDetails>({loggedIn: false});\n\n    constructor() {}\n\n    getApplicationDetails(): BehaviorSubject<ApplicationDetails> {\n        return this.applicationDetails;\n    }\n\n    setApplicationDetails(applicationDetails: ApplicationDetails) {\n        this.applicationDetails.next(applicationDetails);\n    }\n}\n",
+            "sourceCode": "import {Injectable} from \"@angular/core\";\nimport {BehaviorSubject} from \"rxjs\";\nimport {ApplicationDetails} from \"../interfaces/application-details\";\nimport {LoginStatus} from \"../login-status\";\n\n@Injectable({\n    providedIn: \"root\"\n})\nexport class ApplicationDetailsService {\n\n    private defaultStatus: ApplicationDetails = {\n      loggedIn: false,\n      loginStatus: LoginStatus.NOT_LOGGED_IN,\n    };\n    applicationDetails: BehaviorSubject<ApplicationDetails> = new BehaviorSubject<ApplicationDetails>(this.defaultStatus);\n\n    constructor() {}\n\n    getApplicationDetails(): BehaviorSubject<ApplicationDetails> {\n        return this.applicationDetails;\n    }\n\n    setApplicationDetails(applicationDetails: ApplicationDetails) {\n        this.applicationDetails.next(applicationDetails);\n    }\n\n    loggingIn() {\n        let value = this.applicationDetails.value;\n        this.applicationDetails.next({\n          ...value,\n          loggedIn: false,\n          loginStatus: LoginStatus.LOGGING_IN\n        });\n    }\n\n    logOutUser() {\n        let value = this.applicationDetails.value;\n        this.applicationDetails.next({\n          currentTournaments: value.currentTournaments,\n          loggedIn: false,\n          loginStatus: LoginStatus.NOT_LOGGED_IN,\n        });\n    }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [],
-                "line": 10
+                "line": 15
             },
             "type": "injectable"
         },
@@ -2058,7 +2100,7 @@
     "components": [
         {
             "name": "AppComponent",
-            "id": "component-AppComponent-6edea37724f5f38f42ea22bc9e8962c376b4aae7a7498fd51b25a89e6c002fb870c8384a65e9855c7c9fd11b84eac6a008eb4409766dd4d4c3cacaa5a2a05a40",
+            "id": "component-AppComponent-b914ac36dfe701721c0eb69a7daa775a709e9bc444d2416750c70a5c9894de13e19ed2178d9000cce31b0764edd5e91a2f2265f2ddda62aabb2ccbf81e6f2bd9",
             "file": "src/app/app.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2124,8 +2166,7 @@
                     ]
                 },
                 {
-                    "name": "darkModeFormControl",
-                    "defaultValue": "new FormControl(localStorage.getItem(\"darkMode\") === \"true\")",
+                    "name": "darkMode",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "",
@@ -2195,6 +2236,16 @@
             ],
             "methodsClass": [
                 {
+                    "name": "logUserOut",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 113,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
                     "name": "navigate",
                     "args": [
                         {
@@ -2207,7 +2258,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 123,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -2228,7 +2279,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 105,
+                    "line": 119,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2238,7 +2289,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 72,
+                    "line": 74,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2255,12 +2306,40 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 99,
+                    "line": 100,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
                         {
                             "name": "turnDarkModeOn",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toggleDarkModeForUser",
+                    "args": [
+                        {
+                            "name": "darkModeCurrentStatus",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 106,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "darkModeCurrentStatus",
                             "type": "boolean",
                             "deprecated": false,
                             "deprecationMessage": "",
@@ -2288,7 +2367,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, HostBinding, OnDestroy, OnInit} from \"@angular/core\";\nimport {NavigationEnd, Router} from \"@angular/router\";\nimport {Subscription} from \"rxjs\";\nimport {environment} from \"../environments/environment\";\nimport {GoogleAnalyticsService} from \"./google-analytics.service\";\nimport {ApplicationDetailsService} from \"./services/application-details.service\";\nimport {FormControl} from \"@angular/forms\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\nimport {RiotDdragonService} from \"./services/riot-ddragon.service\";\nimport {take} from \"rxjs/operators\";\nimport {RoutingDetails} from \"./interfaces/routing-details\";\nimport {PageLoadingService} from \"./services/page-loading.service\";\n\n@Component({\n    selector: \"app-root\",\n    templateUrl: \"./app.component.html\",\n    styleUrls: [\"./app.component.scss\"]\n})\nexport class AppComponent implements OnInit, OnDestroy {\n    appVersion: string = environment.version;\n    subscriptions: Subscription[] = [];\n    darkModeFormControl = new FormControl(localStorage.getItem(\"darkMode\") === \"true\");\n    username?: string;\n    pageLoadingObs$ = this.pageLoadingService.getSubject();\n    $applicationDetailsObs = this.applicationDetailsService.getApplicationDetails().asObservable();\n\n    routingArray: RoutingDetails[] = [];\n\n    defaultRoutingArray: RoutingDetails[] = [\n        {\n            name: \"Welcome Page\",\n            route: \"/\",\n            icon: \"house\",\n            id: \"clash-bot-menu-welcome-page\"\n        }\n    ];\n\n    loggedInArray: RoutingDetails[] = [\n        this.defaultRoutingArray[0],\n        {\n            name: \"Teams\",\n            route: \"/teams\",\n            icon: \"groups\",\n            id: \"clash-bot-menu-teams-page\"\n        },\n        {\n            name: \"Settings\",\n            route: \"/user-profile\",\n            icon: \"settings\",\n            id: \"clash-bot-menu-user-profile-page\"\n        }\n    ];\n\n    assets = [\"top\", \"mid\", \"jg\", \"bot\", \"supp\"];\n\n    @HostBinding(\"class\") className = \"\";\n\n    constructor(private router: Router,\n                private applicationDetailsService: ApplicationDetailsService,\n                private googleAnalyticsService: GoogleAnalyticsService,\n                private riotDdragonService: RiotDdragonService,\n                private matIconRegistry: MatIconRegistry,\n                private sanitizer: DomSanitizer,\n                private pageLoadingService: PageLoadingService) {\n        this.assets.forEach((id) => {\n            this.matIconRegistry.addSvgIcon(`league-${id}`,\n                this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));\n        });\n    }\n\n    ngOnInit(): void {\n        this.toggleDarkMode(this.darkModeFormControl.value);\n        this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));\n        this.subscriptions.push(\n            this.router.events.subscribe(event => {\n                if (event instanceof NavigationEnd) {\n                    this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);\n                }\n            })\n        );\n        this.subscriptions.push(\n            this.applicationDetailsService.getApplicationDetails()\n                .subscribe((applicationDetails) => {\n                    if (applicationDetails.loggedIn) {\n                        this.routingArray = this.loggedInArray;\n                        this.username = applicationDetails.userDetails?.username;\n                    } else {\n                        this.routingArray = this.defaultRoutingArray;\n                        delete this.username;\n                    }\n            })\n        );\n        this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {\n            window.localStorage.setItem(\"leagueApiVersion\", versions[0]);\n        });\n    }\n\n    toggleDarkMode(turnDarkModeOn: boolean) {\n        const darkModeClassName = \"dark\";\n        this.className = turnDarkModeOn ? darkModeClassName : \"\";\n        localStorage.setItem(\"darkMode\", JSON.stringify(turnDarkModeOn));\n    }\n\n    ngOnDestroy() {\n        this.subscriptions.forEach(sub => sub.unsubscribe());\n    }\n\n    navigate(route: string) {\n        this.pageLoadingObs$.next(true);\n        this.router.navigate([route])\n            .catch(() => this.pageLoadingObs$.next(false));\n    }\n}\n",
+            "sourceCode": "import {Component, HostBinding, OnDestroy, OnInit} from \"@angular/core\";\nimport {NavigationEnd, Router} from \"@angular/router\";\nimport {Subscription} from \"rxjs\";\nimport {environment} from \"../environments/environment\";\nimport {GoogleAnalyticsService} from \"./google-analytics.service\";\nimport {ApplicationDetailsService} from \"./services/application-details.service\";\nimport {MatIconRegistry} from \"@angular/material/icon\";\nimport {DomSanitizer} from \"@angular/platform-browser\";\nimport {RiotDdragonService} from \"./services/riot-ddragon.service\";\nimport {take} from \"rxjs/operators\";\nimport {RoutingDetails} from \"./interfaces/routing-details\";\nimport {PageLoadingService} from \"./services/page-loading.service\";\nimport {OAuthService} from \"angular-oauth2-oidc\";\n\n@Component({\n    selector: \"app-root\",\n    templateUrl: \"./app.component.html\",\n    styleUrls: [\"./app.component.scss\"]\n})\nexport class AppComponent implements OnInit, OnDestroy {\n    appVersion: string = environment.version;\n    subscriptions: Subscription[] = [];\n    darkMode;\n    username?: string;\n    pageLoadingObs$ = this.pageLoadingService.getSubject();\n    $applicationDetailsObs = this.applicationDetailsService.getApplicationDetails().asObservable();\n\n    routingArray: RoutingDetails[] = [];\n\n    defaultRoutingArray: RoutingDetails[] = [\n        {\n            name: \"Welcome Page\",\n            route: \"/\",\n            icon: \"house\",\n            id: \"clash-bot-menu-welcome-page\"\n        }\n    ];\n\n    loggedInArray: RoutingDetails[] = [\n        this.defaultRoutingArray[0],\n        {\n            name: \"Teams\",\n            route: \"/teams\",\n            icon: \"groups\",\n            id: \"clash-bot-menu-teams-page\"\n        },\n        {\n            name: \"Settings\",\n            route: \"/user-profile\",\n            icon: \"settings\",\n            id: \"clash-bot-menu-user-profile-page\"\n        }\n    ];\n\n    assets = [\"top\", \"mid\", \"jg\", \"bot\", \"supp\"];\n\n    @HostBinding(\"class\") className = \"\";\n\n    constructor(private router: Router,\n                private applicationDetailsService: ApplicationDetailsService,\n                private googleAnalyticsService: GoogleAnalyticsService,\n                private riotDdragonService: RiotDdragonService,\n                private matIconRegistry: MatIconRegistry,\n                private sanitizer: DomSanitizer,\n                private pageLoadingService: PageLoadingService,\n                private oauthService: OAuthService) {\n        this.assets.forEach((id) => {\n            this.matIconRegistry.addSvgIcon(`league-${id}`,\n                this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));\n        });\n        this.darkMode = localStorage.getItem(\"darkMode\") === \"true\";\n    }\n\n    ngOnInit(): void {\n        this.toggleDarkMode(this.darkMode);\n        this.subscriptions.push(\n            this.router.events.subscribe(event => {\n                if (event instanceof NavigationEnd) {\n                    this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);\n                }\n            })\n        );\n        this.subscriptions.push(\n            this.applicationDetailsService.getApplicationDetails()\n                .subscribe((applicationDetails) => {\n                    if (applicationDetails.loggedIn) {\n                        this.routingArray = this.loggedInArray;\n                        this.username = applicationDetails.userDetails?.username;\n                    } else {\n                        this.routingArray = this.defaultRoutingArray;\n                        delete this.username;\n                    }\n            })\n        );\n        this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {\n            window.localStorage.setItem(\"leagueApiVersion\", versions[0]);\n        });\n    }\n\n    toggleDarkMode(turnDarkModeOn: boolean) {\n        const darkModeClassName = \"dark\";\n        this.className = turnDarkModeOn ? darkModeClassName : \"\";\n        localStorage.setItem(\"darkMode\", JSON.stringify(turnDarkModeOn));\n    }\n\n    toggleDarkModeForUser(darkModeCurrentStatus: boolean) {\n        const darkModeClassName = \"dark\";\n        this.className = !darkModeCurrentStatus ? darkModeClassName : \"\";\n        localStorage.setItem(\"darkMode\", JSON.stringify(!darkModeCurrentStatus));\n        this.darkMode = !darkModeCurrentStatus;\n    }\n\n    logUserOut() {\n        console.log(\"Log Out\");\n        this.oauthService.logOut();\n        this.applicationDetailsService.logOutUser();\n    }\n\n    ngOnDestroy() {\n        this.subscriptions.forEach(sub => sub.unsubscribe());\n    }\n\n    navigate(route: string) {\n        this.pageLoadingObs$.next(true);\n        this.router.navigate([route])\n            .catch(() => this.pageLoadingObs$.next(false));\n    }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2342,6 +2421,12 @@
                     {
                         "name": "pageLoadingService",
                         "type": "PageLoadingService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "oauthService",
+                        "type": "OAuthService",
                         "deprecated": false,
                         "deprecationMessage": ""
                     }
@@ -2410,6 +2495,15 @@
                         "tagName": {
                             "text": "param"
                         }
+                    },
+                    {
+                        "name": "oauthService",
+                        "type": "OAuthService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
                     }
                 ]
             },
@@ -2417,7 +2511,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"header\">\n    <mat-toolbar color=\"primary\">\n        <button id='clash-bot-menu' mat-icon-button\n                [matMenuTriggerFor]=\"menu\" aria-label=\"tabs\">\n            <mat-icon>menu</mat-icon>\n        </button>\n        <mat-menu #menu=\"matMenu\">\n            <button *ngFor=\"let routing of routingArray\"\n                    id=\"{{routing.id}}\" mat-menu-item (click)=\"navigate(routing.route)\">\n                <mat-icon>{{routing.icon}}</mat-icon>\n                <span>{{routing.name}}</span>\n            </button>\n        </mat-menu>\n        <span class=\"title\">Clash Bot</span>\n        <span class=\"clash-bot-spacer\"></span>\n        <mat-slide-toggle [formControl]=\"darkModeFormControl\">\n            <mat-icon *ngIf=\"darkModeFormControl.value; else elseBlock\">dark_mode</mat-icon>\n            <ng-template #elseBlock>\n                <mat-icon>light_mode</mat-icon>\n            </ng-template>\n        </mat-slide-toggle>\n        <app-profile-icon [username]=\"username ?? ''\"\n                          [loggedIn]=\"($applicationDetailsObs | async)?.loggedIn ?? false\"></app-profile-icon>\n    </mat-toolbar>\n    <div *ngIf=\"pageLoadingObs$ | async\">\n        <mat-progress-bar mode=\"indeterminate\" color=\"accent\"></mat-progress-bar>\n    </div>\n</div>\n<div class=\"main-page\">\n    <router-outlet></router-outlet>\n    <div class=\"clash-bot-footer footer\">\n        <mat-card>\n            <div class=\"clash-bot-footer-details-container\">\n                <mat-card-content class=\"copyright-text\">Copyright 2021 - Poss11111</mat-card-content>\n                <mat-card-content>Version: {{appVersion}}</mat-card-content>\n            </div>\n            <mat-card-content class=\"disclaimer-text\">Clash-Bot is not endorsed by Riot Games and does not reflect the\n                views\n                or opinions of\n                Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends\n                and Riot\n                Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.\n            </mat-card-content>\n        </mat-card>\n    </div>\n</div>\n\n"
+            "templateData": "<div class=\"header\">\n    <mat-toolbar color=\"primary\">\n        <button id='clash-bot-menu' mat-icon-button\n                [matMenuTriggerFor]=\"menu\" aria-label=\"tabs\">\n            <mat-icon>menu</mat-icon>\n        </button>\n        <mat-menu #menu=\"matMenu\">\n            <button *ngFor=\"let routing of routingArray\"\n                    id=\"{{routing.id}}\" mat-menu-item (click)=\"navigate(routing.route)\">\n                <mat-icon>{{routing.icon}}</mat-icon>\n                <span>{{routing.name}}</span>\n            </button>\n        </mat-menu>\n        <span class=\"title\">Clash Bot</span>\n        <span class=\"clash-bot-spacer\"></span>\n        <app-profile-icon [username]=\"username ?? ''\"\n                          [isDarkModeOn]=\"darkMode\"\n                          [loggedIn]=\"($applicationDetailsObs | async)?.loggedIn ?? false\"\n                            (toggleDarkModeEvent)=\"toggleDarkModeForUser($event)\"\n                            (logOutEvent)=\"logUserOut()\"></app-profile-icon>\n    </mat-toolbar>\n    <div *ngIf=\"pageLoadingObs$ | async\">\n        <mat-progress-bar mode=\"indeterminate\" color=\"accent\"></mat-progress-bar>\n    </div>\n</div>\n<div class=\"main-page\">\n    <router-outlet></router-outlet>\n    <div class=\"clash-bot-footer footer\">\n        <mat-card>\n            <div class=\"clash-bot-footer-details-container\">\n                <mat-card-content class=\"copyright-text\">Copyright 2021 - Poss11111</mat-card-content>\n                <mat-card-content>Version: {{appVersion}}</mat-card-content>\n            </div>\n            <mat-card-content class=\"disclaimer-text\">Clash-Bot is not endorsed by Riot Games and does not reflect the\n                views\n                or opinions of\n                Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends\n                and Riot\n                Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.\n            </mat-card-content>\n        </mat-card>\n    </div>\n</div>\n\n"
         },
         {
             "name": "ClashTournamentCalendarComponent",
@@ -3141,7 +3235,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".dark-mode-toggle {\n  display: flex;\n  justify-content: center;\n}",
                     "styleUrl": "./profile-icon.component.scss"
                 }
             ],
@@ -3172,7 +3266,7 @@
                     }
                 ]
             },
-            "templateData": "<button mat-fab [disabled]=\"!loggedIn\"\n        color=\"primary\" [matMenuTriggerFor]=\"menu\" id=\"clash-bot-discord-username\">\n    <mat-icon>person</mat-icon>\n</button>\n<mat-menu #menu=\"matMenu\">\n    <button mat-menu-item disabled>\n        <mat-icon>discord</mat-icon>\n        <span>{{ username }}</span>\n    </button>\n    <button mat-menu-item (click)=\"logOut()\">Log Out</button>\n    <button mat-menu-item>\n        <mat-slide-toggle [checked]=\"isDarkModeOn\" (toggleChange)=\"toggleDarkMode()\">\n            <mat-icon *ngIf=\"isDarkModeOn; else elseBlock\">dark_mode</mat-icon>\n            <ng-template #elseBlock>\n                <mat-icon>light_mode</mat-icon>\n            </ng-template>\n        </mat-slide-toggle>\n    </button>\n</mat-menu>"
+            "templateData": "<button mat-fab [disabled]=\"!loggedIn\"\n        color=\"accent\" [matMenuTriggerFor]=\"menu\" id=\"clash-bot-discord-username\">\n    <mat-icon>person</mat-icon>\n</button>\n<mat-menu #menu=\"matMenu\">\n    <div mat-menu-item disabled>\n        <mat-icon>discord</mat-icon>\n        <span>{{ username }}</span>\n    </div>\n    <button>\n        <mat-icon>settings</mat-icon>\n        <span>Settings</span>\n    </button>\n    <button mat-menu-item (click)=\"logOut()\">Log Out</button>\n    <button mat-menu-item>\n        <div class=\"dark-mode-toggle\">\n            <mat-icon *ngIf=\"isDarkModeOn; else elseBlock\">dark_mode</mat-icon>\n            <ng-template #elseBlock>\n                <mat-icon>light_mode</mat-icon>\n            </ng-template>\n            <mat-slide-toggle [checked]=\"isDarkModeOn\" (toggleChange)=\"toggleDarkMode()\">\n            </mat-slide-toggle>\n        </div>\n    </button>\n</mat-menu>"
         },
         {
             "name": "ReleaseNotificationDialogComponent",
@@ -3596,7 +3690,7 @@
         },
         {
             "name": "TeamsDashboardComponent",
-            "id": "component-TeamsDashboardComponent-ef718e4a56ee190c76f5045d8b0bc8661723350f4291f8095582925a4691770f405ea41a42588466f07a17ef3314ff9f053e7b6068378e53ce84712ffe6ae147",
+            "id": "component-TeamsDashboardComponent-5383de8192a8b459b84ea50a89e36af09fae75818f4c1e7d758ca0610e3befabe3fb9b0098479844e403fab0ac11aad831bf601621caeb8dc7a84df22509f42d",
             "file": "src/app/pages/teams-dashboard/teams-dashboard/teams-dashboard.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3622,7 +3716,7 @@
                     "type": "Subscription | undefined",
                     "optional": false,
                     "description": "",
-                    "line": 43
+                    "line": 44
                 },
                 {
                     "name": "canCreateNewTeam",
@@ -3632,17 +3726,17 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 45
+                    "line": 46
                 },
                 {
                     "name": "currentApplicationDetails",
-                    "defaultValue": "{loggedIn: false}",
+                    "defaultValue": "{loginStatus: LoginStatus.NOT_LOGGED_IN, loggedIn: false}",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationDetails",
                     "optional": false,
                     "description": "",
-                    "line": 39
+                    "line": 40
                 },
                 {
                     "name": "currentSelectedGuild",
@@ -3652,7 +3746,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 35
+                    "line": 36
                 },
                 {
                     "name": "defaultServer",
@@ -3661,7 +3755,7 @@
                     "type": "string",
                     "optional": true,
                     "description": "",
-                    "line": 46
+                    "line": 47
                 },
                 {
                     "name": "destroy$",
@@ -3671,7 +3765,7 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 51
+                    "line": 52
                 },
                 {
                     "name": "eligibleTournaments",
@@ -3681,7 +3775,7 @@
                     "type": "Tournament[]",
                     "optional": false,
                     "description": "",
-                    "line": 41
+                    "line": 42
                 },
                 {
                     "name": "MAX_TIMEOUT",
@@ -3691,7 +3785,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 40,
+                    "line": 41,
                     "modifierKind": [
                         121,
                         144
@@ -3705,7 +3799,7 @@
                     "type": "object",
                     "optional": false,
                     "description": "",
-                    "line": 52,
+                    "line": 53,
                     "modifierKind": [
                         121,
                         144
@@ -3719,7 +3813,7 @@
                     "type": "any",
                     "optional": false,
                     "description": "",
-                    "line": 36
+                    "line": 37
                 },
                 {
                     "name": "showInnerSpinner",
@@ -3729,7 +3823,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 48
+                    "line": 49
                 },
                 {
                     "name": "showSpinner",
@@ -3738,7 +3832,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 47
+                    "line": 48
                 },
                 {
                     "name": "subs",
@@ -3748,7 +3842,7 @@
                     "type": "Subscription[]",
                     "optional": false,
                     "description": "",
-                    "line": 49
+                    "line": 50
                 },
                 {
                     "name": "teamFilters",
@@ -3758,7 +3852,7 @@
                     "type": "TeamFilter[]",
                     "optional": false,
                     "description": "",
-                    "line": 38
+                    "line": 39
                 },
                 {
                     "name": "teams",
@@ -3768,7 +3862,7 @@
                     "type": "TeamUiWrapper[]",
                     "optional": false,
                     "description": "",
-                    "line": 37
+                    "line": 38
                 },
                 {
                     "name": "tentativeDataStatus",
@@ -3778,7 +3872,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 44
+                    "line": 45
                 },
                 {
                     "name": "tentativeList",
@@ -3787,7 +3881,7 @@
                     "type": "TentativeRecord[]",
                     "optional": true,
                     "description": "",
-                    "line": 42
+                    "line": 43
                 },
                 {
                     "name": "websocketSub",
@@ -3797,7 +3891,7 @@
                     "type": "Subscription | undefined",
                     "optional": false,
                     "description": "",
-                    "line": 50
+                    "line": 51
                 }
             ],
             "methodsClass": [
@@ -3814,7 +3908,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 449,
+                    "line": 450,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3854,7 +3948,7 @@
                     "optional": false,
                     "returnType": "any",
                     "typeParameters": [],
-                    "line": 432,
+                    "line": 433,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3900,7 +3994,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 153,
+                    "line": 154,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -3931,7 +4025,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 143,
+                    "line": 144,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3960,7 +4054,7 @@
                     "optional": false,
                     "returnType": "Role",
                     "typeParameters": [],
-                    "line": 539,
+                    "line": 540,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -3989,7 +4083,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 233,
+                    "line": 234,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4017,7 +4111,7 @@
                     "optional": false,
                     "returnType": "TeamUiWrapper",
                     "typeParameters": [],
-                    "line": 323,
+                    "line": 324,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4038,7 +4132,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 89,
+                    "line": 90,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -4048,7 +4142,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 64,
+                    "line": 65,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -4065,7 +4159,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 366,
+                    "line": 367,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4093,7 +4187,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 295,
+                    "line": 296,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4121,7 +4215,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 487,
+                    "line": 488,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4149,7 +4243,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 401,
+                    "line": 402,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4177,7 +4271,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 95,
+                    "line": 96,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4205,7 +4299,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 266,
+                    "line": 267,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4228,7 +4322,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, OnDestroy, OnInit} from \"@angular/core\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {Subject, Subscription, throwError} from \"rxjs\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {FilterType} from \"../../../interfaces/filter-type\";\nimport {catchError, delay, finalize, map, retryWhen, take, takeUntil, tap, timeout} from \"rxjs/operators\";\nimport {HttpErrorResponse} from \"@angular/common/http\";\nimport {ApplicationDetailsService} from \"../../../services/application-details.service\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {ClashBotUserRegister} from \"../../../interfaces/clash-bot-user-register\";\nimport {TeamsWebsocketService} from \"../../../services/teams-websocket.service\";\nimport {CreateNewTeamDetails} from \"../../../interfaces/create-new-team-details\";\nimport {ApplicationDetails} from \"../../../interfaces/application-details\";\nimport {PageLoadingService} from \"../../../services/page-loading.service\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {\n  CreateNewTeamRequest,\n  PlacePlayerOnTentativeRequest,\n  Role,\n  Team,\n  TeamService,\n  TentativeService,\n  UpdateTeamRequest\n} from \"clash-bot-service-api\";\nimport {TentativeRecord} from \"../../../interfaces/tentative-record\";\nimport {PlayerUiWrapper, TeamUiWrapper} from \"../../../interfaces/team-ui-wrapper\";\nimport {ClashBotTeamEvent, ClashBotTeamEventBehavior} from \"../../../interfaces/clash-bot-team-event\";\n\n@Component({\n    selector: \"app-teams-dashboard\",\n    templateUrl: \"./teams-dashboard.component.html\",\n    styleUrls: [\"./teams-dashboard.component.scss\"]\n})\nexport class TeamsDashboardComponent implements OnInit, OnDestroy {\n    currentSelectedGuild: string = \"\";\n    roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};\n    teams: TeamUiWrapper[] = [];\n    teamFilters: TeamFilter[] = [];\n    currentApplicationDetails: ApplicationDetails = {loggedIn: false};\n    private readonly MAX_TIMEOUT = 4000;\n    eligibleTournaments: Tournament[] = [];\n    tentativeList?: TentativeRecord[];\n    $teamsSub: Subscription | undefined;\n    tentativeDataStatus: string = \"NOT_LOADED\";\n    canCreateNewTeam: boolean = false;\n    defaultServer?: string;\n    showSpinner: boolean;\n    showInnerSpinner: boolean = false;\n    subs: Subscription[] = [];\n    websocketSub: Subscription | undefined = undefined;\n    destroy$ = new Subject();\n    private readonly noDataAvailable = {error: \"No data\"};\n\n    constructor(private _snackBar: MatSnackBar,\n                private applicationDetailsService: ApplicationDetailsService,\n                private dialog: MatDialog,\n                private teamsWebsocketService: TeamsWebsocketService,\n                private pageLoadingService: PageLoadingService,\n                private tentativeService: TentativeService,\n                private teamsService: TeamService) {\n        this.showSpinner = false;\n    }\n\n    ngOnInit(): void {\n        this.subs.push(this.applicationDetailsService.getApplicationDetails()\n            .subscribe((details) => this.currentApplicationDetails = details));\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((appDetails) => {\n                if (appDetails.userGuilds) {\n                    appDetails.userGuilds.forEach((record: any) => {\n                        this.teamFilters.push({\n                            value: record.name,\n                            type: FilterType.SERVER,\n                            state: record.name === appDetails.defaultGuild,\n                            id: record.name.replace(new RegExp(/ /, \"g\"), \"-\").toLowerCase()\n                        });\n                    });\n                    if (appDetails.defaultGuild) {\n                        this.defaultServer = appDetails.defaultGuild;\n                        this.currentSelectedGuild = appDetails.defaultGuild;\n                        this.filterForTeamsByServer(appDetails.defaultGuild);\n                    }\n                    setTimeout(() => this.pageLoadingService.updateSubject(false), 300);\n                }\n            });\n    }\n\n    ngOnDestroy() {\n        this.subs.forEach(subscriptions => subscriptions.unsubscribe());\n        this.websocketSub?.unsubscribe();\n        this.destroy$.unsubscribe();\n    }\n\n    updateTentativeList(guildName: string) {\n        if (this.currentApplicationDetails.loggedIn) {\n            this.tentativeDataStatus = \"LOADING\";\n\n            this.tentativeService.getTentativeDetails(guildName)\n                .pipe(take(1),\n                    timeout(this.MAX_TIMEOUT),\n                    catchError((err: HttpErrorResponse) => {\n                        this._snackBar.open(\"Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.\",\n                            \"X\",\n                            {duration: 5 * 1000}\n                        );\n                        this.tentativeDataStatus = \"FAILED\";\n                        return throwError(err);\n                    }),\n                    map(response => {\n                        return response.slice(0, 4)\n                    }),\n                    map(response => {\n                        return response.map((tentative) => {\n                            const tentativeRecord: TentativeRecord = tentative as TentativeRecord;\n                            tentativeRecord.playerNames = tentative\n                                .tentativePlayers?.map((player) => player.name ?? \"\") ?? []\n                            if (tentative.tentativePlayers) {\n                                tentativeRecord.isMember = tentative\n                                    .tentativePlayers\n                                    .some((record) => record\n                                        .id === this\n                                        .currentApplicationDetails.userDetails?.id ?? \"\")\n                            } else {\n                                tentativeRecord.isMember = false;\n                            }\n                            return tentativeRecord;\n                        });\n                    })\n                )\n                .subscribe((mappedResponse) => {\n                    this.tentativeList = mappedResponse;\n                    this.tentativeDataStatus = \"SUCCESSFUL\";\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n\n        }\n    }\n\n    filterTeam(filterValue: string) {\n        this.currentSelectedGuild = filterValue;\n        this.showInnerSpinner = true;\n        if (this.$teamsSub) {\n            this.$teamsSub.unsubscribe();\n        }\n        this.teams = [];\n        this.filterForTeamsByServer(filterValue);\n    }\n\n    private filterForTeamsByServer(valueToSearchFor: string) {\n        if (!this.currentApplicationDetails.loggedIn) {\n            this._snackBar.open(\n                \"Oops! You are not logged in, \" +\n                \"please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n            this.teams = [this.noDataAvailable];\n        } else {\n            this.destroy$.next();\n            this.updateTentativeList(valueToSearchFor);\n            this.showInnerSpinner = true;\n            this.teamsService\n                .getTeam(valueToSearchFor)\n                .pipe(\n                    map((records) => records.map((team) => this.mapTeamToTeamUiWrapper(team))),\n                    take(1),\n                    timeout(7000),\n                    catchError((err: HttpErrorResponse) => {\n                        return throwError(err);\n                    }),\n                    finalize(() => this.showInnerSpinner = false)\n                ).subscribe(response => {\n                    if (this.currentApplicationDetails.loggedIn) {\n                        this.teams = response;\n                        this.repopulateEligibleTournaments(response);\n                    }\n                }, () => {\n                    this.teams = [{error: \"Failed to make call.\"}];\n                    this._snackBar.open(\"Failed to retrieve Teams. \" +\n                        \"Please try again later.\",\n                        \"X\",\n                        {duration: 5 * 1000});\n                }\n            );\n            this.teamsWebsocketService.connect(this.currentSelectedGuild)\n                .pipe(\n                  retryWhen(errors => {\n                  return errors.pipe(tap(value => console.error(value)),\n                      delay(1000))\n                  }),\n                  map((event) => {\n                    let mappedEvent;\n                    let behavior: ClashBotTeamEventBehavior = ClashBotTeamEventBehavior.REMOVED;\n                    let foundTeam = this.teams.find((team) =>\n                      team.name === event.name\n                      && team.tournament?.tournamentName === event.tournament?.tournamentName\n                      && team.tournament?.tournamentDay === event.tournament?.tournamentDay)\n                    if (event.playerDetails) {\n                      behavior = ClashBotTeamEventBehavior.UPDATED;\n                      mappedEvent = this.mapTeamToTeamUiWrapper(event);\n                      if (!foundTeam && event.playerDetails) {\n                        behavior = ClashBotTeamEventBehavior.ADDED;\n                      }\n                    }\n                    const clashBotTeamEvent: ClashBotTeamEvent = {\n                      event: event,\n                      behavior: behavior,\n                      mappedEvent: mappedEvent,\n                      originalTeam: foundTeam\n                    };\n                    return clashBotTeamEvent;\n                  }),\n                  takeUntil(this.destroy$),\n                )\n                .subscribe((msg) => {\n                        if (this.currentApplicationDetails.loggedIn) {\n                            this.handleIncomingTeamsWsEvent(msg);\n                        }\n                    },\n                    () => {\n                        this._snackBar.open(\n                            \"Oops! Failed to connect to server for Team updates, please try refreshing.\",\n                            \"X\",\n                            {duration: 5 * 1000});\n                        this.teams = [this.noDataAvailable];\n                    });\n        }\n    }\n\n    handleIncomingTeamsWsEvent(clashBotTeamEvent: ClashBotTeamEvent) {\n        switch (clashBotTeamEvent.behavior) {\n          case ClashBotTeamEventBehavior.UPDATED:\n            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});\n            this.teams.forEach(team => {\n                if (team.id === clashBotTeamEvent.mappedEvent?.id) {\n                    Object.assign(team, {...clashBotTeamEvent.mappedEvent});\n                }\n            });\n            break;\n          case ClashBotTeamEventBehavior.ADDED:\n            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});\n            if (this.teams.length === 1\n              && this.teams.find(team => team.error)) {\n              this.teams = [clashBotTeamEvent.mappedEvent ?? {}];\n            } else {\n              this.teams.push(clashBotTeamEvent.mappedEvent ?? {});\n            }\n            break;\n          case ClashBotTeamEventBehavior.REMOVED:\n            this.teams = this.teams\n              .filter((team) => team.name !== clashBotTeamEvent.event.name);\n            break;\n          default:\n            this._snackBar.open(\n              \"Unknown Team event occurred. Please report an issue to the Issues Form.\",\n              \"X\",\n              {duration: 5 * 1000}\n            );\n        }\n        this.repopulateEligibleTournaments(this.teams);\n    }\n\n    updateTentativeListBasedOnTeam(mappedTeam: Team) {\n        let playerNames: string[] = [];\n        if (mappedTeam.playerDetails) {\n            playerNames = Object\n                .entries(mappedTeam.playerDetails)\n                .map((entry) => entry[1].id);\n        }\n        if (this.tentativeList && playerNames.length > 0) {\n            for (let i = 0; i < this.tentativeList?.length; i++) {\n                if (this.tentativeList[i].tournamentDetails?.tournamentName === mappedTeam.tournament?.tournamentName\n                    && this.tentativeList[i].tournamentDetails?.tournamentDay === mappedTeam.tournament?.tournamentDay) {\n                    let updatedTentative = this.tentativeList[i]\n                        .tentativePlayers?.filter((player) => {\n                            if (player.name) {\n                                return !playerNames.includes(player.name);\n                            } else {\n                                return true;\n                            }\n                        });\n                    if (updatedTentative !== this.tentativeList[i].tentativePlayers\n                        && this.tentativeList[i].isMember) {\n                        this.tentativeList[i].isMember = false;\n                    }\n                    this.tentativeList[i].tentativePlayers = updatedTentative;\n                }\n            }\n        }\n    }\n\n    repopulateEligibleTournaments(clashTeams: Team[]) {\n        const currentTournaments = this.currentApplicationDetails\n            .currentTournaments ?? [];\n        if (clashTeams.length < 1) {\n            this.teams = [this.noDataAvailable];\n            this.eligibleTournaments = currentTournaments;\n            this.canCreateNewTeam = this\n                .eligibleTournaments && this\n                .eligibleTournaments.length != 0;\n        } else {\n            let map = this.createUserToTournamentMap(\n                this.currentApplicationDetails.userDetails?.id ?? 0,\n                currentTournaments,\n                this.teams\n            );\n            let newEligibleTournaments: Tournament[] = [];\n            map.forEach((value, key) => {\n                if (!value\n                    || Object.keys(value.playerDetails).length != 1) {\n                    newEligibleTournaments.push(key);\n                }\n            });\n            this.eligibleTournaments = newEligibleTournaments;\n            this.canCreateNewTeam = this.eligibleTournaments\n                && this.eligibleTournaments.length != 0;\n        }\n    }\n\n    mapTeamToTeamUiWrapper(record: Team): TeamUiWrapper {\n        let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper;\n        teamUiWrapper.id = `${record.serverName}-${record.name}`\n            .replace(new RegExp(/ /, \"g\"), \"-\")\n            .toLowerCase();\n        let rolesMissing: string[] = [...Object.keys(this.roles)];\n        if (record.playerDetails) {\n            teamUiWrapper.teamDetails = Object.entries(record.playerDetails)\n                .map((record) => {\n                    let playerUiWrapper: PlayerUiWrapper = record[1] as PlayerUiWrapper;\n                    playerUiWrapper\n                        .isUser = record[1].id === this\n                        .currentApplicationDetails.userDetails?.id;\n                    playerUiWrapper.role = this.getKeyByValue(record[0]);\n                    rolesMissing = rolesMissing\n                        .filter(role => role !== record[0]);\n                    return playerUiWrapper;\n                });\n        }\n        if (!record.playerDetails\n            || Object.keys(record.playerDetails).length === 0) {\n            teamUiWrapper.teamDetails = [];\n        }\n        for (let role in rolesMissing) {\n            teamUiWrapper\n                .teamDetails?.push({\n                id: \"0\",\n                isUser: false,\n                role: this.getKeyByValue(rolesMissing[role])\n            });\n        }\n        teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {\n            if (a.role && b.role) {\n                return this.roles[a.role] - this.roles[b.role]\n                    || a.role.localeCompare(b.role);\n            } else if (a.role) {\n                return 1;\n            }\n            return -1;\n        })\n        return teamUiWrapper;\n    }\n\n    registerForTeam($event: ClashBotUserRegister) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            let updateTeamRequest: UpdateTeamRequest = {\n                playerId: `${this.currentApplicationDetails.userDetails.id}`,\n                role: this.getKeyByValue($event.role),\n                serverName: $event.serverName ?? \"\",\n                teamName: $event.teamName ?? \"\",\n                tournamentDetails: $event.tournamentDetails ?? {}\n            };\n            this.teamsService.updateTeam(updateTeamRequest)\n                .pipe(\n                    timeout(7000),\n                    catchError((err) => {\n                        let errorMessage = \"Oops! Failed to register you to the Team, missing required details.\";\n                        if (err.name === \"TimeoutError\") {\n                            errorMessage = \"Oops! Your registration timed out, please try again!\";\n                        }\n                        return throwError(errorMessage);\n                    }),\n                    take(1)\n                ).subscribe(() => {\n                },\n                (err) => {\n                    this._snackBar.open(err,\n                        \"X\",\n                        {duration: 5 * 1000});\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    unregisterFromTeam($event: TeamUiWrapper) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            this.teamsService.removePlayerFromTeam(\n                $event.name ?? \"\",\n                $event.serverName ?? \"\",\n                $event.tournament?.tournamentName ?? \"\",\n                $event.tournament?.tournamentDay ?? \"\",\n                `${this.currentApplicationDetails.userDetails.id}`)\n                .pipe(\n                    timeout(7000),\n                    take(1),\n                    catchError((err) => {\n                        let errorMessage = \"Oops! Failed to unregister you from the Team.\";\n                        if (err.name === \"TimeoutError\") {\n                            errorMessage = \"Oops! Your request timed out, please try again!\";\n                        }\n                        this._snackBar.open(errorMessage,\n                            \"X\",\n                            {duration: 5 * 1000});\n                        return throwError(err);\n                    })\n                ).subscribe(() => {\n            });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: Team[]) {\n        let tournamentToTeamUserMap = new Map<Tournament, any>();\n        clashTournaments.forEach((tournament) =>\n            tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {\n                let reducedMap;\n                if (team.playerDetails) {\n                    reducedMap = new Set(Object.entries(team.playerDetails).map(object => object[1].id));\n                }\n                return team.tournament\n                    && team.tournament.tournamentName === tournament.tournamentName\n                    && team.tournament.tournamentDay === tournament.tournamentDay\n                    && reducedMap\n                    && reducedMap.has(`${currentUserId}`);\n            })));\n        return tournamentToTeamUserMap;\n    }\n\n    createNewTeam(createNewTeamEvent: CreateNewTeamDetails) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            const createNewTeamRequest: CreateNewTeamRequest = {\n                serverName: this.currentSelectedGuild,\n                tournamentName: createNewTeamEvent.tournamentName,\n                tournamentDay: createNewTeamEvent.tournamentDay,\n                playerDetails: {\n                    id: `${this.currentApplicationDetails.userDetails.id}`,\n                    role: this.getKeyByValue(createNewTeamEvent.role)\n                }\n            };\n            this.teamsService.createNewTeam(createNewTeamRequest)\n                .pipe(\n                    timeout(7000),\n                    catchError((err) => {\n                        let message = \"Oops! An error occurred while creating a new team.\";\n                        if (err.name === \"TimeoutError\") {\n                            message = \"Oops! Your request to create a new Team has timed out. Please try again.\"\n                        }\n                        return throwError(message);\n                    }),\n                    take(1),\n                ).subscribe(() => {\n                },\n                (err) => {\n                    this._snackBar.open(err,\n                        \"X\",\n                        {duration: 5 * 1000});\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n            this.teams = [this.noDataAvailable];\n        }\n    }\n\n    tentativeRegister(tentativeUserDetails: TentativeRecord) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            const payload: PlacePlayerOnTentativeRequest = {\n                playerId: `${this.currentApplicationDetails.userDetails.id}`,\n                serverName: this.currentSelectedGuild,\n                tournamentDetails: tentativeUserDetails.tournamentDetails ?? {}\n            };\n            let obs = this.tentativeService.placePlayerOnTentative(payload);\n            if (!tentativeUserDetails.toBeAdded) {\n                obs = this.tentativeService.removePlayerFromTentative(\n                    this.currentSelectedGuild,\n                    `${this.currentApplicationDetails.userDetails.id}`,\n                    tentativeUserDetails.tournamentDetails?.tournamentName ?? \"\",\n                    tentativeUserDetails.tournamentDetails?.tournamentDay ?? \"\"\n                );\n            }\n            obs\n                .pipe(take(1),\n                    map(response => {\n                        const tentativeRecord: TentativeRecord = {\n                            serverName: response.serverName,\n                            tournamentDetails: response.tournamentDetails,\n                            tentativePlayers: response.tentativePlayers,\n                            playerNames: response.tentativePlayers?.map((player) => player.name ?? \"\") ?? [],\n                            isMember: response.tentativePlayers?.some((player) => {\n                                return player.id === `${this.currentApplicationDetails.userDetails?.id}`\n                            }) ?? false\n                        };\n                        return tentativeRecord;\n                    }),\n                    timeout(7000),\n                    catchError(() => {\n                        return throwError(\"Oops, we were unable to update the tentative list. Please try again later!\");\n                    })\n                ).subscribe((response) => {\n                if (this.tentativeList && tentativeUserDetails.index !== undefined) {\n                    this.tentativeList[tentativeUserDetails.index] = response;\n                    this.tentativeList = [...this.tentativeList];\n                }\n            }, (err) => {\n                this._snackBar.open(err,\n                    \"X\",\n                    {duration: 5 * 1000});\n            });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    getKeyByValue(value?: string): Role {\n        switch (value) {\n            case \"Top\":\n                return Role.Top;\n            case \"Bot\":\n                return Role.Bot;\n            case \"Mid\":\n                return Role.Mid;\n            case \"Supp\":\n                return Role.Supp;\n            case \"Jg\":\n                return Role.Jg;\n            default:\n                return Role.Jg;\n        }\n    }\n}\n",
+            "sourceCode": "import {Component, OnDestroy, OnInit} from \"@angular/core\";\nimport {TeamFilter} from \"../../../interfaces/team-filter\";\nimport {Subject, Subscription, throwError} from \"rxjs\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {FilterType} from \"../../../interfaces/filter-type\";\nimport {catchError, delay, finalize, map, retryWhen, take, takeUntil, tap, timeout} from \"rxjs/operators\";\nimport {HttpErrorResponse} from \"@angular/common/http\";\nimport {ApplicationDetailsService} from \"../../../services/application-details.service\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {ClashBotUserRegister} from \"../../../interfaces/clash-bot-user-register\";\nimport {TeamsWebsocketService} from \"../../../services/teams-websocket.service\";\nimport {CreateNewTeamDetails} from \"../../../interfaces/create-new-team-details\";\nimport {ApplicationDetails} from \"../../../interfaces/application-details\";\nimport {PageLoadingService} from \"../../../services/page-loading.service\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {\n  CreateNewTeamRequest,\n  PlacePlayerOnTentativeRequest,\n  Role,\n  Team,\n  TeamService,\n  TentativeService,\n  UpdateTeamRequest\n} from \"clash-bot-service-api\";\nimport {TentativeRecord} from \"../../../interfaces/tentative-record\";\nimport {PlayerUiWrapper, TeamUiWrapper} from \"../../../interfaces/team-ui-wrapper\";\nimport {ClashBotTeamEvent, ClashBotTeamEventBehavior} from \"../../../interfaces/clash-bot-team-event\";\nimport {LoginStatus} from \"../../../login-status\";\n\n@Component({\n    selector: \"app-teams-dashboard\",\n    templateUrl: \"./teams-dashboard.component.html\",\n    styleUrls: [\"./teams-dashboard.component.scss\"]\n})\nexport class TeamsDashboardComponent implements OnInit, OnDestroy {\n    currentSelectedGuild: string = \"\";\n    roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};\n    teams: TeamUiWrapper[] = [];\n    teamFilters: TeamFilter[] = [];\n    currentApplicationDetails: ApplicationDetails = {loginStatus: LoginStatus.NOT_LOGGED_IN, loggedIn: false};\n    private readonly MAX_TIMEOUT = 4000;\n    eligibleTournaments: Tournament[] = [];\n    tentativeList?: TentativeRecord[];\n    $teamsSub: Subscription | undefined;\n    tentativeDataStatus: string = \"NOT_LOADED\";\n    canCreateNewTeam: boolean = false;\n    defaultServer?: string;\n    showSpinner: boolean;\n    showInnerSpinner: boolean = false;\n    subs: Subscription[] = [];\n    websocketSub: Subscription | undefined = undefined;\n    destroy$ = new Subject();\n    private readonly noDataAvailable = {error: \"No data\"};\n\n    constructor(private _snackBar: MatSnackBar,\n                private applicationDetailsService: ApplicationDetailsService,\n                private dialog: MatDialog,\n                private teamsWebsocketService: TeamsWebsocketService,\n                private pageLoadingService: PageLoadingService,\n                private tentativeService: TentativeService,\n                private teamsService: TeamService) {\n        this.showSpinner = false;\n    }\n\n    ngOnInit(): void {\n        this.subs.push(this.applicationDetailsService.getApplicationDetails()\n            .subscribe((details) => this.currentApplicationDetails = details));\n        this.applicationDetailsService.getApplicationDetails()\n            .pipe(take(1))\n            .subscribe((appDetails) => {\n                if (appDetails.userGuilds) {\n                    appDetails.userGuilds.forEach((record: any) => {\n                        this.teamFilters.push({\n                            value: record.name,\n                            type: FilterType.SERVER,\n                            state: record.name === appDetails.defaultGuild,\n                            id: record.name.replace(new RegExp(/ /, \"g\"), \"-\").toLowerCase()\n                        });\n                    });\n                    if (appDetails.defaultGuild) {\n                        this.defaultServer = appDetails.defaultGuild;\n                        this.currentSelectedGuild = appDetails.defaultGuild;\n                        this.filterForTeamsByServer(appDetails.defaultGuild);\n                    }\n                    setTimeout(() => this.pageLoadingService.updateSubject(false), 300);\n                }\n            });\n    }\n\n    ngOnDestroy() {\n        this.subs.forEach(subscriptions => subscriptions.unsubscribe());\n        this.websocketSub?.unsubscribe();\n        this.destroy$.unsubscribe();\n    }\n\n    updateTentativeList(guildName: string) {\n        if (this.currentApplicationDetails.loggedIn) {\n            this.tentativeDataStatus = \"LOADING\";\n\n            this.tentativeService.getTentativeDetails(guildName)\n                .pipe(take(1),\n                    timeout(this.MAX_TIMEOUT),\n                    catchError((err: HttpErrorResponse) => {\n                        this._snackBar.open(\"Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.\",\n                            \"X\",\n                            {duration: 5 * 1000}\n                        );\n                        this.tentativeDataStatus = \"FAILED\";\n                        return throwError(err);\n                    }),\n                    map(response => {\n                        return response.slice(0, 4)\n                    }),\n                    map(response => {\n                        return response.map((tentative) => {\n                            const tentativeRecord: TentativeRecord = tentative as TentativeRecord;\n                            tentativeRecord.playerNames = tentative\n                                .tentativePlayers?.map((player) => player.name ?? \"\") ?? []\n                            if (tentative.tentativePlayers) {\n                                tentativeRecord.isMember = tentative\n                                    .tentativePlayers\n                                    .some((record) => record\n                                        .id === this\n                                        .currentApplicationDetails.userDetails?.id ?? \"\")\n                            } else {\n                                tentativeRecord.isMember = false;\n                            }\n                            return tentativeRecord;\n                        });\n                    })\n                )\n                .subscribe((mappedResponse) => {\n                    this.tentativeList = mappedResponse;\n                    this.tentativeDataStatus = \"SUCCESSFUL\";\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n\n        }\n    }\n\n    filterTeam(filterValue: string) {\n        this.currentSelectedGuild = filterValue;\n        this.showInnerSpinner = true;\n        if (this.$teamsSub) {\n            this.$teamsSub.unsubscribe();\n        }\n        this.teams = [];\n        this.filterForTeamsByServer(filterValue);\n    }\n\n    private filterForTeamsByServer(valueToSearchFor: string) {\n        if (!this.currentApplicationDetails.loggedIn) {\n            this._snackBar.open(\n                \"Oops! You are not logged in, \" +\n                \"please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n            this.teams = [this.noDataAvailable];\n        } else {\n            this.destroy$.next();\n            this.updateTentativeList(valueToSearchFor);\n            this.showInnerSpinner = true;\n            this.teamsService\n                .getTeam(valueToSearchFor)\n                .pipe(\n                    map((records) => records.map((team) => this.mapTeamToTeamUiWrapper(team))),\n                    take(1),\n                    timeout(7000),\n                    catchError((err: HttpErrorResponse) => {\n                        return throwError(err);\n                    }),\n                    finalize(() => this.showInnerSpinner = false)\n                ).subscribe(response => {\n                    if (this.currentApplicationDetails.loggedIn) {\n                        this.teams = response;\n                        this.repopulateEligibleTournaments(response);\n                    }\n                }, () => {\n                    this.teams = [{error: \"Failed to make call.\"}];\n                    this._snackBar.open(\"Failed to retrieve Teams. \" +\n                        \"Please try again later.\",\n                        \"X\",\n                        {duration: 5 * 1000});\n                }\n            );\n            this.teamsWebsocketService.connect(this.currentSelectedGuild)\n                .pipe(\n                  retryWhen(errors => {\n                  return errors.pipe(tap(value => console.error(value)),\n                      delay(1000))\n                  }),\n                  map((event) => {\n                    let mappedEvent;\n                    let behavior: ClashBotTeamEventBehavior = ClashBotTeamEventBehavior.REMOVED;\n                    let foundTeam = this.teams.find((team) =>\n                      team.name === event.name\n                      && team.tournament?.tournamentName === event.tournament?.tournamentName\n                      && team.tournament?.tournamentDay === event.tournament?.tournamentDay)\n                    if (event.playerDetails) {\n                      behavior = ClashBotTeamEventBehavior.UPDATED;\n                      mappedEvent = this.mapTeamToTeamUiWrapper(event);\n                      if (!foundTeam && event.playerDetails) {\n                        behavior = ClashBotTeamEventBehavior.ADDED;\n                      }\n                    }\n                    const clashBotTeamEvent: ClashBotTeamEvent = {\n                      event: event,\n                      behavior: behavior,\n                      mappedEvent: mappedEvent,\n                      originalTeam: foundTeam\n                    };\n                    return clashBotTeamEvent;\n                  }),\n                  takeUntil(this.destroy$),\n                )\n                .subscribe((msg) => {\n                        if (this.currentApplicationDetails.loggedIn) {\n                            this.handleIncomingTeamsWsEvent(msg);\n                        }\n                    },\n                    () => {\n                        this._snackBar.open(\n                            \"Oops! Failed to connect to server for Team updates, please try refreshing.\",\n                            \"X\",\n                            {duration: 5 * 1000});\n                        this.teams = [this.noDataAvailable];\n                    });\n        }\n    }\n\n    handleIncomingTeamsWsEvent(clashBotTeamEvent: ClashBotTeamEvent) {\n        switch (clashBotTeamEvent.behavior) {\n          case ClashBotTeamEventBehavior.UPDATED:\n            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});\n            this.teams.forEach(team => {\n                if (team.id === clashBotTeamEvent.mappedEvent?.id) {\n                    Object.assign(team, {...clashBotTeamEvent.mappedEvent});\n                }\n            });\n            break;\n          case ClashBotTeamEventBehavior.ADDED:\n            this.updateTentativeListBasedOnTeam(clashBotTeamEvent.mappedEvent ?? {});\n            if (this.teams.length === 1\n              && this.teams.find(team => team.error)) {\n              this.teams = [clashBotTeamEvent.mappedEvent ?? {}];\n            } else {\n              this.teams.push(clashBotTeamEvent.mappedEvent ?? {});\n            }\n            break;\n          case ClashBotTeamEventBehavior.REMOVED:\n            this.teams = this.teams\n              .filter((team) => team.name !== clashBotTeamEvent.event.name);\n            break;\n          default:\n            this._snackBar.open(\n              \"Unknown Team event occurred. Please report an issue to the Issues Form.\",\n              \"X\",\n              {duration: 5 * 1000}\n            );\n        }\n        this.repopulateEligibleTournaments(this.teams);\n    }\n\n    updateTentativeListBasedOnTeam(mappedTeam: Team) {\n        let playerNames: string[] = [];\n        if (mappedTeam.playerDetails) {\n            playerNames = Object\n                .entries(mappedTeam.playerDetails)\n                .map((entry) => entry[1].id);\n        }\n        if (this.tentativeList && playerNames.length > 0) {\n            for (let i = 0; i < this.tentativeList?.length; i++) {\n                if (this.tentativeList[i].tournamentDetails?.tournamentName === mappedTeam.tournament?.tournamentName\n                    && this.tentativeList[i].tournamentDetails?.tournamentDay === mappedTeam.tournament?.tournamentDay) {\n                    let updatedTentative = this.tentativeList[i]\n                        .tentativePlayers?.filter((player) => {\n                            if (player.name) {\n                                return !playerNames.includes(player.name);\n                            } else {\n                                return true;\n                            }\n                        });\n                    if (updatedTentative !== this.tentativeList[i].tentativePlayers\n                        && this.tentativeList[i].isMember) {\n                        this.tentativeList[i].isMember = false;\n                    }\n                    this.tentativeList[i].tentativePlayers = updatedTentative;\n                }\n            }\n        }\n    }\n\n    repopulateEligibleTournaments(clashTeams: Team[]) {\n        const currentTournaments = this.currentApplicationDetails\n            .currentTournaments ?? [];\n        if (clashTeams.length < 1) {\n            this.teams = [this.noDataAvailable];\n            this.eligibleTournaments = currentTournaments;\n            this.canCreateNewTeam = this\n                .eligibleTournaments && this\n                .eligibleTournaments.length != 0;\n        } else {\n            let map = this.createUserToTournamentMap(\n                this.currentApplicationDetails.userDetails?.id ?? 0,\n                currentTournaments,\n                this.teams\n            );\n            let newEligibleTournaments: Tournament[] = [];\n            map.forEach((value, key) => {\n                if (!value\n                    || Object.keys(value.playerDetails).length != 1) {\n                    newEligibleTournaments.push(key);\n                }\n            });\n            this.eligibleTournaments = newEligibleTournaments;\n            this.canCreateNewTeam = this.eligibleTournaments\n                && this.eligibleTournaments.length != 0;\n        }\n    }\n\n    mapTeamToTeamUiWrapper(record: Team): TeamUiWrapper {\n        let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper;\n        teamUiWrapper.id = `${record.serverName}-${record.name}`\n            .replace(new RegExp(/ /, \"g\"), \"-\")\n            .toLowerCase();\n        let rolesMissing: string[] = [...Object.keys(this.roles)];\n        if (record.playerDetails) {\n            teamUiWrapper.teamDetails = Object.entries(record.playerDetails)\n                .map((record) => {\n                    let playerUiWrapper: PlayerUiWrapper = record[1] as PlayerUiWrapper;\n                    playerUiWrapper\n                        .isUser = record[1].id === this\n                        .currentApplicationDetails.userDetails?.id;\n                    playerUiWrapper.role = this.getKeyByValue(record[0]);\n                    rolesMissing = rolesMissing\n                        .filter(role => role !== record[0]);\n                    return playerUiWrapper;\n                });\n        }\n        if (!record.playerDetails\n            || Object.keys(record.playerDetails).length === 0) {\n            teamUiWrapper.teamDetails = [];\n        }\n        for (let role in rolesMissing) {\n            teamUiWrapper\n                .teamDetails?.push({\n                id: \"0\",\n                isUser: false,\n                role: this.getKeyByValue(rolesMissing[role])\n            });\n        }\n        teamUiWrapper.teamDetails?.sort((a: PlayerUiWrapper, b: PlayerUiWrapper) => {\n            if (a.role && b.role) {\n                return this.roles[a.role] - this.roles[b.role]\n                    || a.role.localeCompare(b.role);\n            } else if (a.role) {\n                return 1;\n            }\n            return -1;\n        })\n        return teamUiWrapper;\n    }\n\n    registerForTeam($event: ClashBotUserRegister) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            let updateTeamRequest: UpdateTeamRequest = {\n                playerId: `${this.currentApplicationDetails.userDetails.id}`,\n                role: this.getKeyByValue($event.role),\n                serverName: $event.serverName ?? \"\",\n                teamName: $event.teamName ?? \"\",\n                tournamentDetails: $event.tournamentDetails ?? {}\n            };\n            this.teamsService.updateTeam(updateTeamRequest)\n                .pipe(\n                    timeout(7000),\n                    catchError((err) => {\n                        let errorMessage = \"Oops! Failed to register you to the Team, missing required details.\";\n                        if (err.name === \"TimeoutError\") {\n                            errorMessage = \"Oops! Your registration timed out, please try again!\";\n                        }\n                        return throwError(errorMessage);\n                    }),\n                    take(1)\n                ).subscribe(() => {\n                },\n                (err) => {\n                    this._snackBar.open(err,\n                        \"X\",\n                        {duration: 5 * 1000});\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    unregisterFromTeam($event: TeamUiWrapper) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            this.teamsService.removePlayerFromTeam(\n                $event.name ?? \"\",\n                $event.serverName ?? \"\",\n                $event.tournament?.tournamentName ?? \"\",\n                $event.tournament?.tournamentDay ?? \"\",\n                `${this.currentApplicationDetails.userDetails.id}`)\n                .pipe(\n                    timeout(7000),\n                    take(1),\n                    catchError((err) => {\n                        let errorMessage = \"Oops! Failed to unregister you from the Team.\";\n                        if (err.name === \"TimeoutError\") {\n                            errorMessage = \"Oops! Your request timed out, please try again!\";\n                        }\n                        this._snackBar.open(errorMessage,\n                            \"X\",\n                            {duration: 5 * 1000});\n                        return throwError(err);\n                    })\n                ).subscribe(() => {\n            });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    createUserToTournamentMap(currentUserId: number, clashTournaments: Tournament[], clashTeams: Team[]) {\n        let tournamentToTeamUserMap = new Map<Tournament, any>();\n        clashTournaments.forEach((tournament) =>\n            tournamentToTeamUserMap.set(tournament, clashTeams.find(team => {\n                let reducedMap;\n                if (team.playerDetails) {\n                    reducedMap = new Set(Object.entries(team.playerDetails).map(object => object[1].id));\n                }\n                return team.tournament\n                    && team.tournament.tournamentName === tournament.tournamentName\n                    && team.tournament.tournamentDay === tournament.tournamentDay\n                    && reducedMap\n                    && reducedMap.has(`${currentUserId}`);\n            })));\n        return tournamentToTeamUserMap;\n    }\n\n    createNewTeam(createNewTeamEvent: CreateNewTeamDetails) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            const createNewTeamRequest: CreateNewTeamRequest = {\n                serverName: this.currentSelectedGuild,\n                tournamentName: createNewTeamEvent.tournamentName,\n                tournamentDay: createNewTeamEvent.tournamentDay,\n                playerDetails: {\n                    id: `${this.currentApplicationDetails.userDetails.id}`,\n                    role: this.getKeyByValue(createNewTeamEvent.role)\n                }\n            };\n            this.teamsService.createNewTeam(createNewTeamRequest)\n                .pipe(\n                    timeout(7000),\n                    catchError((err) => {\n                        let message = \"Oops! An error occurred while creating a new team.\";\n                        if (err.name === \"TimeoutError\") {\n                            message = \"Oops! Your request to create a new Team has timed out. Please try again.\"\n                        }\n                        return throwError(message);\n                    }),\n                    take(1),\n                ).subscribe(() => {\n                },\n                (err) => {\n                    this._snackBar.open(err,\n                        \"X\",\n                        {duration: 5 * 1000});\n                });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n            this.teams = [this.noDataAvailable];\n        }\n    }\n\n    tentativeRegister(tentativeUserDetails: TentativeRecord) {\n        if (this.currentApplicationDetails.loggedIn &&\n            this.currentApplicationDetails.userDetails) {\n            const payload: PlacePlayerOnTentativeRequest = {\n                playerId: `${this.currentApplicationDetails.userDetails.id}`,\n                serverName: this.currentSelectedGuild,\n                tournamentDetails: tentativeUserDetails.tournamentDetails ?? {}\n            };\n            let obs = this.tentativeService.placePlayerOnTentative(payload);\n            if (!tentativeUserDetails.toBeAdded) {\n                obs = this.tentativeService.removePlayerFromTentative(\n                    this.currentSelectedGuild,\n                    `${this.currentApplicationDetails.userDetails.id}`,\n                    tentativeUserDetails.tournamentDetails?.tournamentName ?? \"\",\n                    tentativeUserDetails.tournamentDetails?.tournamentDay ?? \"\"\n                );\n            }\n            obs\n                .pipe(take(1),\n                    map(response => {\n                        const tentativeRecord: TentativeRecord = {\n                            serverName: response.serverName,\n                            tournamentDetails: response.tournamentDetails,\n                            tentativePlayers: response.tentativePlayers,\n                            playerNames: response.tentativePlayers?.map((player) => player.name ?? \"\") ?? [],\n                            isMember: response.tentativePlayers?.some((player) => {\n                                return player.id === `${this.currentApplicationDetails.userDetails?.id}`\n                            }) ?? false\n                        };\n                        return tentativeRecord;\n                    }),\n                    timeout(7000),\n                    catchError(() => {\n                        return throwError(\"Oops, we were unable to update the tentative list. Please try again later!\");\n                    })\n                ).subscribe((response) => {\n                if (this.tentativeList && tentativeUserDetails.index !== undefined) {\n                    this.tentativeList[tentativeUserDetails.index] = response;\n                    this.tentativeList = [...this.tentativeList];\n                }\n            }, (err) => {\n                this._snackBar.open(err,\n                    \"X\",\n                    {duration: 5 * 1000});\n            });\n        } else {\n            this._snackBar.open(\"Oops! You are not logged in, please navigate to the Welcome page and login.\",\n                \"X\",\n                {duration: 5 * 1000});\n        }\n    }\n\n    getKeyByValue(value?: string): Role {\n        switch (value) {\n            case \"Top\":\n                return Role.Top;\n            case \"Bot\":\n                return Role.Bot;\n            case \"Mid\":\n                return Role.Mid;\n            case \"Supp\":\n                return Role.Supp;\n            case \"Jg\":\n                return Role.Jg;\n            default:\n                return Role.Jg;\n        }\n    }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4286,7 +4380,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 52,
+                "line": 53,
                 "jsdoctags": [
                     {
                         "name": "_snackBar",
@@ -5492,7 +5586,7 @@
         },
         {
             "name": "WelcomeDashboardComponent",
-            "id": "component-WelcomeDashboardComponent-7e154dc7b863cad7565835b41a94fae7212882188e4ba5b6e1792a1462f09f7b3c0d1f8226d2415238b91f2a375ea71e7ea22bc99711d6b535f6d565fa8720b6",
+            "id": "component-WelcomeDashboardComponent-d9a107ca5240b51d2a0692f3b6a5685c813adcc758aa0f5b89adf9aa97224d1b2b7f031c4179b0709c607342d55a8818990529a8a4c991f4089d3b685001df0f",
             "file": "src/app/pages/welcome-dashboard/welcome-dashboard.component.ts",
             "encapsulation": [
                 "ViewEncapsulation.None"
@@ -5514,14 +5608,24 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
+                    "name": "$applicationDetailsServiceObs",
+                    "defaultValue": "this\n      .applicationDetailsService.getApplicationDetails().asObservable()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Observable<ApplicationDetails>",
+                    "optional": false,
+                    "description": "",
+                    "line": 36
+                },
+                {
                     "name": "authCodeFlowConfig",
-                    "defaultValue": "{\n        loginUrl: \"https://discord.com/api/oauth2/authorize\",\n        tokenEndpoint: \"http://localhost:8082/auth/token\",\n        revocationEndpoint: \"https://discord.com/api/oauth2/revoke\",\n        redirectUri: window.location.origin,\n        clientId: environment.discordClientId,\n        timeoutFactor: 0.02,\n        responseType: \"code\",\n        scope: \"identify guilds\",\n        showDebugInformation: true,\n        oidc: false,\n        sessionChecksEnabled: true,\n        customQueryParams: {\n            \"prompt\": \"none\"\n        }\n    }",
+                    "defaultValue": "{\n        loginUrl: \"https://discord.com/api/oauth2/authorize\",\n        tokenEndpoint: \"http://localhost:8082/auth/token\",\n        revocationEndpoint: \"https://discord.com/api/oauth2/revoke\",\n        redirectUri: window.location.origin,\n        clientId: environment.discordClientId,\n        responseType: \"code\",\n        scope: \"identify guilds\",\n        oidc: false,\n        sessionChecksEnabled: true,\n        customQueryParams: {\n            \"prompt\": \"none\"\n        }\n    }",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "AuthConfig",
                     "optional": false,
                     "description": "",
-                    "line": 34
+                    "line": 39
                 },
                 {
                     "name": "dataLoaded",
@@ -5531,17 +5635,46 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 31
+                    "line": 35
                 },
                 {
-                    "name": "loggedIn",
-                    "defaultValue": "\"NOT_LOGGED_IN\"",
+                    "name": "LOGGED_IN",
+                    "defaultValue": "LoginStatus.LOGGED_IN",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "string",
+                    "type": "LoginStatus",
                     "optional": false,
                     "description": "",
-                    "line": 32
+                    "line": 32,
+                    "modifierKind": [
+                        144
+                    ]
+                },
+                {
+                    "name": "LOGGING_IN",
+                    "defaultValue": "LoginStatus.LOGGING_IN",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "LoginStatus",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "modifierKind": [
+                        144
+                    ]
+                },
+                {
+                    "name": "NOT_LOGGED_IN",
+                    "defaultValue": "LoginStatus.NOT_LOGGED_IN",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "LoginStatus",
+                    "optional": false,
+                    "description": "",
+                    "line": 30,
+                    "modifierKind": [
+                        144
+                    ]
                 },
                 {
                     "name": "tournamentDays",
@@ -5551,7 +5684,7 @@
                     "type": "any[]",
                     "optional": false,
                     "description": "",
-                    "line": 29
+                    "line": 33
                 },
                 {
                     "name": "tournaments",
@@ -5560,17 +5693,58 @@
                     "type": "Tournament[]",
                     "optional": true,
                     "description": "",
-                    "line": 30
+                    "line": 34
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "getCodePartsFromUrl",
+                    "args": [
+                        {
+                            "name": "queryString",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "object",
+                    "typeParameters": [],
+                    "line": 109,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        121
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "queryString",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "initUserDetails",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 122,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
                 {
                     "name": "loginToDiscord",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 265,
+                    "line": 281,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -5605,7 +5779,7 @@
                     "optional": false,
                     "returnType": "ApplicationDetails",
                     "typeParameters": [],
-                    "line": 253,
+                    "line": 268,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -5653,17 +5827,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 61,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "setUserDetails",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 101,
+                    "line": 65,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -5675,7 +5839,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {Component, OnInit, ViewEncapsulation} from \"@angular/core\";\nimport {AuthConfig, OAuthService} from \"angular-oauth2-oidc\";\nimport {environment} from \"../../../environments/environment\";\nimport {JwksValidationHandler} from \"angular-oauth2-oidc-jwks\";\nimport {DiscordService} from \"../../services/discord.service\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {ApplicationDetailsService} from \"../../services/application-details.service\";\nimport {catchError, finalize, map, mergeMap, retryWhen, take} from \"rxjs/operators\";\nimport {of, throwError, timer} from \"rxjs\";\nimport {ApplicationDetails} from \"../../interfaces/application-details\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {\n    ReleaseNotificationDialogComponent\n} from \"../../dialogs/release-notification-dialog/release-notification-dialog.component\";\nimport {UserDetails} from \"../../interfaces/user-details\";\nimport {DiscordGuild} from \"../../interfaces/discord-guild\";\nimport {PageLoadingService} from \"../../services/page-loading.service\";\nimport {UserService,TournamentService} from \"clash-bot-service-api\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {Player} from \"clash-bot-service-api/model/player\";\n\n@Component({\n    selector: \"app-welcome-dashboard\",\n    templateUrl: \"./welcome-dashboard.component.html\",\n    styleUrls: [\"./welcome-dashboard.component.scss\"],\n    encapsulation: ViewEncapsulation.None\n})\nexport class WelcomeDashboardComponent implements OnInit {\n    tournamentDays: any[] = [];\n    tournaments?: Tournament[];\n    dataLoaded: boolean = false;\n    loggedIn: string = \"NOT_LOGGED_IN\";\n\n    authCodeFlowConfig: AuthConfig = {\n        loginUrl: \"https://discord.com/api/oauth2/authorize\",\n        tokenEndpoint: \"http://localhost:8082/auth/token\",\n        revocationEndpoint: \"https://discord.com/api/oauth2/revoke\",\n        redirectUri: window.location.origin,\n        clientId: environment.discordClientId,\n        timeoutFactor: 0.02,\n        responseType: \"code\",\n        scope: \"identify guilds\",\n        showDebugInformation: true,\n        oidc: false,\n        sessionChecksEnabled: true,\n        customQueryParams: {\n            \"prompt\": \"none\"\n        }\n    }\n\n    constructor(private oauthService: OAuthService,\n                private discordService: DiscordService,\n                private applicationDetailsService: ApplicationDetailsService,\n                private _snackBar: MatSnackBar,\n                private matDialog: MatDialog,\n                private pageLoadingService: PageLoadingService,\n                private userService: UserService,\n                private tournamentService: TournamentService) {\n    }\n\n    ngOnInit(): void {\n        this.oauthService.configure(this.authCodeFlowConfig);\n        this.oauthService.tokenValidationHandler = new JwksValidationHandler();\n        if (localStorage.getItem(\"version\") !== environment.version) {\n            this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});\n            localStorage.setItem(\"version\", environment.version);\n        }\n        this.tournamentService.getTournaments()\n            .pipe(\n                take(1),\n                map(tournaments => {\n                    tournaments.sort((a, b) =>\n                        new Date(a.startTime === undefined ? \"\": a.startTime).getTime() - new Date(b.startTime === undefined ? \"\": b.startTime).getTime());\n                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime === undefined ? \"\": tournament.startTime)));\n                    return tournaments;\n                }))\n            .subscribe((data) => {\n                this.tournaments = data;\n                this.dataLoaded = true;\n                this.applicationDetailsService.getApplicationDetails()\n                    .pipe(take(1))\n                    .subscribe((appDetails) => {\n                        appDetails.currentTournaments = data;\n                        this.applicationDetailsService.setApplicationDetails(appDetails);\n                    })\n            });\n        if (this.oauthService.hasValidAccessToken()) {\n            this.setUserDetails();\n        } else if (localStorage.getItem(\"LoginAttempt\")) {\n            this.oauthService.tryLogin()\n                .then(() => this.setUserDetails())\n                .catch(() => {\n                    this.loggedIn = \"NOT_LOGGED_IN\";\n                    this._snackBar.open(\"Failed to login to discord.\",\n                        \"X\",\n                        {duration: 5 * 1000});\n                });\n        }\n    }\n\n    setUserDetails() {\n        this.loggedIn = \"LOGGING_IN\";\n        this.discordService.getUserDetails()\n            .pipe(\n                retryWhen(error =>\n                    error.pipe(\n                        take(3),\n                        mergeMap((response) => {\n                            if (response.status == 429) {\n                                this._snackBar.open(`Retrying to retrieve your details after ${response.error.retry_after}ms...`,\n                                    \"X\",\n                                    {duration: 5 * 1000}\n                                );\n                                return timer(response.error.retry_after);\n                            } else {\n                                this._snackBar.open(\n                                    \"Oops, we failed to retrieve your details from Discord. Please try logging in again.\",\n                                    \"X\",\n                                    {duration: 5 * 1000}\n                                );\n                                return throwError(response);\n                            }\n                        })\n                    )),\n                catchError(error => {\n                    this.loggedIn = \"NOT_LOGGED_IN\";\n                    return throwError(error)\n                }),\n                mergeMap(userDetails => this.discordService.getGuilds()\n                    .pipe(retryWhen(error =>\n                            error.pipe(\n                                take(3),\n                                mergeMap((response) => {\n                                    if (response.status == 429) {\n                                        this._snackBar.open(\n                                            `Retrying to retrieve your server details after ${response.error.retry_after}ms...`,\n                                            \"X\",\n                                            {duration: 5 * 1000}\n                                        );\n                                        return timer(response.error.retry_after);\n                                    } else {\n                                        this._snackBar.open(\n                                            \"Failed to retrieve your discord server details. Please try logging in again.\",\n                                            \"X\",\n                                            {duration: 5 * 1000}\n                                        );\n                                        return throwError(response);\n                                    }\n                                }))),\n                        map(response => {\n                            return {\n                                discordUser: userDetails,\n                                discordGuilds: response\n                            }\n                        }))),\n                mergeMap(discordDetails => this.userService.getUser(`${discordDetails.discordUser.id}`)\n                    .pipe(\n                        catchError(err => {\n                            if (err.status === 404 && err.error === \"Resource not found.\") {\n                                 const player: Player = {}\n                                return of(player);\n                            } else {\n                                this.loggedIn = \"NOT_LOGGED_IN\";\n                                this._snackBar.open(\"Oops, we failed to pull your userDetails from our Servers :( Please try again later.\",\n                                    \"X\",\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            }\n                        }),\n                        map(response => {\n                            return {\n                                discordUser: discordDetails.discordUser,\n                                discordGuilds: discordDetails.discordGuilds,\n                                clashBotUserDetails: response\n                            }\n                        }))),\n                mergeMap(loginDetails => {\n                    if (!loginDetails.clashBotUserDetails.id) {\n                        return this.userService.createUser({\n                            id: `${loginDetails.discordUser.id}`,\n                            serverName: loginDetails.discordGuilds[0].name,\n                            name: loginDetails.discordUser.username,\n                        }).pipe(\n                                catchError(err => {\n                                    this._snackBar.open(\"Failed to create a new profile for you. Please try to login again.\",\n                                        \"X\",\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                }),\n                                mergeMap(response =>\n                                    this.applicationDetailsService.getApplicationDetails()\n                                        .pipe(\n                                            take(1),\n                                            map(appDetails =>\n                                                this.mapLoggedInApplicationDetails(appDetails,\n                                                    loginDetails.discordUser,\n                                                    loginDetails.discordGuilds,\n                                                    response)\n                                            )\n                                        )));\n                    } else if (!loginDetails.clashBotUserDetails.name ||\n                        loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.name) {\n                        return this.userService.updateUser({\n                            id: `${loginDetails.discordUser.id}`,\n                            serverName: loginDetails.discordGuilds[0].name,\n                            name: loginDetails.discordUser.username,\n                        })\n                            .pipe(\n                                catchError(err => {\n                                    this._snackBar.open(\"Oops, we see your discord username has changed. We failed to updated it. Please try to login again.\",\n                                        \"X\",\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                }),\n                                mergeMap(response =>\n                                    this.applicationDetailsService.getApplicationDetails()\n                                        .pipe(\n                                            take(1),\n                                            map(appDetails =>\n                                                this.mapLoggedInApplicationDetails(appDetails,\n                                                    loginDetails.discordUser,\n                                                    loginDetails.discordGuilds,\n                                                    response)\n                                            )\n                                        ))\n                            );\n                    } else {\n                        return this.applicationDetailsService.getApplicationDetails()\n                            .pipe(\n                                take(1),\n                                map(appDetails =>\n                                    this.mapLoggedInApplicationDetails(appDetails,\n                                        loginDetails.discordUser,\n                                        loginDetails.discordGuilds,\n                                        loginDetails.clashBotUserDetails)\n                                ));\n                    }\n                }),\n                finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))\n            )\n            .subscribe(value => {\n                this.loggedIn = \"LOGGED_IN\";\n                this.applicationDetailsService.setApplicationDetails(value);\n            }, () => this._snackBar\n                .open(\n                    \"Failed to log you in.\",\n                    \"X\",\n                    {duration: 5 * 1000}\n                )\n            );\n    }\n\n    mapLoggedInApplicationDetails(appDetails: ApplicationDetails,\n                                  discordUser: UserDetails,\n                                  guilds: DiscordGuild[],\n                                  clashBotUserDetails: Player) {\n        appDetails.userDetails = discordUser;\n        appDetails.userGuilds = guilds;\n        appDetails.clashBotUserDetails = clashBotUserDetails;\n        appDetails.defaultGuild = clashBotUserDetails.serverName;\n        appDetails.loggedIn = true;\n        return appDetails;\n    }\n\n    loginToDiscord(): void {\n        this.oauthService.initLoginFlow();\n        localStorage.setItem(\"LoginAttempt\", \"true\");\n    }\n\n}\n",
+            "sourceCode": "import {Component, OnInit, ViewEncapsulation} from \"@angular/core\";\nimport {AuthConfig, OAuthService, UrlHelperService} from \"angular-oauth2-oidc\";\nimport {environment} from \"../../../environments/environment\";\nimport {JwksValidationHandler} from \"angular-oauth2-oidc-jwks\";\nimport {DiscordService} from \"../../services/discord.service\";\nimport {MatSnackBar} from \"@angular/material/snack-bar\";\nimport {ApplicationDetailsService} from \"../../services/application-details.service\";\nimport {catchError, finalize, map, mergeMap, retryWhen, take} from \"rxjs/operators\";\nimport {Observable, of, throwError, timer} from \"rxjs\";\nimport {ApplicationDetails} from \"../../interfaces/application-details\";\nimport {MatDialog} from \"@angular/material/dialog\";\nimport {\n  ReleaseNotificationDialogComponent\n} from \"../../dialogs/release-notification-dialog/release-notification-dialog.component\";\nimport {UserDetails} from \"../../interfaces/user-details\";\nimport {DiscordGuild} from \"../../interfaces/discord-guild\";\nimport {PageLoadingService} from \"../../services/page-loading.service\";\nimport {TournamentService, UserService} from \"clash-bot-service-api\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {Player} from \"clash-bot-service-api/model/player\";\nimport {LoginStatus} from \"../../login-status\";\n\n@Component({\n    selector: \"app-welcome-dashboard\",\n    templateUrl: \"./welcome-dashboard.component.html\",\n    styleUrls: [\"./welcome-dashboard.component.scss\"],\n    encapsulation: ViewEncapsulation.None\n})\nexport class WelcomeDashboardComponent implements OnInit {\n    readonly NOT_LOGGED_IN: LoginStatus = LoginStatus.NOT_LOGGED_IN;\n    readonly LOGGING_IN: LoginStatus = LoginStatus.LOGGING_IN;\n    readonly LOGGED_IN: LoginStatus = LoginStatus.LOGGED_IN;\n    tournamentDays: any[] = [];\n    tournaments?: Tournament[];\n    dataLoaded: boolean = false;\n    $applicationDetailsServiceObs: Observable<ApplicationDetails> = this\n      .applicationDetailsService.getApplicationDetails().asObservable();\n\n    authCodeFlowConfig: AuthConfig = {\n        loginUrl: \"https://discord.com/api/oauth2/authorize\",\n        tokenEndpoint: \"http://localhost:8082/auth/token\",\n        revocationEndpoint: \"https://discord.com/api/oauth2/revoke\",\n        redirectUri: window.location.origin,\n        clientId: environment.discordClientId,\n        responseType: \"code\",\n        scope: \"identify guilds\",\n        oidc: false,\n        sessionChecksEnabled: true,\n        customQueryParams: {\n            \"prompt\": \"none\"\n        }\n    }\n\n    constructor(private oauthService: OAuthService,\n                private discordService: DiscordService,\n                private applicationDetailsService: ApplicationDetailsService,\n                private _snackBar: MatSnackBar,\n                private matDialog: MatDialog,\n                private pageLoadingService: PageLoadingService,\n                private userService: UserService,\n                private tournamentService: TournamentService,\n                private urlHelperService: UrlHelperService) {\n    }\n\n    ngOnInit(): void {\n        this.oauthService.configure(this.authCodeFlowConfig);\n        this.oauthService.tokenValidationHandler = new JwksValidationHandler();\n        if (localStorage.getItem(\"version\") !== environment.version) {\n            this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});\n            localStorage.setItem(\"version\", environment.version);\n        }\n        this.tournamentService.getTournaments()\n            .pipe(\n                take(1),\n                map(tournaments => {\n                    tournaments.forEach(tournament => this.tournamentDays\n                        .push(new Date(tournament.startTime === undefined ? \"\": tournament.startTime)));\n                    return tournaments;\n                }))\n            .subscribe((data) => {\n                this.tournaments = data;\n                this.dataLoaded = true;\n                this.applicationDetailsService.getApplicationDetails()\n                    .pipe(take(1))\n                    .subscribe((appDetails) => {\n                        appDetails.currentTournaments = data;\n                        this.applicationDetailsService.setApplicationDetails(appDetails);\n                    })\n            });\n        this.getCodePartsFromUrl(window.location.search);\n        if (this.oauthService.hasValidAccessToken()) {\n            this.initUserDetails();\n        } else {\n            const parts: any = this.getCodePartsFromUrl(window.location.search);\n            if (parts[\"code\"] && parts[\"state\"]) {\n                this.applicationDetailsService.loggingIn();\n                this.oauthService.tryLogin()\n                    .then(() => this.initUserDetails())\n                    .catch(() => {\n                        this.applicationDetailsService.logOutUser();\n                        this._snackBar.open(\"Failed to login to discord.\",\n                            \"X\",\n                            {duration: 5 * 1000});\n                    });\n            }\n        }\n    }\n\n    private getCodePartsFromUrl(queryString: string): object {\n        if (!queryString || queryString.length === 0) {\n            return this.urlHelperService.getHashFragmentParams();\n        }\n\n        // normalize query string\n        if (queryString.charAt(0) === \"?\") {\n            queryString = queryString.substr(1);\n        }\n\n        return this.urlHelperService.parseQueryString(queryString);\n    }\n\n    initUserDetails() {\n        this.discordService.getUserDetails()\n            .pipe(\n                retryWhen(error =>\n                    error.pipe(\n                        take(3),\n                        mergeMap((response) => {\n                            if (response.status == 429) {\n                                this._snackBar.open(`Retrying to retrieve your details after ${response.error.retry_after}ms...`,\n                                    \"X\",\n                                    {duration: 5 * 1000}\n                                );\n                                return timer(response.error.retry_after);\n                            } else {\n                                this._snackBar.open(\n                                    \"Oops, we failed to retrieve your details from Discord. Please try logging in again.\",\n                                    \"X\",\n                                    {duration: 5 * 1000}\n                                );\n                                return throwError(response);\n                            }\n                        })\n                    )),\n                catchError(error => throwError(error)),\n                mergeMap(userDetails => this.discordService.getGuilds()\n                    .pipe(retryWhen(error =>\n                            error.pipe(\n                                take(3),\n                                mergeMap((response) => {\n                                    if (response.status == 429) {\n                                        this._snackBar.open(\n                                            `Retrying to retrieve your server details after ${response.error.retry_after}ms...`,\n                                            \"X\",\n                                            {duration: 5 * 1000}\n                                        );\n                                        return timer(response.error.retry_after);\n                                    } else {\n                                        this._snackBar.open(\n                                            \"Failed to retrieve your discord server details. Please try logging in again.\",\n                                            \"X\",\n                                            {duration: 5 * 1000}\n                                        );\n                                        return throwError(response);\n                                    }\n                                }))),\n                        map(response => {\n                            return {\n                                discordUser: userDetails,\n                                discordGuilds: response\n                            }\n                        }))),\n                mergeMap(discordDetails => this.userService.getUser(`${discordDetails.discordUser.id}`)\n                    .pipe(\n                        catchError(err => {\n                            if (err.status === 404 && err.error === \"Resource not found.\") {\n                                 const player: Player = {}\n                                return of(player);\n                            } else {\n                                this._snackBar.open(\"Oops, we failed to pull your userDetails from our Servers :( Please try again later.\",\n                                    \"X\",\n                                    {duration: 5 * 1000});\n                                return throwError(err);\n                            }\n                        }),\n                        map(response => {\n                            return {\n                                discordUser: discordDetails.discordUser,\n                                discordGuilds: discordDetails.discordGuilds,\n                                clashBotUserDetails: response\n                            }\n                        }))),\n                mergeMap(loginDetails => {\n                    if (!loginDetails.clashBotUserDetails.id) {\n                        return this.userService.createUser({\n                            id: `${loginDetails.discordUser.id}`,\n                            serverName: loginDetails.discordGuilds[0].name,\n                            name: loginDetails.discordUser.username,\n                        }).pipe(\n                                catchError(err => {\n                                    this._snackBar.open(\"Failed to create a new profile for you. Please try to login again.\",\n                                        \"X\",\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                }),\n                                mergeMap(response =>\n                                    this.applicationDetailsService.getApplicationDetails()\n                                        .pipe(\n                                            take(1),\n                                            map(appDetails =>\n                                                this.mapLoggedInApplicationDetails(appDetails,\n                                                    loginDetails.discordUser,\n                                                    loginDetails.discordGuilds,\n                                                    response)\n                                            )\n                                        )));\n                    } else if (!loginDetails.clashBotUserDetails.name ||\n                        loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.name) {\n                        return this.userService.updateUser({\n                            id: `${loginDetails.discordUser.id}`,\n                            serverName: loginDetails.discordGuilds[0].name,\n                            name: loginDetails.discordUser.username,\n                        })\n                            .pipe(\n                                catchError(err => {\n                                    this._snackBar.open(\"Oops, we see your discord username has changed. We failed to updated it. Please try to login again.\",\n                                        \"X\",\n                                        {duration: 5 * 1000});\n                                    return throwError(err);\n                                }),\n                                mergeMap(response =>\n                                    this.applicationDetailsService.getApplicationDetails()\n                                        .pipe(\n                                            take(1),\n                                            map(appDetails =>\n                                                this.mapLoggedInApplicationDetails(appDetails,\n                                                    loginDetails.discordUser,\n                                                    loginDetails.discordGuilds,\n                                                    response)\n                                            )\n                                        ))\n                            );\n                    } else {\n                        return this.applicationDetailsService.getApplicationDetails()\n                            .pipe(\n                                take(1),\n                                map(appDetails =>\n                                    this.mapLoggedInApplicationDetails(appDetails,\n                                        loginDetails.discordUser,\n                                        loginDetails.discordGuilds,\n                                        loginDetails.clashBotUserDetails)\n                                ));\n                    }\n                }),\n                finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))\n            )\n            .subscribe(value => {\n                this.applicationDetailsService.setApplicationDetails(value);\n            }, () => this._snackBar\n                .open(\n                    \"Failed to log you in.\",\n                    \"X\",\n                    {duration: 5 * 1000}\n                )\n            );\n    }\n\n    mapLoggedInApplicationDetails(appDetails: ApplicationDetails,\n                                  discordUser: UserDetails,\n                                  guilds: DiscordGuild[],\n                                  clashBotUserDetails: Player) {\n        appDetails.userDetails = discordUser;\n        appDetails.userGuilds = guilds;\n        appDetails.clashBotUserDetails = clashBotUserDetails;\n        appDetails.defaultGuild = clashBotUserDetails.serverName;\n        appDetails.loggedIn = true;\n        appDetails.loginStatus = LoginStatus.LOGGED_IN;\n        return appDetails;\n    }\n\n    loginToDiscord(): void {\n        this.oauthService.initLoginFlow();\n    }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -5737,9 +5901,15 @@
                         "type": "TournamentService",
                         "deprecated": false,
                         "deprecationMessage": ""
+                    },
+                    {
+                        "name": "urlHelperService",
+                        "type": "UrlHelperService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
                     }
                 ],
-                "line": 49,
+                "line": 52,
                 "jsdoctags": [
                     {
                         "name": "oauthService",
@@ -5812,13 +5982,22 @@
                         "tagName": {
                             "text": "param"
                         }
+                    },
+                    {
+                        "name": "urlHelperService",
+                        "type": "UrlHelperService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
                     }
                 ]
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<div class=\"main-container\">\n  <mat-card class=\"clash-bot-welcome-card\">\n    <mat-card-title id=\"WelcomeMessage-Title\">Welcome to Clash-Bot!</mat-card-title>\n    <mat-card-content id=\"WelcomeMessage-Message\">\n      <p>This site is here to help you and your\n        friends quickly group up through\n        discord to compete in a League of\n        Legends Clash Tournament.</p>\n      <p id=\"WelcomeMessage-LoginMessage\" *ngIf=\"loggedIn === 'NOT_LOGGED_IN'\">\n        Please login to discord using the button below before continuing.\n      </p>\n      <p *ngIf=\"loggedIn === 'LOGGED_IN'\">Please use the menu above to see the available content.</p>\n    </mat-card-content>\n    <mat-divider inset></mat-divider>\n    <mat-card-actions class=\"clash-bot-welcome-dashboard-buttons-container\">\n      <button mat-raised-button id=\"WelcomeMessage-DiscordLogin-Btn\" (click)=\"loginToDiscord()\"\n              *ngIf=\"loggedIn === 'NOT_LOGGED_IN'\" color=\"primary\" align=\"end\">\n        <mat-icon>discord</mat-icon>\n        <span>Login to Discord</span>\n      </button>\n      <a mat-raised-button href=\"https://top.gg/bot/837629412328734740\" target=\"_blank\">Add Discord bot to Server</a>\n    </mat-card-actions>\n    <mat-card-footer *ngIf=\"loggedIn === 'LOGGING_IN'\">\n      <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar>\n    </mat-card-footer>\n  </mat-card>\n  <app-upcoming-tournament-details-card class=\"upcoming-tournament-card\" *ngIf=\"dataLoaded && tournaments\" [tournaments]=\"tournaments\"></app-upcoming-tournament-details-card>\n  <app-clash-tournament-calendar class=\"tournament-calendar-card\" id=\"WelcomeMessage-Calendar\" [daysSelected]=\"tournamentDays\" *ngIf=\"dataLoaded\"></app-clash-tournament-calendar>\n</div>\n"
+            "templateData": "<div class=\"main-container\">\n  <mat-card class=\"clash-bot-welcome-card\">\n    <mat-card-title id=\"WelcomeMessage-Title\">Welcome to Clash-Bot!</mat-card-title>\n    <mat-card-content id=\"WelcomeMessage-Message\">\n      <p>This site is here to help you and your\n        friends quickly group up through\n        discord to compete in a League of\n        Legends Clash Tournament.</p>\n      <p id=\"WelcomeMessage-LoginMessage\" *ngIf=\"NOT_LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus\">\n        Please login to discord using the button below before continuing.\n      </p>\n      <p *ngIf=\"LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus\">Please use the menu above to see the available content.</p>\n    </mat-card-content>\n    <mat-divider inset></mat-divider>\n    <mat-card-actions class=\"clash-bot-welcome-dashboard-buttons-container\">\n      <button mat-raised-button id=\"WelcomeMessage-DiscordLogin-Btn\" (click)=\"loginToDiscord()\"\n              *ngIf=\"NOT_LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus\" color=\"primary\" align=\"end\">\n        <mat-icon>discord</mat-icon>\n        <span>Login to Discord</span>\n      </button>\n      <a mat-raised-button href=\"https://top.gg/bot/837629412328734740\" target=\"_blank\">Add Discord bot to Server</a>\n    </mat-card-actions>\n    <mat-card-footer *ngIf=\"LOGGING_IN === ( $applicationDetailsServiceObs | async )?.loginStatus\">\n      <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar>\n    </mat-card-footer>\n  </mat-card>\n  <app-upcoming-tournament-details-card class=\"upcoming-tournament-card\" *ngIf=\"dataLoaded && tournaments\" [tournaments]=\"tournaments\"></app-upcoming-tournament-details-card>\n  <app-clash-tournament-calendar class=\"tournament-calendar-card\" id=\"WelcomeMessage-Calendar\" [daysSelected]=\"tournamentDays\" *ngIf=\"dataLoaded\"></app-clash-tournament-calendar>\n</div>\n"
         }
     ],
     "modules": [
@@ -6339,6 +6518,16 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/environments/environment.int.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/environments/environment.prod.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6354,16 +6543,6 @@
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: false,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/environments/environment.int.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
             },
             {
                 "name": "Failed",
@@ -6408,7 +6587,7 @@
                 "name": "Loading",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6418,7 +6597,7 @@
                 "name": "Loading",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6508,26 +6687,6 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "Primary",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "Primary",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/guild-filter-list/guild-filter-list.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6548,7 +6707,27 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6618,16 +6797,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<UpcomingTournamentDetailsCardComponent>",
-                "defaultValue": "(args: UpcomingTournamentDetailsCardComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/profile-icon/profile-icon.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6638,31 +6807,21 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/upcoming-tournament-details-card/upcoming-tournament-details.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<UpcomingTournamentDetailsCardComponent>",
+                "defaultValue": "(args: UpcomingTournamentDetailsCardComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/shared/spinner/spinner.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story<SpinnerComponent>",
                 "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<TeamsDashboardViewComponent>",
-                "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: {\n        ...args,\n        createTeamEvent: action(\"createTeamEvent\"),\n        unregisterFromTeamEvent: action(\"unregisterFromTeamEvent\"),\n        registerForTeamEvent: action(\"registerForTeamEvent\"),\n        tentativeRegisterEvent: action(\"tentativeRegisterEvent\"),\n        filterTeamEvent: action(\"filterTeamEvent\"),\n    },\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<HelpDialogComponent>",
-                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6688,11 +6847,11 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Story<TeamsTentativeTableComponent>",
-                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
+                "type": "Story<HelpDialogComponent>",
+                "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6703,6 +6862,26 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamCardComponent>",
                 "defaultValue": "(args: TeamCardComponent) => ({\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamsTentativeTableComponent>",
+                "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<TeamsDashboardViewComponent>",
+                "defaultValue": "(args: TeamsDashboardViewComponent) => ({\n    props: {\n        ...args,\n        createTeamEvent: action(\"createTeamEvent\"),\n        unregisterFromTeamEvent: action(\"unregisterFromTeamEvent\"),\n        registerForTeamEvent: action(\"registerForTeamEvent\"),\n        tentativeRegisterEvent: action(\"tentativeRegisterEvent\"),\n        filterTeamEvent: action(\"filterTeamEvent\"),\n    },\n})"
             },
             {
                 "name": "Template",
@@ -6791,6 +6970,35 @@
                 "deprecationMessage": "",
                 "description": "",
                 "file": "src/app/interfaces/filter-type.ts"
+            },
+            {
+                "name": "LoginStatus",
+                "childs": [
+                    {
+                        "name": "NOT_LOGGED_IN",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "NOT_LOGGED_IN"
+                    },
+                    {
+                        "name": "LOGGING_IN",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "LOGGING_IN"
+                    },
+                    {
+                        "name": "LOGGED_IN",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "LOGGED_IN"
+                    }
+                ],
+                "ctype": "miscellaneous",
+                "subtype": "enum",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "file": "src/app/login-status.ts"
             }
         ],
         "groupedVariables": {
@@ -7082,6 +7290,18 @@
                     "defaultValue": "(args: GuildFilterListComponent) => ({\n    props: {\n      ...args,\n      formControl: new FormControl(args.defaultSelection),\n      selectedTeamEvent: action(\"selectedTeamEvent\")\n    },\n})"
                 }
             ],
+            "src/environments/environment.int.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.int.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
+                }
+            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -7104,18 +7324,6 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: false,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
-                }
-            ],
-            "src/environments/environment.int.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.int.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\"\n}"
                 }
             ],
             "src/app/pages/teams-dashboard/component/teams-tentative-table/teams-tentative-table.stories.ts": [
@@ -7269,28 +7477,6 @@
                     "defaultValue": "(args: SpinnerComponent) => ({\n    props: args,\n})"
                 }
             ],
-            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
-                {
-                    "name": "Primary",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story<HelpDialogComponent>",
-                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
-                }
-            ],
             "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts": [
                 {
                     "name": "Primary",
@@ -7311,6 +7497,28 @@
                     "deprecationMessage": "",
                     "type": "Story<NewTeamCardComponent>",
                     "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl(\"\", Validators.required),\n      roleControl: new FormControl(\"\", Validators.required),\n      rolesAsString: [\"Top\", \"Mid\", \"Jg\", \"Bot\", \"Supp\"],\n      createNewTeamEvent: action(\"createNewTeamEvent\")\n    },\n})"
+                }
+            ],
+            "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts": [
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/pages/teams-dashboard/component/help-dialog/help-dialog.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<HelpDialogComponent>",
+                    "defaultValue": "(args: HelpDialogComponent) => ({\n    props: args,\n})"
                 }
             ]
         },
@@ -7384,6 +7592,37 @@
                     "deprecationMessage": "",
                     "description": "",
                     "file": "src/app/interfaces/filter-type.ts"
+                }
+            ],
+            "src/app/login-status.ts": [
+                {
+                    "name": "LoginStatus",
+                    "childs": [
+                        {
+                            "name": "NOT_LOGGED_IN",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "NOT_LOGGED_IN"
+                        },
+                        {
+                            "name": "LOGGING_IN",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "LOGGING_IN"
+                        },
+                        {
+                            "name": "LOGGED_IN",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "LOGGED_IN"
+                        }
+                    ],
+                    "ctype": "miscellaneous",
+                    "subtype": "enum",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "file": "src/app/login-status.ts"
                 }
             ]
         },
@@ -7470,7 +7709,7 @@
                 "linktype": "component",
                 "name": "AppComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/18",
+                "coverageCount": "0/20",
                 "status": "low"
             },
             {
@@ -7564,7 +7803,7 @@
                 "linktype": "interface",
                 "name": "ApplicationDetails",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
@@ -8239,7 +8478,7 @@
                 "linktype": "component",
                 "name": "WelcomeDashboardComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/11",
+                "coverageCount": "0/15",
                 "status": "low"
             },
             {
@@ -8287,7 +8526,7 @@
                 "linktype": "injectable",
                 "name": "ApplicationDetailsService",
                 "coveragePercent": 0,
-                "coverageCount": "0/5",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {

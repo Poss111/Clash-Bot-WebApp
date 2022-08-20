@@ -16,8 +16,9 @@
         <app-profile-icon [username]="username ?? ''"
                           [isDarkModeOn]="darkMode"
                           [loggedIn]="($applicationDetailsObs | async)?.loggedIn ?? false"
-                            (toggleDarkModeEvent)="toggleDarkModeForUser($event)"
-                            (logOutEvent)="logUserOut()"></app-profile-icon>
+                          (goToSettingsEvent)="navigate($event)"
+                          (toggleDarkModeEvent)="toggleDarkModeForUser($event)"
+                          (logOutEvent)="logUserOut()"></app-profile-icon>
     </mat-toolbar>
     <div *ngIf="pageLoadingObs$ | async">
         <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>

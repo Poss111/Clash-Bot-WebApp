@@ -19,12 +19,19 @@ export class ProfileIconComponent{
   isDarkModeOn: boolean = false;
 
   @Output()
+  goToSettingsEvent: EventEmitter<string> = new EventEmitter<string>();
+
+  @Output()
   logOutEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   @Output()
   toggleDarkModeEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   constructor(private matDialog: MatDialog) { }
+
+  goToSettings(routing: string) {
+    this.goToSettingsEvent.emit(routing);
+  }
 
   logOut() {
     let dialogRef = this.matDialog.open(ConfirmationDialogComponent,
