@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewEncapsulation} from "@angular/core";
-import {AuthConfig, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
+import {OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {environment} from "../../../environments/environment";
-import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
@@ -36,21 +35,6 @@ export class WelcomeDashboardComponent implements OnInit {
     $applicationDetailsServiceObs: Observable<ApplicationDetails> = this
       .applicationDetailsService.getApplicationDetails().asObservable();
 
-    authCodeFlowConfig: AuthConfig = {
-        loginUrl: "https://discord.com/api/oauth2/authorize",
-        tokenEndpoint: "http://localhost:8082/auth/token",
-        revocationEndpoint: "https://discord.com/api/oauth2/revoke",
-        redirectUri: window.location.origin,
-        clientId: environment.discordClientId,
-        responseType: "code",
-        scope: "identify guilds",
-        oidc: false,
-        sessionChecksEnabled: true,
-        customQueryParams: {
-            "prompt": "none"
-        }
-    }
-
     constructor(private oauthService: OAuthService,
                 private discordService: DiscordService,
                 private applicationDetailsService: ApplicationDetailsService,
@@ -63,8 +47,6 @@ export class WelcomeDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.oauthService.configure(this.authCodeFlowConfig);
-        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
         if (localStorage.getItem("version") !== environment.version) {
             this.matDialog.open(ReleaseNotificationDialogComponent, {autoFocus: false});
             localStorage.setItem("version", environment.version);
@@ -87,18 +69,17 @@ export class WelcomeDashboardComponent implements OnInit {
                         this.applicationDetailsService.setApplicationDetails(appDetails);
                     })
             });
-        this.getCodePartsFromUrl(window.location.search);
         if (this.oauthService.hasValidAccessToken()) {
             this.initUserDetails();
         } else {
             const parts: any = this.getCodePartsFromUrl(window.location.search);
-            if (parts["code"] && parts["state"]) {
+            if (parts && parts["code"] && parts["state"]) {
                 this.applicationDetailsService.loggingIn();
                 this.oauthService.tryLogin()
                     .then(() => this.initUserDetails())
                     .catch(() => {
                         this.applicationDetailsService.logOutUser();
-                        this._snackBar.open("Failed to login to discord.",
+                        this._snackBar.open("Failed to get authorization from Discord.",
                             "X",
                             {duration: 5 * 1000});
                     });
@@ -111,7 +92,6 @@ export class WelcomeDashboardComponent implements OnInit {
             return this.urlHelperService.getHashFragmentParams();
         }
 
-        // normalize query string
         if (queryString.charAt(0) === "?") {
             queryString = queryString.substr(1);
         }
@@ -133,11 +113,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                 );
                                 return timer(response.error.retry_after);
                             } else {
-                                this._snackBar.open(
-                                    "Oops, we failed to retrieve your details from Discord. Please try logging in again.",
-                                    "X",
-                                    {duration: 5 * 1000}
-                                );
                                 return throwError(response);
                             }
                         })
@@ -156,11 +131,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                         );
                                         return timer(response.error.retry_after);
                                     } else {
-                                        this._snackBar.open(
-                                            "Failed to retrieve your discord server details. Please try logging in again.",
-                                            "X",
-                                            {duration: 5 * 1000}
-                                        );
                                         return throwError(response);
                                     }
                                 }))),
@@ -177,9 +147,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                  const player: Player = {}
                                 return of(player);
                             } else {
-                                this._snackBar.open("Oops, we failed to pull your userDetails from our Servers :( Please try again later.",
-                                    "X",
-                                    {duration: 5 * 1000});
                                 return throwError(err);
                             }
                         }),
@@ -197,12 +164,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             serverName: loginDetails.discordGuilds[0].name,
                             name: loginDetails.discordUser.username,
                         }).pipe(
-                                catchError(err => {
-                                    this._snackBar.open("Failed to create a new profile for you. Please try to login again.",
-                                        "X",
-                                        {duration: 5 * 1000});
-                                    return throwError(err);
-                                }),
+                                catchError(err => throwError(err)),
                                 mergeMap(response =>
                                     this.applicationDetailsService.getApplicationDetails()
                                         .pipe(
@@ -222,12 +184,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             name: loginDetails.discordUser.username,
                         })
                             .pipe(
-                                catchError(err => {
-                                    this._snackBar.open("Oops, we see your discord username has changed. We failed to updated it. Please try to login again.",
-                                        "X",
-                                        {duration: 5 * 1000});
-                                    return throwError(err);
-                                }),
+                                catchError(err => throwError(err)),
                                 mergeMap(response =>
                                     this.applicationDetailsService.getApplicationDetails()
                                         .pipe(

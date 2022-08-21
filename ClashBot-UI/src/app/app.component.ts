@@ -10,7 +10,9 @@ import {RiotDdragonService} from "./services/riot-ddragon.service";
 import {take} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
-import {OAuthService} from "angular-oauth2-oidc";
+import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
+import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: "app-root",
@@ -50,6 +52,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
     @HostBinding("class") className = "";
 
+    authCodeFlowConfig: AuthConfig = {
+        loginUrl: "https://discord.com/api/oauth2/authorize",
+        tokenEndpoint: "http://localhost:8082/auth/token",
+        revocationEndpoint: "https://discord.com/api/oauth2/revoke",
+        redirectUri: window.location.origin,
+        clientId: environment.discordClientId,
+        responseType: "code",
+        scope: "identify guilds",
+        oidc: false,
+        sessionChecksEnabled: true,
+        customQueryParams: {
+            "prompt": "none"
+        }
+    }
+
     constructor(private router: Router,
                 private applicationDetailsService: ApplicationDetailsService,
                 private googleAnalyticsService: GoogleAnalyticsService,
@@ -57,7 +74,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 private matIconRegistry: MatIconRegistry,
                 private sanitizer: DomSanitizer,
                 private pageLoadingService: PageLoadingService,
-                private oauthService: OAuthService) {
+                private oauthService: OAuthService,
+                private _snackBar: MatSnackBar) {
         this.assets.forEach((id) => {
             this.matIconRegistry.addSvgIcon(`league-${id}`,
                 this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));
@@ -66,6 +84,20 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.oauthService.configure(this.authCodeFlowConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+        this.oauthService.events.subscribe((event) => {
+            if ("token_expires" === event.type) {
+                this.oauthService.refreshToken()
+                    .then(() => this._snackBar
+                        .open("Refreshed your session.", "X", {duration: 5 * 1000}))
+                    .catch(() => {
+                        this.applicationDetailsService.logOutUser();
+                        this._snackBar
+                            .open("Failed to refresh", "X", {duration: 5 * 1000});
+                    });
+            }
+        });
         this.toggleDarkMode(this.darkMode);
         this.subscriptions.push(
             this.router.events.subscribe(event => {

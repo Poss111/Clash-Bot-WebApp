@@ -39,6 +39,7 @@ import {ClashTournaments} from "../../../interfaces/clash-tournaments";
 import {ClashBotUserRegister} from "src/app/interfaces/clash-bot-user-register";
 import {CreateNewTeamDetails} from "src/app/interfaces/create-new-team-details";
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
+import {LoginStatus} from "../../../login-status";
 
 jest.mock("../../../services/application-details.service");
 jest.mock("../../../services/teams-websocket.service");
@@ -202,8 +203,10 @@ describe("TeamsDashboardComponent", () => {
         });
         const mockApplicationsDetails: ApplicationDetails = {
           currentTournaments: [],
-          userGuilds: mockObservableGuilds
-        }
+          userGuilds: mockObservableGuilds,
+          loggedIn: true,
+          loginStatus: LoginStatus.LOGGED_IN
+        };
 
         let coldApplicationDetailsObs = cold("x|", {x: mockApplicationsDetails});
 
