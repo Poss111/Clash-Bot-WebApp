@@ -5,7 +5,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#WelcomeMessage-Calendar').should('exist');
     cy.checkAndDismissReleaseNotification();
     cy.loginThroughOAuth();
-    cy.get('#clash-bot-discord-username').should('have.text', 'Roïdräge');
+    cy.get('#clash-bot-discord-username').should('be.enabled');
   })
 
   let verifyCard = (id, numberOfPlayers, playerToBeContained, playerToNotBeContained) => {
