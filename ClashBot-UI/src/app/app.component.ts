@@ -54,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     authCodeFlowConfig: AuthConfig = {
         loginUrl: "https://discord.com/api/oauth2/authorize",
-        tokenEndpoint: "http://localhost:8082/auth/token",
+        tokenEndpoint: this.getAuthPath(),
         revocationEndpoint: "https://discord.com/api/oauth2/revoke",
         redirectUri: window.location.origin,
         clientId: environment.discordClientId,
@@ -149,5 +149,12 @@ export class AppComponent implements OnInit, OnDestroy {
         this.pageLoadingObs$.next(true);
         this.router.navigate([route])
             .catch(() => this.pageLoadingObs$.next(false));
+    }
+
+    private getAuthPath() {
+        if (environment.authPath.includes("localhost")) {
+            return environment.authPath;
+        }
+        return window.location.origin + environment.authPath;
     }
 }
