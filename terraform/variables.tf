@@ -54,6 +54,17 @@ variable "ws_service_port" {
   description = "Port to be used for the ws service"
 }
 
+variable "auth_service_image_id" {
+  type        = string
+  description = "Clash Bot Auth Service image id"
+  sensitive   = true
+}
+
+variable "auth_service_port" {
+  type        = number
+  description = "Port to be used for the auth service"
+}
+
 variable "prefix" {
   type        = string
   description = "Prefix to set for the resources"
@@ -65,6 +76,10 @@ variable "webapp_repository_name" {
 }
 
 variable "ws_repository_name" {
+  default = ""
+}
+
+variable "auth_repository_name" {
   default = ""
 }
 
@@ -114,6 +129,21 @@ variable "webapp_logger_level" {
 }
 
 variable "ws_logger_level" {
+  type      = string
+  sensitive = true
+}
+
+variable "auth_logger_level" {
+  type      = string
+  sensitive = true
+}
+
+variable "secret_one" {
+  type      = string
+  sensitive = true
+}
+
+variable "secret_two" {
   type      = string
   sensitive = true
 }
