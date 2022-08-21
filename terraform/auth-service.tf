@@ -180,7 +180,7 @@ resource "aws_security_group" "clash-bot-auth-task-sg" {
     protocol        = "tcp"
     from_port       = var.service_port
     to_port         = var.service_port
-    security_groups = [aws_security_group.clash-bot-auth-task-sg.id]
+    security_groups = [aws_security_group.clash-bot-webapp-sg.id]
   }
 
   egress {
