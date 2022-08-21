@@ -139,11 +139,11 @@ variable "auth_logger_level" {
 }
 
 variable "secret_one" {
-  type      = string
+  type      = map(string)
   sensitive = true
 }
 
 variable "secret_two" {
-  type      = string
+  type      = map(string)
   sensitive = true
 }
