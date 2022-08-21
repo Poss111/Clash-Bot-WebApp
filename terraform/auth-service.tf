@@ -6,7 +6,7 @@ data "aws_iam_policy_document" "clash-bot-auth-secret-policy" {
     ]
     principals {
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role_policy_attachment.ecs-secret-policy-attachment.role}"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role_policy_attachment.ecs-auth-secret-policy-attachment.role}"
       ]
       type = "AWS"
     }
@@ -130,27 +130,22 @@ resource "aws_iam_role" "clash-bot-auth-task-role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-ecr-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-auth-ecr-policy-attachment" {
   role       = aws_iam_role.clash-bot-auth-exec-role.name
   policy_arn = aws_iam_policy.auth_ecr_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-ecr-repository-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-auth-ecr-repository-policy-attachment" {
   role       = aws_iam_role.clash-bot-auth-exec-role.name
   policy_arn = aws_iam_policy.auth_ecr_registry_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-logs-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-auth-logs-policy-attachment" {
   role       = aws_iam_role.clash-bot-auth-exec-role.name
   policy_arn = aws_iam_policy.auth_logs_iam_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-dynamodb-policy-attachment" {
-  role       = aws_iam_role.clash-bot-auth-task-role.name
-  policy_arn = aws_iam_policy.auth_dynamodb_iam_policy.arn
-}
-
-resource "aws_iam_role_policy_attachment" "ecs-secret-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs-auth-secret-policy-attachment" {
   role       = aws_iam_role.clash-bot-auth-task-role.name
   policy_arn = aws_iam_policy.auth_dynamodb_iam_policy.arn
 }
