@@ -14,6 +14,7 @@ jobs:
       deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
       deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
       deploy-ws-service: ${{ steps.check-apps.outputs.wsServiceUpdate }}
+      deploy-auth-service: ${{ steps.check-apps.outputs.authServiceUpdate }}
       tag: ${{ steps.check-apps.outputs.parsedTag }}
 
     steps:
@@ -33,6 +34,9 @@ jobs:
 
       - name: Check Output for Websocket Service
         run: echo ${{ steps.check-apps.outputs.wsServiceUpdate }}
+
+      - name: Check Output for Auth Service
+        run: echo ${{ steps.check-apps.outputs.authServiceUpdate }}
 
       - name: Check Output for UI
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
@@ -90,6 +94,31 @@ jobs:
           if-no-files-found: error
           path: ClashBot-WS-Service
 
+  auth-service-build:
+    name: "Build Clash Bot Auth Service"
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-auth-service == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Build - Notification'
+          message: 'Build in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Archive auth service artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: auth-service
+          if-no-files-found: error
+          path: ClashBot-Auth-OpenAPI
+
   service-update-latest-docker-image:
     name: "Docker build for latest Clash Bot OpenApi Service"
     needs: service-build
@@ -133,6 +162,28 @@ jobs:
         run: |
           docker build -t poss11111/clash-bot-ws-service:latest .
           docker push poss11111/clash-bot-ws-service:latest
+
+  auth-service-update-latest-docker-image:
+    name: "Docker build for latest Clash Bot Auth Service"
+    needs: auth-service-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download auth artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: auth-service
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker Image
+        run: |
+          docker build -t poss11111/clash-bot-auth-service:latest .
+          docker push poss11111/clash-bot-auth-service:latest
 
   deploy-service:
     name: "Publish Clash Bot OpenApi Service to ECR"
@@ -252,12 +303,72 @@ jobs:
           message: 'Failed to published Clash Bot Websocket Service Image!'
           message-color: '16711680'
 
+  deploy-auth-service:
+    name: "Publish Clash Bot Auth Service to ECR"
+    needs: auth-service-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployment In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Image Publish - Notification'
+          message: 'Image publishing in progress...'
+          message-color: '16750902'
+
+      - name: Download auth artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: auth-service
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push Clash-Bot auth image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.AUTH_REPOSITORY_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Published Auth Image Succeeded Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Image Publish - Notification'
+          message: 'Successfully published Clash Bot Auth Service Image!'
+          message-color: '65345'
+
+      - name: Deployment Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Image Publish - Notification'
+          message: 'Failed to published Clash Bot Auth Service Image!'
+          message-color: '16711680'
+
   terraform-apply:
     name: "Run Terraform Apply for Services"
     if: ${{ always() }}
     needs:
       - deploy-service
       - deploy-ws-service
+      - deploy-auth-service
     runs-on: ubuntu-latest
 
     steps:
@@ -293,6 +404,7 @@ jobs:
           chmod 755 ./get_latest_image.sh
           ./get_latest_image.sh ${{ secrets.WEBAPP_REPOSITORY_NAME }} 'WEBAPP_IMAGE_ID'
           ./get_latest_image.sh ${{ secrets.WS_REPOSITORY_NAME }} 'WS_IMAGE_ID'
+          ./get_latest_image.sh ${{ secrets.AUTH_REPOSITORY_NAME }} 'AUTH_IMAGE_ID'
 
       - name: Check image to be pushed
         env:
@@ -304,6 +416,10 @@ jobs:
           fi
           if ! [[ $WS_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.WS_REPOSITORY_NAME }}:.+$ ]]; then
             echo "Invalid WS Image Url"
+            exit 1
+          fi
+          if ! [[ $AUTH_IMAGE_ID =~ ^$ECR_REGISTRY\/${{ secrets.AUTH_REPOSITORY_NAME }}:.+$ ]]; then
+            echo "Invalid Auth Image Url"
             exit 1
           fi
 
@@ -341,8 +457,11 @@ jobs:
           TF_VAR_service_port: ${{ secrets.WEBAPP_PORT }}
           TF_VAR_ws_service_image_id: ${{ env.WS_IMAGE_ID }}
           TF_VAR_ws_service_port: ${{ secrets.WS_PORT }}
+          TF_VAR_auth_service_image_id: ${{ env.AUTH_IMAGE_ID }}
+          TF_VAR_auth_service_port: ${{ secrets.AUTH_PORT }}
           TF_VAR_webapp_repository_name: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
           TF_VAR_ws_repository_name: ${{ secrets.WS_REPOSITORY_NAME }}
+          TF_VAR_auth_repository_name: ${{ secrets.AUTH_REPOSITORY_NAME }}
           TF_VAR_ecs_cloudwatch_policies: ${{ secrets.CLOUDWATCH_POLICIES }}
           TF_VAR_registry_ecr_iam_policies: ${{ secrets.ECR_POLICIES }}
           TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
@@ -353,6 +472,9 @@ jobs:
           TF_VAR_clash-bot-header-value: ${{ secrets.HEADER_VALUE }}
           TF_VAR_webapp_logger_level: "info"
           TF_VAR_ws_logger_level: "info"
+          TF_VAR_auth_logger_level: "info"
+          TF_VAR_secret_one: ${{ secrets.SECRET_ONE }}
+          TF_VAR_secret_two: ${{ secrets.SECRET_TWO }}
         run: terraform apply -auto-approve -input=false
 
       - name: Build Failed Discord Webhook
