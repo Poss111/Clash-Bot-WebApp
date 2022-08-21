@@ -137,7 +137,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     logUserOut() {
-        console.log("Log Out");
         this.oauthService.logOut();
         this.applicationDetailsService.logOutUser();
     }
