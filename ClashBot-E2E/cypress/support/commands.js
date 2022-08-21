@@ -1,5 +1,5 @@
 Cypress.Commands.add('loginThroughOAuth', () => {
-    if (!window.sessionStorage.getItem('access_token')) {
+    if (!window.localStorage.getItem('access_token')) {
         const client_id = Cypress.env('auth0_client_id')
         const client_secret = Cypress.env('auth0_client_secret')
         const scope = Cypress.env('auth0_scope')
@@ -20,8 +20,12 @@ Cypress.Commands.add('loginThroughOAuth', () => {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         }).then(({body}) => {
-            window.sessionStorage.setItem('access_token', body.access_token);
-            cy.visit('/')
+            window.localStorage.setItem('access_token', body.access_token);
+            window.localStorage.setItem('refresh_token', body.refresh_token);
+            window.localStorage.setItem('expires_at', `${Date.now() + 600000}`);
+            window.localStorage.setItem('access_token_stored_at', `${Date.now()}`);
+            window.localStorage.setItem('granted_scopes', '["identify","guilds"]');
+            cy.reload();
         })
     } else {
         cy.log('Already logged in.');
