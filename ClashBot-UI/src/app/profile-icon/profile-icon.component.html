@@ -1,0 +1,26 @@
+<button mat-fab [disabled]="!loggedIn"
+        color="accent" [matMenuTriggerFor]="menu" id="clash-bot-discord-username">
+    <mat-icon>person</mat-icon>
+</button>
+<mat-menu #menu="matMenu">
+    <div mat-menu-item disabled>
+        <mat-icon>discord</mat-icon>
+        <span>{{ username }}</span>
+    </div>
+    <button mat-menu-item
+            (click)="goToSettings('/user-profile')"
+            id="clash-bot-menu-user-profile-page">
+        <span>Settings</span>
+    </button>
+    <button mat-menu-item (click)="logOut()">Log Out</button>
+    <button mat-menu-item>
+        <div class="dark-mode-toggle">
+            <mat-icon *ngIf="isDarkModeOn; else elseBlock">dark_mode</mat-icon>
+            <ng-template #elseBlock>
+                <mat-icon>light_mode</mat-icon>
+            </ng-template>
+            <mat-slide-toggle [checked]="isDarkModeOn" (toggleChange)="toggleDarkMode()">
+            </mat-slide-toggle>
+        </div>
+    </button>
+</mat-menu>

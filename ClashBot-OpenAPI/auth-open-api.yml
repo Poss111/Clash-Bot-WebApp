@@ -1,0 +1,70 @@
+openapi: '3.0.1'
+info:
+  title: 'clash-bot-auth-service'
+  description: Clash Bot Auth Service to support League of Legends Clash tournament scheduling with Discord.
+  contact:
+    name: ClashBot-API-Support
+    email: rixxroid@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}/{basePath}
+    description: The local API server.
+    variables:
+      port:
+        default: '8082'
+      basePath:
+        default: auth
+tags:
+  - name: Auth
+    description: Dealing with user session management with Discord.
+paths:
+  /token:
+    summary: 'Retrieve Access Token from discord based on user details.'
+    post:
+      description: 'Post for a new Access Token for the logged in User.'
+      tags:
+        - Auth
+      operationId: getAccessToken
+      requestBody:
+        description: The User details for retrieving an access token.
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - client_id
+              properties:
+                client_id:
+                  type: string
+                  description: The client id to be used.
+                code:
+                  type: string
+                  description: If needing to request an access token, this must be passed.
+                refresh_token:
+                  type: string
+                  description: If needing to request a refreshed access token and a new refresh token, this must be passed.
+                redirect_uri:
+                  type: string
+                  description: Only necessary to be passed when requesting an initial access token.
+                code_verifier:
+                  type: string
+      responses:
+        '200':
+          description: A new access token for the user to leverage
+          content:
+            application/json:
+              schema:
+                description: The new access details
+                type: object
+                required:
+                  - expires_in
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: number
+                  refresh_token:
+                    type: string

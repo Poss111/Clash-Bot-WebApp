@@ -7,7 +7,8 @@ export const environment = {
   discordClientId: "839586949748228156",
   version: "v4.0.1",
   gTag: false,
-  basePath: "http://localhost:8080/api/v2"
+  basePath: "http://localhost:8080/api/v2",
+  authPath: "http://localhost:8082/auth/token"
 };
 
 /*

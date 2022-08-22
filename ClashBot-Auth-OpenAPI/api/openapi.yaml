@@ -1,0 +1,84 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: rixxroid@gmail.com
+    name: ClashBot-API-Support
+  description: Clash Bot Auth Service to support League of Legends Clash tournament
+    scheduling with Discord.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: clash-bot-auth-service
+  version: 1.0.0
+servers:
+- description: The local API server.
+  url: "http://localhost:{port}/{basePath}"
+  variables:
+    port:
+      default: "8082"
+    basePath:
+      default: auth
+tags:
+- description: Dealing with user session management with Discord.
+  name: Auth
+paths:
+  /token:
+    post:
+      description: Post for a new Access Token for the logged in User.
+      operationId: getAccessToken
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/getAccessToken_request'
+        description: The User details for retrieving an access token.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getAccessToken_200_response'
+          description: A new access token for the user to leverage
+      tags:
+      - Auth
+      x-eov-operation-handler: controllers/AuthController
+    summary: Retrieve Access Token from discord based on user details.
+components:
+  schemas:
+    getAccessToken_200_response:
+      description: The new access details
+      example:
+        access_token: access_token
+        refresh_token: refresh_token
+        expires_in: 0.8008281904610115
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: number
+        refresh_token:
+          type: string
+      required:
+      - expires_in
+      type: object
+    getAccessToken_request:
+      properties:
+        client_id:
+          description: The client id to be used.
+          type: string
+        code:
+          description: "If needing to request an access token, this must be passed."
+          type: string
+        refresh_token:
+          description: "If needing to request a refreshed access token and a new refresh\
+            \ token, this must be passed."
+          type: string
+        redirect_uri:
+          description: Only necessary to be passed when requesting an initial access
+            token.
+          type: string
+        code_verifier:
+          type: string
+      required:
+      - client_id
+      type: object

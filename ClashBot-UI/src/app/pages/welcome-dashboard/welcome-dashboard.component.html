@@ -6,21 +6,21 @@
         friends quickly group up through
         discord to compete in a League of
         Legends Clash Tournament.</p>
-      <p id="WelcomeMessage-LoginMessage" *ngIf="loggedIn === 'NOT_LOGGED_IN'">
+      <p id="WelcomeMessage-LoginMessage" *ngIf="NOT_LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus">
         Please login to discord using the button below before continuing.
       </p>
-      <p *ngIf="loggedIn === 'LOGGED_IN'">Please use the menu above to see the available content.</p>
+      <p *ngIf="LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus">Please use the menu above to see the available content.</p>
     </mat-card-content>
     <mat-divider inset></mat-divider>
     <mat-card-actions class="clash-bot-welcome-dashboard-buttons-container">
       <button mat-raised-button id="WelcomeMessage-DiscordLogin-Btn" (click)="loginToDiscord()"
-              *ngIf="loggedIn === 'NOT_LOGGED_IN'" color="primary" align="end">
+              *ngIf="NOT_LOGGED_IN === ( $applicationDetailsServiceObs | async )?.loginStatus" color="primary" align="end">
         <mat-icon>discord</mat-icon>
         <span>Login to Discord</span>
       </button>
       <a mat-raised-button href="https://top.gg/bot/837629412328734740" target="_blank">Add Discord bot to Server</a>
     </mat-card-actions>
-    <mat-card-footer *ngIf="loggedIn === 'LOGGING_IN'">
+    <mat-card-footer *ngIf="LOGGING_IN === ( $applicationDetailsServiceObs | async )?.loginStatus">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </mat-card-footer>
   </mat-card>

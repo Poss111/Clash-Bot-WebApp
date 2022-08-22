@@ -13,14 +13,12 @@
         </mat-menu>
         <span class="title">Clash Bot</span>
         <span class="clash-bot-spacer"></span>
-        <mat-slide-toggle [formControl]="darkModeFormControl">
-            <mat-icon *ngIf="darkModeFormControl.value; else elseBlock">dark_mode</mat-icon>
-            <ng-template #elseBlock>
-                <mat-icon>light_mode</mat-icon>
-            </ng-template>
-        </mat-slide-toggle>
-        <span id="clash-bot-discord-username"
-            class="clash-bot-discord-username">{{ username }}</span>
+        <app-profile-icon [username]="username ?? ''"
+                          [isDarkModeOn]="darkMode"
+                          [loggedIn]="($applicationDetailsObs | async)?.loggedIn ?? false"
+                          (goToSettingsEvent)="navigate($event)"
+                          (toggleDarkModeEvent)="toggleDarkModeForUser($event)"
+                          (logOutEvent)="logUserOut()"></app-profile-icon>
     </mat-toolbar>
     <div *ngIf="pageLoadingObs$ | async">
         <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>

@@ -4,11 +4,10 @@ import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {ClashTournamentCalendarComponent} from "../../clash-tournament-calendar/clash-tournament-calendar.component";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {AuthConfig, DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
+import {DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {of} from "rxjs";
 import {MatNativeDateModule} from "@angular/material/core";
 import {
     ClashTournamentCalendarHeaderComponent
@@ -30,13 +29,19 @@ import {
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 import {MarkdownModule} from "ngx-markdown";
 import {
-    copyObject, create400HttpError, create404HttpError, create429HttpError,
-    createMockGuilds, createMockPlayer, createMockUserDetails,
+    create400HttpError,
+    create404HttpError,
+    create429HttpError,
+    createMockGuilds,
+    createMockPlayer,
+    createMockUserDetails,
     setupLoggedOutMockApplicationDetails
 } from "../../shared/shared-test-mocks.spec";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {SharedModule} from "../../shared/shared.module";
 import {Tournament, TournamentService, UserService} from "clash-bot-service-api";
+import {LoginStatus} from "../../login-status";
+import {cold} from "jest-marbles";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("clash-bot-service-api");
@@ -56,6 +61,7 @@ describe("WelcomeDashboardComponent", () => {
     let component: WelcomeDashboardComponent;
     let fixture: ComponentFixture<WelcomeDashboardComponent>;
     let httpMock: HttpTestingController;
+    let urlHelperServiceMock: UrlHelperService;
     let tournamentServiceMock: TournamentService;
     let userServiceMock: UserService;
     let discordServiceMock: any;
@@ -65,21 +71,6 @@ describe("WelcomeDashboardComponent", () => {
     let validAccessTokenMock: any;
     let tryLoginMock: any;
     let matDialogMock: any;
-    const expectedOAuthConfig: AuthConfig = {
-        loginUrl: "https://discord.com/api/oauth2/authorize",
-        tokenEndpoint: "https://discord.com/api/oauth2/token",
-        revocationEndpoint: "https://discord.com/api/oauth2/revoke",
-        redirectUri: window.location.origin,
-        clientId: environment.discordClientId,
-        responseType: "code",
-        scope: "identify guilds",
-        showDebugInformation: true,
-        oidc: false,
-        sessionChecksEnabled: true,
-        customQueryParams: {
-            prompt: "none"
-        },
-    };
     let testScheduler: TestScheduler;
 
     beforeEach(async () => {
@@ -103,6 +94,7 @@ describe("WelcomeDashboardComponent", () => {
         })
             .compileComponents();
         httpMock = TestBed.inject(HttpTestingController);
+        urlHelperServiceMock = TestBed.inject(UrlHelperService);
         tournamentServiceMock = TestBed.inject(TournamentService);
         userServiceMock = TestBed.inject(UserService);
         discordServiceMock = TestBed.inject(DiscordService);
@@ -123,7 +115,43 @@ describe("WelcomeDashboardComponent", () => {
         validAccessTokenMock.mockReturnValueOnce(true);
     });
 
+    function setupBaseWindowQueryParams() {
+        global.window = Object.create(window);
+        const url = "http://dummy.com";
+        Object.defineProperty(window, "location", {
+            value: {
+                href: url,
+                search: "?iam=shooketh",
+                origin: "http://localhost"
+            }
+        });
+        (urlHelperServiceMock.parseQueryString as any).mockReturnValue({
+            iam: "shooketh"
+        });
+    }
+
+    function setupAfterAuthorizationWindowQueryParams() {
+        global.window = Object.create(window);
+        const url = "http://dummy.com";
+        Object.defineProperty(window, "location", {
+            value: {
+                href: url,
+                search: "?code=abc123&state=cba321",
+                origin: "http://localhost"
+            }
+        });
+        (urlHelperServiceMock.parseQueryString as any).mockReturnValue({
+            code: "abc123",
+            state: "cba321"
+        });
+    }
+
     test("should create", () => {
+        setupBaseWindowQueryParams();
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold(""));
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+            asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+        });
         fixture = TestBed.createComponent(WelcomeDashboardComponent);
         component = fixture.componentInstance;
         (tournamentServiceMock.getTournaments as any).mockReturnValue({
@@ -136,6 +164,11 @@ describe("WelcomeDashboardComponent", () => {
 
     describe("Release Notification", () => {
         test("Should display the Release Notification dialog box if there is not a Release Notification version in local storage.", () => {
+            setupBaseWindowQueryParams();
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold(""));
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             jest.spyOn(matDialogMock, "open");
             fixture = TestBed.createComponent(WelcomeDashboardComponent);
             component = fixture.componentInstance;
@@ -149,6 +182,11 @@ describe("WelcomeDashboardComponent", () => {
         })
 
         test("Should NOT display the Release Notification dialog box if there is a Release Notification version in local storage matching the one in the Environment and should then set the environment version into the local storage under version.", () => {
+            setupBaseWindowQueryParams();
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold(""));
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             environment.version = "1";
             localStorage.setItem("version", "1");
             jest.spyOn(matDialogMock, "open");
@@ -163,6 +201,11 @@ describe("WelcomeDashboardComponent", () => {
         })
 
         test("Should display the Release Notification dialog box if there is a Release Notification version in local storage not matching the one in the Environment.", () => {
+            setupBaseWindowQueryParams();
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold(""));
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             environment.version = "2";
             localStorage.setItem("version", "1");
             jest.spyOn(matDialogMock, "open");
@@ -178,63 +221,66 @@ describe("WelcomeDashboardComponent", () => {
         })
     })
 
+    function setupEmptyApplicationDetailsForInit() {
+        applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+            asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+        });
+    }
+
     describe("On Init", () => {
-        test("Should attempt to login upon load up if there has not been a Login Attempt", () => {
+        test("(Initial Load up) - Should configure oauth2 config upon load up but not try to login if code and state are not in the url.", () => {
+            setupBaseWindowQueryParams();
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold(""));
+            applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             fixture = TestBed.createComponent(WelcomeDashboardComponent);
             component = fixture.componentInstance;
             (tournamentServiceMock.getTournaments as any).mockReturnValue({
                 pipe: jest.fn().mockReturnThis(),
                 subscribe: jest.fn().mockReturnThis()
             })
-            expect(component.loggedIn).toEqual("NOT_LOGGED_IN");
             fixture.detectChanges();
-            expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
-            expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
-            expect(component.loggedIn).toEqual("LOGGED_IN");
         })
 
         test("(Load Tournaments when not logged in) - Should attempt to login with existing Tournament Days upon load up if there has not been a Login Attempt", () => {
             testScheduler.run((helpers) => {
                 const {cold, flush} = helpers;
+                setupBaseWindowQueryParams();
+                applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                    asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+                });
+
+                fixture = TestBed.createComponent(WelcomeDashboardComponent);
 
                 let mockTournaments: Tournament[] = createMockTournaments();
                 (tournamentServiceMock.getTournaments as any).mockReturnValue(cold("-x|", {x: mockTournaments}));
-                applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
-
-                fixture = TestBed.createComponent(WelcomeDashboardComponent);
+                tryLoginMock.mockResolvedValue(true);
                 component = fixture.componentInstance;
-                expect(component.loggedIn).toEqual("NOT_LOGGED_IN");
-                fixture.detectChanges();
-
-                expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
-                expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
-                expect(component.loggedIn).toEqual("LOGGED_IN");
 
                 fixture.detectChanges();
 
                 flush();
-
-                let expectedTournamentsList: Tournament[] = copyObject(mockTournaments);
-                expectedTournamentsList.sort((a, b) =>
-                    new Date(a.startTime === undefined ? "" : a.startTime)
-                        .getTime() - new Date(b.startTime === undefined ? "" : b.startTime)
-                        .getTime());
-
                 expect(component.tournamentDays).toHaveLength(2);
                 expect(component.dataLoaded).toBeTruthy();
-                expect(component.loggedIn).toEqual("LOGGED_IN");
+                expect(tryLoginMock).not.toHaveBeenCalled();
                 expect(applicationDetailsServiceMock.setApplicationDetails)
                     .toHaveBeenCalledWith({
-                        currentTournaments: expectedTournamentsList,
-                        loggedIn: false
+                        currentTournaments: mockTournaments,
+                        loggedIn: false,
+                        loginStatus: LoginStatus.NOT_LOGGED_IN
                     });
             });
         })
 
-        test("If login has been attempted, should then try to Login with the token and it is successful.", () => {
+        test("(After Auth Code retrieved) - should invoke Clash Bot Auth and set up Application Details.", () => {
             sessionStorage.setItem("LoginAttempt", "true");
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
+                applicationDetailsServiceMock.getApplicationDetails.mockReturnValueOnce({
+                    asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+                });
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
                 tryLoginMock.mockResolvedValue(true);
@@ -250,19 +296,20 @@ describe("WelcomeDashboardComponent", () => {
                 (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: {}}));
                 (userServiceMock.updateUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                setupAfterAuthorizationWindowQueryParams();
 
                 component.ngOnInit();
 
                 flush();
 
-                expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
-                expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
+                expect(applicationDetailsServiceMock.loggingIn).toHaveBeenCalledTimes(1);
                 expect(tryLoginMock).toHaveBeenCalledTimes(1);
             })
         })
 
-        test("If login has been attempted and login will fail, should then try to Login with the token and call Snack Bar..", (done) => {
-            sessionStorage.setItem("LoginAttempt", "true");
+        test("(Failure to Authorize Clash Bot) If there is a failure with getting authorization from Discord from the user, then a snack bar should be triggered.", (done) => {
+            setupAfterAuthorizationWindowQueryParams();
+            setupEmptyApplicationDetailsForInit();
             tryLoginMock.mockRejectedValue(create400HttpError());
             (tournamentServiceMock.getTournaments as any).mockReturnValue({
                 pipe: jest.fn().mockReturnThis(),
@@ -270,10 +317,10 @@ describe("WelcomeDashboardComponent", () => {
             })
             let snackBarOpenImpl = (message: string, action: string, config: MatSnackBarConfig) => {
                 try {
-                    expect(message).toEqual("Failed to login to discord.");
+                    expect(applicationDetailsServiceMock.logOutUser).toHaveBeenCalledTimes(1);
+                    expect(message).toEqual("Failed to get authorization from Discord.");
                     expect(action).toEqual("X");
                     expect(config).toEqual({duration: 5000});
-                    expect(component.loggedIn).toEqual("NOT_LOGGED_IN");
                     done();
                 } catch (err) {
                     done(err);
@@ -283,19 +330,6 @@ describe("WelcomeDashboardComponent", () => {
             fixture = TestBed.createComponent(WelcomeDashboardComponent);
             component = fixture.componentInstance;
             fixture.detectChanges();
-            expect(oAuthServiceMock.configure).toHaveBeenCalledTimes(1);
-            expect(oAuthServiceMock.configure).toHaveBeenCalledWith(expectedOAuthConfig);
-        })
-
-        test("When loginToDiscord is called, it should call the initLoginFlow for the oauthService and should set a LoginAttempt in the sessionStorage.", () => {
-            tryLoginMock.mockResolvedValue(true);
-            let expectedUserObject = createMockUser();
-            discordServiceMock.getUserDetails.mockReturnValue(of(expectedUserObject));
-            fixture = TestBed.createComponent(WelcomeDashboardComponent);
-            component = fixture.componentInstance;
-            component.loginToDiscord();
-            expect(oAuthServiceMock.initLoginFlow).toHaveBeenCalledTimes(1);
-            expect(sessionStorage.getItem("LoginAttempt")).toBeTruthy();
         })
     })
 
@@ -314,11 +348,12 @@ describe("WelcomeDashboardComponent", () => {
                 (userServiceMock.getUser as any).mockReturnValue(cold("#|", undefined, create404HttpError()));
                 (userServiceMock.createUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -327,11 +362,12 @@ describe("WelcomeDashboardComponent", () => {
                     userGuilds: mockGuilds,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
-                    loggedIn: true
+                    loggedIn: true,
+                    loginStatus: LoginStatus.LOGGED_IN
                 };
 
                 expect(userServiceMock.getUser).toHaveBeenCalledWith(`${mockUser.id}`);
-                expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+                expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
                 expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith(expectedApplicationDetails);
                 expect(userServiceMock.updateUser).not.toHaveBeenCalled();
                 expect(userServiceMock.createUser).toHaveBeenCalledTimes(1);
@@ -340,7 +376,6 @@ describe("WelcomeDashboardComponent", () => {
                     serverName: `${mockGuilds[0].name}`,
                     name: mockUser.username
                 });
-                expect(component.loggedIn).toEqual("LOGGED_IN");
             })
         })
 
@@ -355,12 +390,18 @@ describe("WelcomeDashboardComponent", () => {
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
                 (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
-                applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                applicationDetailsServiceMock
+                    .getApplicationDetails
+                    .mockReturnValue(cold(
+                        "-x",
+                        {x: setupLoggedOutMockApplicationDetails()}
+                    ));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -369,14 +410,16 @@ describe("WelcomeDashboardComponent", () => {
                     userGuilds: mockGuilds,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
-                    loggedIn: true
+                    loggedIn: true,
+                    loginStatus: LoginStatus.LOGGED_IN
                 };
 
                 expect(userServiceMock.getUser).toHaveBeenCalledWith(`${mockUser.id}`);
-                expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
-                expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith(expectedApplicationDetails);
+                expect(applicationDetailsServiceMock.getApplicationDetails)
+                    .toHaveBeenCalledTimes(2);
+                expect(applicationDetailsServiceMock.setApplicationDetails)
+                    .toHaveBeenCalledWith(expectedApplicationDetails);
                 expect(userServiceMock.updateUser).not.toHaveBeenCalled();
-                expect(component.loggedIn).toEqual("LOGGED_IN");
             })
         })
 
@@ -394,11 +437,12 @@ describe("WelcomeDashboardComponent", () => {
                 (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 (userServiceMock.updateUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -407,11 +451,12 @@ describe("WelcomeDashboardComponent", () => {
                     userGuilds: mockGuilds,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
-                    loggedIn: true
+                    loggedIn: true,
+                    loginStatus: LoginStatus.LOGGED_IN
                 };
 
                 expect(userServiceMock.getUser).toHaveBeenCalledWith(`${mockUser.id}`);
-                expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(1);
+                expect(applicationDetailsServiceMock.getApplicationDetails).toHaveBeenCalledTimes(2);
                 expect(applicationDetailsServiceMock.setApplicationDetails).toHaveBeenCalledWith(expectedApplicationDetails);
                 expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
                 expect(userServiceMock.updateUser).toHaveBeenCalledWith({
@@ -419,7 +464,6 @@ describe("WelcomeDashboardComponent", () => {
                     serverName: mockGuilds[0].name,
                     name: mockUser.username
                 });
-                expect(component.loggedIn).toEqual("LOGGED_IN");
             })
         })
 
@@ -428,11 +472,12 @@ describe("WelcomeDashboardComponent", () => {
                 const {cold, flush} = helpers;
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("#|", undefined, create400HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -440,7 +485,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(discordServiceMock.getGuilds).not.toHaveBeenCalled();
                 expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(matSnackBarMock.open).toHaveBeenCalledWith(
-                    "Oops, we failed to retrieve your details from Discord. Please try logging in again.",
+                    "Failed to log you in.",
                     "X",
                     {duration: 5000});
                 expect(userServiceMock.getUser).not.toHaveBeenCalled();
@@ -453,11 +498,12 @@ describe("WelcomeDashboardComponent", () => {
                 const {cold, flush} = helpers;
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("#-#-#|", undefined, create429HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -479,11 +525,12 @@ describe("WelcomeDashboardComponent", () => {
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: createMockUserDetails()}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("#|", undefined, create400HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -491,7 +538,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(discordServiceMock.getGuilds).toHaveBeenCalledTimes(1);
                 expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(matSnackBarMock.open).toHaveBeenCalledWith(
-                    "Failed to retrieve your discord server details. Please try logging in again.",
+                    "Failed to log you in.",
                     "X",
                     {duration: 5000});
                 expect(userServiceMock.getUser).not.toHaveBeenCalled();
@@ -505,11 +552,12 @@ describe("WelcomeDashboardComponent", () => {
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: createMockUserDetails()}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("#-#-#|", undefined, create429HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -533,11 +581,12 @@ describe("WelcomeDashboardComponent", () => {
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUserDetails}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: createMockGuilds()}));
                 (userServiceMock.getUser as any).mockReturnValue(cold("#|", undefined, create400HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -547,7 +596,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(userServiceMock.getUser).toHaveBeenCalledWith(`${mockUserDetails.id}`);
                 expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(matSnackBarMock.open).toHaveBeenCalledWith(
-                    "Oops, we failed to pull your userDetails from our Servers :( Please try again later.",
+                    "Failed to log you in.",
                     "X",
                     {duration: 5000});
                 expect(userServiceMock.updateUser).not.toHaveBeenCalled();
@@ -565,11 +614,12 @@ describe("WelcomeDashboardComponent", () => {
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
                 (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: createMockPlayer()}));
                 (userServiceMock.updateUser as any).mockReturnValue(cold("#|", undefined, create400HttpError()));
+                setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
 
-                component.setUserDetails();
+                component.initUserDetails();
 
                 flush();
 
@@ -585,7 +635,7 @@ describe("WelcomeDashboardComponent", () => {
                 });
                 expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
                 expect(matSnackBarMock.open).toHaveBeenCalledWith(
-                    "Oops, we see your discord username has changed. We failed to updated it. Please try to login again.",
+                    "Failed to log you in.",
                     "X",
                     {duration: 5000});
             })

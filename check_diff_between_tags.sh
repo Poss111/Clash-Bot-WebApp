@@ -2,6 +2,7 @@
 echo "Running..."
 serviceUpdate=false
 wsServiceUpdate=false
+authServiceUpdate=false
 uiUpdate=false
 for i in $(git diff --name-only $(git tag --sort version:refname | tail -n 2 | head -n 1) $(git tag --sort version:refname | tail -n 1))
 do
@@ -13,6 +14,10 @@ do
   then
     wsServiceUpdate=true
   fi
+  if [[ "$i" == *"ClashBot-Auth-OpenAPI/"*  && !authServiceUpdate ]];
+  then
+    authServiceUpdate=true
+  fi
   if [[ "$i" == *"ClashBot-UI/"* && !$uiUpdate ]];
   then
     uiUpdate=true
@@ -23,6 +28,7 @@ parsedTag=${GITHUB_REF##*/}
 
 echo "::set-output name=serviceUpdate::$serviceUpdate"
 echo "::set-output name=wsServiceUpdate::$wsServiceUpdate"
+echo "::set-output name=authServiceUpdate::$authServiceUpdate"
 echo "::set-output name=uiUpdate::$uiUpdate"
 echo "::set-output name=parsedTag::$parsedTag"
 echo "Finished"

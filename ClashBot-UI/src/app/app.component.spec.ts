@@ -37,10 +37,12 @@ import {
 import {SharedModule} from "./shared/shared.module";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
 import * as mocks from "./shared/shared-test-mocks.spec";
+import {cold} from "jest-marbles";
 
 jest.mock("./services/application-details.service");
 jest.mock("./google-analytics.service");
 jest.mock("./services/riot-ddragon.service");
+jest.mock("./services/application-details.service")
 
 @NgModule({
     declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
@@ -105,6 +107,9 @@ describe("AppComponent", () => {
         location = TestBed.inject(Location);
         router.initialNavigation();
         window.localStorage.clear();
+        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+            asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+        })
     });
 
     test("should create the app", () => {
@@ -132,7 +137,10 @@ describe("AppComponent", () => {
             let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
             let riotVersionObs = cold("x|", {x: mockLeagueVersion});
 
-            applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationObs);
+            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(applicationObs);
+            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
 
             expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
@@ -167,7 +175,10 @@ describe("AppComponent", () => {
             let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
             let riotVersionObs = cold("x|", {x: mockLeagueVersion});
 
-            applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationObs);
+            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(applicationObs);
+            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+            });
             riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
 
             expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
@@ -185,7 +196,10 @@ describe("AppComponent", () => {
 
     test("When navigate is called, it should invoke the router to navigate to /", fakeAsync(() => {
         const fixture = TestBed.createComponent(AppComponent);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(of({}));
+        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+            asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+        });
         riotDdragonServiceMock.getVersions.mockReturnValue(of(["12.8.1"]));
         const app = fixture.componentInstance;
         fixture.detectChanges();

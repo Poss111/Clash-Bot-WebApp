@@ -16,7 +16,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatMenuModule} from "@angular/material/menu";
 import {ClashTournamentCalendarComponent} from "./clash-tournament-calendar/clash-tournament-calendar.component";
 import {ClashTournamentCalendarHeaderComponent} from "./clash-tournament-calendar-header/clash-tournament-calendar-header.component";
-import {OAuthModule} from "angular-oauth2-oidc";
+import {OAuthModule, OAuthStorage} from "angular-oauth2-oidc";
 import {DiscordInterceptor} from "./services/discord-interceptor.service";
 import {DiscordService} from "./services/discord.service";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
@@ -31,6 +31,11 @@ import {PageLoadingService} from "./services/page-loading.service";
 import {SharedModule} from "./shared/shared.module";
 import {ApiModule, BASE_PATH} from "clash-bot-service-api"
 import {environment} from "../environments/environment";
+import {ProfileIconComponent} from "./profile-icon/profile-icon.component";
+
+export function storageFactory(): OAuthStorage {
+  return localStorage;
+}
 
 @NgModule({
     declarations: [
@@ -39,7 +44,8 @@ import {environment} from "../environments/environment";
         ClashTournamentCalendarComponent,
         ClashTournamentCalendarHeaderComponent,
         UpcomingTournamentDetailsCardComponent,
-        ReleaseNotificationDialogComponent
+        ReleaseNotificationDialogComponent,
+        ProfileIconComponent
     ],
     imports: [
         ApiModule,
@@ -72,6 +78,10 @@ import {environment} from "../environments/environment";
             provide: HTTP_INTERCEPTORS,
             useClass: DiscordInterceptor,
             multi: true
+        },
+        {
+          provide: OAuthStorage,
+          useFactory: storageFactory
         },
         PageLoadingService,
         {

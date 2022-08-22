@@ -6,6 +6,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {Player} from "clash-bot-service-api/model/player";
 import {Tentative} from "clash-bot-service-api/model/tentative";
 import {Tournament} from "clash-bot-service-api/model/tournament";
+import {LoginStatus} from "../login-status";
 
 test("Simple Check", () => expect(true).toBeTruthy())
 
@@ -74,7 +75,9 @@ export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUse
         defaultGuild: "",
         userGuilds: mockGuilds,
         clashBotUserDetails: mockClashBotUserDetails,
-        userDetails: mockUserDetails
+        userDetails: mockUserDetails,
+        loggedIn: true,
+        loginStatus: LoginStatus.LOGGED_IN
     };
 }
 
@@ -200,7 +203,7 @@ export function setupLoggedInMockApplicationDetails(): ApplicationDetails {
 }
 
 export function setupLoggedOutMockApplicationDetails(): ApplicationDetails {
-    let mockAppDetails: ApplicationDetails = {};
+    let mockAppDetails: ApplicationDetails = {loggedIn: false, loginStatus: LoginStatus.NOT_LOGGED_IN};
     mockAppDetails.loggedIn = false;
     return mockAppDetails;
 }

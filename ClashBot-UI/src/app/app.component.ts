@@ -4,13 +4,15 @@ import {Subscription} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
-import {FormControl} from "@angular/forms";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
 import {take} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
+import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
+import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: "app-root",
@@ -20,9 +22,10 @@ import {PageLoadingService} from "./services/page-loading.service";
 export class AppComponent implements OnInit, OnDestroy {
     appVersion: string = environment.version;
     subscriptions: Subscription[] = [];
-    darkModeFormControl = new FormControl(localStorage.getItem("darkMode") === "true");
+    darkMode;
     username?: string;
     pageLoadingObs$ = this.pageLoadingService.getSubject();
+    $applicationDetailsObs = this.applicationDetailsService.getApplicationDetails().asObservable();
 
     routingArray: RoutingDetails[] = [];
 
@@ -42,12 +45,6 @@ export class AppComponent implements OnInit, OnDestroy {
             route: "/teams",
             icon: "groups",
             id: "clash-bot-menu-teams-page"
-        },
-        {
-            name: "Settings",
-            route: "/user-profile",
-            icon: "settings",
-            id: "clash-bot-menu-user-profile-page"
         }
     ];
 
@@ -55,22 +52,53 @@ export class AppComponent implements OnInit, OnDestroy {
 
     @HostBinding("class") className = "";
 
+    authCodeFlowConfig: AuthConfig = {
+        loginUrl: "https://discord.com/api/oauth2/authorize",
+        tokenEndpoint: this.getAuthPath(),
+        revocationEndpoint: "https://discord.com/api/oauth2/revoke",
+        redirectUri: window.location.origin,
+        clientId: environment.discordClientId,
+        responseType: "code",
+        scope: "identify guilds",
+        oidc: false,
+        sessionChecksEnabled: true,
+        customQueryParams: {
+            "prompt": "none"
+        }
+    }
+
     constructor(private router: Router,
                 private applicationDetailsService: ApplicationDetailsService,
                 private googleAnalyticsService: GoogleAnalyticsService,
                 private riotDdragonService: RiotDdragonService,
                 private matIconRegistry: MatIconRegistry,
                 private sanitizer: DomSanitizer,
-                private pageLoadingService: PageLoadingService) {
+                private pageLoadingService: PageLoadingService,
+                private oauthService: OAuthService,
+                private _snackBar: MatSnackBar) {
         this.assets.forEach((id) => {
             this.matIconRegistry.addSvgIcon(`league-${id}`,
                 this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${id}.svg`));
         });
+        this.darkMode = localStorage.getItem("darkMode") === "true";
     }
 
     ngOnInit(): void {
-        this.toggleDarkMode(this.darkModeFormControl.value);
-        this.darkModeFormControl.valueChanges.subscribe((value) => this.toggleDarkMode(value));
+        this.oauthService.configure(this.authCodeFlowConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+        this.oauthService.events.subscribe((event) => {
+            if ("token_expires" === event.type) {
+                this.oauthService.refreshToken()
+                    .then(() => this._snackBar
+                        .open("Refreshed your session.", "X", {duration: 5 * 1000}))
+                    .catch(() => {
+                        this.applicationDetailsService.logOutUser();
+                        this._snackBar
+                            .open("Failed to refresh", "X", {duration: 5 * 1000});
+                    });
+            }
+        });
+        this.toggleDarkMode(this.darkMode);
         this.subscriptions.push(
             this.router.events.subscribe(event => {
                 if (event instanceof NavigationEnd) {
@@ -101,6 +129,18 @@ export class AppComponent implements OnInit, OnDestroy {
         localStorage.setItem("darkMode", JSON.stringify(turnDarkModeOn));
     }
 
+    toggleDarkModeForUser(darkModeCurrentStatus: boolean) {
+        const darkModeClassName = "dark";
+        this.className = !darkModeCurrentStatus ? darkModeClassName : "";
+        localStorage.setItem("darkMode", JSON.stringify(!darkModeCurrentStatus));
+        this.darkMode = !darkModeCurrentStatus;
+    }
+
+    logUserOut() {
+        this.oauthService.logOut();
+        this.applicationDetailsService.logOutUser();
+    }
+
     ngOnDestroy() {
         this.subscriptions.forEach(sub => sub.unsubscribe());
     }
@@ -109,5 +149,12 @@ export class AppComponent implements OnInit, OnDestroy {
         this.pageLoadingObs$.next(true);
         this.router.navigate([route])
             .catch(() => this.pageLoadingObs$.next(false));
+    }
+
+    private getAuthPath() {
+        if (environment.authPath.includes("localhost")) {
+            return environment.authPath;
+        }
+        return window.location.origin + environment.authPath;
     }
 }

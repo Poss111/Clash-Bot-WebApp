@@ -17,6 +17,7 @@ jobs:
       deploy-ui: ${{ steps.check-apps.outputs.uiUpdate }}
       deploy-service: ${{ steps.check-apps.outputs.serviceUpdate }}
       deploy-ws-service: ${{ steps.check-apps.outputs.wsServiceUpdate }}
+      deploy-auth-service: ${{ steps.check-apps.outputs.authServiceUpdate }}
 
     steps:
       - name: Checkout repo
@@ -38,6 +39,10 @@ jobs:
         id: ws-service-check
         run: echo ${{ steps.check-apps.outputs.wsServiceUpdate }}
 
+      - name: Check Output for Auth Service
+        id: auth-service-check
+        run: echo ${{ steps.check-apps.outputs.authServiceUpdate }}
+
       - name: Check Output for UI
         id: ui-check
         run: echo ${{ steps.check-apps.outputs.uiUpdate }}
@@ -48,6 +53,7 @@ jobs:
         env:
           SERVICE: "${{ steps.check-apps.outputs.serviceUpdate }}"
           WS_SERVICE: "${{ steps.check-apps.outputs.wsServiceUpdate }}"
+          AUTH_SERVICE: "${{ steps.check-apps.outputs.authServiceUpdate }}"
           UI: "${{ steps.check-apps.outputs.uiUpdate }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,6 +65,7 @@ jobs:
             | ------- | :------: |
             | Service | ${process.env.SERVICE} |
             | Websocket Service | ${process.env.WS_SERVICE} |
+            | Auth Service | ${process.env.AUTH_SERVICE} |
             | UI | ${process.env.UI} |
             
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
@@ -111,6 +118,49 @@ jobs:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Web App - Websocket Service Test - Notification'
           message: 'Service Test Failed!'
+          message-color: '16711680'
+
+  test-auth-service:
+    name: "Test Clash Bot Auth Service"
+    needs: check-applications
+    if: ${{ needs.check-applications.outputs.deploy-auth-service == 'true'}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test Auth Service In Progress Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Test - Notification'
+          message: 'Testing in progress...'
+          message-color: '16750902'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Build Auth Service
+        working-directory: ./ClashBot-Auth-OpenAPI
+        run: npm i
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker Image
+        working-directory: ./ClashBot-Auth-OpenAPI
+        run: |
+          docker build -t poss11111/clash-bot-auth-service:test .
+          docker push poss11111/clash-bot-auth-service:test
+
+      - name: Test Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Web App - Auth Service Test - Notification'
+          message: 'Auth Service Test Failed!'
           message-color: '16711680'
 
   test-service:
@@ -464,6 +514,7 @@ jobs:
       - prod-build-check
       - test-service
       - test-ws-service
+      - test-auth-service
     if: ${{ always() }}
     runs-on: ubuntu-latest
 
@@ -572,6 +623,7 @@ jobs:
     needs:
       - integration-ui
       - test-ws-service
+      - test-auth-service
       - test-service
       - lint-ui
       - prod-build-check
@@ -581,11 +633,17 @@ jobs:
 
     steps:
       - name: Check
-        run: echo "${{ needs.test-service.result }} ${{ needs.test-ws-service.result }} ${{ needs.integration-ui.result }} ${{ needs.lint-ui.result }} ${{ needs.test-ui.result }} ${{ needs.prod-build-check.result }}"
+        run: |
+          echo "${{ needs.test-service.result }}"
+          echo "${{ needs.test-ws-service.result }}"
+          echo "${{ needs.integration-ui.result }}"
+          echo "${{ needs.lint-ui.result }}"
+          echo "${{ needs.test-ui.result }}"
+          echo "${{ needs.prod-build-check.result }}"
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.test-service.result == 'failure' || needs.test-ws-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure' || needs.prod-build-check.result == 'failure'}}
+        if: ${{ needs.test-service.result == 'failure' || needs.test-auth-service.result == 'failure' || needs.test-ws-service.result == 'failure' || needs.integration-ui.result == 'failure' || needs.lint-ui.result == 'failure' || needs.test-ui.result == 'failure' || needs.prod-build-check.result == 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - Testing Finished - Notification "
@@ -594,6 +652,7 @@ jobs:
             Please check the Github Action. 
             **Build Service**: ${{ needs.test-service.result }}
             **Build Websocket Service**: ${{ needs.test-ws-service.result }}
+            **Build Auth Service**: ${{ needs.test-auth-service.result }}
             **Linting**: ${{ needs.lint-ui.result }}
             **UI Tests**: ${{ needs.test-ui.result }}
             **Prod Build Check** ${{ needs.prod-build-check.result  }}
@@ -602,7 +661,7 @@ jobs:
 
       - name: Testing completed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ needs.test-service.result != 'failure' && needs.integration-ui.result != 'failure' && needs.lint-ui.result != 'failure' && needs.test-ui.result != 'failure' || needs.prod-build-check.result == 'failure'}}
+        if: ${{ needs.test-service.result != 'failure' && needs.test-auth-service.result != 'failure' && needs.test-ws-service.result != 'failure' && needs.integration-ui.result != 'failure' && needs.lint-ui.result != 'failure' && needs.test-ui.result != 'failure' || needs.prod-build-check.result == 'failure'}}
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: "Clash Bot Web App - PR check finished - Notification"

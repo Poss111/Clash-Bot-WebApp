@@ -1,23 +1,23 @@
 import {Component, OnInit, ViewEncapsulation} from "@angular/core";
-import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
+import {OAuthService, UrlHelperService} from "angular-oauth2-oidc";
 import {environment} from "../../../environments/environment";
-import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {of, throwError, timer} from "rxjs";
+import {Observable, of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
 import {
-    ReleaseNotificationDialogComponent
+  ReleaseNotificationDialogComponent
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 import {UserDetails} from "../../interfaces/user-details";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {PageLoadingService} from "../../services/page-loading.service";
-import {UserService,TournamentService} from "clash-bot-service-api";
+import {TournamentService, UserService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Player} from "clash-bot-service-api/model/player";
+import {LoginStatus} from "../../login-status";
 
 @Component({
     selector: "app-welcome-dashboard",
@@ -26,26 +26,14 @@ import {Player} from "clash-bot-service-api/model/player";
     encapsulation: ViewEncapsulation.None
 })
 export class WelcomeDashboardComponent implements OnInit {
+    readonly NOT_LOGGED_IN: LoginStatus = LoginStatus.NOT_LOGGED_IN;
+    readonly LOGGING_IN: LoginStatus = LoginStatus.LOGGING_IN;
+    readonly LOGGED_IN: LoginStatus = LoginStatus.LOGGED_IN;
     tournamentDays: any[] = [];
     tournaments?: Tournament[];
     dataLoaded: boolean = false;
-    loggedIn: string = "NOT_LOGGED_IN";
-
-    authCodeFlowConfig: AuthConfig = {
-        loginUrl: "https://discord.com/api/oauth2/authorize",
-        tokenEndpoint: "https://discord.com/api/oauth2/token",
-        revocationEndpoint: "https://discord.com/api/oauth2/revoke",
-        redirectUri: window.location.origin,
-        clientId: environment.discordClientId,
-        responseType: "code",
-        scope: "identify guilds",
-        showDebugInformation: true,
-        oidc: false,
-        sessionChecksEnabled: true,
-        customQueryParams: {
-            "prompt": "none"
-        }
-    }
+    $applicationDetailsServiceObs: Observable<ApplicationDetails> = this
+      .applicationDetailsService.getApplicationDetails().asObservable();
 
     constructor(private oauthService: OAuthService,
                 private discordService: DiscordService,
@@ -54,7 +42,8 @@ export class WelcomeDashboardComponent implements OnInit {
                 private matDialog: MatDialog,
                 private pageLoadingService: PageLoadingService,
                 private userService: UserService,
-                private tournamentService: TournamentService) {
+                private tournamentService: TournamentService,
+                private urlHelperService: UrlHelperService) {
     }
 
     ngOnInit(): void {
@@ -66,9 +55,8 @@ export class WelcomeDashboardComponent implements OnInit {
             .pipe(
                 take(1),
                 map(tournaments => {
-                    tournaments.sort((a, b) =>
-                        new Date(a.startTime === undefined ? "": a.startTime).getTime() - new Date(b.startTime === undefined ? "": b.startTime).getTime());
-                    tournaments.forEach(tournament => this.tournamentDays.push(new Date(tournament.startTime === undefined ? "": tournament.startTime)));
+                    tournaments.forEach(tournament => this.tournamentDays
+                        .push(new Date(tournament.startTime === undefined ? "": tournament.startTime)));
                     return tournaments;
                 }))
             .subscribe((data) => {
@@ -82,30 +70,36 @@ export class WelcomeDashboardComponent implements OnInit {
                     })
             });
         if (this.oauthService.hasValidAccessToken()) {
-            this.loggedIn = "LOGGED_IN";
-        }
-        this.oauthService.configure(this.authCodeFlowConfig);
-        if (sessionStorage.getItem("LoginAttempt")) {
-            this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-            this.oauthService.tryLogin()
-                .then(() => {
-                    this.setUserDetails();
-                })
-                .catch(() => {
-                    this.loggedIn = "NOT_LOGGED_IN";
-                    this._snackBar.open("Failed to login to discord.",
-                        "X",
-                        {duration: 5 * 1000});
-                });
+            this.initUserDetails();
         } else {
-            if (this.oauthService.hasValidAccessToken()) {
-                this.loggedIn = "LOGGED_IN";
+            const parts: any = this.getCodePartsFromUrl(window.location.search);
+            if (parts && parts["code"] && parts["state"]) {
+                this.applicationDetailsService.loggingIn();
+                this.oauthService.tryLogin()
+                    .then(() => this.initUserDetails())
+                    .catch(() => {
+                        this.applicationDetailsService.logOutUser();
+                        this._snackBar.open("Failed to get authorization from Discord.",
+                            "X",
+                            {duration: 5 * 1000});
+                    });
             }
         }
     }
 
-    setUserDetails() {
-        this.loggedIn = "LOGGING_IN";
+    private getCodePartsFromUrl(queryString: string): object {
+        if (!queryString || queryString.length === 0) {
+            return this.urlHelperService.getHashFragmentParams();
+        }
+
+        if (queryString.charAt(0) === "?") {
+            queryString = queryString.substr(1);
+        }
+
+        return this.urlHelperService.parseQueryString(queryString);
+    }
+
+    initUserDetails() {
         this.discordService.getUserDetails()
             .pipe(
                 retryWhen(error =>
@@ -119,19 +113,11 @@ export class WelcomeDashboardComponent implements OnInit {
                                 );
                                 return timer(response.error.retry_after);
                             } else {
-                                this._snackBar.open(
-                                    "Oops, we failed to retrieve your details from Discord. Please try logging in again.",
-                                    "X",
-                                    {duration: 5 * 1000}
-                                );
                                 return throwError(response);
                             }
                         })
                     )),
-                catchError(error => {
-                    this.loggedIn = "NOT_LOGGED_IN";
-                    return throwError(error)
-                }),
+                catchError(error => throwError(error)),
                 mergeMap(userDetails => this.discordService.getGuilds()
                     .pipe(retryWhen(error =>
                             error.pipe(
@@ -145,11 +131,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                         );
                                         return timer(response.error.retry_after);
                                     } else {
-                                        this._snackBar.open(
-                                            "Failed to retrieve your discord server details. Please try logging in again.",
-                                            "X",
-                                            {duration: 5 * 1000}
-                                        );
                                         return throwError(response);
                                     }
                                 }))),
@@ -166,10 +147,6 @@ export class WelcomeDashboardComponent implements OnInit {
                                  const player: Player = {}
                                 return of(player);
                             } else {
-                                this.loggedIn = "NOT_LOGGED_IN";
-                                this._snackBar.open("Oops, we failed to pull your userDetails from our Servers :( Please try again later.",
-                                    "X",
-                                    {duration: 5 * 1000});
                                 return throwError(err);
                             }
                         }),
@@ -187,12 +164,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             serverName: loginDetails.discordGuilds[0].name,
                             name: loginDetails.discordUser.username,
                         }).pipe(
-                                catchError(err => {
-                                    this._snackBar.open("Failed to create a new profile for you. Please try to login again.",
-                                        "X",
-                                        {duration: 5 * 1000});
-                                    return throwError(err);
-                                }),
+                                catchError(err => throwError(err)),
                                 mergeMap(response =>
                                     this.applicationDetailsService.getApplicationDetails()
                                         .pipe(
@@ -212,12 +184,7 @@ export class WelcomeDashboardComponent implements OnInit {
                             name: loginDetails.discordUser.username,
                         })
                             .pipe(
-                                catchError(err => {
-                                    this._snackBar.open("Oops, we see your discord username has changed. We failed to updated it. Please try to login again.",
-                                        "X",
-                                        {duration: 5 * 1000});
-                                    return throwError(err);
-                                }),
+                                catchError(err => throwError(err)),
                                 mergeMap(response =>
                                     this.applicationDetailsService.getApplicationDetails()
                                         .pipe(
@@ -245,11 +212,14 @@ export class WelcomeDashboardComponent implements OnInit {
                 finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe(value => {
-                this.loggedIn = "LOGGED_IN";
                 this.applicationDetailsService.setApplicationDetails(value);
-            }, (err) => {
-                console.error(err);
-            });
+            }, () => this._snackBar
+                .open(
+                    "Failed to log you in.",
+                    "X",
+                    {duration: 5 * 1000}
+                )
+            );
     }
 
     mapLoggedInApplicationDetails(appDetails: ApplicationDetails,
@@ -261,12 +231,12 @@ export class WelcomeDashboardComponent implements OnInit {
         appDetails.clashBotUserDetails = clashBotUserDetails;
         appDetails.defaultGuild = clashBotUserDetails.serverName;
         appDetails.loggedIn = true;
+        appDetails.loginStatus = LoginStatus.LOGGED_IN;
         return appDetails;
     }
 
     loginToDiscord(): void {
         this.oauthService.initLoginFlow();
-        sessionStorage.setItem("LoginAttempt", "true");
     }
 
 }

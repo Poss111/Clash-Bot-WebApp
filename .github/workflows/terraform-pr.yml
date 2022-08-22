@@ -53,8 +53,11 @@ jobs:
           TF_VAR_service_port: ${{ secrets.WEBAPP_PORT }}
           TF_VAR_ws_service_image_id: "ws-pr-id"
           TF_VAR_ws_service_port: ${{ secrets.WS_PORT }}
+          TF_VAR_auth_service_image_id: "auth-pr-id"
+          TF_VAR_auth_service_port: ${{ secrets.AUTH_PORT }}
           TF_VAR_webapp_repository_name: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
           TF_VAR_ws_repository_name: ${{ secrets.WS_REPOSITORY_NAME }}
+          TF_VAR_auth_repository_name: ${{ secrets.AUTH_REPOSITORY_NAME }}
           TF_VAR_ecs_cloudwatch_policies: ${{ secrets.CLOUDWATCH_POLICIES }}
           TF_VAR_registry_ecr_iam_policies: ${{ secrets.ECR_POLICIES }}
           TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
@@ -65,6 +68,9 @@ jobs:
           TF_VAR_clash-bot-header-value: ${{ secrets.HEADER_VALUE }}
           TF_VAR_webapp_logger_level: "info"
           TF_VAR_ws_logger_level: "info"
+          TF_VAR_auth_logger_level: "info"
+          TF_VAR_secret_one: ${{ secrets.SECRET_ONE }}
+          TF_VAR_secret_two: ${{ secrets.SECRET_TWO }}
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
