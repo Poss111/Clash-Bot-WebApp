@@ -27,15 +27,15 @@ jobs:
         id: integration
         working-directory: ./ClashBot-E2E
         timeout-minutes: 5
+        env:
+          APP_AUTH0_CLIENTID: ${{ secrets.DISCORD_SECRET_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET_KEY }}
+          AUTH0_GRANT_TYPE: ${{ secrets.DISCORD_GRANT_TYPE }}
+          APP_AUTH0_SCOPE: ${{ secrets.DISCORD_SCOPE }}
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_KEY }}
+          RESOLUTION: "iphone-8"
         continue-on-error: true
-        run: |
-          export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
-          export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
-          export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
-          export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
-          export RESOLUTION='iphone-8'
-          npm run-script cy-responsive >> ../output.txt 2>&1
+        run: npm run-script cy-responsive
 
       - name: Output failure logs
         if: steps.integration.outcome == 'failure'
@@ -62,15 +62,15 @@ jobs:
         id: integration
         working-directory: ./ClashBot-E2E
         timeout-minutes: 5
+        env:
+          APP_AUTH0_CLIENTID: ${{ secrets.DISCORD_SECRET_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.DISCORD_SECRET_KEY }}
+          AUTH0_GRANT_TYPE: ${{ secrets.DISCORD_GRANT_TYPE }}
+          APP_AUTH0_SCOPE: ${{ secrets.DISCORD_SCOPE }}
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_KEY }}
+          RESOLUTION: "macbook-16"
         continue-on-error: true
-        run: |
-          export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
-          export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
-          export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
-          export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
-          export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
-          export RESOLUTION='macbook-16'
-          npm run-script cy-responsive >> ../output.txt 2>&1
+        run: npm run-script cy-responsive
 
       - name: Output failure logs
         if: steps.integration.outcome == 'failure'
