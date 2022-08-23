@@ -8,3 +8,6 @@ module.exports = (fon, config) => {
   config.env.auth0_grant_type = process.env.AUTH0_GRANT_TYPE
   return config;
 }
+
+
+require('@applitools/eyes-cypress')(module);

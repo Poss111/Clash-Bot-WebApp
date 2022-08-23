@@ -1,0 +1,78 @@
+name: Responsive Testing
+
+on:
+  push:
+    paths-ignore:
+      - '**/README.md'
+      - '**/.gitignore'
+
+jobs:
+  mobile:
+    name: "Mobile Responsive Testing"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies for E2E Suite
+        working-directory: ./ClashBot-E2E
+        run: npm i
+
+      - name: Start App container
+        working-directory: ./ClashBot-Service-OpenAPI
+        run: docker-compose up -d
+
+      - name: Run Integration Tests
+        id: integration
+        working-directory: ./ClashBot-E2E
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
+          export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
+          export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
+          export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
+          export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
+          npm run-script cy-responsive >> ../output.txt 2>&1
+
+      - name: Output failure logs
+        if: steps.integration.outcome == 'failure'
+        working-directory: ./ClashBot-Service-OpenAPI
+        run: docker compose logs > failure-logs.log
+
+  desktop:
+    name: "Desktop Responsive Testing"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies for E2E Suite
+        working-directory: ./ClashBot-E2E
+        run: npm i
+
+      - name: Start App container
+        working-directory: ./ClashBot-Service-OpenAPI
+        run: docker-compose up -d
+
+      - name: Run Integration Tests
+        id: integration
+        working-directory: ./ClashBot-E2E
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          export APP_AUTH0_CLIENTID=${{ secrets.DISCORD_SECRET_ID }}
+          export AUTH0_CLIENT_SECRET=${{ secrets.DISCORD_SECRET_KEY }}
+          export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
+          export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
+          export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
+          npm run-script cy-responsive >> ../output.txt 2>&1
+
+      - name: Output failure logs
+        if: steps.integration.outcome == 'failure'
+        working-directory: ./ClashBot-Service-OpenAPI
+        run: docker compose logs > failure-logs.log
+
+
