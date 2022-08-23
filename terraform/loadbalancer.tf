@@ -78,3 +78,19 @@ resource "aws_lb_listener_rule" "ws_safe_traffic" {
     }
   }
 }
+
+resource "aws_lb_listener_rule" "auth_safe_traffic" {
+  listener_arn = aws_lb_listener.clash-bot-webapp-lb-listener.arn
+  priority     = 102
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.clash-bot-auth-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/auth/*"]
+    }
+  }
+}
