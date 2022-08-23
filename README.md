@@ -10,6 +10,7 @@ Clash Bot will notify you of upcoming League of Legends Clash Tournaments, setup
 |--------------------------|------------------------------------------------------------------------------------------------------------------------|
 | ClashBot-UI              | The front end webapp used for interaction with the Clash Bot.                                                          |
 | ClashBot-OpenAPI         | The rest and async service contract specified for the Clash Bot.                                                       |
+| ClashBot-Auth-OpenAPI    | Used to support integration with Discord OAuth2.                                                                       |
 | ClashBot-Service-OpenAPI | The rest service that supports the Clash Bot scheduling functionality.                                                 |
 | ClashBot-WS-Service      | The websocket service that supports realtime notification of the Clash Bot scheduling.                                 |
 | ClashBot-E2E             | The E2E test suite to verify the functionality between ClashBot-UI, ClashBot-Service-OpenAPI, and ClashBot-WS-Service. |
