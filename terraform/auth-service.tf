@@ -201,7 +201,7 @@ resource "aws_cloudwatch_log_group" "clash-bot-auth-task-logs" {
 }
 
 resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
-  family                   = "${var.prefix}-service"
+  family                   = "${var.prefix}-auth-service"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
