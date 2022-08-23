@@ -13,6 +13,8 @@ describe('Home Page', () => {
         // Load the login page.
         cy.visit('http://localhost:4200');
 
+        cy.viewport(Cypress.env('resolution'))
+
         // Verify the full login page loaded correctly.
         cy.eyesCheckWindow({
             tag: "Release Page",

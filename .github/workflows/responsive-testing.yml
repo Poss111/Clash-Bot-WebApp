@@ -34,6 +34,7 @@ jobs:
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
           export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
+          export RESOLUTION='iphone-8'
           npm run-script cy-responsive >> ../output.txt 2>&1
 
       - name: Output failure logs
@@ -68,6 +69,7 @@ jobs:
           export AUTH0_GRANT_TYPE=${{ secrets.DISCORD_GRANT_TYPE }}
           export APP_AUTH0_SCOPE=${{ secrets.DISCORD_SCOPE }}
           export APPLITOOLS_API_KEY=${{ secrets.APPLITOOLS_KEY }}
+          export RESOLUTION='macbook-16'
           npm run-script cy-responsive >> ../output.txt 2>&1
 
       - name: Output failure logs
