@@ -75,19 +75,35 @@ const getAccessToken = ({ body }) => new Promise(
         resolve(Service.successResponse(response.data));
       }
     } catch (e) {
-      logger.error({
-        loggerContext,
-        response: {
+      let errorBody;
+      if (e.response) {
+        errorBody = {
           status: e.response.status,
           headers: e.response.headers,
           data: e.response.data,
-        },
+        };
+      } else {
+        errorBody = {
+          error: e.message,
+          stack: e.stack,
+        };
+      }
+      logger.error({
+        loggerContext,
+        errorBody,
       },
       'Failed to make call.');
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 500,
-      ));
+      if (e.response.status === 400) {
+        reject(Service.rejectResponse(
+          'Unauthorized.',
+          401,
+        ));
+      } else {
+        reject(Service.rejectResponse(
+          e.message || 'Invalid input',
+          e.status || 500,
+        ));
+      }
     }
   },
 );

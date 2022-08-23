@@ -35,6 +35,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/getAccessToken_200_response'
           description: A new access token for the user to leverage
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getAccessToken_200_response'
+          description: A new access token for the user to leverage
       tags:
       - Auth
       x-eov-operation-handler: controllers/AuthController
@@ -54,6 +60,16 @@ components:
           schema:
             $ref: '#/components/schemas/getAccessToken_200_response'
       description: A new access token for the user to leverage
+    unauthorizedResponse:
+      content:
+        application/json:
+          schema:
+            properties:
+              error:
+                description: The reason for the failure.
+                type: string
+            type: object
+      description: The given user is unauthorized to make this call.
   schemas:
     getAccessToken_200_response:
       description: The new access details

@@ -33,6 +33,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/getAccessTokenResponse'
+        '401':
+          $ref: '#/components/responses/getAccessTokenResponse'
 components:
   requestBodies:
     getAccessTokenRequest:
@@ -75,3 +77,13 @@ components:
                 type: number
               refresh_token:
                 type: string
+    unauthorizedResponse:
+      description: The given user is unauthorized to make this call.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: The reason for the failure.

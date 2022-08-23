@@ -113,7 +113,16 @@ export class WelcomeDashboardComponent implements OnInit {
                                 );
                                 return timer(response.error.retry_after);
                             } else if (response.status === 401) {
-                              return from(this.oauthService.refreshToken());
+                              return from(this.oauthService.refreshToken())
+                                  .pipe(catchError((error) => {
+                                      if (error.status === 401) {
+                                        this.oauthService.logOut();
+                                        this.loginToDiscord();
+                                        return of();
+                                      } else {
+                                        return throwError(error);
+                                      }
+                                }));
                             } else {
                                 return throwError(response);
                             }
