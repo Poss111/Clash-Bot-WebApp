@@ -26,7 +26,7 @@ done
 
 echo "::set-output name=serviceUpdate::$serviceUpdate"
 echo "::set-output name=wsServiceUpdate::$wsServiceUpdate"
-echo "::set-output name=authServiceUpdate::$serviceUpdate"
+echo "::set-output name=authServiceUpdate::$authServiceUpdate"
 echo "::set-output name=uiUpdate::$uiUpdate"
 echo "Finished"
 
