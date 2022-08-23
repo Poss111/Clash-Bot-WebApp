@@ -1,12 +1,17 @@
 describe('Home Page', () => {
 
+    before(() => {
+        cy.viewport(Cypress.env('resolution'));
+    })
+
     beforeEach(() => {
         localStorage.clear();
+        console.log(`Branch Name : '${Cypress.env('branch_name')}'`);
         cy.eyesOpen({
             appName: 'Clash Bot',
             testName: Cypress.currentTest.title,
             branchName: Cypress.env('branch_name'),
-            layoutBreakpoints: [375, 667, 1280, 1536]
+            layoutBreakpoints: [Cypress.config("viewportWidth")]
         });
     });
 
