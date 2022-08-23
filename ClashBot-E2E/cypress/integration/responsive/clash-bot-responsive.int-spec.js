@@ -5,6 +5,8 @@ describe('Home Page', () => {
         cy.eyesOpen({
             appName: 'Clash Bot',
             testName: Cypress.currentTest.title,
+            branchName: Cypress.env('branch_name'),
+            layoutBreakpoints: [375, 667, 1280, 1536]
         });
     });
 
@@ -12,8 +14,6 @@ describe('Home Page', () => {
 
         // Load the login page.
         cy.visit('http://localhost:4200');
-
-        cy.viewport(Cypress.env('resolution'))
 
         // Verify the full login page loaded correctly.
         cy.eyesCheckWindow({

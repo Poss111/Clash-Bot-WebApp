@@ -6,7 +6,7 @@ module.exports = (fon, config) => {
   config.env.auth0_client_id = process.env.APP_AUTH0_CLIENTID
   config.env.auth0_client_secret = process.env.AUTH0_CLIENT_SECRET
   config.env.auth0_grant_type = process.env.AUTH0_GRANT_TYPE
-  config.env.resolution = process.env.RESOLUTION
+  config.env.branch_name = process.env.BRANCH_NAME
   return config;
 }
 
