@@ -4,5 +4,5 @@ export const environment = {
   gTag: "G-3V8T97537S",
   version: "--APP-VERSION--",
   basePath: "api/v2",
-  authPath: "auth/token"
+  authPath: "/auth/token"
 };
