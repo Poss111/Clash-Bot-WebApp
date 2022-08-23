@@ -80,7 +80,7 @@ class Controller {
         const requestBodyName = camelCase(this.getRequestBodyName(request, 'application/json'));
         requestParams[requestBodyName] = request.body;
       } if (content['application/x-www-form-urlencoded'] !== undefined) {
-        const requestBodyName = camelCase(this.getRequestBodyName(request,'application/x-www-form-urlencoded'));
+        const requestBodyName = camelCase(this.getRequestBodyName(request, 'application/x-www-form-urlencoded'));
         requestParams[requestBodyName] = request.body;
       } else if (content['multipart/form-data'] !== undefined) {
         Object.keys(content['multipart/form-data'].schema.properties).forEach(
@@ -96,15 +96,17 @@ class Controller {
       }
     }
 
-    request.openapi.schema.parameters.forEach((param) => {
-      if (param.in === 'path') {
-        requestParams[param.name] = request.openapi.pathParams[param.name];
-      } else if (param.in === 'query') {
-        requestParams[param.name] = request.query[param.name];
-      } else if (param.in === 'header') {
-        requestParams[param.name] = request.headers[param.name];
-      }
-    });
+    if (request.openapi.schema.parameters) {
+      request.openapi.schema.parameters.forEach((param) => {
+        if (param.in === 'path') {
+          requestParams[param.name] = request.openapi.pathParams[param.name];
+        } else if (param.in === 'query') {
+          requestParams[param.name] = request.query[param.name];
+        } else if (param.in === 'header') {
+          requestParams[param.name] = request.headers[param.name];
+        }
+      });
+    }
     return requestParams;
   }
 

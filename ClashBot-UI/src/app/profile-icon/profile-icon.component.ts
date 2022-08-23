@@ -48,4 +48,7 @@ export class ProfileIconComponent{
     this.toggleDarkModeEvent.emit(this.isDarkModeOn);
   }
 
+  goToLinkInNewTab(link: string) {
+    window.open(link, "_blank");
+  }
 }

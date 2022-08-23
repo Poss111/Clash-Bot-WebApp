@@ -5,7 +5,7 @@ import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {Observable, of, throwError, timer} from "rxjs";
+import {from, Observable, of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
 import {
@@ -112,6 +112,17 @@ export class WelcomeDashboardComponent implements OnInit {
                                     {duration: 5 * 1000}
                                 );
                                 return timer(response.error.retry_after);
+                            } else if (response.status === 401) {
+                              return from(this.oauthService.refreshToken())
+                                  .pipe(catchError((error) => {
+                                      if (error.status === 401) {
+                                        this.oauthService.logOut();
+                                        this.loginToDiscord();
+                                        return of();
+                                      } else {
+                                        return throwError(error);
+                                      }
+                                }));
                             } else {
                                 return throwError(response);
                             }

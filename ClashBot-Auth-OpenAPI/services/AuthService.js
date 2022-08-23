@@ -14,7 +14,7 @@ const logger = require('../logger');
  * codeUnderscoreverifier String  (optional)
  * returns getAccessToken_200_response
  * */
-const getAccessToken = ({ getAccessTokenRequest }) => new Promise(
+const getAccessToken = ({ body }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = {
       class: 'AuthService',
@@ -22,14 +22,14 @@ const getAccessToken = ({ getAccessTokenRequest }) => new Promise(
     };
     try {
       logger.info({ loggerContext }, 'Received a request for an Access Token...');
-      if (getAccessTokenRequest.client_id !== process.env.CLIENT_ID) {
+      if (body.client_id !== process.env.CLIENT_ID) {
         reject(Service.rejectResponse('Invalid client.', 400));
-      } else if (!getAccessTokenRequest.refresh_token && !getAccessTokenRequest.code) {
+      } else if (!body.refresh_token && !body.code) {
         reject(Service.rejectResponse('Invalid request.', 400));
       } else if (
-        getAccessTokenRequest.code
-        && !getAccessTokenRequest.code_verifier
-        && getAccessTokenRequest.redirect_uri !== process.env.REDIRECT_URI
+        body.code
+        && !body.code_verifier
+        && body.redirect_uri !== process.env.REDIRECT_URI
       ) {
         reject(Service.rejectResponse('Invalid request.', 400));
       } else {
@@ -37,23 +37,28 @@ const getAccessToken = ({ getAccessTokenRequest }) => new Promise(
           client_id: process.env.CLIENT_ID,
           client_secret: process.env.CLIENT_SECRET,
         };
-        if (getAccessTokenRequest.code) {
+        if (body.code) {
           logger.info({ loggerContext }, 'Requesting Discord for Access Token...');
           baseRequest = {
             ...baseRequest,
             grant_type: 'authorization_code',
-            code: getAccessTokenRequest.code,
-            code_verifier: getAccessTokenRequest.code_verifier,
+            code: body.code,
+            code_verifier: body.code_verifier,
             redirect_uri: process.env.REDIRECT_URI,
           };
-        } else if (getAccessTokenRequest.refresh_token) {
+        } else if (body.refresh_token) {
           logger.info({ loggerContext }, 'Requesting Discord for refreshed Access Token...');
           baseRequest = {
             ...baseRequest,
             grant_type: 'refresh_token',
-            refresh_token: getAccessTokenRequest.refresh_token,
+            refresh_token: body.refresh_token,
           };
         }
+        logger.debug({ loggerContext, requestBody: baseRequest }, 'Request body.');
+        axios.interceptors.request.use((request) => {
+          logger.debug({ axiosRequest: request }, 'Axios request');
+          return request;
+        });
         const response = await axios.post(
           'https://discord.com/api/oauth2/token',
           querystring.stringify(baseRequest),
@@ -70,19 +75,35 @@ const getAccessToken = ({ getAccessTokenRequest }) => new Promise(
         resolve(Service.successResponse(response.data));
       }
     } catch (e) {
-      logger.error({
-        loggerContext,
-        response: {
+      let errorBody;
+      if (e.response) {
+        errorBody = {
           status: e.response.status,
           headers: e.response.headers,
           data: e.response.data,
-        },
+        };
+      } else {
+        errorBody = {
+          error: e.message,
+          stack: e.stack,
+        };
+      }
+      logger.error({
+        loggerContext,
+        errorBody,
       },
       'Failed to make call.');
-      reject(Service.rejectResponse(
-        e.message || 'Invalid input',
-        e.status || 500,
-      ));
+      if (e.response.status === 400) {
+        reject(Service.rejectResponse(
+          'Unauthorized.',
+          401,
+        ));
+      } else {
+        reject(Service.rejectResponse(
+          e.message || 'Invalid input',
+          e.status || 500,
+        ));
+      }
     }
   },
 );

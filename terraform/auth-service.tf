@@ -201,7 +201,7 @@ resource "aws_cloudwatch_log_group" "clash-bot-auth-task-logs" {
 }
 
 resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
-  family                   = "${var.prefix}-service"
+  family                   = "${var.prefix}-auth-service"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
@@ -272,6 +272,7 @@ resource "aws_ecs_service" "clash-bot-auth-service" {
   launch_type                        = "FARGATE"
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
+  force_new_deployment               = true
 
   network_configuration {
     security_groups = [aws_security_group.clash-bot-auth-task-sg.id]
