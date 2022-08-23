@@ -27,11 +27,7 @@ paths:
       description: Post for a new Access Token for the logged in User.
       operationId: getAccessToken
       requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/getAccessToken_request'
-        description: The User details for retrieving an access token.
+        $ref: '#/components/requestBodies/getAccessTokenRequest'
       responses:
         "200":
           content:
@@ -44,6 +40,20 @@ paths:
       x-eov-operation-handler: controllers/AuthController
     summary: Retrieve Access Token from discord based on user details.
 components:
+  requestBodies:
+    getAccessTokenRequest:
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/getAccessToken_request'
+      description: The User details for retrieving an access token.
+  responses:
+    getAccessTokenResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getAccessToken_200_response'
+      description: A new access token for the user to leverage
   schemas:
     getAccessToken_200_response:
       description: The new access details

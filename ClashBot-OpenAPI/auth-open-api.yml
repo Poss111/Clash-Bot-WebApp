@@ -29,42 +29,49 @@ paths:
         - Auth
       operationId: getAccessToken
       requestBody:
-        description: The User details for retrieving an access token.
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - client_id
-              properties:
-                client_id:
-                  type: string
-                  description: The client id to be used.
-                code:
-                  type: string
-                  description: If needing to request an access token, this must be passed.
-                refresh_token:
-                  type: string
-                  description: If needing to request a refreshed access token and a new refresh token, this must be passed.
-                redirect_uri:
-                  type: string
-                  description: Only necessary to be passed when requesting an initial access token.
-                code_verifier:
-                  type: string
+        $ref: '#/components/requestBodies/getAccessTokenRequest'
       responses:
         '200':
-          description: A new access token for the user to leverage
-          content:
-            application/json:
-              schema:
-                description: The new access details
-                type: object
-                required:
-                  - expires_in
-                properties:
-                  access_token:
-                    type: string
-                  expires_in:
-                    type: number
-                  refresh_token:
-                    type: string
+          $ref: '#/components/responses/getAccessTokenResponse'
+components:
+  requestBodies:
+    getAccessTokenRequest:
+      description: The User details for retrieving an access token.
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - client_id
+            properties:
+              client_id:
+                type: string
+                description: The client id to be used.
+              code:
+                type: string
+                description: If needing to request an access token, this must be passed.
+              refresh_token:
+                type: string
+                description: If needing to request a refreshed access token and a new refresh token, this must be passed.
+              redirect_uri:
+                type: string
+                description: Only necessary to be passed when requesting an initial access token.
+              code_verifier:
+                type: string
+  responses:
+    getAccessTokenResponse:
+      description: A new access token for the user to leverage
+      content:
+        application/json:
+          schema:
+            description: The new access details
+            type: object
+            required:
+              - expires_in
+            properties:
+              access_token:
+                type: string
+              expires_in:
+                type: number
+              refresh_token:
+                type: string

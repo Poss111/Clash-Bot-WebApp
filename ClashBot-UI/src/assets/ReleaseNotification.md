@@ -1,3 +1,10 @@
+# Release v5.3.0
+## Login flow update
+- You now don't have to continuously login through Discord. :) Once is enough! :D
+- You now have a Profile Icon instead of your Username to let you know if you are logged in or not.
+  - The Settings page and the Dark Mode toggle have been moved to under this icon. You can click on the Profile Icon to see these options below.
+- Also added a Report an Issue options under the Profile Icon. If you have any problems with the Clash Bot or the site, please report them there!
+
 # Release v5.2.1
 ### Quality of Life
 - No changes for you guys today but these changes are large for me :). I will hopefully be able to support feature enhancements going forward from here.

@@ -13,6 +13,7 @@
         <span>Settings</span>
     </button>
     <button mat-menu-item (click)="logOut()">Log Out</button>
+    <button mat-menu-item (click)="goToLinkInNewTab('https://forms.gle/Yb5mG55M189drWXV7')">Report an Issue</button>
     <button mat-menu-item>
         <div class="dark-mode-toggle">
             <mat-icon *ngIf="isDarkModeOn; else elseBlock">dark_mode</mat-icon>
