@@ -7,12 +7,8 @@ on:
       - '**/.gitignore'
 
 jobs:
-  mobile:
-    name: "Mobile Responsive Testing"
-    runs-on: ubuntu-latest
-
   chrome:
-    name: "Desktop Responsive Testing"
+    name: "Chrome Responsive Testing"
     runs-on: ubuntu-latest
 
     steps:
