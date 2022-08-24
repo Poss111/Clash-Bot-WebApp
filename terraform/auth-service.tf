@@ -164,7 +164,7 @@ resource "aws_lb_target_group" "clash-bot-auth-tg" {
     unhealthy_threshold = 3
     interval            = 30
     protocol            = "HTTP"
-    path                = "/api/v2/health"
+    path                = "/auth/health"
     port                = var.service_port
     timeout             = 10
   }

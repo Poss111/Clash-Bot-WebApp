@@ -22,6 +22,20 @@ tags:
 - description: Dealing with user session management with Discord.
   name: Auth
 paths:
+  /health:
+    description: Returns if the application is healthy.
+    get:
+      operationId: getApplicationHealth
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getApplicationHealth_200_response'
+          description: Returns if the instance is healthy.
+      tags:
+      - SRE
+      x-eov-operation-handler: controllers/SREController
   /token:
     post:
       description: Post for a new Access Token for the logged in User.
@@ -86,6 +100,15 @@ components:
           type: string
       required:
       - expires_in
+      type: object
+    getApplicationHealth_200_response:
+      example:
+        status: Healthy
+      properties:
+        status:
+          description: Is the instance healthy
+          example: Healthy
+          type: string
       type: object
     getAccessToken_request:
       properties:
