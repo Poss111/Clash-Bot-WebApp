@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "clash-bot-auth-secret-policy" {
 }
 
 resource "aws_secretsmanager_secret" "one" {
-  name                    = var.secret_one["name"]
+  name                    = "${var.secret_one["name"]}-AUTH"
   policy                  = data.aws_iam_policy_document.clash-bot-auth-secret-policy.json
   recovery_window_in_days = 0
 }
@@ -26,7 +26,7 @@ resource "aws_secretsmanager_secret_version" "one_version" {
 }
 
 resource "aws_secretsmanager_secret" "two" {
-  name                    = var.secret_two["name"]
+  name                    = "${var.secret_two["name"]}-AUTH"
   policy                  = data.aws_iam_policy_document.clash-bot-auth-secret-policy.json
   recovery_window_in_days = 0
 }
