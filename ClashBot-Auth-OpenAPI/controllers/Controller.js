@@ -74,7 +74,8 @@ class Controller {
 
   static collectRequestParams(request) {
     const requestParams = {};
-    if (request.openapi.schema.requestBody !== undefined) {
+    if (request.openapi.schema.requestBody !== undefined
+      && request.openapi.schema.requestBody !== null) {
       const { content } = request.openapi.schema.requestBody;
       if (content['application/json'] !== undefined) {
         const requestBodyName = camelCase(this.getRequestBodyName(request, 'application/json'));
