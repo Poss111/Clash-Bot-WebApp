@@ -152,3 +152,8 @@ variable "secret_two" {
   type      = map(string)
   sensitive = true
 }
+
+variable "auth_redirect_uri" {
+  type    = string
+  default = ""
+}

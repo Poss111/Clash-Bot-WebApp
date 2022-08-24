@@ -459,6 +459,7 @@ jobs:
           TF_VAR_ws_service_port: ${{ secrets.WS_PORT }}
           TF_VAR_auth_service_image_id: ${{ env.AUTH_IMAGE_ID }}
           TF_VAR_auth_service_port: ${{ secrets.AUTH_PORT }}
+          TF_VAR_auth_redirect_uri: "https://clash-bot.ninja"
           TF_VAR_webapp_repository_name: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
           TF_VAR_ws_repository_name: ${{ secrets.WS_REPOSITORY_NAME }}
           TF_VAR_auth_repository_name: ${{ secrets.AUTH_REPOSITORY_NAME }}

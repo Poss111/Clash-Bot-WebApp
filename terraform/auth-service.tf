@@ -236,6 +236,10 @@ resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
           value : var.region
         },
         {
+          name : "REDIRECT_URI",
+          value : var.auth_redirect_uri
+        },
+        {
           name : "LOGGER_LEVEL",
           value : var.auth_logger_level
         }
