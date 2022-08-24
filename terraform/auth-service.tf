@@ -213,7 +213,7 @@ resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
   container_definitions = jsonencode([
     {
       name        = "${var.prefix}-auth-service"
-      image       = var.service_image_id
+      image       = var.auth_service_image_id
       cpu         = 10
       memory      = 512
       essential   = true
