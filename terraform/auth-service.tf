@@ -173,7 +173,7 @@ resource "aws_lb_target_group" "clash-bot-auth-tg" {
 }
 
 resource "aws_security_group" "clash-bot-auth-task-sg" {
-  name   = "${var.prefix}-ecs-task-sg"
+  name   = "${var.prefix}-auth-ecs-task-sg"
   vpc_id = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
 
   ingress {
