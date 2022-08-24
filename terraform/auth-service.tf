@@ -42,8 +42,8 @@ resource "aws_iam_policy" "auth_secrets_iam_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = var.auth_secrets_specific_iam_policies,
+        Effect = "Allow",
+        Action = var.auth_secrets_specific_iam_policies,
         Resource = [
           "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:*"
         ]

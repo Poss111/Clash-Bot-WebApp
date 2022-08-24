@@ -104,8 +104,8 @@ variable "dynamodb_specific_iam_policies" {
 }
 
 variable "auth_secrets_specific_iam_policies" {
-  default = ""
-  type = string
+  default   = ""
+  type      = string
   sensitive = true
 }
 
