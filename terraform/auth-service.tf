@@ -148,7 +148,7 @@ resource "aws_iam_role_policy_attachment" "ecs-auth-logs-policy-attachment" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs-auth-secret-policy-attachment" {
-  role       = aws_iam_role.clash-bot-auth-task-role.name
+  role       = aws_iam_role.clash-bot-auth-exec-role.name
   policy_arn = aws_iam_policy.auth_secrets_iam_policy.arn
 }
 
