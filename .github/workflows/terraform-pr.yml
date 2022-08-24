@@ -62,6 +62,7 @@ jobs:
           TF_VAR_registry_ecr_iam_policies: ${{ secrets.ECR_POLICIES }}
           TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
           TF_VAR_dynamodb_specific_iam_policies: ${{ secrets.DYNAMODB_POLICIES }}
+          TF_VAR_auth_secrets_specific_iam_policies: ${{ secrets.AUTH_SECRETS_POLICIES }}
           TF_VAR_clash-bot-teams-dynamo-table: "server-clash-teams"
           TF_VAR_clash-bot-association-dynamo-table: "clash-user-team-associations"
           TF_VAR_clash-bot-header-key: ${{ secrets.HEADER_KEY }}

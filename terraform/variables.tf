@@ -103,6 +103,12 @@ variable "dynamodb_specific_iam_policies" {
   sensitive = true
 }
 
+variable "auth_secrets_specific_iam_policies" {
+  default = ""
+  type = string
+  sensitive = true
+}
+
 variable "clash-bot-teams-dynamo-table" {
   type      = string
   sensitive = true

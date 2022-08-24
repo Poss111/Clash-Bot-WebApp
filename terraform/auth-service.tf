@@ -36,15 +36,17 @@ resource "aws_secretsmanager_secret_version" "two_version" {
   secret_string = var.secret_two["value"]
 }
 
-resource "aws_iam_policy" "auth_dynamodb_iam_policy" {
-  name = "clash-bot-dynamodb-ecs-policy"
+resource "aws_iam_policy" "auth_secrets_iam_policy" {
+  name = "clash-bot-auth-secrets-ecs-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
         Effect   = "Allow",
-        Action   = var.dynamodb_specific_iam_policies,
-        Resource = ["*"]
+        Action   = var.auth_secrets_specific_iam_policies,
+        Resource = [
+          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:*"
+        ]
       }
     ]
   })
@@ -147,7 +149,7 @@ resource "aws_iam_role_policy_attachment" "ecs-auth-logs-policy-attachment" {
 
 resource "aws_iam_role_policy_attachment" "ecs-auth-secret-policy-attachment" {
   role       = aws_iam_role.clash-bot-auth-task-role.name
-  policy_arn = aws_iam_policy.auth_dynamodb_iam_policy.arn
+  policy_arn = aws_iam_policy.auth_secrets_iam_policy.arn
 }
 
 resource "aws_lb_target_group" "clash-bot-auth-tg" {
