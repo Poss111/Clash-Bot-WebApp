@@ -459,6 +459,7 @@ jobs:
           TF_VAR_ws_service_port: ${{ secrets.WS_PORT }}
           TF_VAR_auth_service_image_id: ${{ env.AUTH_IMAGE_ID }}
           TF_VAR_auth_service_port: ${{ secrets.AUTH_PORT }}
+          TF_VAR_auth_redirect_uri: "https://clash-bot.ninja"
           TF_VAR_webapp_repository_name: ${{ secrets.WEBAPP_REPOSITORY_NAME }}
           TF_VAR_ws_repository_name: ${{ secrets.WS_REPOSITORY_NAME }}
           TF_VAR_auth_repository_name: ${{ secrets.AUTH_REPOSITORY_NAME }}
@@ -466,6 +467,7 @@ jobs:
           TF_VAR_registry_ecr_iam_policies: ${{ secrets.ECR_POLICIES }}
           TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_POLICIES }}
           TF_VAR_dynamodb_specific_iam_policies: ${{ secrets.DYNAMODB_POLICIES }}
+          TF_VAR_auth_secrets_specific_iam_policies: ${{ secrets.AUTH_SECRETS_POLICIES }}
           TF_VAR_clash-bot-teams-dynamo-table: "server-clash-teams"
           TF_VAR_clash-bot-association-dynamo-table: "clash-user-team-associations"
           TF_VAR_clash-bot-header-key: ${{ secrets.HEADER_KEY }}

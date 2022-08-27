@@ -103,6 +103,11 @@ variable "dynamodb_specific_iam_policies" {
   sensitive = true
 }
 
+variable "auth_secrets_specific_iam_policies" {
+  type      = list(string)
+  sensitive = true
+}
+
 variable "clash-bot-teams-dynamo-table" {
   type      = string
   sensitive = true
@@ -146,4 +151,9 @@ variable "secret_one" {
 variable "secret_two" {
   type      = map(string)
   sensitive = true
+}
+
+variable "auth_redirect_uri" {
+  type    = string
+  default = ""
 }

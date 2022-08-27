@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "clash-bot-auth-secret-policy" {
 }
 
 resource "aws_secretsmanager_secret" "one" {
-  name                    = var.secret_one["name"]
+  name                    = "${var.secret_one["name"]}-AUTH"
   policy                  = data.aws_iam_policy_document.clash-bot-auth-secret-policy.json
   recovery_window_in_days = 0
 }
@@ -26,7 +26,7 @@ resource "aws_secretsmanager_secret_version" "one_version" {
 }
 
 resource "aws_secretsmanager_secret" "two" {
-  name                    = var.secret_two["name"]
+  name                    = "${var.secret_two["name"]}-AUTH"
   policy                  = data.aws_iam_policy_document.clash-bot-auth-secret-policy.json
   recovery_window_in_days = 0
 }
@@ -36,15 +36,17 @@ resource "aws_secretsmanager_secret_version" "two_version" {
   secret_string = var.secret_two["value"]
 }
 
-resource "aws_iam_policy" "auth_dynamodb_iam_policy" {
-  name = "clash-bot-dynamodb-ecs-policy"
+resource "aws_iam_policy" "auth_secrets_iam_policy" {
+  name = "clash-bot-auth-secrets-ecs-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = var.dynamodb_specific_iam_policies,
-        Resource = ["*"]
+        Effect = "Allow",
+        Action = var.auth_secrets_specific_iam_policies,
+        Resource = [
+          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:*"
+        ]
       }
     ]
   })
@@ -146,8 +148,8 @@ resource "aws_iam_role_policy_attachment" "ecs-auth-logs-policy-attachment" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs-auth-secret-policy-attachment" {
-  role       = aws_iam_role.clash-bot-auth-task-role.name
-  policy_arn = aws_iam_policy.auth_dynamodb_iam_policy.arn
+  role       = aws_iam_role.clash-bot-auth-exec-role.name
+  policy_arn = aws_iam_policy.auth_secrets_iam_policy.arn
 }
 
 resource "aws_lb_target_group" "clash-bot-auth-tg" {
@@ -162,7 +164,7 @@ resource "aws_lb_target_group" "clash-bot-auth-tg" {
     unhealthy_threshold = 3
     interval            = 30
     protocol            = "HTTP"
-    path                = "/api/v2/health"
+    path                = "/auth/health"
     port                = var.service_port
     timeout             = 10
   }
@@ -173,7 +175,7 @@ resource "aws_lb_target_group" "clash-bot-auth-tg" {
 }
 
 resource "aws_security_group" "clash-bot-auth-task-sg" {
-  name   = "${var.prefix}-ecs-task-sg"
+  name   = "${var.prefix}-auth-ecs-task-sg"
   vpc_id = data.tfe_outputs.clash-bot-discord-bot.values.vpc_id
 
   ingress {
@@ -211,7 +213,7 @@ resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
   container_definitions = jsonencode([
     {
       name        = "${var.prefix}-auth-service"
-      image       = var.service_image_id
+      image       = var.auth_service_image_id
       cpu         = 10
       memory      = 512
       essential   = true
@@ -232,6 +234,10 @@ resource "aws_ecs_task_definition" "clash-bot-auth-task-def" {
         {
           name : "REGION",
           value : var.region
+        },
+        {
+          name : "REDIRECT_URI",
+          value : var.auth_redirect_uri
         },
         {
           name : "LOGGER_LEVEL",

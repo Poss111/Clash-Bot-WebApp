@@ -21,6 +21,24 @@ tags:
   - name: Auth
     description: Dealing with user session management with Discord.
 paths:
+  /health:
+    description: 'Returns if the application is healthy.'
+    get:
+      operationId: getApplicationHealth
+      tags:
+        - SRE
+      responses:
+        200:
+          description: 'Returns if the instance is healthy.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    description: Is the instance healthy
+                    type: string
+                    example: Healthy
   /token:
     summary: 'Retrieve Access Token from discord based on user details.'
     post:
