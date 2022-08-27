@@ -39,6 +39,19 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-players mat-accordion').should('have.length.greaterThan', 4);
   })
 
+  // Swapping between a role on a same Team
+  it('Should be able to swap roles on the same Team (\'Blastoise\')', () => {
+    navigateToTeamsPage();
+    cy.get('#clash-bot-teams-lol-clashbotsupport').click();
+    let id = getTeamCard('LoL ClashBotSupport', 'Blastoise');
+    cy.get(`#clash-bot-teams-card-${id} #clash-bot-team-card-join-jg-register-button`).click();
+    cy.get(`#clash-bot-dialog-box-yes-button`).click();
+    verifyCard(id, 1, "Roïdräge");
+    cy.get(`#clash-bot-teams-card-${id} #clash-bot-team-card-join-top-register-button`).click();
+    cy.get(`#clash-bot-dialog-box-yes-button`).click();
+    verifyCard(id, 1, "Roïdräge");
+  })
+
   // Using 'awesome_sauce' with day '2' on server 'Goon Squad'
   it('Check to see if User is able to create a new Team on a Server that does not have any Clash Teams', () => {
     navigateToTeamsPage();
