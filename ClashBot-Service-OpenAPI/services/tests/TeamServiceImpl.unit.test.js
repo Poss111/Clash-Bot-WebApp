@@ -960,11 +960,14 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
-    test('updateTeam - If user already belongs to teamName passed, then they should not be added and an error should be returned.', () => {
+    test('updateTeam - (User wants to swap role) - If user already belongs to teamName passed with a different role, then they should be added with the requested role and removed from the current role.', () => {
       const serverName = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
-      const teamName = 'Charizard';
+      const teamName = 'charizard';
+      const expectedUserMap = {
+        1: createUserDetails({ key: '1' }),
+      };
       const teamPatchPayload = {
         serverName,
         tournamentDetails: {
@@ -973,21 +976,44 @@ describe('Clash Teams Service Impl', () => {
         },
         teamName,
         playerId: '1',
-        role: 'Supp',
+        role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
         serverName,
         tournamentName,
         tournamentDay,
         teamName,
-        playersWRoles: { Supp: '2' },
-        players: ['2'],
+        playersWRoles: { Supp: '1' },
+        players: ['1'],
       })];
-      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([]);
-      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(returnedFilteredTeams));
+      const expectedUpdatedTeam = deepCopy(returnedFilteredTeams[0]);
+      expectedUpdatedTeam.playersWRoles = {
+        Top: '1',
+      };
+      expectedUpdatedTeam.players = ['1'];
+      clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
+        {
+          playerId: '1',
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#${teamName}`,
+          teamName,
+          serverName: teamPatchPayload.serverName,
+          role: 'Supp',
+        },
+      ]);
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValueOnce(deepCopy(returnedFilteredTeams));
+      socketService.sendMessage.mockResolvedValue(true);
+      clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
+        playerId: '1',
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        role: 'Top',
+        teamName: expectedUpdatedTeam.teamName,
+      });
+      clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
+      const expectedResponse = buildExpectedSingleTeamResponseWithUserMap(expectedUpdatedTeam,
+        expectedUserMap);
+      clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(deepCopy(expectedUserMap));
       return clashTeamsServiceImpl.updateTeam({ body: teamPatchPayload })
-        .then(() => expect(true).toBeFalsy())
-        .catch((err) => {
+        .then((response) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             serverName: teamPatchPayload.serverName,
@@ -995,18 +1021,25 @@ describe('Clash Teams Service Impl', () => {
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
           });
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
-            tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
-            tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-            teamName: teamPatchPayload.teamName,
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation).toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.getUserAssociation).toHaveBeenCalledWith({
+            playerId: '1',
+            tournament: tournamentName,
+            tournamentDay,
           });
-          expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
-          expect(err).toEqual({
-            code: 400,
-            error: `Role is already taken - '${teamPatchPayload}'.`,
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation).toHaveBeenCalledTimes(1);
+          expect(clashUserTeamAssociationDbImpl.createUserAssociation).toHaveBeenCalledWith({
+            playerId: '1',
+            tournament: tournamentName,
+            tournamentDay,
+            serverName,
+            teamName,
+            role: 'Top',
           });
+          expect(clashTeamsDbImpl.updateTeam).toHaveBeenCalledTimes(1);
+          expect(clashTeamsDbImpl.updateTeam)
+            .toHaveBeenCalledWith(expectedUpdatedTeam);
+          expect(response).toEqual(expectedResponse);
         });
     });
 
@@ -1048,7 +1081,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `No team found matching criteria '${teamPatchPayload}'.`,
+            error: `No team found matching criteria '${serverName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
@@ -1110,7 +1143,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `Team requested is already full - '${teamPatchPayload}'.`,
+            error: `Team requested is already full - '${serverName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
@@ -1164,7 +1197,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `Role is already taken - '${teamPatchPayload}'.`,
+            error: `Role is already taken - '${serverName}#${tournamentName}#${tournamentDay}#${teamName}#Supp'.`,
           });
         });
     });
@@ -1511,7 +1544,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
           expect(teamWithRemoved).toEqual({
             code: 400,
-            error: `Player does not exist on Team '${teamName}'.`,
+            error: `Player does not exist on Team '${expectedServerName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
