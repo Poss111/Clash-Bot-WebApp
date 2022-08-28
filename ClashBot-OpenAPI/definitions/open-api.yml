@@ -24,6 +24,8 @@ tags:
     description: A tentative queue for upcoming League of Legends Clash tournaments.
   - name: User
     description: A Discord user that is leveraging the Clash Bot.
+  - name: Servers
+    description: Server specific information.
   - name: SRE
     description: Site reliability Engineering (SRE).
   - name: Tournament
@@ -877,12 +879,14 @@ paths:
         in: query
         required: true
         schema:
-          type: string
+          type: array
+          items:
+            type: string
     get:
       description: Returns all available server details
       operationId: getServerDetails
       tags:
-        - User
+        - Servers
       responses:
         200:
           description: Server Details successfully returned

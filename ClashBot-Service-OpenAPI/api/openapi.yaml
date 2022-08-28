@@ -25,6 +25,8 @@ tags:
   name: Tentative
 - description: A Discord user that is leveraging the Clash Bot.
   name: User
+- description: Server specific information.
+  name: Servers
 - description: Site reliability Engineering (SRE).
   name: SRE
 - description: A League of Legends Clash Tournament.
@@ -768,6 +770,41 @@ paths:
       tags:
       - User
       x-eov-operation-handler: controllers/UserController
+  /user/{id}/servers:
+    get:
+      description: Returns all available server details
+      operationId: getServerDetails
+      parameters:
+      - description: The Clash bot Player's id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Comma separated Server list
+        explode: true
+        in: query
+        name: servers
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServerDetails'
+                type: array
+          description: Server Details successfully returned
+      tags:
+      - Servers
+      x-eov-operation-handler: controllers/ServersController
   /health:
     description: Returns if the application is healthy.
     get:
@@ -1115,6 +1152,17 @@ components:
           type: integer
         message:
           type: string
+      type: object
+    ServerDetails:
+      description: A User's Server details for Clash Bot.
+      example:
+        serverName: serverName
+        availableTeams: 0
+      properties:
+        serverName:
+          type: string
+        availableTeams:
+          type: integer
       type: object
     createNewTeam_request_playerDetails:
       properties:
