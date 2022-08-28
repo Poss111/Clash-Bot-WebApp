@@ -30,6 +30,8 @@ import {action} from "@storybook/addon-actions";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {SharedModule} from "../../../../shared/shared.module";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {MatListModule} from "@angular/material/list";
 
 export default {
     title: "Pages/TeamsDashboard",
@@ -62,7 +64,9 @@ export default {
                 FormsModule,
                 ReactiveFormsModule,
                 MatProgressBarModule,
-                SharedModule
+                SharedModule,
+                MatSidenavModule,
+                MatListModule
             ],
         })
     ]

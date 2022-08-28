@@ -1,24 +1,53 @@
-<div class="chips-list">
-    <app-help-dialog></app-help-dialog>
-    <app-guild-filter-list
-            [teamFilters]="teamFilters"
-            [defaultSelection]="defaultServer"
-            (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
-</div>
-<app-teams-tentative-table [tentativeList]="tentativeList"
-                           [tentativeDataStatus]="tentativeDataStatus"
-                           (register)="tentativeRegister($event)"></app-teams-tentative-table>
-<div class="team-cards" *ngIf="!showSpinner; else elseBlock">
-    <app-team-card *ngFor="let team of teams; index as i;"
-                   id="clash-bot-teams-card-{{team.id}}"
-                   [team]="team"
-                   class="team-card" (registerUser)="registerForTeam($event)"
-                   (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-    <app-new-team-card
-            *ngIf="canCreateNewTeam"
-            [eligibleTournaments]="eligibleTournaments"
-            (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
-</div>
-<ng-template #elseBlock>
-  <mat-progress-bar mode="query"></mat-progress-bar>
-</ng-template>
+<mat-drawer-container autosize>
+  <mat-drawer #drawer mode="side">
+    <mat-list role="list">
+      <mat-list-item role="listitem">
+        <h1>Servers</h1>
+        <h1># of Teams</h1>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <button mat-flat-button>Goon Squad</button>
+        <p>5</p>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <button mat-flat-button>LoL-ClashBotSupport</button>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <button mat-flat-button>Server 3</button>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <button mat-flat-button>Server 4</button>
+      </mat-list-item>
+      <mat-list-item role="listitem">
+        <button mat-flat-button>Server 5</button>
+      </mat-list-item>
+    </mat-list>
+  </mat-drawer>
+  <div>
+    <button mat-raised-button (click)="drawer.toggle()">Toggle</button>
+<!--    <div class="chips-list">-->
+<!--      <app-help-dialog></app-help-dialog>-->
+<!--      <app-guild-filter-list-->
+<!--        [teamFilters]="teamFilters"-->
+<!--        [defaultSelection]="defaultServer"-->
+<!--        (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>-->
+<!--    </div>-->
+    <app-teams-tentative-table [tentativeList]="tentativeList"
+                               [tentativeDataStatus]="tentativeDataStatus"
+                               (register)="tentativeRegister($event)"></app-teams-tentative-table>
+    <div class="team-cards" *ngIf="!showSpinner; else elseBlock">
+      <app-team-card *ngFor="let team of teams; index as i;"
+                     id="clash-bot-teams-card-{{team.id}}"
+                     [team]="team"
+                     class="team-card" (registerUser)="registerForTeam($event)"
+                     (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
+      <app-new-team-card
+        *ngIf="canCreateNewTeam"
+        [eligibleTournaments]="eligibleTournaments"
+        (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
+    </div>
+    <ng-template #elseBlock>
+      <mat-progress-bar mode="query"></mat-progress-bar>
+    </ng-template>
+  </div>
+</mat-drawer-container>
