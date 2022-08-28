@@ -1,24 +1,43 @@
-<div class="chips-list">
-    <app-help-dialog></app-help-dialog>
-    <app-guild-filter-list
-            [teamFilters]="teamFilters"
-            [defaultSelection]="defaultServer"
-            (selectedTeamEvent)="filterTeam($event)"></app-guild-filter-list>
-</div>
-<app-teams-tentative-table [tentativeList]="tentativeList"
-                           [tentativeDataStatus]="tentativeDataStatus"
-                           (register)="tentativeRegister($event)"></app-teams-tentative-table>
-<div class="team-cards" *ngIf="!showSpinner; else elseBlock">
-    <app-team-card *ngFor="let team of teams; index as i;"
-                   id="clash-bot-teams-card-{{team.id}}"
-                   [team]="team"
-                   class="team-card" (registerUser)="registerForTeam($event)"
-                   (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
-    <app-new-team-card
-            *ngIf="canCreateNewTeam"
-            [eligibleTournaments]="eligibleTournaments"
-            (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
-</div>
-<ng-template #elseBlock>
-  <mat-progress-bar mode="query"></mat-progress-bar>
-</ng-template>
+<mat-drawer-container class="team-dashboard-view-container" autosize>
+    <mat-drawer #drawer mode="over">
+        <div>
+            <mat-card>
+                <mat-card-title class="server-list-title">Servers</mat-card-title>
+            </mat-card>
+            <div class="server-list">
+                <mat-list role="list">
+                    <mat-list-item *ngFor="let server of teamFilters" role="listitem">
+                        <button class="server-list-item"
+                                mat-raised-button
+                                (click)="filterTeam(server.value)">
+                            <mat-icon>discord</mat-icon>{{server.value}}</button>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+        </div>
+    </mat-drawer>
+    <div class="server-filter-container">
+        <mat-icon>discord</mat-icon>
+        <h2>{{selectedServer}}</h2>
+        <button mat-mini-fab #tooltip="matTooltip" matTooltip="Click to change Servers" (click)="drawer.toggle()">
+            <mat-icon>filter_list</mat-icon>
+        </button>
+    </div>
+    <app-teams-tentative-table [tentativeList]="tentativeList"
+                               [tentativeDataStatus]="tentativeDataStatus"
+                               (register)="tentativeRegister($event)"></app-teams-tentative-table>
+    <div class="team-cards" *ngIf="!showSpinner; else elseBlock">
+        <app-team-card *ngFor="let team of teams; index as i;"
+                       id="clash-bot-teams-card-{{team.id}}"
+                       [team]="team"
+                       class="team-card" (registerUser)="registerForTeam($event)"
+                       (unregisterUser)="unregisterFromTeam($event)"></app-team-card>
+        <app-new-team-card
+                *ngIf="canCreateNewTeam"
+                [eligibleTournaments]="eligibleTournaments"
+                (createNewTeamEvent)="createNewTeam($event)"></app-new-team-card>
+    </div>
+    <ng-template #elseBlock>
+      <mat-progress-bar mode="query"></mat-progress-bar>
+    </ng-template>
+</mat-drawer-container>

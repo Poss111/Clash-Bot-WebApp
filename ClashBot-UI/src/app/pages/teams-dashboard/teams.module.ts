@@ -25,6 +25,10 @@ import {TeamsTentativeTableComponent} from "./component/teams-tentative-table/te
 import {NewTeamCardComponent} from "./component/new-team-card/new-team-card.component";
 import {TeamsDashboardViewComponent} from "./teams-dashboard/view/teams-dashboard-view.component";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {MatListModule} from "@angular/material/list";
+import {MatBadgeModule} from "@angular/material/badge";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 
 @NgModule({
@@ -60,7 +64,11 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
         MatTableModule,
         MatExpansionModule,
         SharedModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        MatSidenavModule,
+        MatListModule,
+        MatBadgeModule,
+        MatTooltipModule
     ]
 })
 export class TeamsModule {

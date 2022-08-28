@@ -143,6 +143,10 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
 
     filterTeam(filterValue: string) {
         this.currentSelectedGuild = filterValue;
+        const index = this.teamFilters
+            .findIndex((team) => team.value === filterValue);
+        const element = this.teamFilters.splice(index, 1)[0];
+        this.teamFilters.splice(0, 0, element);
         this.showInnerSpinner = true;
         if (this.$teamsSub) {
             this.$teamsSub.unsubscribe();
