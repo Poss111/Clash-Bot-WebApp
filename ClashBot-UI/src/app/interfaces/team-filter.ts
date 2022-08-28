@@ -4,5 +4,6 @@ export interface TeamFilter {
   value: string,
   type: FilterType
   state: boolean,
-  id: string
+  id: string,
+  numberOfTeams: number
 }

@@ -8,7 +8,7 @@
                     [eligibleTournaments]="eligibleTournaments"
                     [defaultServer]="defaultServer"
                     [tentativeList]="tentativeList"
-                    [teamFilters]="teamFilters"
+                    [teamFilters]="($callObs | async)!"
                     [tentativeDataStatus]="tentativeDataStatus"
                     [showSpinner]="showInnerSpinner"
                     [canCreateNewTeam]="canCreateNewTeam"

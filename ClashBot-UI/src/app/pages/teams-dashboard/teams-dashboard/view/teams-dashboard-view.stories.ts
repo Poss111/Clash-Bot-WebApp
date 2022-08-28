@@ -135,158 +135,184 @@ TwentyServers.args = {
         {
             value: "Goon Squad",
             type: FilterType.SERVER,
-            state: false,
-            id: "1"
+            state: true,
+            id: "1",
+            numberOfTeams: 10
         },
         {
             value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: "2"
+            id: "2",
+            numberOfTeams: 0
         },
         {
             value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: "3"
+            id: "3",
+            numberOfTeams: 0
         },
         {
             value: "Extro1",
             type: FilterType.SERVER,
             state: false,
-            id: "4"
+            id: "4",
+            numberOfTeams: 0
         },
         {
             value: "Extro2",
             type: FilterType.SERVER,
             state: false,
-            id: "5"
+            id: "5",
+            numberOfTeams: 0
         },
         {
             value: "ReallyLongNameForServer",
             type: FilterType.SERVER,
             state: false,
-            id: "6"
+            id: "6",
+            numberOfTeams: 0
         },
         {
             value: "123 AbC",
             type: FilterType.SERVER,
             state: false,
-            id: "7"
+            id: "7",
+            numberOfTeams: 0
         },
         {
             value: "Heheh",
             type: FilterType.SERVER,
             state: false,
-            id: "8"
+            id: "8",
+            numberOfTeams: 0
         },
         {
             value: "I really do not know",
             type: FilterType.SERVER,
             state: false,
-            id: "9"
+            id: "9",
+            numberOfTeams: 0
         },
         {
             value: "Boom Boom",
             type: FilterType.SERVER,
             state: false,
-            id: "10"
+            id: "10",
+            numberOfTeams: 0
         },
         {
             value: "Not My Server",
             type: FilterType.SERVER,
             state: false,
-            id: "11"
+            id: "11",
+            numberOfTeams: 0
         },
         {
             value: "I am special!",
             type: FilterType.SERVER,
             state: false,
-            id: "12"
+            id: "12",
+            numberOfTeams: 0
         },
         {
             value: "Kerissa",
             type: FilterType.SERVER,
             state: false,
-            id: "13"
+            id: "13",
+            numberOfTeams: 0
         },
         {
             value: "Micah-chan",
             type: FilterType.SERVER,
             state: false,
-            id: "14"
+            id: "14",
+            numberOfTeams: 0
         },
         {
             value: "Jumanji",
             type: FilterType.SERVER,
             state: false,
-            id: "15"
+            id: "15",
+            numberOfTeams: 0
         },
         {
             value: "Leaguy",
             type: FilterType.SERVER,
             state: false,
-            id: "16"
+            id: "16",
+            numberOfTeams: 0
         },
         {
             value: "IDK",
             type: FilterType.SERVER,
             state: false,
-            id: "17"
+            id: "17",
+            numberOfTeams: 0
         },
         {
             value: "Woah",
             type: FilterType.SERVER,
             state: false,
-            id: "18"
+            id: "18",
+            numberOfTeams: 0
         },
         {
             value: "Miso",
             type: FilterType.SERVER,
             state: false,
-            id: "19"
+            id: "19",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
         {
             value: "This is a sentence",
             type: FilterType.SERVER,
             state: false,
-            id: "20"
+            id: "20",
+            numberOfTeams: 0
         },
     ],
     teams: [
@@ -541,19 +567,22 @@ CreateNewTeam.args = {
             value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: "1"
+            id: "1",
+            numberOfTeams: 0
         },
         {
             value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: "2"
+            id: "2",
+            numberOfTeams: 0
         },
         {
             value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: "3"
+            id: "3",
+            numberOfTeams: 0
         }
     ],
     teams: [
@@ -651,19 +680,22 @@ NoData.args = {
             value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: "1"
+            id: "1",
+            numberOfTeams: 0
         },
         {
             value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: "2"
+            id: "2",
+            numberOfTeams: 0
         },
         {
             value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: "3"
+            id: "3",
+            numberOfTeams: 0
         }
     ],
     teams: [{
@@ -721,19 +753,22 @@ Loading.args = {
             value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: "1"
+            id: "1",
+            numberOfTeams: 0
         },
         {
             value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: "2"
+            id: "2",
+            numberOfTeams: 0
         },
         {
             value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: "3"
+            id: "3",
+            numberOfTeams: 0
         }
     ],
     teams: [{
@@ -791,19 +826,22 @@ Primary.args = {
             value: "Goon Squad",
             type: FilterType.SERVER,
             state: false,
-            id: "1"
+            id: "1",
+            numberOfTeams: 0
         },
         {
             value: "Clash Bot",
             type: FilterType.SERVER,
             state: false,
-            id: "2"
+            id: "2",
+            numberOfTeams: 0
         },
         {
             value: "Extro",
             type: FilterType.SERVER,
             state: false,
-            id: "3"
+            id: "3",
+            numberOfTeams: 0
         }
     ],
     teams: [

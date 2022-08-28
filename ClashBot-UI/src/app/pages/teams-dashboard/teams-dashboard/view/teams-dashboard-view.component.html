@@ -2,15 +2,21 @@
     <mat-drawer #drawer mode="over">
         <div>
             <mat-card>
-                <mat-card-title class="server-list-title">Servers</mat-card-title>
+                <mat-card-title class="server-list-title"># of Teams | Servers</mat-card-title>
             </mat-card>
             <div class="server-list">
                 <mat-list role="list">
-                    <mat-list-item *ngFor="let server of teamFilters" role="listitem">
-                        <button class="server-list-item"
-                                mat-raised-button
-                                (click)="filterTeam(server.value)">
-                            <mat-icon>discord</mat-icon>{{server.value}}</button>
+                    <mat-list-item *ngFor="let server of teamFilters"
+                                   role="listitem">
+                        <button mat-raised-button
+                                class="number-of-teams"
+                                disabled="true">{{server.numberOfTeams}}</button>
+                        <button mat-raised-button
+                                (click)="filterTeam(server.value)"
+                                [disabled]="server.state">
+                            <div class="server-list-item">
+                                <mat-icon class="server-icon">discord</mat-icon>{{server.value}}
+                            </div></button>
                     </mat-list-item>
                 </mat-list>
             </div>

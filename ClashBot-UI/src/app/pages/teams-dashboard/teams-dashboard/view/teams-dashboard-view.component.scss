@@ -54,13 +54,14 @@
 }
 
 .server-list-item {
-  max-width: 10em;
-  width: 10em;
+  max-width: 8em;
+  width: 8em;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   display: flex;
   justify-content: flex-start;
+  align-items: center;
 }
 
 .server-list-title {
@@ -70,4 +71,13 @@
 
 .server-list {
   overflow-y:auto;
+}
+
+.server-icon {
+  padding-right: 0.25em;
+}
+
+.number-of-teams {
+  padding-right: 1em;
+  padding-left: 1em;
 }
