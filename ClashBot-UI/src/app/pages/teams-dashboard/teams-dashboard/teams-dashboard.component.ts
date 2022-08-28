@@ -109,7 +109,6 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     });
                     forkJoin(calls)
                         .pipe(
-                            tap(items => console.dir(items)),
                             take(1)
                         )
                         .subscribe((items) => {
@@ -127,10 +126,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             map((items) => this.sortFilters(items)),
                             takeUntil(this.$destroyComponent)
                         )
-                        .subscribe((sortedItems) => {
-                            console.log("Sorted guilds!");
-                            this.$callObs.next(sortedItems);
-                        })
+                        .subscribe((sortedItems) => this.$callObs.next(sortedItems));
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
                         this.currentSelectedGuild = appDetails.defaultGuild;
@@ -144,18 +140,17 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     /**
      * Sort filter values first by state,
      * then by number of Teams in descending order,
-     * then the name in descending order.
+     * then the name in ascending order.
      * @param items
-     * @private
      */
-    private sortFilters(items: TeamFilter[]): TeamFilter[] {
+    sortFilters(items: TeamFilter[]): TeamFilter[] {
         return items.sort((a, b) => {
             if (a.state) {
                 return -1;
             } else if (b.numberOfTeams - a.numberOfTeams !== 0) {
                 return b.numberOfTeams - a.numberOfTeams
             } else {
-                return b.value.localeCompare(a.value);
+                return a.value.localeCompare(b.value);
             }
         });
     }
