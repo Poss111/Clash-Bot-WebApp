@@ -24,8 +24,6 @@ tags:
     description: A tentative queue for upcoming League of Legends Clash tournaments.
   - name: User
     description: A Discord user that is leveraging the Clash Bot.
-  - name: Servers
-    description: Server specific information.
   - name: SRE
     description: Site reliability Engineering (SRE).
   - name: Tournament
@@ -137,14 +135,6 @@ components:
           format: int32
         message:
           type: string
-    ServerDetails:
-      description: A User's Server details for Clash Bot.
-      type: object
-      properties:
-        serverName:
-          type: string
-        availableTeams:
-          type: integer
   requestBodies:
     TeamCreateBody:
       description: All necessary parameters to create a Clash Bot League of Legends Clash Team
@@ -866,36 +856,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         5XX:
           $ref: '#/components/schemas/Error'
-  /user/{id}/servers:
-    parameters:
-      - name: id
-        description: The Clash bot Player's id
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: servers
-        description: Comma separated Server list
-        in: query
-        required: true
-        schema:
-          type: array
-          items:
-            type: string
-    get:
-      description: Returns all available server details
-      operationId: getServerDetails
-      tags:
-        - Servers
-      responses:
-        200:
-          description: Server Details successfully returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ServerDetails"
   /health:
     description: 'Returns if the application is healthy.'
     get:
