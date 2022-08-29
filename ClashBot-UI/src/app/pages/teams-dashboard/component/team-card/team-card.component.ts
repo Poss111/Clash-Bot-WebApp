@@ -46,7 +46,7 @@ export class TeamCardComponent implements OnInit {
         const clashBotUserRegister: ClashBotUserRegister = {
           role: role,
           teamName: this.team.name,
-          serverName: this.team.serverName,
+          server: this.team.server,
           tournamentDetails: {
             tournamentName: this.team.tournament?.tournamentName,
             tournamentDay: this.team.tournament?.tournamentDay,

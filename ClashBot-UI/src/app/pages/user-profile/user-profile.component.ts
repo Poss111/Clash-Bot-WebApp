@@ -94,8 +94,9 @@ export class UserProfileComponent implements OnInit {
             .subscribe((userProfileDetails) => {
                 let defaultGuild = "";
                 if (userProfileDetails.appDetails.userGuilds) {
-                    defaultGuild = userProfileDetails.appDetails.userGuilds[0].name;
-                    userProfileDetails.appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
+                  const [firstKey] = userProfileDetails.appDetails.userGuilds.keys();
+                  defaultGuild = userProfileDetails.appDetails.userGuilds.get(firstKey)?.name ?? "N/A";
+                  userProfileDetails.appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
                 }
                 if (!userProfileDetails.appDetails.loggedIn) {
                     this.matSnackBar.open(

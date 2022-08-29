@@ -6,8 +6,8 @@ import {LoginStatus} from "../login-status";
 
 export interface ApplicationDetails {
   currentTournaments?: Tournament[],
-  defaultGuild?: string,
-  userGuilds?: DiscordGuild[],
+  defaultGuild?: DiscordGuild,
+  userGuilds?: Map<string, DiscordGuild>,
   userDetails?: UserDetails,
   clashBotUserDetails?: Player,
   loggedIn: boolean

@@ -37,7 +37,7 @@
     "@types/marked": "^4.0.3",
     "angular-oauth2-oidc": "^12.0.2",
     "angular-oauth2-oidc-jwks": "^12.0.0",
-    "clash-bot-service-api": "1.0.4",
+    "clash-bot-service-api": "1.1.0",
     "dotenv": "^10.0.0",
     "gzipper": "^5.0.0",
     "marked": "^4.0.18",

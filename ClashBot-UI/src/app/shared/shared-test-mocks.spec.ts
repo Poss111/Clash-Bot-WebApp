@@ -70,10 +70,12 @@ export function getMockDdragonChampionList() {
 }
 
 export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUserDetails?: Player, mockUserDetails?: UserDetails) : ApplicationDetails{
+    const guildMap = new Map<string, DiscordGuild>();
+    mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
     return {
         currentTournaments: [],
         defaultGuild: "",
-        userGuilds: mockGuilds,
+        userGuilds: guildMap,
         clashBotUserDetails: mockClashBotUserDetails,
         userDetails: mockUserDetails,
         loggedIn: true,

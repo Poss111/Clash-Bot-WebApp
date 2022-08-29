@@ -42,6 +42,7 @@ import {SharedModule} from "../../shared/shared.module";
 import {Tournament, TournamentService, UserService} from "clash-bot-service-api";
 import {LoginStatus} from "../../login-status";
 import {cold} from "jest-marbles";
+import {DiscordGuild} from "../../interfaces/discord-guild";
 
 jest.mock("angular-oauth2-oidc");
 jest.mock("clash-bot-service-api");
@@ -342,7 +343,8 @@ describe("WelcomeDashboardComponent", () => {
                 let mockClashBotUser = createMockPlayer();
                 mockClashBotUser.name = mockUser.username;
                 let mockGuilds = createMockGuilds();
-
+                const guildMap = new Map<string, DiscordGuild>();
+                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
                 (userServiceMock.getUser as any).mockReturnValue(cold("#|", undefined, create404HttpError()));
@@ -359,7 +361,7 @@ describe("WelcomeDashboardComponent", () => {
 
                 const expectedApplicationDetails: ApplicationDetails = {
                     defaultGuild: mockClashBotUser.serverName,
-                    userGuilds: mockGuilds,
+                    userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
                     loggedIn: true,
@@ -386,6 +388,8 @@ describe("WelcomeDashboardComponent", () => {
                 let mockUser = createMockUserDetails();
                 let mockClashBotUser = createMockPlayer();
                 let mockGuilds = createMockGuilds();
+                const guildMap = new Map<string, DiscordGuild>();
+                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
@@ -407,7 +411,7 @@ describe("WelcomeDashboardComponent", () => {
 
                 const expectedApplicationDetails: ApplicationDetails = {
                     defaultGuild: mockClashBotUser.serverName,
-                    userGuilds: mockGuilds,
+                    userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
                     loggedIn: true,
@@ -431,6 +435,8 @@ describe("WelcomeDashboardComponent", () => {
                 mockUser.username = "The Boas";
                 let mockClashBotUser = createMockPlayer();
                 let mockGuilds = createMockGuilds();
+                const guildMap = new Map<string, DiscordGuild>();
+                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
@@ -448,7 +454,7 @@ describe("WelcomeDashboardComponent", () => {
 
                 const expectedApplicationDetails: ApplicationDetails = {
                     defaultGuild: mockClashBotUser.serverName,
-                    userGuilds: mockGuilds,
+                    userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
                     loggedIn: true,

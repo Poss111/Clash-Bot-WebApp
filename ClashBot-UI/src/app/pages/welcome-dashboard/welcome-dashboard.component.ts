@@ -237,8 +237,10 @@ export class WelcomeDashboardComponent implements OnInit {
                                   discordUser: UserDetails,
                                   guilds: DiscordGuild[],
                                   clashBotUserDetails: Player) {
+        let guildMap = new Map<string, DiscordGuild>();
+        guilds.forEach((guild) => guildMap.set(guild.id, guild));
         appDetails.userDetails = discordUser;
-        appDetails.userGuilds = guilds;
+        appDetails.userGuilds = guildMap;
         appDetails.clashBotUserDetails = clashBotUserDetails;
         appDetails.defaultGuild = clashBotUserDetails.serverName;
         appDetails.loggedIn = true;

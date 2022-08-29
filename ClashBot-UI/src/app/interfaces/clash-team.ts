@@ -2,7 +2,7 @@ export interface ClashTeam {
   teamName?: string,
   playersDetails?: PlayerDetails[]
   tournamentDetails?: TournamentDetails,
-  serverName?: string,
+  serverId?: string,
   startTime?: string
   error?: string,
   id?: string

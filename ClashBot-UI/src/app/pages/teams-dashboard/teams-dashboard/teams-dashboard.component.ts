@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {BehaviorSubject, forkJoin, of, Subject, Subscription, throwError} from "rxjs";
+import {BehaviorSubject, forkJoin, Observable, of, Subject, Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
 import {
@@ -36,6 +36,7 @@ import {TentativeRecord} from "../../../interfaces/tentative-record";
 import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrapper";
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 import {LoginStatus} from "../../../login-status";
+import {DiscordGuild} from "../../../interfaces/discord-guild";
 
 @Component({
     selector: "app-teams-dashboard",
@@ -43,7 +44,15 @@ import {LoginStatus} from "../../../login-status";
     styleUrls: ["./teams-dashboard.component.scss"]
 })
 export class TeamsDashboardComponent implements OnInit, OnDestroy {
-    currentSelectedGuild: string = "";
+    currentSelectedGuild: DiscordGuild = {
+      features: [],
+      icon: "",
+      id: "",
+      name: "",
+      owner: false,
+      permissions: 0,
+      permissions_new: ""
+    };
     roles: any = {Top: 0, Mid: 1, Jg: 2, Bot: 3, Supp: 4};
     teams: TeamUiWrapper[] = [];
     teamFilters: TeamFilter[] = [];
@@ -56,7 +65,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     $updateList: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     tentativeDataStatus: string = "NOT_LOADED";
     canCreateNewTeam: boolean = false;
-    defaultServer?: string;
+    defaultServer?: DiscordGuild;
     showSpinner: boolean;
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
@@ -82,8 +91,9 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             .pipe(take(1))
             .subscribe((appDetails) => {
                 if (appDetails.userGuilds) {
-                    const calls = appDetails.userGuilds.map(details => {
-                        return this.teamsService.getTeam(details.name)
+                    const calls: Observable<TeamFilter>[] = [];
+                    appDetails.userGuilds.forEach((details) => {
+                        calls.push(this.teamsService.getTeam(details.name)
                             .pipe(
                                 take(1),
                                 catchError((err: HttpErrorResponse) => {
@@ -101,11 +111,11 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                                     return {
                                         value: details.name,
                                         type: FilterType.SERVER,
-                                        state: details.name === appDetails.defaultGuild,
+                                        state: details.name === appDetails.defaultGuild?.name,
                                         id: details.name.replace(new RegExp(/ /, "g"), "-").toLowerCase(),
                                         numberOfTeams,
                                     }
-                                }))
+                                })));
                     });
                     forkJoin(calls)
                         .pipe(
@@ -120,7 +130,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             map(() => this.$callObs.value.map((item) => {
                                 return {
                                     ...item,
-                                    state: item.value === this.currentSelectedGuild
+                                    state: item.value === this.currentSelectedGuild.name
                                 }
                             })),
                             map((items) => this.sortFilters(items)),
@@ -130,7 +140,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
                         this.currentSelectedGuild = appDetails.defaultGuild;
-                        this.filterForTeamsByServer(appDetails.defaultGuild);
+                        this.filterForTeamsByServer(appDetails.defaultGuild.id);
                     }
                     setTimeout(() => this.pageLoadingService.updateSubject(false), 300);
                 }
@@ -209,15 +219,19 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    filterTeam(filterValue: string) {
-        this.currentSelectedGuild = filterValue;
+    filterTeam(guildId: string) {
+        const foundGuild = this.applicationDetailsService
+          .getApplicationDetails()
+          .value
+          .userGuilds?.get(guildId);
+        if (foundGuild) this.currentSelectedGuild = foundGuild;
         this.$updateList.next(true);
         this.showInnerSpinner = true;
         if (this.$teamsSub) {
             this.$teamsSub.unsubscribe();
         }
         this.teams = [];
-        this.filterForTeamsByServer(filterValue);
+        this.filterForTeamsByServer(guildId);
     }
 
     private filterForTeamsByServer(valueToSearchFor: string) {
@@ -255,7 +269,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                         {duration: 5 * 1000});
                 }
             );
-            this.teamsWebsocketService.connect(this.currentSelectedGuild)
+            this.teamsWebsocketService.connect(this.currentSelectedGuild.id)
                 .pipe(
                   retryWhen(errors => {
                   return errors.pipe(tap(value => console.error(value)),
@@ -392,7 +406,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
 
     mapTeamToTeamUiWrapper(record: Team): TeamUiWrapper {
         let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper;
-        teamUiWrapper.id = `${record.serverName}-${record.name}`
+        teamUiWrapper.id = `${record.serverId}-${record.name}`
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
         let rolesMissing: string[] = [...Object.keys(this.roles)];
@@ -439,7 +453,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             let updateTeamRequest: UpdateTeamRequest = {
                 playerId: `${this.currentApplicationDetails.userDetails.id}`,
                 role: this.getKeyByValue($event.role),
-                serverName: $event.serverName ?? "",
+                serverId: $event.server?.id ?? "",
                 teamName: $event.teamName ?? "",
                 tournamentDetails: $event.tournamentDetails ?? {}
             };
@@ -473,7 +487,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             this.currentApplicationDetails.userDetails) {
             this.teamsService.removePlayerFromTeam(
                 $event.name ?? "",
-                $event.serverName ?? "",
+                $event.serverId ?? "",
                 $event.tournament?.tournamentName ?? "",
                 $event.tournament?.tournamentDay ?? "",
                 `${this.currentApplicationDetails.userDetails.id}`)
@@ -520,7 +534,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         if (this.currentApplicationDetails.loggedIn &&
             this.currentApplicationDetails.userDetails) {
             const createNewTeamRequest: CreateNewTeamRequest = {
-                serverName: this.currentSelectedGuild,
+                serverId: this.currentSelectedGuild.id,
                 tournamentName: createNewTeamEvent.tournamentName,
                 tournamentDay: createNewTeamEvent.tournamentDay,
                 playerDetails: {
@@ -559,13 +573,13 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             this.currentApplicationDetails.userDetails) {
             const payload: PlacePlayerOnTentativeRequest = {
                 playerId: `${this.currentApplicationDetails.userDetails.id}`,
-                serverName: this.currentSelectedGuild,
+                serverId: this.currentSelectedGuild.id,
                 tournamentDetails: tentativeUserDetails.tournamentDetails ?? {}
             };
             let obs = this.tentativeService.placePlayerOnTentative(payload);
             if (!tentativeUserDetails.toBeAdded) {
                 obs = this.tentativeService.removePlayerFromTentative(
-                    this.currentSelectedGuild,
+                    this.currentSelectedGuild.id,
                     `${this.currentApplicationDetails.userDetails.id}`,
                     tentativeUserDetails.tournamentDetails?.tournamentName ?? "",
                     tentativeUserDetails.tournamentDetails?.tournamentDay ?? ""
@@ -575,7 +589,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 .pipe(take(1),
                     map(response => {
                         const tentativeRecord: TentativeRecord = {
-                            serverName: response.serverName,
+                            serverId: response.serverId,
                             tournamentDetails: response.tournamentDetails,
                             tentativePlayers: response.tentativePlayers,
                             playerNames: response.tentativePlayers?.map((player) => player.name ?? "") ?? [],

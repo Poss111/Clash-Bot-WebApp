@@ -111,7 +111,7 @@ describe("TeamsDashboardComponent", () => {
         let mockApplicationsDetails: ApplicationDetails =
           createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
-        mockApplicationsDetails.defaultGuild = mockGuilds[2].name;
+        mockApplicationsDetails.defaultGuild = mockGuilds[2];
         let mockClashTentativeDetails: Tentative[] =
           createEmptyMockClashTentativeDetails();
         mockClashTentativeDetails?.[0].tentativePlayers?.push({
@@ -157,7 +157,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          serverId: mockGuilds[0].id,
         };
 
         coldClashTeamsWebsocketObs.subscribe((msg) => {
@@ -203,6 +203,8 @@ describe("TeamsDashboardComponent", () => {
             createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockObservableGuilds = mockDiscordGuilds();
+        const guildMap = new Map<string, DiscordGuild>();
+        mockObservableGuilds.forEach(guild => guildMap.set(guild.id, guild));
         const mappedFilters = mockObservableGuilds.map((record) => {
           let id = record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase();
           return {
@@ -220,7 +222,7 @@ describe("TeamsDashboardComponent", () => {
         ]
         const mockApplicationsDetails: ApplicationDetails = {
           currentTournaments: [],
-          userGuilds: mockObservableGuilds,
+          userGuilds: guildMap,
           loggedIn: true,
           loginStatus: LoginStatus.LOGGED_IN
         };
@@ -413,7 +415,7 @@ describe("TeamsDashboardComponent", () => {
         let mockApplicationsDetails: ApplicationDetails =
             createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
-        mockApplicationsDetails.defaultGuild = mockGuilds[2].name;
+        mockApplicationsDetails.defaultGuild = mockGuilds[2];
         let mockClashTentativeDetails: Tentative[] =
             createEmptyMockClashTentativeDetails();
         mockClashTentativeDetails?.[0].tentativePlayers?.push({
@@ -438,15 +440,15 @@ describe("TeamsDashboardComponent", () => {
 
         component.filterTeam(mockGuilds[0].name);
 
-        expect(component.currentSelectedGuild).toEqual(mockGuilds[0].name);
+        expect(component.currentSelectedGuild).toEqual(mockGuilds[0]);
         expect(component.showInnerSpinner).toBeTruthy();
         expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(1);
-        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockGuilds[0].name);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockGuilds[0].id);
 
         flush();
 
         expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledTimes(1);
-        expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledWith(mockGuilds[0].name);
+        expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledWith(mockGuilds[0].id);
 
         expect(component.$callObs.value).toEqual(expectedTeamsFilter);
         expect(component.teams).toEqual(mockClashTeams);
@@ -594,7 +596,7 @@ describe("TeamsDashboardComponent", () => {
 
       const uiMappedTeams = mockClashTeam.map(team => {
         let uiWrapper: TeamUiWrapper = {...team};
-        uiWrapper.id = `${uiWrapper.serverName}-${uiWrapper.name}`
+        uiWrapper.id = `${uiWrapper.serverId}-${uiWrapper.name}`
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
         return uiWrapper;
@@ -720,7 +722,7 @@ describe("TeamsDashboardComponent", () => {
         .userDetails = createMockUserDetails();
       let mockTeam: Team = {
         name: "Oooooogi",
-        serverName: "Goon Squad",
+        serverId: "1",
         playerDetails: {
           Top: {
             name: "Roid",
@@ -772,7 +774,7 @@ describe("TeamsDashboardComponent", () => {
         .userDetails = createMockUserDetails();
       let mockTeam: Team = {
         name: "Oooooogi",
-        serverName: "Goon Squad",
+        serverId: "1",
         playerDetails: {
           Top: {
             name: "Roid",
@@ -930,7 +932,7 @@ describe("TeamsDashboardComponent", () => {
       let mockClashTeams: Team[] = [
         {
           name: "Abra",
-          serverName: "Special Server",
+          serverId: "1",
           tournament: {
             tournamentName: "dne",
             tournamentDay: expectedTournamentDay
@@ -965,7 +967,7 @@ describe("TeamsDashboardComponent", () => {
         },
         {
           name: "Abra2",
-          serverName: "Special Server",
+          serverId: "1",
           tournament: {
             tournamentName: expectedTournamentName,
             tournamentDay: expectedTournamentDay
@@ -1038,6 +1040,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        const guilds = mockDiscordGuilds();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
           teamName: "Teamy",
@@ -1046,12 +1049,12 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: "1",
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1076,6 +1079,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        const guilds = mockDiscordGuilds();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
           teamName: "Teamy",
@@ -1084,12 +1088,12 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: "0",
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1116,6 +1120,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        const guilds = mockDiscordGuilds();
 
         const clashBotUserRegisterPayload: ClashBotUserRegister = {
           teamName: "Teamy",
@@ -1124,12 +1129,12 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: "0",
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1158,6 +1163,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
+        const guilds = mockDiscordGuilds();
 
         const teamUiWrapperEvent: TeamUiWrapper = {
           name: "Teamy",
@@ -1171,7 +1177,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
@@ -1195,7 +1201,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-
+        const guilds = mockDiscordGuilds();
 
         const teamUiWrapperEvent: TeamUiWrapper = {
           name: "Teamy",
@@ -1209,7 +1215,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
@@ -1235,7 +1241,7 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-
+        const guilds = mockDiscordGuilds();
 
         const teamUiWrapperEvent: TeamUiWrapper = {
           name: "Teamy",
@@ -1249,7 +1255,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
           },
-          serverName: "Goon Squad",
+          server: guilds[0],
           id: "1"
         };
 
@@ -1277,7 +1283,8 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         const createNewTeamDetails: CreateNewTeamDetails = {
           tournamentName: "awesome_sauce",
@@ -1286,7 +1293,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentName: "awesome_sauce",
           tournamentDay: "1",
           playerDetails: {
@@ -1312,7 +1319,8 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         const createNewTeamDetails: CreateNewTeamDetails = {
           tournamentName: "awesome_sauce",
@@ -1321,7 +1329,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentName: "awesome_sauce",
           tournamentDay: "1",
           playerDetails: {
@@ -1349,7 +1357,8 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         const createNewTeamDetails: CreateNewTeamDetails = {
           tournamentName: "awesome_sauce",
@@ -1358,7 +1367,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedCreateNewTeamPayload: CreateNewTeamRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentName: "awesome_sauce",
           tournamentDay: "1",
           playerDetails: {
@@ -1395,12 +1404,13 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
@@ -1413,7 +1423,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentDetails: {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
@@ -1422,7 +1432,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const tentativeResponse: Tentative = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentDetails: {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
@@ -1462,12 +1472,13 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tentativePlayers: [],
           playerNames: ["Tentative Player"],
           tournamentDetails: {
@@ -1480,7 +1491,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const tentativeResponse: Tentative = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentDetails: {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
@@ -1515,12 +1526,13 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
@@ -1533,7 +1545,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentDetails: {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
@@ -1566,12 +1578,13 @@ describe("TeamsDashboardComponent", () => {
 
         component.currentApplicationDetails.loggedIn = true;
         component.currentApplicationDetails.userDetails = createMockUserDetails();
-        component.currentSelectedGuild = "Goon Squad";
+        const guilds = mockDiscordGuilds();
+        component.currentSelectedGuild = guilds[0];
 
         component.tentativeList = (createEmptyMockClashTentativeDetails() as TentativeRecord[]);
 
         const clashBotTentativeDetails: TentativeRecord = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tentativePlayers: [],
           playerNames: [],
           tournamentDetails: {
@@ -1584,7 +1597,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const placePlayerOnTentativeRequest: PlacePlayerOnTentativeRequest = {
-          serverName: "Goon Squad",
+          serverId: guilds[0].id,
           tournamentDetails: {
             tournamentName: "awesome_sauce",
             tournamentDay: "1"
@@ -1643,7 +1656,7 @@ function createMockClashTeams(mockClashTournaments: Tournament[], mockUserDetail
   return [
     {
       name: "Team Abra",
-      serverName: "Test Server",
+      serverId: "0",
       tournament: {
         tournamentName: mockClashTournaments[0].tournamentName,
         tournamentDay: "2"
@@ -1678,7 +1691,7 @@ function createMockClashTeams(mockClashTournaments: Tournament[], mockUserDetail
     },
     {
       name: "Team Bangok",
-      serverName: "Test Server",
+      serverId: "0",
       tournament: {
         tournamentName: mockClashTournaments[0].tournamentName,
         tournamentDay: mockClashTournaments[0].tournamentDay
@@ -1697,7 +1710,7 @@ function createMockClashTeams(mockClashTournaments: Tournament[], mockUserDetail
 function mapClashTeams(mockClashTeams: Team[]): TeamUiWrapper[] {
   return mockClashTeams.map(record => {
     let teamUiWrapper: TeamUiWrapper = record as TeamUiWrapper
-    teamUiWrapper.id = `${record.serverName}-${record.name}`
+    teamUiWrapper.id = `${record.serverId}-${record.name}`
       .replace(new RegExp(/ /, "g"), "-")
       .toLowerCase();
     return teamUiWrapper;

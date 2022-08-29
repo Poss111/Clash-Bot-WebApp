@@ -5,6 +5,7 @@ import {ApplicationDetails} from "../interfaces/application-details";
 import {take} from "rxjs/operators";
 import {BehaviorSubject} from "rxjs";
 import {LoginStatus} from "../login-status";
+import {DiscordGuild} from "../interfaces/discord-guild";
 
 describe("ApplicationDetailsService", () => {
   let service: ApplicationDetailsService;
@@ -77,15 +78,7 @@ describe("ApplicationDetailsService", () => {
         loggedIn: true,
         loginStatus: LoginStatus.LOGGED_IN,
         defaultGuild: "Goon Squad",
-        userGuilds: [{
-          features: [],
-          icon: "",
-          id: "",
-          name: "",
-          owner: false,
-          permissions: 0,
-          permissions_new: ""
-        }],
+        userGuilds: new Map<string, DiscordGuild>(),
         userDetails: {
           id: 1,
           username: "Roidrage",
@@ -115,7 +108,7 @@ describe("ApplicationDetailsService", () => {
       expect(updatedApplicationDetails.userDetails).toBeFalsy();
       expect(updatedApplicationDetails.clashBotUserDetails).toBeFalsy();
       expect(updatedApplicationDetails.loggedIn).toBeFalsy();
-      expect(updatedApplicationDetails.userGuilds).toBeFalsy();
+      expect(updatedApplicationDetails.userGuilds?.size).toEqual(0);
       expect(updatedApplicationDetails.defaultGuild).toBeFalsy();
       expect(updatedApplicationDetails.currentTournaments).toEqual(applicationDetails.currentTournaments);
       expect(updatedApplicationDetails.loginStatus).toEqual(LoginStatus.NOT_LOGGED_IN);
