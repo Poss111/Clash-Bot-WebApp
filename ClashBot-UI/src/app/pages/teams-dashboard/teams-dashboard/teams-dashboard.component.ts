@@ -87,7 +87,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             .pipe(
                                 take(1),
                                 catchError((err: HttpErrorResponse) => {
-                                    this._snackBar.open("Oops! We were unable to retrieve the Tentative details list for the server! Please try again later.",
+                                    this._snackBar.open(`Oops! We were unable to retrieve the Team details for Server '${details.name}'!`,
                                         "X",
                                         {duration: 5 * 1000}
                                     );

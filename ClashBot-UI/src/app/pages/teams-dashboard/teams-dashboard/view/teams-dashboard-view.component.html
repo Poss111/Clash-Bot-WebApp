@@ -12,7 +12,7 @@
                                 class="number-of-teams"
                                 disabled="true">{{server.numberOfTeams}}</button>
                         <button mat-raised-button
-                                id="{{server.id}}"
+                                id="clash-bot-teams-{{server.id}}"
                                 (click)="filterTeam(server.value)"
                                 [disabled]="server.state">
                             <div class="server-list-item">
@@ -25,7 +25,7 @@
     </mat-drawer>
     <div class="server-filter-container">
         <mat-icon>discord</mat-icon>
-        <h2>{{selectedServer}}</h2>
+        <h2 id="selected-server">{{selectedServer}}</h2>
         <button mat-mini-fab
                 id="change-server-btn"
                 #tooltip="matTooltip"
