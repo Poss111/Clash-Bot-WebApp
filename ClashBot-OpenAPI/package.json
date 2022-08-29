@@ -3,19 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "generate-rest-server": "openapi-generator-cli generate -i open-api.yml -g nodejs-express-server -o ../ClashBot-Service-OpenAPI --minimal-update -s",
-    "generate-auth-rest-server": "openapi-generator-cli generate -i auth-open-api.yml -g nodejs-express-server -o ../ClashBot-Auth-OpenAPI --minimal-update -s",
-    "generate-socket-server": "ag async-api.yml @asyncapi/nodejs-ws-template -o ../ClashBot-WS-Service -p server=localhost --force-write",
-    "generate-socket-server-documentation": "ag async-api.yml @asyncapi/html-template -o output --force-write",
-    "generate-angular-client": "openapi-generator-cli generate -i open-api.yml -g typescript-angular -o ../../ClashBot-AngularClient/angular-client --additional-properties npmName=clash-bot-service-api,snapshot=false,ngVersion=12.2.0,npmVersion=1.0.0",
-    "generate-rest-client": "openapi-generator-cli generate -i open-api.yml -g javascript -o ../../ClashBot-AngularClient/rest-client --additional-properties=projectName=clash-bot-rest-client --additional-properties=projectVersion=1.0.0 --additional-properties=usePromises=true",
-    "rest-server-dry-run-generate": "openapi-generator-cli generate -i open-api.yml -g nodejs-express-server -o ../Clash-Bot-Service-TS --minimal-update -s --dry-run"
+    "generate-rest-server": "openapi-generator-cli generate -i definitions/open-api.yml -g nodejs-express-server -o ../ClashBot-Service-OpenAPI --minimal-update -s",
+    "generate-auth-rest-server": "openapi-generator-cli generate -i definitions/auth-open-api.yml -g nodejs-express-server -o ../ClashBot-Auth-OpenAPI --minimal-update -s",
+    "generate-socket-server": "ag definitions/async-api.yml @asyncapi/nodejs-ws-template -o ../ClashBot-WS-Service -p server=localhost --force-write",
+    "generate-socket-server-documentation": "ag definitions/async-api.yml @asyncapi/html-template -o output --force-write",
+    "generate-angular-client": "openapi-generator-cli generate -i definitions/open-api.yml -g typescript-angular -o ../../ClashBot-AngularClient/angular-client --additional-properties npmName=clash-bot-service-api,snapshot=false,ngVersion=12.2.0,npmVersion=1.0.0",
+    "generate-rest-client": "openapi-generator-cli generate -i definitions/open-api.yml -g javascript -o ../../ClashBot-AngularClient/rest-client --additional-properties=projectName=clash-bot-rest-client --additional-properties=projectVersion=1.0.0 --additional-properties=usePromises=true",
+    "rest-server-dry-run-generate": "openapi-generator-cli generate -i definitions/open-api.yml -g nodejs-express-server -o ../Clash-Bot-Service-TS --minimal-update -s --dry-run",
+    "start-rest-service-swagger": "swagger-ui-watcher ./definitions/open-api.yml"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@asyncapi/generator": "^1.9.5",
     "@asyncapi/html-template": "^0.24.10",
-    "@openapitools/openapi-generator-cli": "^2.5.1"
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "swagger-ui-watcher": "^2.1.12"
   }
 }

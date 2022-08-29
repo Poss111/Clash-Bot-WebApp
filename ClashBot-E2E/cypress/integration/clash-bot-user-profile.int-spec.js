@@ -67,7 +67,7 @@ describe('Validate User Profile of Clash Bot', () => {
     cy.get(discordNotificationToggle + '>label>div>input').should('be.checked');
     cy.get(menuId).click();
     cy.get('#clash-bot-menu-teams-page').click();
-    cy.get('#clash-bot-teams-lol-clashbotsupport', { timeout: 10000 }).should('have.attr', 'aria-selected');
+    cy.get('#selected-server').should('contain.text', 'LoL-ClashBotSupport');
   })
 
   it('I should not be able to enter more than 5 champions in my preferred list.', () => {

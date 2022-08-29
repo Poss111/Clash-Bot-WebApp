@@ -1,5 +1,11 @@
-.log-in-container {
+:host {
+  flex-grow: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1em red;
+}
+
+.team-dashboard-container {
+  flex-grow: 1;
+  display: flex;
+  border: 1em green;
 }

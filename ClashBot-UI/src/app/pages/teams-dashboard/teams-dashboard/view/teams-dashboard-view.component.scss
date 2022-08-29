@@ -1,3 +1,12 @@
+:host {
+  flex-grow: 1;
+  display: flex;
+}
+
+.team-dashboard-view-container {
+  flex-grow: 1;
+}
+
 .team-cards {
   padding-top: 1em;
   display: flex;
@@ -24,4 +33,51 @@
 .show-tentative-button-container {
   display: flex;
   align-items: center;
+}
+
+.server-filter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.server-filter-container > h2 {
+  margin: 0 1em 0 0.5em;
+  max-width: 8em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.server-filter-container > button {
+  margin: 0 0 0 1em;
+}
+
+.server-list-item {
+  max-width: 8em;
+  width: 8em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.server-list-title {
+  display: flex;
+  justify-content: center;
+}
+
+.server-list {
+  overflow-y:auto;
+}
+
+.server-icon {
+  padding-right: 0.25em;
+}
+
+.number-of-teams {
+  padding-right: 1em;
+  padding-left: 1em;
 }

@@ -1,9 +1,19 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {TeamFilter} from "../../../interfaces/team-filter";
-import {Subject, Subscription, throwError} from "rxjs";
+import {BehaviorSubject, forkJoin, of, Subject, Subscription, throwError} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FilterType} from "../../../interfaces/filter-type";
-import {catchError, delay, finalize, map, retryWhen, take, takeUntil, tap, timeout} from "rxjs/operators";
+import {
+    catchError,
+    delay,
+    finalize,
+    map,
+    retryWhen,
+    take,
+    takeUntil,
+    tap,
+    timeout
+} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {ApplicationDetailsService} from "../../../services/application-details.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -42,6 +52,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     eligibleTournaments: Tournament[] = [];
     tentativeList?: TentativeRecord[];
     $teamsSub: Subscription | undefined;
+    $callObs: BehaviorSubject<TeamFilter[]> = new BehaviorSubject<TeamFilter[]>([]);
+    $updateList: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     tentativeDataStatus: string = "NOT_LOADED";
     canCreateNewTeam: boolean = false;
     defaultServer?: string;
@@ -49,7 +61,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     showInnerSpinner: boolean = false;
     subs: Subscription[] = [];
     websocketSub: Subscription | undefined = undefined;
-    destroy$ = new Subject();
+    $destroyWsConnection = new Subject();
+    $destroyComponent = new Subject();
     private readonly noDataAvailable = {error: "No data"};
 
     constructor(private _snackBar: MatSnackBar,
@@ -69,14 +82,51 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             .pipe(take(1))
             .subscribe((appDetails) => {
                 if (appDetails.userGuilds) {
-                    appDetails.userGuilds.forEach((record: any) => {
-                        this.teamFilters.push({
-                            value: record.name,
-                            type: FilterType.SERVER,
-                            state: record.name === appDetails.defaultGuild,
-                            id: record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase()
-                        });
+                    const calls = appDetails.userGuilds.map(details => {
+                        return this.teamsService.getTeam(details.name)
+                            .pipe(
+                                take(1),
+                                catchError((err: HttpErrorResponse) => {
+                                    this._snackBar.open(`Oops! We were unable to retrieve the Team details for Server '${details.name}'!`,
+                                        "X",
+                                        {duration: 5 * 1000}
+                                    );
+                                    return of(err);
+                                }),
+                                map((response) => {
+                                    let numberOfTeams = 0;
+                                    if (!(response instanceof HttpErrorResponse)) {
+                                        numberOfTeams = response.length;
+                                    }
+                                    return {
+                                        value: details.name,
+                                        type: FilterType.SERVER,
+                                        state: details.name === appDetails.defaultGuild,
+                                        id: details.name.replace(new RegExp(/ /, "g"), "-").toLowerCase(),
+                                        numberOfTeams,
+                                    }
+                                }))
                     });
+                    forkJoin(calls)
+                        .pipe(
+                            take(1)
+                        )
+                        .subscribe((items) => {
+                            this.$callObs.next(items);
+                            this.$updateList.next(true);
+                        });
+                    this.$updateList
+                        .pipe(
+                            map(() => this.$callObs.value.map((item) => {
+                                return {
+                                    ...item,
+                                    state: item.value === this.currentSelectedGuild
+                                }
+                            })),
+                            map((items) => this.sortFilters(items)),
+                            takeUntil(this.$destroyComponent)
+                        )
+                        .subscribe((sortedItems) => this.$callObs.next(sortedItems));
                     if (appDetails.defaultGuild) {
                         this.defaultServer = appDetails.defaultGuild;
                         this.currentSelectedGuild = appDetails.defaultGuild;
@@ -87,10 +137,28 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             });
     }
 
+    /**
+     * Sort filter values first by state,
+     * then by number of Teams in descending order,
+     * then the name in ascending order.
+     * @param items
+     */
+    sortFilters(items: TeamFilter[]): TeamFilter[] {
+        return items.sort((a, b) => {
+            if (a.state) {
+                return -1;
+            } else if (b.numberOfTeams - a.numberOfTeams !== 0) {
+                return b.numberOfTeams - a.numberOfTeams
+            } else {
+                return a.value.localeCompare(b.value);
+            }
+        });
+    }
+
     ngOnDestroy() {
         this.subs.forEach(subscriptions => subscriptions.unsubscribe());
         this.websocketSub?.unsubscribe();
-        this.destroy$.unsubscribe();
+        this.$destroyWsConnection.unsubscribe();
     }
 
     updateTentativeList(guildName: string) {
@@ -143,6 +211,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
 
     filterTeam(filterValue: string) {
         this.currentSelectedGuild = filterValue;
+        this.$updateList.next(true);
         this.showInnerSpinner = true;
         if (this.$teamsSub) {
             this.$teamsSub.unsubscribe();
@@ -160,7 +229,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 {duration: 5 * 1000});
             this.teams = [this.noDataAvailable];
         } else {
-            this.destroy$.next();
+            this.$destroyWsConnection.next();
             this.updateTentativeList(valueToSearchFor);
             this.showInnerSpinner = true;
             this.teamsService
@@ -214,7 +283,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                     };
                     return clashBotTeamEvent;
                   }),
-                  takeUntil(this.destroy$),
+                  takeUntil(this.$destroyWsConnection),
                 )
                 .subscribe((msg) => {
                         if (this.currentApplicationDetails.loggedIn) {

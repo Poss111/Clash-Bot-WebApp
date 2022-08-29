@@ -40,6 +40,7 @@ import {ClashBotUserRegister} from "src/app/interfaces/clash-bot-user-register";
 import {CreateNewTeamDetails} from "src/app/interfaces/create-new-team-details";
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 import {LoginStatus} from "../../../login-status";
+import {TeamFilter} from "../../../interfaces/team-filter";
 
 jest.mock("../../../services/application-details.service");
 jest.mock("../../../services/teams-websocket.service");
@@ -90,21 +91,27 @@ describe("TeamsDashboardComponent", () => {
           createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockMappedTeams = mapClashTeams(mockClashTeams);
-        const expectedTeamsFilter = mockGuilds.map((record) => {
+        const mappedFilters = mockGuilds.map((record) => {
           let id = record.name
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
           return {
             value: record.name,
             type: FilterType.SERVER,
-            state: false,
-            id: id
+            state: record.name === mockGuilds[2].name,
+            id: id,
+            numberOfTeams: 2
           }
         });
+        const expectedTeamsFilter = [
+          mappedFilters[2],
+          mappedFilters[0],
+          mappedFilters[1],
+        ]
         let mockApplicationsDetails: ApplicationDetails =
           createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
-        mockApplicationsDetails.defaultGuild = "Clash Bot";
+        mockApplicationsDetails.defaultGuild = mockGuilds[2].name;
         let mockClashTentativeDetails: Tentative[] =
           createEmptyMockClashTentativeDetails();
         mockClashTentativeDetails?.[0].tentativePlayers?.push({
@@ -164,10 +171,10 @@ describe("TeamsDashboardComponent", () => {
         flush();
 
         expect(component.showSpinner).toBeFalsy();
-        expect(component.teamFilters).toEqual(expectedTeamsFilter);
+        expect(component.$callObs.value).toEqual(expectedTeamsFilter);
         expect(component.currentApplicationDetails).toEqual(mockApplicationsDetails);
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(1);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(4);
         expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
         expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledTimes(1);
         expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
@@ -191,16 +198,26 @@ describe("TeamsDashboardComponent", () => {
     test("ngOnInit - (create, logged in, no default guild) - a call to the Application Details should be made and if the User does not have a default guild, then none shall be chosen.", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
+        const mockUserDetails: UserDetails = createMockUserDetails();
+        let mockClashTournaments =
+            createMockClashTournaments("awesome_sauce", 2);
+        let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockObservableGuilds = mockDiscordGuilds();
-        const expectedTeamsFilter = mockObservableGuilds.map((record) => {
+        const mappedFilters = mockObservableGuilds.map((record) => {
           let id = record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase();
           return {
             value: record.name,
             type: FilterType.SERVER,
             state: false,
-            id: id
+            id: id,
+            numberOfTeams: 2
           }
         });
+        const expectedTeamsFilter = [
+          mappedFilters[0],
+          mappedFilters[2],
+          mappedFilters[1],
+        ]
         const mockApplicationsDetails: ApplicationDetails = {
           currentTournaments: [],
           userGuilds: mockObservableGuilds,
@@ -208,9 +225,10 @@ describe("TeamsDashboardComponent", () => {
           loginStatus: LoginStatus.LOGGED_IN
         };
 
-        let coldApplicationDetailsObs = cold("x|", {x: mockApplicationsDetails});
-
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(coldApplicationDetailsObs);
+        applicationDetailsMock.getApplicationDetails
+            .mockReturnValue(cold("x|", {x: mockApplicationsDetails}));
+        (teamServiceMock.getTeam as any)
+            .mockReturnValue(cold("x|", {x: mockClashTeams}));
 
         component = fixture.componentInstance;
 
@@ -218,10 +236,221 @@ describe("TeamsDashboardComponent", () => {
 
         flush();
         expect(component.showSpinner).toBeFalsy();
-        expect(component.teamFilters).toEqual(expectedTeamsFilter);
+        expect(component.$callObs.value).toEqual(expectedTeamsFilter);
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
-        expect(teamServiceMock.getTeam).not.toHaveBeenCalled();
+        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(mappedFilters.length);
+        mappedFilters.forEach((filter) => {
+          expect(teamServiceMock.getTeam).toHaveBeenCalledWith(filter.value)
+        });
       })
+    })
+  });
+
+  describe("Sort Server Filter", () => {
+    test("sortFilters - (Sort by state, numberOfTeams, then name) - when sorted is called with a TeamFilter array, it should have the selected Guild at the top, then be sorted by numberOfTeams, then finally sorted by name.", () => {
+      const mappedGuilds: TeamFilter[] = [
+        {
+          value: "Goon Squad",
+          type: FilterType.SERVER,
+          state: false,
+          id: "goon-squad",
+          numberOfTeams: 0
+        },
+        {
+          value: "ClashBot-Server",
+          type: FilterType.SERVER,
+          state: false,
+          id: "clashbot-server",
+          numberOfTeams: 5
+        },
+        {
+          value: "LoL-ClashBotSupport",
+          type: FilterType.SERVER,
+          state: true,
+          id: "lol-clashbotsupport",
+          numberOfTeams: 0
+        }
+      ];
+      const expectedOrderedTeamFilters = [...mappedGuilds];
+      const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
+      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters.reverse());
+    })
+
+    test("sortFilters - (Sort by numberOfTeams) - If state is not true then it should just sort by number of Teams.", () => {
+      const mappedGuilds: TeamFilter[] = [
+        {
+          value: "Goon Squad",
+          type: FilterType.SERVER,
+          state: false,
+          id: "goon-squad",
+          numberOfTeams: 0
+        },
+        {
+          value: "ClashBot-Server",
+          type: FilterType.SERVER,
+          state: false,
+          id: "clashbot-server",
+          numberOfTeams: 8
+        },
+        {
+          value: "LoL-ClashBotSupport",
+          type: FilterType.SERVER,
+          state: false,
+          id: "lol-clashbotsupport",
+          numberOfTeams: 3
+        }
+      ];
+      const expectedOrderedTeamFilters = [
+        mappedGuilds[1],
+        mappedGuilds[2],
+        mappedGuilds[0],
+      ];
+      const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
+      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters);
+    })
+
+    test("sortFilters - (Sort by name) - If all numberOfTeams are 0 then it should just sort by server name.", () => {
+      const mappedGuilds: TeamFilter[] = [
+        {
+          value: "Goon Squad",
+          type: FilterType.SERVER,
+          state: false,
+          id: "goon-squad",
+          numberOfTeams: 0
+        },
+        {
+          value: "ClashBot-Server",
+          type: FilterType.SERVER,
+          state: false,
+          id: "clashbot-server",
+          numberOfTeams: 0
+        },
+        {
+          value: "LoL-ClashBotSupport",
+          type: FilterType.SERVER,
+          state: false,
+          id: "lol-clashbotsupport",
+          numberOfTeams: 0
+        }
+      ];
+      const expectedOrderedTeamFilters = [
+        mappedGuilds[1],
+        mappedGuilds[0],
+        mappedGuilds[2],
+      ];
+      const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
+      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters);
+    })
+
+    test("sortFilters - (Sort by numberOfTeams, then by name) - If number of Teams are equal, then name should take precedencee.", () => {
+      const mappedGuilds: TeamFilter[] = [
+        {
+          value: "Goon Squad",
+          type: FilterType.SERVER,
+          state: false,
+          id: "goon-squad",
+          numberOfTeams: 0
+        },
+        {
+          value: "ClashBot-Server",
+          type: FilterType.SERVER,
+          state: false,
+          id: "clashbot-server",
+          numberOfTeams: 2
+        },
+        {
+          value: "LoL-ClashBotSupport",
+          type: FilterType.SERVER,
+          state: false,
+          id: "lol-clashbotsupport",
+          numberOfTeams: 9
+        },
+        {
+          value: "ABCDE",
+          type: FilterType.SERVER,
+          state: false,
+          id: "abcde",
+          numberOfTeams: 2
+        }
+      ];
+      const expectedOrderedTeamFilters = [
+        mappedGuilds[2],
+        mappedGuilds[3],
+        mappedGuilds[1],
+        mappedGuilds[0],
+      ];
+      const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
+      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters);
+    })
+  })
+
+  describe("Filter for Server", () => {
+    test("filterTeam - (Filter for Server) - should pass in a server name to filter by, update the selected Server, sort the filter list, and invoke a call to retrieve the Teams for the Server.", () => {
+      testScheduler.run((helpers) => {
+        const {cold, flush} = helpers;
+        const mockUserDetails: UserDetails = createMockUserDetails();
+        const mockGuilds = mockDiscordGuilds();
+        let mockClashTournaments =
+            createMockClashTournaments("awesome_sauce", 2);
+        let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
+        const mappedFilters = mockGuilds.map((record) => {
+          let id = record.name
+              .replace(new RegExp(/ /, "g"), "-")
+              .toLowerCase();
+          return {
+            value: record.name,
+            type: FilterType.SERVER,
+            state: record.name === mockGuilds[2].name,
+            id: id,
+            numberOfTeams: 2
+          }
+        });
+        const expectedTeamsFilter = [
+          mappedFilters[2],
+          mappedFilters[0],
+          mappedFilters[1],
+        ];
+        let mockApplicationsDetails: ApplicationDetails =
+            createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
+        mockApplicationsDetails.loggedIn = true;
+        mockApplicationsDetails.defaultGuild = mockGuilds[2].name;
+        let mockClashTentativeDetails: Tentative[] =
+            createEmptyMockClashTentativeDetails();
+        mockClashTentativeDetails?.[0].tentativePlayers?.push({
+          name: "Sample User",
+          id: "1234"
+        });
+        let coldClashTeamsWebsocketObs = new Subject<ClashTeam | String>();
+
+        applicationDetailsMock.getApplicationDetails
+            .mockReturnValue(cold("x|", {x: mockApplicationsDetails}));
+        (tentativeServiceMock.getTentativeDetails as any)
+            .mockReturnValue(cold("x|", {x: mockClashTentativeDetails}));
+        (teamServiceMock.getTeam as any)
+            .mockReturnValue(cold("x|", {x: mockClashTeams}));
+        (teamsWebsocketServiceMock.connect as any)
+            .mockReturnValue(coldClashTeamsWebsocketObs);
+
+        component = fixture.componentInstance;
+
+        component.currentApplicationDetails.loggedIn = true;
+        component.$callObs.next(expectedTeamsFilter);
+
+        component.filterTeam(mockGuilds[0].name);
+
+        expect(component.currentSelectedGuild).toEqual(mockGuilds[0].name);
+        expect(component.showInnerSpinner).toBeTruthy();
+        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(1);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockGuilds[0].name);
+
+        flush();
+
+        expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledTimes(1);
+        expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledWith(mockGuilds[0].name);
+
+        expect(component.$callObs.value).toEqual(expectedTeamsFilter);
+        expect(component.teams).toEqual(mockClashTeams);
+      });
     })
   });
 
