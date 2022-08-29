@@ -19,8 +19,6 @@ import {MatTableModule} from "@angular/material/table";
 import {TeamCardPlayerDetailsComponent} from "./component/team-card/team-card-player-details/team-card-player-details.component";
 import {SharedModule} from "../../shared/shared.module";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {HelpDialogComponent} from "./component/help-dialog/help-dialog.component";
-import {GuildFilterListComponent} from "./component/guild-filter-list/guild-filter-list.component";
 import {TeamsTentativeTableComponent} from "./component/teams-tentative-table/teams-tentative-table.component";
 import {NewTeamCardComponent} from "./component/new-team-card/new-team-card.component";
 import {TeamsDashboardViewComponent} from "./teams-dashboard/view/teams-dashboard-view.component";
@@ -36,10 +34,8 @@ import {MatTooltipModule} from "@angular/material/tooltip";
         TeamsDashboardComponent,
         TeamCardComponent,
         ConfirmationDialogComponent,
-        HelpDialogComponent,
         TeamsDashboardHelpDialogComponent,
         TeamCardPlayerDetailsComponent,
-        GuildFilterListComponent,
         TeamsTentativeTableComponent,
         NewTeamCardComponent,
         TeamsDashboardViewComponent

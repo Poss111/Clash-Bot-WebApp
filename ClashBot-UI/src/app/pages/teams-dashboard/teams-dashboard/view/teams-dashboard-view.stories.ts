@@ -5,7 +5,6 @@ import {TeamsDashboardViewComponent} from "./teams-dashboard-view.component";
 import {TeamCardComponent} from "../../component/team-card/team-card.component";
 import {NewTeamCardComponent} from "../../component/new-team-card/new-team-card.component";
 import {TeamsTentativeTableComponent} from "../../component/teams-tentative-table/teams-tentative-table.component";
-import {HelpDialogComponent} from "../../component/help-dialog/help-dialog.component";
 import {
     TeamsDashboardHelpDialogComponent
 } from "../../component/teams-dashboard-help-dialog/teams-dashboard-help-dialog.component";
@@ -17,7 +16,6 @@ import {MatTableModule} from "@angular/material/table";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {FilterType} from "../../../../interfaces/filter-type";
 import {MatChipsModule} from "@angular/material/chips";
-import {GuildFilterListComponent} from "../../component/guild-filter-list/guild-filter-list.component";
 import {
     TeamCardPlayerDetailsComponent
 } from "../../component/team-card/team-card-player-details/team-card-player-details.component";
@@ -45,9 +43,7 @@ export default {
                 TeamCardComponent,
                 NewTeamCardComponent,
                 TeamsTentativeTableComponent,
-                HelpDialogComponent,
                 TeamsDashboardHelpDialogComponent,
-                GuildFilterListComponent,
                 TeamCardPlayerDetailsComponent,
                 ConfirmationDialogComponent,
             ],
