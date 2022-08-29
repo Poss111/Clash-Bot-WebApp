@@ -21,11 +21,11 @@ describe('ClashTeamsDbImpl', () => {
       const expectedTableObject = { setupTable: true };
       dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
       const expectedTableDef = {
-        hashKey: 'serverName',
+        hashKey: 'serverId',
         rangeKey: 'details',
         timestamps: true,
         schema: {
-          serverName: Joi.string(),
+          serverId: Joi.string(),
           details: Joi.string(),
           teamName: Joi.string(),
           players: dynamodb.types.stringSet(),
@@ -52,14 +52,14 @@ describe('ClashTeamsDbImpl', () => {
 
   describe('Retrieve Teams - v3', () => {
     test('retrieveTeamsByFilter - should be able to filter by nothing to retrieve all.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Pikachu';
       const teamToBeRetrieved = {
-        key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+        key: ':serverId#:tournamentName#:tournamentDay#:teamName',
         teamName: ':teamName',
-        serverName: ':serverName',
+        serverId: ':serverId',
         players: [
           '1',
           '2',
@@ -76,7 +76,7 @@ describe('ClashTeamsDbImpl', () => {
         tournamentDay: ':tournamentDay',
       };
       const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         teamName,
@@ -91,10 +91,10 @@ describe('ClashTeamsDbImpl', () => {
         expressionAttributeNames: jest.fn().mockReturnThis(),
         exec: mockStream,
       };
-      return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName })
+      return clashTeamsDbImpl.retrieveTeamsByFilter({ serverId })
         .then((teams) => {
           expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+          expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverId);
           expect(clashTeamsDbImpl.Team.where).not.toHaveBeenCalled();
           expect(clashTeamsDbImpl.Team.beginsWith).not.toHaveBeenCalled();
           expect(teams).toEqual([builtTeamToBeRetrieved]);
@@ -102,16 +102,16 @@ describe('ClashTeamsDbImpl', () => {
     });
 
     test(
-      'retrieveTeamsByFilter - should be able to filter by serverName and tournamentName to retrieve all.',
+      'retrieveTeamsByFilter - should be able to filter by serverId and tournamentName to retrieve all.',
       () => {
-        const serverName = 'Goon Squad';
+        const serverId = 'Goon Squad';
         const tournamentName = 'awesome_sauce';
         const tournamentDay = '1';
         const teamName = 'Pikachu';
         const teamToBeRetrieved = {
-          key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+          key: ':serverId#:tournamentName#:tournamentDay#:teamName',
           teamName: ':teamName',
-          serverName: ':serverName',
+          serverId: ':serverId',
           players: [
             '1',
             '2',
@@ -128,7 +128,7 @@ describe('ClashTeamsDbImpl', () => {
           tournamentDay: ':tournamentDay',
         };
         const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay,
           teamName,
@@ -143,10 +143,10 @@ describe('ClashTeamsDbImpl', () => {
           expressionAttributeNames: jest.fn().mockReturnThis(),
           exec: mockStream,
         };
-        return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName, tournamentName })
+        return clashTeamsDbImpl.retrieveTeamsByFilter({ serverId, tournamentName })
           .then((teams) => {
             expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
-            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverId);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
             expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
@@ -157,16 +157,16 @@ describe('ClashTeamsDbImpl', () => {
     );
 
     test(
-      'retrieveTeamsByFilter - should be able to filter by serverName, tournamentName, and tournamentDay to retrieve all.',
+      'retrieveTeamsByFilter - should be able to filter by serverId, tournamentName, and tournamentDay to retrieve all.',
       () => {
-        const serverName = 'Goon Squad';
+        const serverId = 'Goon Squad';
         const tournamentName = 'awesome_sauce';
         const tournamentDay = '1';
         const teamName = 'Pikachu';
         const teamToBeRetrieved = {
-          key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+          key: ':serverId#:tournamentName#:tournamentDay#:teamName',
           teamName: ':teamName',
-          serverName: ':serverName',
+          serverId: ':serverId',
           players: [
             '1',
             '2',
@@ -183,7 +183,7 @@ describe('ClashTeamsDbImpl', () => {
           tournamentDay: ':tournamentDay',
         };
         const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay,
           teamName,
@@ -198,10 +198,10 @@ describe('ClashTeamsDbImpl', () => {
           expressionAttributeNames: jest.fn().mockReturnThis(),
           exec: mockStream,
         };
-        return clashTeamsDbImpl.retrieveTeamsByFilter({ serverName, tournamentName, tournamentDay })
+        return clashTeamsDbImpl.retrieveTeamsByFilter({ serverId, tournamentName, tournamentDay })
           .then((teams) => {
             expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
-            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverId);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
             expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
@@ -213,16 +213,16 @@ describe('ClashTeamsDbImpl', () => {
     );
 
     test(
-      'retrieveTeamsByFilter - should be able to filter by serverName, tournamentName, tournamentDay, and teamName to retrieve all.',
+      'retrieveTeamsByFilter - should be able to filter by serverId, tournamentName, tournamentDay, and teamName to retrieve all.',
       () => {
-        const serverName = 'Goon Squad';
+        const serverId = 'Goon Squad';
         const tournamentName = 'awesome_sauce';
         const tournamentDay = '1';
         const teamName = 'Pikachu';
         const teamToBeRetrieved = {
-          key: ':serverName#:tournamentName#:tournamentDay#:teamName',
+          key: ':serverId#:tournamentName#:tournamentDay#:teamName',
           teamName: ':teamName',
-          serverName: ':serverName',
+          serverId: ':serverId',
           players: [
             '1',
             '2',
@@ -239,7 +239,7 @@ describe('ClashTeamsDbImpl', () => {
           tournamentDay: ':tournamentDay',
         };
         const builtTeamToBeRetrieved = buildMessage(teamToBeRetrieved, {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay,
           teamName,
@@ -256,12 +256,12 @@ describe('ClashTeamsDbImpl', () => {
         };
         return clashTeamsDbImpl.retrieveTeamsByFilter(
           {
-            serverName, tournamentName, tournamentDay, teamName,
+            serverId, tournamentName, tournamentDay, teamName,
           },
         )
           .then((teams) => {
             expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledTimes(1);
-            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverName);
+            expect(clashTeamsDbImpl.Team.query).toHaveBeenCalledWith(serverId);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledTimes(1);
             expect(clashTeamsDbImpl.Team.where).toHaveBeenCalledWith('details');
             expect(clashTeamsDbImpl.Team.beginsWith).toHaveBeenCalledTimes(1);
@@ -278,7 +278,7 @@ describe('ClashTeamsDbImpl', () => {
       const expectedMockTeam = {
         details: 'awesome_sauce#2#Abra',
         teamName: 'Abra',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         players: ['1', '2'],
         playersWRoles: {
           Top: '1',
@@ -307,7 +307,7 @@ describe('ClashTeamsDbImpl', () => {
       const expectedMockTeam = {
         details: 'awesome_sauce#2#Abra',
         teamName: 'Abra',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         players: ['1', '2'],
         playersWRoles: {
           Top: '1',
@@ -332,7 +332,7 @@ describe('ClashTeamsDbImpl', () => {
   describe('Delete Team', () => {
     test('deleteTeam - when delete team is called, it should invoke delete with dynamodb.', () => {
       const expectedDestroyPayload = {
-        serverName: 'LoL-ClashBotSupport',
+        serverId: 'LoL-ClashBotSupport',
         details: 'awesome_sauce#2#Abra',
       };
       clashTeamsDbImpl.Team = {
@@ -349,7 +349,7 @@ describe('ClashTeamsDbImpl', () => {
 
     test('deleteTeam - if there is an error, it should reject.', () => {
       const expectedDestroyPayload = {
-        serverName: 'LoL-ClashBotSupport',
+        serverId: 'LoL-ClashBotSupport',
         details: 'awesome_sauce#2#Abra',
       };
       clashTeamsDbImpl.Team = {
@@ -368,7 +368,7 @@ describe('ClashTeamsDbImpl', () => {
 
   describe('Create Team', () => {
     test('createNewTeam - If a new team is requested, it should create a new Team.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentDetails = {
         tournamentName: 'awesome_sauce',
         tournamentDay: '1',
@@ -379,7 +379,7 @@ describe('ClashTeamsDbImpl', () => {
       };
       const teamName = 'abra';
       const expectedCreatedTeam = {
-        serverName,
+        serverId,
         details: `${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}#${teamName}`,
         teamName,
         tournamentName: tournamentDetails.tournamentName,
@@ -397,7 +397,7 @@ describe('ClashTeamsDbImpl', () => {
           })),
       };
       return clashTeamsDbImpl.createTeam({
-        serverName,
+        serverId,
         players,
         playersWRoles,
         tournamentDetails,
@@ -412,7 +412,7 @@ describe('ClashTeamsDbImpl', () => {
     });
 
     test('createNewTeam - If there is a failure, it should be caught and rejected.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentDetails = {
         tournamentName: 'awesome_sauce',
         tournamentDay: '1',
@@ -423,7 +423,7 @@ describe('ClashTeamsDbImpl', () => {
       };
       const teamName = 'abra';
       const expectedCreatedTeam = {
-        serverName,
+        serverId,
         details: `${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}#${teamName}`,
         teamName,
         tournamentName: tournamentDetails.tournamentName,
@@ -442,7 +442,7 @@ describe('ClashTeamsDbImpl', () => {
           })),
       };
       return clashTeamsDbImpl.createTeam({
-        serverName,
+        serverId,
         players,
         playersWRoles,
         tournamentDetails,

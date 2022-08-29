@@ -37,7 +37,7 @@ components:
               $ref: '#/components/schemas/Player'
             Supp:
               $ref: '#/components/schemas/Player'
-        serverName:
+        serverId:
           description: The Discord server that the Team belongs to.
           type: string
         tournament:
@@ -65,7 +65,7 @@ components:
       description: A queue for Players unsure if they will play Clash for a given Tournament.
       type: object
       properties:
-        serverName:
+        serverId:
           description: 'The Server that the tentative queue belongs to.'
           type: string
         tournamentDetails:
@@ -94,7 +94,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
-        serverName:
+        serverId:
           type: string
     Subscription:
       description: A map of subscriptions a player has for Clash Bot
@@ -123,10 +123,10 @@ channels:
           schema:
             type: object
             required:
-              - serverName
+              - serverId
             properties:
-              serverName:
-                description: The Discord server to watch Clash Team events for.
+              serverId:
+                description: The Discord server Identifier to watch Clash Team events for.
                 type: string
     subscribe:
       description: To recieve Team events based on a server.

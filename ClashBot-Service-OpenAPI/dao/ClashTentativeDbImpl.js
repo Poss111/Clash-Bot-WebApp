@@ -18,7 +18,7 @@ class ClashTentativeDbImpl {
                 schema: {
                     key: Joi.string(),
                     tentativePlayers: Joi.array().items(Joi.string()),
-                    serverName: Joi.string(),
+                    serverId: Joi.string(),
                     tournamentDetails: Joi.object({
                         tournamentName: Joi.string(),
                         tournamentDay: Joi.string()
@@ -32,9 +32,9 @@ class ClashTentativeDbImpl {
         })
     }
 
-    isTentative(userId, serverName, tournamentDetails) {
+    isTentative(userId, serverId, tournamentDetails) {
         return new Promise((resolve, reject) => {
-            const key = this.buildKey(serverName, tournamentDetails);
+            const key = this.buildKey(serverId, tournamentDetails);
             this.Tentative.get(key, (err, data) => {
                 if (err) reject(err);
                 resolve({
@@ -46,7 +46,7 @@ class ClashTentativeDbImpl {
         });
     }
 
-    addToTentative(userId, serverName, tournamentDetails, tentativeObject) {
+    addToTentative(userId, serverId, tournamentDetails, tentativeObject) {
         return new Promise((resolve, reject) => {
             if (tentativeObject) {
                 if (tentativeObject.tentativePlayers) {
@@ -56,9 +56,9 @@ class ClashTentativeDbImpl {
                 }
             } else {
                 tentativeObject = {
-                    key: this.buildKey(serverName, tournamentDetails),
+                    key: this.buildKey(serverId, tournamentDetails),
                     tentativePlayers: [userId],
-                    serverName: serverName,
+                    serverId: serverId,
                     tournamentDetails: {
                         tournamentName: tournamentDetails.tournamentName,
                         tournamentDay: tournamentDetails.tournamentDay
@@ -88,17 +88,17 @@ class ClashTentativeDbImpl {
         })
     }
 
-    handleTentative(userId, serverName, tournamentDetails) {
-        return this.isTentative(userId, serverName, tournamentDetails)
+    handleTentative(userId, serverId, tournamentDetails) {
+        return this.isTentative(userId, serverId, tournamentDetails)
             .then(tentativeDetails => {
                 if (tentativeDetails.onTentative) return this.removeFromTentative(userId, tentativeDetails.tentativeList);
-                else return this.addToTentative(userId, serverName, tournamentDetails, tentativeDetails.tentativeList);
+                else return this.addToTentative(userId, serverId, tournamentDetails, tentativeDetails.tentativeList);
             });
     }
 
-    getTentative(serverName, tournamentDetails) {
+    getTentative(serverId, tournamentDetails) {
         return new Promise((resolve, reject) => {
-            this.Tentative.get(this.buildKey(serverName, tournamentDetails), (err, data) => {
+            this.Tentative.get(this.buildKey(serverId, tournamentDetails), (err, data) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -112,8 +112,8 @@ class ClashTentativeDbImpl {
         })
     }
 
-    buildKey(serverName, tournamentDetails) {
-        return `${serverName}#${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}`;
+    buildKey(serverId, tournamentDetails) {
+        return `${serverId}#${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}`;
     }
 
     deleteTentativeQueue({ key }) {

@@ -21,7 +21,7 @@ describe('Initialize Table connection', () => {
       timestamps: true,
       schema: {
         key: Joi.string(),
-        serverName: Joi.string(),
+        serverId: Joi.string(),
         timeAdded: Joi.string(),
       },
     };
@@ -45,7 +45,7 @@ describe('Initialize Table connection', () => {
       timestamps: true,
       schema: {
         key: Joi.string(),
-        serverName: Joi.string(),
+        serverId: Joi.string(),
         timeAdded: Joi.string(),
       },
     };
@@ -70,7 +70,7 @@ describe('Initialize Table connection', () => {
       timestamps: true,
       schema: {
         key: Joi.string(),
-        serverName: Joi.string(),
+        serverId: Joi.string(),
         timeAdded: Joi.string(),
       },
     };
@@ -102,7 +102,7 @@ describe('Initialize Table connection', () => {
       timestamps: true,
       schema: {
         key: Joi.string(),
-        serverName: Joi.string(),
+        serverId: Joi.string(),
         timeAdded: Joi.string(),
       },
     };

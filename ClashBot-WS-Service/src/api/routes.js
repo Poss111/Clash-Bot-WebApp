@@ -21,8 +21,8 @@ router.ws('/ws/teams', async (ws, req) => {
   const loggerContext = { class: 'router', method: 'router.ws' }
   ws.isAlive = true;
   ws.id = uuidv4();
-  if (req.query.serverName) {
-    ws.server = req.query.serverName;
+  if (req.query.serverId) {
+    ws.server = req.query.serverId;
   } else if (req.query.service) {
     ws.service = req.query.service;
   }

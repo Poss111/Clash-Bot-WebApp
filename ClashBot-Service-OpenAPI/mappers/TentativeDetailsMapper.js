@@ -1,5 +1,5 @@
 const tentativeDetailsEntityToRequest = {
-  serverName: 'serverName',
+  serverId: 'serverId',
   tournamentDetails: {
     key: 'tournamentDetails',
     transform: (tournament) => ({

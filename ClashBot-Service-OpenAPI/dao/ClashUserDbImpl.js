@@ -16,7 +16,7 @@ class ClashUserDbImpl {
                 schema: {
                     key: Joi.string(),
                     playerName: Joi.string(),
-                    serverName: Joi.string(),
+                    serverId: Joi.string(),
                     timeAdded: Joi.string(),
                     subscribed: Joi.string(),
                     preferredChampions: Joi.array()

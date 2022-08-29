@@ -204,11 +204,11 @@ resource "aws_dynamodb_table" "clash-bot-teams-table" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 10
   write_capacity = 1
-  hash_key       = "serverName"
+  hash_key       = "serverId"
   range_key      = "details"
 
   attribute {
-    name = "serverName"
+    name = "serverId"
     type = "S"
   }
 

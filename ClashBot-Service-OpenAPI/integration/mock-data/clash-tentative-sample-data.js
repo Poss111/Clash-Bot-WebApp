@@ -1,9 +1,9 @@
 module.exports = {
   Items: [
     {
-      key: ':serverName#:tournamentName#:tournamentDayTwo',
+      key: ':serverId#:tournamentName#:tournamentDayTwo',
       tentativePlayers: ['123456789'],
-      serverName: ':serverName',
+      serverId: ':serverId',
       tournamentDetails: {
         tournamentName: ':tournamentName',
         tournamentDay: ':tournamentDayTwo',

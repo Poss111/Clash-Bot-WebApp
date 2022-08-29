@@ -34,7 +34,7 @@ function removeUserFromTeam(teamEntity, playerId, loggerContext) {
 }
 
 async function findAssociationsAndRemoveUser({
-  playerId, tournamentName, tournamentDay, serverName,
+  playerId, tournamentName, tournamentDay, serverId,
 }, loggerContext) {
   const userAssociations = await clashUserTeamAssociationDbImpl.getUserAssociation({
     playerId,
@@ -45,7 +45,7 @@ async function findAssociationsAndRemoveUser({
     logger.info(loggerContext,
       `Found Player ('${userAssociations[0].playerId}') associated, Association ('${userAssociations[0].association}')`);
     const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
-      serverName: userAssociations[0].serverName,
+      serverId: userAssociations[0].serverId,
       tournamentName,
       tournamentDay,
       teamName: userAssociations[0].teamName,
@@ -60,18 +60,18 @@ async function findAssociationsAndRemoveUser({
     let event = {};
     if (teamToBeRemovedFrom.players <= 0) {
       await clashTeamsDbImpl.deleteTeam({
-        serverName: teamToBeRemovedFrom.serverName,
+        serverId: teamToBeRemovedFrom.serverId,
         details: teamToBeRemovedFrom.details,
       });
       logger.debug(
         loggerContext,
-        `Server ('${teamToBeRemovedFrom.serverName}') Team ('${teamToBeRemovedFrom.details}') successfully deleted.`,
+        `Server ('${teamToBeRemovedFrom.serverId}') Team ('${teamToBeRemovedFrom.details}') successfully deleted.`,
       );
       event = objectMapper(updatedTeam, teamEntityDeletionToResponse);
     } else {
       const teamAfterUpdate = await clashTeamsDbImpl.updateTeam(updatedTeam);
       logger.info(loggerContext,
-        `Removed Player from following Server ('${teamAfterUpdate.serverName}') Team ('${teamAfterUpdate.teamName}').`);
+        `Removed Player from following Server ('${teamAfterUpdate.serverId}') Team ('${teamAfterUpdate.teamName}').`);
       const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
         teamAfterUpdate.players,
       );
@@ -85,14 +85,14 @@ async function findAssociationsAndRemoveUser({
   }
 }
 
-const getTentativeDetailsWithContext = (serverName, tournament) => new Promise((resolve,
+const getTentativeDetailsWithContext = (serverId, tournament) => new Promise((resolve,
   reject) => {
-  clashTentativeDbImpl.getTentative(serverName, tournament)
+  clashTentativeDbImpl.getTentative(serverId, tournament)
     .then((results) => {
       resolve({
         results,
         parameters: {
-          serverName,
+          serverId,
           tournament,
         },
       });
@@ -105,12 +105,12 @@ const getTentativeDetailsWithContext = (serverName, tournament) => new Promise((
 /**
  * A list of people on the tentative queue for upcoming Tournaments.
  *
- * serverName String The Server to filter the tentative queue by.
+ * serverId String The Server to filter the tentative queue by.
  * tournamentName String The Tournament name to filter by. (optional)
  * tournamentDay String The Tournament day to filter by. (optional)
  * returns List
  * */
-const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => new Promise(
+const getTentativeDetails = ({ serverId, tournamentName, tournamentDay }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'getTentativeDetails' };
     try {
@@ -120,16 +120,16 @@ const getTentativeDetails = ({ serverName, tournamentName, tournamentDay }) => n
       } else {
         const results = await Promise
           .all(tournaments
-            .map((tournament) => getTentativeDetailsWithContext(serverName, tournament)));
+            .map((tournament) => getTentativeDetailsWithContext(serverId, tournament)));
         const flatMappedResults = results
           .map((entity) => {
             if (entity.results) {
               return entity.results;
             }
-            logger.debug(loggerContext, `No Tentative players for Server('${serverName}') Tournament('${entity.parameters.tournament.tournamentName}#${entity.parameters.tournament.tournamentDay}')`);
+            logger.debug(loggerContext, `No Tentative players for Server('${serverId}') Tournament('${entity.parameters.tournament.tournamentName}#${entity.parameters.tournament.tournamentDay}')`);
             return {
               tentativePlayers: [],
-              serverName,
+              serverId,
               tournamentDetails: entity.parameters.tournament,
             };
           });
@@ -169,7 +169,7 @@ const placePlayerOnTentative = ({ body }) => new Promise(
     const loggerContext = { class: 'TeamService', method: 'placePlayerOnTentative' };
     try {
       const tentativeDetails = await clashTentativeDbImpl
-        .getTentative(body.serverName, body.tournamentDetails);
+        .getTentative(body.serverId, body.tournamentDetails);
       if (tentativeDetails
         && Array.isArray(tentativeDetails.tentativePlayers)
         && tentativeDetails.tentativePlayers.includes(body.playerId)) {
@@ -190,19 +190,19 @@ const placePlayerOnTentative = ({ body }) => new Promise(
               playerId: body.playerId,
               tournamentName: body.tournamentDetails.tournamentName,
               tournamentDay: body.tournamentDetails.tournamentDay,
-              serverName: body.serverName,
+              serverId: body.serverId,
             },
             loggerContext,
           );
 
           updatedTentativeDetails = await clashTentativeDbImpl
-            .addToTentative(body.playerId, body.serverName, body.tournamentDetails,
+            .addToTentative(body.playerId, body.serverId, body.tournamentDetails,
               tentativeDetails);
           const association = await clashUserTeamAssociationDbImpl.createUserAssociation({
             playerId: body.playerId,
             tournament: body.tournamentDetails.tournamentName,
             tournamentDay: body.tournamentDetails.tournamentDay,
-            serverName: body.serverName,
+            serverId: body.serverId,
           });
           logger.info(
             loggerContext,
@@ -229,20 +229,20 @@ const placePlayerOnTentative = ({ body }) => new Promise(
 /**
  * Remove a player from the tentative queue for an upcoming Tournament.
  *
- * serverName String the name of the Server the queue falls under.
+ * serverId String the name of the Server the queue falls under.
  * playerId String the player id to remove from the tentative queue with.
  * tournament String the Tournament that the tentative queue belongs to.
  * tournamentDay String the Tournament day that the tentative queue belongs to.
  * returns Tentative
  * */
 const removePlayerFromTentative = ({
-  serverName, playerId, tournament, tournamentDay,
+  serverId, playerId, tournament, tournamentDay,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
       const tentativeDetails = await clashTentativeDbImpl
-        .getTentative(serverName, { tournamentName: tournament, tournamentDay });
+        .getTentative(serverId, { tournamentName: tournament, tournamentDay });
       if (tentativeDetails
         && Array.isArray(tentativeDetails.tentativePlayers)
         && !tentativeDetails.tentativePlayers.includes(playerId)) {
@@ -263,7 +263,7 @@ const removePlayerFromTentative = ({
           playerId,
           tournament,
           tournamentDay,
-          serverName,
+          serverId,
         });
         const response = objectMapper(updatedTentativeDetails, tentativeDetailsEntityToRequest);
         if (Array.isArray(updatedTentativeDetails.tentativePlayers)

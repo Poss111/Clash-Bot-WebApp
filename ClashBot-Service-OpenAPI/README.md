@@ -8,7 +8,7 @@ erDiagram
     PLAYER {
         string key
         string playerName
-        string serverName
+        string serverId
         string subscribed
         array preferredChampions
     }
@@ -16,11 +16,11 @@ erDiagram
         string playerId
         string association
         string teamName
-        string serverName
+        string serverId
         string role
     }
     TEAMS {
-        string serverName
+        string serverId
         string details
         string teamName
         array players
@@ -39,7 +39,7 @@ erDiagram
     TENTATIVE {
         string key
         array tentativePlayers
-        string serverName
+        string serverId
         object tournamentDetails
     }
     PLAYER |o--o{ ASSOCIATION: has

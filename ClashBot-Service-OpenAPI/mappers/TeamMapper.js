@@ -1,6 +1,6 @@
 const teamEntityToResponse = {
   teamName: 'name',
-  serverName: 'serverName',
+  serverId: 'serverId',
   tournamentName: 'tournament.tournamentName',
   tournamentDay: 'tournament.tournamentDay',
   playersWRoles: {
@@ -17,7 +17,7 @@ const teamEntityToResponse = {
 
 const teamEntityDeletionToResponse = {
   teamName: 'name',
-  serverName: 'serverName',
+  serverId: 'serverId',
 };
 
 const userEntityToResponse = {

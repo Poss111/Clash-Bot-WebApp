@@ -28,12 +28,12 @@ describe('Clash User Service Impl', () => {
     test('User exists - then return the User Details.', () => {
       const expectedUserId = '1';
       const expectedUsername = 'Roidrage';
-      const expectedServername = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPreferredChampions = [];
       const expectedUserDetails = {
         key: expectedUserId,
         playerName: expectedUsername,
-        serverName: expectedServername,
+        serverId: expectedserverId,
         preferredChampions: expectedPreferredChampions,
         subscribed: true,
       };
@@ -42,7 +42,7 @@ describe('Clash User Service Impl', () => {
         payload: {
           id: expectedUserDetails.key,
           name: expectedUserDetails.playerName,
-          serverName: expectedUserDetails.serverName,
+          serverId: expectedUserDetails.serverId,
           champions: expectedUserDetails.preferredChampions,
           subscriptions: [{
             key: 'UpcomingClashTournamentDiscordDM',
@@ -71,14 +71,14 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       const expectedConvertedUser = {
         key: expectedId,
         playerName: expectedUpdatedUsername,
         preferredChampions: [],
         subscribed: 'true',
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       const expectedResponse = {
         code: 200,
@@ -90,7 +90,7 @@ describe('Clash User Service Impl', () => {
             key: 'UpcomingClashTournamentDiscordDM',
             isOn: true,
           }],
-          serverName: 'SampleServer',
+          serverId: 'SampleServer',
         },
       };
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(expectedConvertedUser);
@@ -128,7 +128,7 @@ describe('Clash User Service Impl', () => {
         payload: {
           id: '1',
           name: 'Me',
-          serverName: 'Goon Squad',
+          serverId: 'Goon Squad',
           champions: [],
           subscriptions: [{
             key: 'UpcomingClashTournamentDiscordDM',
@@ -139,7 +139,7 @@ describe('Clash User Service Impl', () => {
       const userRequestEntity = {
         key: '1',
         playerName: 'Me',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       clashSubscriptionDbImpl.createUser.mockResolvedValue(userRequestEntity);
       return clashUserServiceImpl.createUser({ body: userRequest })
@@ -156,7 +156,7 @@ describe('Clash User Service Impl', () => {
         key: expectedId,
         playerName: 'Roid',
         subscribed: 'true',
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(userEntityResponse);
       return clashUserServiceImpl.retrieveUserSubscriptions({ id: expectedId }).then((results) => {
@@ -189,7 +189,7 @@ describe('Clash User Service Impl', () => {
       const returnedUser = {
         key: expectedUserId,
         playerName: 'Roid',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       const updatedUser = deepCopy(returnedUser);
       updatedUser.subscribed = 'true';
@@ -221,7 +221,7 @@ describe('Clash User Service Impl', () => {
       const returnedUser = {
         key: expectedUserId,
         playerName: 'Roid',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         subscribed: 'true',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
@@ -265,7 +265,7 @@ describe('Clash User Service Impl', () => {
       const returnedUser = {
         key: expectedUserId,
         playerName: 'Roid',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         subscribed: 'true',
       };
       const updatedUser = deepCopy(returnedUser);
@@ -298,7 +298,7 @@ describe('Clash User Service Impl', () => {
       const returnedUser = {
         key: expectedUserId,
         playerName: 'Roid',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(returnedUser);
       return clashUserServiceImpl.unsubscribeUser({ id: expectedUserId })
@@ -346,7 +346,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const updatedUser = deepCopy(foundUser);
@@ -385,7 +385,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const updatedUser = deepCopy(foundUser);
@@ -424,7 +424,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
@@ -479,7 +479,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const updatedUser = deepCopy(foundUser);
@@ -518,7 +518,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const updatedUser = deepCopy(foundUser);
@@ -557,7 +557,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
@@ -609,7 +609,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
@@ -638,7 +638,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const updatedUser = deepCopy(foundUser);
@@ -673,7 +673,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       clashSubscriptionDbImpl.retrieveUserDetails.mockResolvedValue(foundUser);
       const expectedResponse = {
@@ -722,7 +722,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       const expectedResponse = {
         code: 200,
@@ -747,7 +747,7 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverName: 'SampleServer',
+        serverId: 'SampleServer',
       };
       const expectedResponse = {
         code: 200,

@@ -19,7 +19,7 @@ describe('Initialize Table connection', () => {
       schema: {
         key: Joi.string(),
         tentativePlayers: Joi.array().items(Joi.string()),
-        serverName: Joi.string(),
+        serverId: Joi.string(),
         tournamentDetails: expect.anything(),
       },
     };
@@ -40,7 +40,7 @@ describe('Initialize Table connection', () => {
 describe('Push person onto Tentative queue', () => {
   test('I should be able to pass a user id, server name, and tournament to place a user on tentative with a new tentative record for a Clash Tournament.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
@@ -52,9 +52,9 @@ describe('Push person onto Tentative queue', () => {
           { attrs: dataToUpdate })),
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: [expectedUserId],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -62,7 +62,7 @@ describe('Push person onto Tentative queue', () => {
     };
     return clashTentativeDbImpl
       .addToTentative(expectedUserId,
-        expectedServerName,
+        expectedserverId,
         expectedTournament)
       .then((persistedRecord) => {
         expect(clashTentativeDbImpl.Tentative.update).toHaveBeenCalledTimes(1);
@@ -75,15 +75,15 @@ describe('Push person onto Tentative queue', () => {
 
   test('If a record already exists for the Tournament and the day and they do not already belong on it, the User should be added to the list instead of creating a new one.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: ['2'],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -104,7 +104,7 @@ describe('Push person onto Tentative queue', () => {
         }),
     };
     return clashTentativeDbImpl
-      .addToTentative(expectedUserId, expectedServerName,
+      .addToTentative(expectedUserId, expectedserverId,
         expectedTournament, expectedReturnedTentativeRecord)
       .then((persistedRecord) => {
         expect(clashTentativeDbImpl.Tentative.update)
@@ -117,15 +117,15 @@ describe('Push person onto Tentative queue', () => {
 
   test('If a record exists for the Tournament and the day and the array of tentative users is null, the User should be added to the list of the existing one.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
       attrs: {
-        key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
-        serverName: expectedServerName,
+        key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+        serverId: expectedserverId,
         tournamentDetails: {
           tournamentName: expectedTournament.tournamentName,
           tournamentDay: expectedTournament.tournamentDay,
@@ -147,7 +147,7 @@ describe('Push person onto Tentative queue', () => {
         }),
     };
     return clashTentativeDbImpl
-      .addToTentative(expectedUserId, expectedServerName, expectedTournament)
+      .addToTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((persistedRecord) => {
         expect(clashTentativeDbImpl.Tentative.update)
           .toHaveBeenCalledTimes(1);
@@ -160,7 +160,7 @@ describe('Push person onto Tentative queue', () => {
 
   test('If an error occurs, then it should be rejected.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
@@ -173,7 +173,7 @@ describe('Push person onto Tentative queue', () => {
           callback) => callback(expectedError, { attrs: dataToUpdate })),
     };
     return clashTentativeDbImpl
-      .addToTentative(expectedUserId, expectedServerName, expectedTournament)
+      .addToTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((persistedRecord) => expect(persistedRecord).toBeFalsy())
       .catch((err) => expect(err).toEqual(expectedError));
   });
@@ -182,15 +182,15 @@ describe('Push person onto Tentative queue', () => {
 describe('Remove person from Tentative queue', () => {
   test('If a User Id exists on the specified Tentative queue, they should be removed', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: [expectedUserId],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -224,15 +224,15 @@ describe('Remove person from Tentative queue', () => {
 
   test('If a User Id does not exist on the specified Tentative queue, they should not be removed', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: ['2'],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -269,15 +269,15 @@ describe('Remove person from Tentative queue', () => {
 
   test('If an error occurs while removing, then it should be caught and rejected.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: [expectedUserId],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -305,15 +305,15 @@ describe('Remove person from Tentative queue', () => {
 describe('Handle tentative', () => {
   test('If a user id is passed, and they are on tentative, they should be removed.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: [expectedUserId],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -333,7 +333,7 @@ describe('Handle tentative', () => {
     };
 
     return clashTentativeDbImpl
-      .handleTentative(expectedUserId, expectedServerName, expectedTournament)
+      .handleTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((successful) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -349,15 +349,15 @@ describe('Handle tentative', () => {
 
   test('If a user id is passed, and they are not on tentative and there is an existing one, they should be added.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedTentativeObject = {
-      key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
       tentativePlayers: [],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: expectedTournament.tournamentName,
         tournamentDay: expectedTournament.tournamentDay,
@@ -377,7 +377,7 @@ describe('Handle tentative', () => {
     };
 
     return clashTentativeDbImpl
-      .handleTentative(expectedUserId, expectedServerName, expectedTournament)
+      .handleTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((successful) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -395,15 +395,15 @@ describe('Handle tentative', () => {
 describe('Is User on Tentative', () => {
   test('If a User is on Tentative for the Server and Tournament, it should return the tentative object.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
       attrs: {
-        key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
-        serverName: expectedServerName,
+        key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+        serverId: expectedserverId,
         tentativePlayers: [expectedUserId],
         tournamentDetails: {
           tournamentName: expectedTournament.tournamentName,
@@ -417,7 +417,7 @@ describe('Is User on Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .isTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((record) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -431,7 +431,7 @@ describe('Is User on Tentative', () => {
 
   test('If a User is not on Tentative for the Server and Tournament and there does not exist a record for the tournament details, it should return the false and undefined.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
@@ -442,12 +442,12 @@ describe('Is User on Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .isTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((record) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
         expect(clashTentativeDbImpl.Tentative.get)
-          .toHaveBeenCalledWith(`${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+          .toHaveBeenCalledWith(`${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
             expect.any(Function));
         expect(record.onTentative).toBeFalsy();
         expect(record.tentativeList).toBeFalsy();
@@ -456,15 +456,15 @@ describe('Is User on Tentative', () => {
 
   test('If a User is not on Tentative for the Server and Tournament, it should return the tentative object.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
       attrs: {
-        key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
-        serverName: expectedServerName,
+        key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+        serverId: expectedserverId,
         tentativePlayers: ['2'],
         tournamentDetails: {
           tournamentName: expectedTournament.tournamentName,
@@ -478,7 +478,7 @@ describe('Is User on Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .isTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((record) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -493,15 +493,15 @@ describe('Is User on Tentative', () => {
 
   test('If a User is not on Tentative for the Server and Tournament and the tentative list is empty, it should return the tentative object.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
       attrs: {
-        key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
-        serverName: expectedServerName,
+        key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+        serverId: expectedserverId,
         tournamentDetails: {
           tournamentName: expectedTournament.tournamentName,
           tournamentDay: expectedTournament.tournamentDay,
@@ -514,7 +514,7 @@ describe('Is User on Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .isTentative(expectedUserId, expectedServerName, expectedTournament)
+      .isTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((record) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -527,15 +527,15 @@ describe('Is User on Tentative', () => {
 
   test('If an error occurs, it should be rejected.', () => {
     const expectedUserId = '1';
-    const expectedServerName = 'Awesome Server';
+    const expectedserverId = 'Awesome Server';
     const expectedTournament = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedReturnedTentativeRecord = {
       attrs: {
-        key: `${expectedServerName}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
-        serverName: expectedServerName,
+        key: `${expectedserverId}#${expectedTournament.tournamentName}#${expectedTournament.tournamentDay}`,
+        serverId: expectedserverId,
         tentativePlayers: [expectedUserId],
         tournamentDetails: {
           tournamentName: expectedTournament.tournamentName,
@@ -549,7 +549,7 @@ describe('Is User on Tentative', () => {
         callback) => callback(expectedError,
         expectedReturnedTentativeRecord)),
     };
-    return clashTentativeDbImpl.isTentative(expectedUserId, expectedServerName, expectedTournament)
+    return clashTentativeDbImpl.isTentative(expectedUserId, expectedserverId, expectedTournament)
       .then((record) => expect(record).toBeFalsy())
       .catch((err) => expect(err).toEqual(expectedError));
   });
@@ -557,15 +557,15 @@ describe('Is User on Tentative', () => {
 
 describe('Retrieve Tentative', () => {
   test('If a server name, tournament name, and day is passed, then the matching tournament should be returned.', () => {
-    const expectedServerName = 'Goon Squad';
+    const expectedserverId = 'Goon Squad';
     const expectedTournamentDetails = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
     };
     const expectedResponse = {
-      key: `${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
+      key: `${expectedserverId}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
       tentativePlayers: ['1'],
-      serverName: expectedServerName,
+      serverId: expectedserverId,
       tournamentDetails: {
         tournamentName: 'awesome_sauce',
         tournamentDay: '1',
@@ -577,7 +577,7 @@ describe('Retrieve Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .getTentative(expectedServerName, expectedTournamentDetails)
+      .getTentative(expectedserverId, expectedTournamentDetails)
       .then((tentativeList) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
@@ -589,7 +589,7 @@ describe('Retrieve Tentative', () => {
   });
 
   test('If a server name, tournament name, and day is passed but does not exist, then an undefined object should be returned.', () => {
-    const expectedServerName = 'Goon Squad';
+    const expectedserverId = 'Goon Squad';
     const expectedTournamentDetails = {
       tournamentName: 'awesome_sauce',
       tournamentDay: '1',
@@ -600,12 +600,12 @@ describe('Retrieve Tentative', () => {
       }),
     };
     return clashTentativeDbImpl
-      .getTentative(expectedServerName, expectedTournamentDetails)
+      .getTentative(expectedserverId, expectedTournamentDetails)
       .then((tentativeList) => {
         expect(clashTentativeDbImpl.Tentative.get)
           .toHaveBeenCalledTimes(1);
         expect(clashTentativeDbImpl.Tentative.get)
-          .toHaveBeenCalledWith(`${expectedServerName}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
+          .toHaveBeenCalledWith(`${expectedserverId}#${expectedTournamentDetails.tournamentName}#${expectedTournamentDetails.tournamentDay}`,
             expect.any(Function));
         expect(tentativeList).toEqual(undefined);
       });

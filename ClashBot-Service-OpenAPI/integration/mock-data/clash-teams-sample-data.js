@@ -2,7 +2,7 @@ module.exports = {
   Items: [
     {
       startTime: ':currentDateOne',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '5',
       ],
@@ -17,7 +17,7 @@ module.exports = {
     },
     {
       startTime: ':datePlusOneDay',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '7',
         '299370234228506627',
@@ -34,7 +34,7 @@ module.exports = {
     },
     {
       startTime: ':datePlusOneDay',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '3',
         '2',
@@ -57,7 +57,7 @@ module.exports = {
     },
     {
       startTime: ':datePlusOneDay',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '299370234228506627',
       ],
@@ -72,7 +72,7 @@ module.exports = {
     },
     {
       startTime: ':datePlusOneDay',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '6',
       ],
@@ -87,7 +87,7 @@ module.exports = {
     },
     {
       startTime: ':datePlusThreeDays',
-      serverName: ':serverName',
+      serverId: ':serverId',
       players: [
         '6',
       ],

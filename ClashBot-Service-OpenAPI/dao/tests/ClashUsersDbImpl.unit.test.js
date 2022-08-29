@@ -22,7 +22,7 @@ describe('Initialize Table connection', () => {
           schema: {
             key: Joi.string(),
             playerName: Joi.string(),
-            serverName: Joi.string(),
+            serverId: Joi.string(),
             timeAdded: Joi.string(),
             subscribed: Joi.string(),
             preferredChampions: Joi.array(),
@@ -54,7 +54,7 @@ describe('Get User Subscription', () => {
     const expectedResults = {
       key: id,
       playerName,
-      serverName: server,
+      serverId: server,
       preferredChampions: ['Akali'],
       subscribed: false,
     };
@@ -259,7 +259,7 @@ describe('Retrieve User details by ids', () => {
       const userDetails = {
         key: '1',
         playerName: 'Roid',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       clashUserDbImpl.clashSubscriptionTable = {
         create: jest.fn().mockImplementation((data, callback) => {
@@ -269,7 +269,7 @@ describe('Retrieve User details by ids', () => {
       return clashUserDbImpl.createUser(userDetails).then((createdUser) => {
         expect(createdUser.key).toEqual(userDetails.key);
         expect(createdUser.playerName).toEqual(userDetails.playerName);
-        expect(createdUser.serverName).toEqual(userDetails.serverName);
+        expect(createdUser.serverId).toEqual(userDetails.serverId);
         expect(createdUser.timeAdded).not.toBeFalsy();
       });
     });

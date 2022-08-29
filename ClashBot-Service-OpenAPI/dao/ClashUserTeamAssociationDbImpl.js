@@ -16,9 +16,9 @@ class ClashUserTeamAssociationDbImpl {
         timestamps: true,
         schema: {
           playerId: Joi.string(),
-          // <tournament>#<tournamentDay>#<teamName>#<serverName>
+          // <tournament>#<tournamentDay>#<teamName>#<serverId>
           association: Joi.string(),
-          serverName: Joi.string(),
+          serverId: Joi.string(),
           teamName: Joi.string(),
           role: Joi.string(),
         },
@@ -65,13 +65,13 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  createUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName, role }) {
+  createUserAssociation({ playerId, tournament, tournamentDay, serverId, teamName, role }) {
     const loggerContext = {class: 'ClashUserTeamAssociation', method: 'createUserAssociation'};
     return new Promise((resolve, reject) => {
       const entityToPersist = this.buildAssociationEntity(
         tournament,
         tournamentDay,
-        serverName,
+        serverId,
         teamName,
         playerId,
         role,
@@ -79,7 +79,7 @@ class ClashUserTeamAssociationDbImpl {
       if (teamName) {
         entityToPersist.teamName = teamName;
       }
-      entityToPersist.serverName = serverName;
+      entityToPersist.serverId = serverId;
       logger.debug(loggerContext, `Creating new User Association with Player Id ('${entityToPersist.playerId}') Association ('${entityToPersist.association}')...`);
       this.clashUserTeamAssociationTable.create(entityToPersist, (err, response) => {
         if (err) reject(err);
@@ -88,13 +88,13 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  removeUserAssociation({ playerId, tournament, tournamentDay, serverName, teamName }) {
+  removeUserAssociation({ playerId, tournament, tournamentDay, serverId, teamName }) {
     const loggerContext = {class: 'ClashUserTeamAssociation', method: 'removeUserAssociation'};
     return new Promise((resolve, reject) => {
       const entityToPersist = this.buildAssociationEntity(
         tournament,
         tournamentDay,
-        serverName,
+        serverId,
         teamName,
         playerId,
       );
@@ -106,9 +106,9 @@ class ClashUserTeamAssociationDbImpl {
     });
   }
 
-  buildAssociationEntity(tournament, tournamentDay, serverName, teamName, playerId, role) {
+  buildAssociationEntity(tournament, tournamentDay, serverId, teamName, playerId, role) {
     if (!teamName) teamName = 'tentative';
-    let association = `${tournament}#${tournamentDay}#${teamName}#${serverName}`;
+    let association = `${tournament}#${tournamentDay}#${teamName}#${serverId}`;
     return {playerId, association, role};
   }
 }

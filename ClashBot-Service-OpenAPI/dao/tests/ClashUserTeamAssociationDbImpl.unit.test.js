@@ -24,9 +24,9 @@ describe('Clash User Team Association DAO', () => {
             timestamps: true,
             schema: {
               playerId: Joi.string(),
-              // <tournament>#<tournamentDay>#<teamName>#<serverName>
+              // <tournament>#<tournamentDay>#<teamName>#<serverId>
               association: Joi.string(),
-              serverName: Joi.string(),
+              serverId: Joi.string(),
               teamName: Joi.string(),
               role: Joi.string(),
             },
@@ -48,14 +48,14 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Test Server',
+        serverId: 'Test Server',
         teamName: 'absol',
         role: 'Top',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
-        serverName: userTeamAssociationRequest.serverName,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverId}`,
+        serverId: userTeamAssociationRequest.serverId,
         teamName: userTeamAssociationRequest.teamName,
         role: 'Top',
       };
@@ -80,12 +80,12 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverName}`,
-        serverName: userTeamAssociationRequest.serverName,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverId}`,
+        serverId: userTeamAssociationRequest.serverId,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         create: jest
@@ -110,13 +110,13 @@ describe('Clash User Team Association DAO', () => {
         tournament: 'awesome_sauce',
         tournamentDay: '1',
         teamName: 'absol',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         role: 'Top',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
-        serverName: userTeamAssociationRequest.serverName,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverId}`,
+        serverId: userTeamAssociationRequest.serverId,
         teamName: 'absol',
         role: userTeamAssociationRequest.role,
       };
@@ -147,12 +147,12 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         teamName: 'absol',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverId}`,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         destroy: jest
@@ -175,11 +175,11 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#tentative#${userTeamAssociationRequest.serverId}`,
       };
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
         destroy: jest
@@ -202,12 +202,12 @@ describe('Clash User Team Association DAO', () => {
         playerId: '1',
         tournament: 'awesome_sauce',
         tournamentDay: '1',
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         teamName: 'absol',
       };
       const expectedEntity = {
         playerId: userTeamAssociationRequest.playerId,
-        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverName}`,
+        association: `${userTeamAssociationRequest.tournament}#${userTeamAssociationRequest.tournamentDay}#${userTeamAssociationRequest.teamName}#${userTeamAssociationRequest.serverId}`,
       };
       const expectedError = new Error('Failed to remove. :(');
       clashUserTeamAssociation.clashUserTeamAssociationTable = {
@@ -232,7 +232,7 @@ describe('Clash User Team Association DAO', () => {
 
   describe('Get user association', () => {
     test('getUserAssociation - (Get Team User Association) - should retrieve user association for given tournament, tournament day, server name, and team name.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const expectedParameters = {
         playerId: '1',
         tournament: 'awesome_sauce',
@@ -240,8 +240,8 @@ describe('Clash User Team Association DAO', () => {
       };
       const associationEntity = {
         playerId: expectedParameters.playerId,
-        association: `${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${serverName}#absol`,
-        serverName,
+        association: `${expectedParameters.tournament}#${expectedParameters.tournamentDay}#${serverId}#absol`,
+        serverId,
         teamName: 'absol',
         role: 'Top',
       };

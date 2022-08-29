@@ -9,7 +9,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   title: clash-bot-webapp-service
-  version: 1.0.0
+  version: 1.1.0
 servers:
 - description: The local API server.
   url: "http://localhost:{port}/{basePath}"
@@ -46,7 +46,7 @@ paths:
       - description: the name of the Server to filter the Teams by.
         explode: true
         in: query
-        name: serverName
+        name: serverId
         required: true
         schema:
           type: string
@@ -102,7 +102,7 @@ paths:
         criteria.
       operationId: getTeam
       parameters:
-      - description: the name of the Team to retrieve.
+      - description: The name of the Team to retrieve.
         explode: true
         in: query
         name: name
@@ -110,15 +110,15 @@ paths:
         schema:
           type: string
         style: form
-      - description: the name of the Server to filter the Teams by.
+      - description: The identifier of the Server to filter the Teams by.
         explode: true
         in: query
-        name: server
+        name: serverId
         required: true
         schema:
           type: string
         style: form
-      - description: the name of the Tournament to filter the Teams by.
+      - description: The name of the Tournament to filter the Teams by.
         explode: true
         in: query
         name: tournament
@@ -126,7 +126,7 @@ paths:
         schema:
           type: string
         style: form
-      - description: the day of the Tournament to filter the Teams by.
+      - description: The day of the Tournament to filter the Teams by.
         explode: true
         in: query
         name: day
@@ -142,13 +142,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/Team'
                 type: array
-          description: the Teams that match the passed filtering criteria.
+          description: The Teams that match the passed filtering criteria.
         "204":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: no Teams match the passed filtering criteria.
+          description: No Teams match the passed filtering criteria.
         "400":
           content:
             application/json:
@@ -224,15 +224,15 @@ paths:
       description: Remove a player from the tentative queue for an upcoming Tournament.
       operationId: removePlayerFromTentative
       parameters:
-      - description: the name of the Server the queue falls under.
+      - description: The name of the Server identifier the queue falls under.
         explode: true
         in: query
-        name: serverName
+        name: serverId
         required: true
         schema:
           type: string
         style: form
-      - description: the player id to remove from the tentative queue with.
+      - description: The player id to remove from the tentative queue with.
         explode: true
         in: query
         name: playerId
@@ -240,7 +240,7 @@ paths:
         schema:
           type: string
         style: form
-      - description: the Tournament that the tentative queue belongs to.
+      - description: The Tournament that the tentative queue belongs to.
         explode: true
         in: query
         name: tournament
@@ -248,7 +248,7 @@ paths:
         schema:
           type: string
         style: form
-      - description: the Tournament day that the tentative queue belongs to.
+      - description: The Tournament day that the tentative queue belongs to.
         explode: true
         in: query
         name: tournamentDay
@@ -280,10 +280,10 @@ paths:
       description: A list of people on the tentative queue for upcoming Tournaments.
       operationId: getTentativeDetails
       parameters:
-      - description: The Server to filter the tentative queue by.
+      - description: The Server identifier to filter the tentative queue by.
         explode: true
         in: query
-        name: serverName
+        name: serverId
         required: true
         schema:
           type: string
@@ -336,7 +336,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Tentative'
           description: Successfully placed the requested player on the Tentative queue
-            for the give Server and Tournament.
+            for the given Server and Tournament.
         "404":
           content:
             application/json:
@@ -791,7 +791,7 @@ components:
             simple:
               summary: A base sample object.
               value:
-                serverName: LoL-ClashBotSupport
+                serverId: LoL-ClashBotSupport
                 tournamentName: awesome_sauce
                 tournamentDay: "4"
                 playerDetails:
@@ -812,7 +812,7 @@ components:
         application/json:
           schema:
             properties:
-              serverName:
+              serverId:
                 type: string
               playerId:
                 description: The id of the player to be removed from a given Team.
@@ -824,7 +824,7 @@ components:
                 type: string
             required:
             - playerId
-            - serverName
+            - serverId
             - teamName
             - tournamentDetails
             type: object
@@ -846,7 +846,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              serverName:
+              serverId:
                 description: The server the player is from.
                 type: string
             required:
@@ -897,7 +897,6 @@ components:
       description: A League of Legends Clash Team
       example:
         name: name
-        serverName: serverName
         playerDetails:
           Top:
             subscriptions:
@@ -910,8 +909,8 @@ components:
             - champions
             - champions
             name: name
-            serverName: serverName
             id: id
+            serverId: serverId
           Supp:
             subscriptions:
             - isOn: true
@@ -923,8 +922,8 @@ components:
             - champions
             - champions
             name: name
-            serverName: serverName
             id: id
+            serverId: serverId
           Bot:
             subscriptions:
             - isOn: true
@@ -936,8 +935,8 @@ components:
             - champions
             - champions
             name: name
-            serverName: serverName
             id: id
+            serverId: serverId
           Mid:
             subscriptions:
             - isOn: true
@@ -949,8 +948,8 @@ components:
             - champions
             - champions
             name: name
-            serverName: serverName
             id: id
+            serverId: serverId
           Jg:
             subscriptions:
             - isOn: true
@@ -962,21 +961,22 @@ components:
             - champions
             - champions
             name: name
-            serverName: serverName
             id: id
+            serverId: serverId
         tournament:
           registrationTime: 2000-01-23T04:56:07.000+00:00
           tournamentName: tournamentName
           startTime: 2000-01-23T04:56:07.000+00:00
           tournamentDay: "1"
+        serverId: serverId
       properties:
         name:
           description: The name of the Team.
           type: string
         playerDetails:
           $ref: '#/components/schemas/Team_playerDetails'
-        serverName:
-          description: The Discord server that the Team belongs to.
+        serverId:
+          description: The Discord Server identifier that the Team belongs to.
           type: string
         tournament:
           $ref: '#/components/schemas/Tournament'
@@ -1020,8 +1020,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         - subscriptions:
           - isOn: true
             key: key
@@ -1032,17 +1032,17 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         tournamentDetails:
           registrationTime: 2000-01-23T04:56:07.000+00:00
           tournamentName: tournamentName
           startTime: 2000-01-23T04:56:07.000+00:00
           tournamentDay: "1"
-        serverName: serverName
+        serverId: serverId
       properties:
-        serverName:
-          description: The Server that the tentative queue belongs to.
+        serverId:
+          description: The Server identifier that the tentative queue belongs to.
           type: string
         tournamentDetails:
           $ref: '#/components/schemas/Tournament'
@@ -1064,8 +1064,8 @@ components:
         - champions
         - champions
         name: name
-        serverName: serverName
         id: id
+        serverId: serverId
       properties:
         id:
           description: Unique identifier for Player
@@ -1084,7 +1084,7 @@ components:
           items:
             $ref: '#/components/schemas/Subscription'
           type: array
-        serverName:
+        serverId:
           type: string
       type: object
     Subscription:
@@ -1126,7 +1126,7 @@ components:
       type: object
     createNewTeam_request:
       properties:
-        serverName:
+        serverId:
           description: The dedicated for the server team
           type: string
         tournamentName:
@@ -1139,13 +1139,13 @@ components:
           $ref: '#/components/schemas/createNewTeam_request_playerDetails'
       required:
       - playerDetails
-      - serverName
+      - serverId
       - tournamentDay
       - tournamentName
       type: object
     updateTeam_request:
       properties:
-        serverName:
+        serverId:
           type: string
         teamName:
           type: string
@@ -1159,13 +1159,13 @@ components:
       required:
       - playerId
       - role
-      - serverName
+      - serverId
       - teamName
       - tournamentDetails
       type: object
     placePlayerOnTentative_request:
       properties:
-        serverName:
+        serverId:
           description: The Server that the tentative queue belongs to.
           type: string
         tournamentDetails:
@@ -1175,7 +1175,7 @@ components:
           type: string
       required:
       - playerId
-      - serverName
+      - serverId
       - tournamentDetails
       type: object
     createUser_request:
@@ -1186,13 +1186,13 @@ components:
         name:
           description: The name of the player
           type: string
-        serverName:
+        serverId:
           description: The server the player is from.
           type: string
       required:
       - id
       - name
-      - serverName
+      - serverId
       type: object
     createNewListOfPreferredChampions_request:
       properties:
@@ -1232,8 +1232,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         Supp:
           subscriptions:
           - isOn: true
@@ -1245,8 +1245,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         Bot:
           subscriptions:
           - isOn: true
@@ -1258,8 +1258,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         Mid:
           subscriptions:
           - isOn: true
@@ -1271,8 +1271,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
         Jg:
           subscriptions:
           - isOn: true
@@ -1284,8 +1284,8 @@ components:
           - champions
           - champions
           name: name
-          serverName: serverName
           id: id
+          serverId: serverId
       properties:
         Top:
           $ref: '#/components/schemas/Player'

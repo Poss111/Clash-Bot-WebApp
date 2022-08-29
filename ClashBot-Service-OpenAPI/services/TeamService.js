@@ -29,7 +29,7 @@ function removeUserFromTeam(teamEntity, playerId, loggerContext) {
 }
 
 async function findAssociationsAndRemoveUser({
-  playerId, tournamentName, tournamentDay, serverName, role, teamName,
+  playerId, tournamentName, tournamentDay, serverId, role, teamName,
 }, loggerContext) {
   let response;
   const userAssociations = await clashUserTeamAssociationDbImpl.getUserAssociation({
@@ -43,7 +43,7 @@ async function findAssociationsAndRemoveUser({
     if (!userAssociations[0].teamName) {
       logger.info(loggerContext, `Association is of type 'Tentative', removing ('${userAssociations[0].playerId}') from Tentative Queue record...`);
       const tentativeResponse = await tentativeService.removePlayerFromTentative({
-        serverName: userAssociations[0].serverName,
+        serverId: userAssociations[0].serverId,
         playerId,
         tournament: tournamentName,
         tournamentDay,
@@ -58,7 +58,7 @@ async function findAssociationsAndRemoveUser({
     } else if (!(teamName === userAssociations[0].teamName
         && userAssociations[0].role === role)) {
       const retrievedTeam = await clashTeamsDbImpl.retrieveTeamsByFilter({
-        serverName: userAssociations[0].serverName,
+        serverId: userAssociations[0].serverId,
         tournamentName,
         tournamentDay,
         teamName: userAssociations[0].teamName,
@@ -75,25 +75,25 @@ async function findAssociationsAndRemoveUser({
         playerId,
         tournament: tournamentName,
         tournamentDay,
-        serverName: teamToBeRemovedFrom.serverName,
+        serverId: teamToBeRemovedFrom.serverId,
         teamName: teamToBeRemovedFrom.teamName,
       });
       if (teamName === teamToBeRemovedFrom.teamName) {
         return { swapRoleTeam: updatedTeam };
       } if (teamToBeRemovedFrom.players <= 0) {
         await clashTeamsDbImpl.deleteTeam({
-          serverName: teamToBeRemovedFrom.serverName,
+          serverId: teamToBeRemovedFrom.serverId,
           details: teamToBeRemovedFrom.details,
         });
         logger.debug(
           loggerContext,
-          `Server ('${teamToBeRemovedFrom.serverName}') Team ('${teamToBeRemovedFrom.details}') successfully deleted.`,
+          `Server ('${teamToBeRemovedFrom.serverId}') Team ('${teamToBeRemovedFrom.details}') successfully deleted.`,
         );
         event = objectMapper(updatedTeam, teamEntityDeletionToResponse);
       } else {
         const teamAfterUpdate = await clashTeamsDbImpl.updateTeam(updatedTeam);
         logger.info(loggerContext,
-          `Removed Player from following Server ('${teamAfterUpdate.serverName}') Team ('${teamAfterUpdate.teamName}').`);
+          `Removed Player from following Server ('${teamAfterUpdate.serverId}') Team ('${teamAfterUpdate.teamName}').`);
         const idToUserDetails = await clashSubscriptionDbImpl.retrieveAllUserDetails(
           teamAfterUpdate.players,
         );
@@ -131,7 +131,7 @@ const createNewTeam = ({ body }) => new Promise(
             playerId: body.playerDetails.id,
             tournamentName: body.tournamentName,
             tournamentDay: body.tournamentDay,
-            serverName: body.serverName,
+            serverId: body.serverId,
           },
           loggerContext,
         );
@@ -140,7 +140,7 @@ const createNewTeam = ({ body }) => new Promise(
           const playersWRoles = {};
           playersWRoles[body.playerDetails.role] = body.playerDetails.id;
           const createdTeam = await clashTeamsDbImpl.createTeam({
-            serverName: body.serverName,
+            serverId: body.serverId,
             players: [body.playerDetails.id],
             playersWRoles,
             tournamentDetails: {
@@ -155,7 +155,7 @@ const createNewTeam = ({ body }) => new Promise(
                 playerId: entry[1],
                 tournament: body.tournamentName,
                 tournamentDay: body.tournamentDay,
-                serverName: body.serverName,
+                serverId: body.serverId,
                 teamName: createdTeam.teamName,
                 role: entry[0],
               }));
@@ -193,7 +193,7 @@ const createNewTeam = ({ body }) => new Promise(
 * returns List
 * */
 const getTeam = ({
-  server, name, tournament, day,
+  serverId, name, tournament, day,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'getTeam' };
@@ -205,7 +205,7 @@ const getTeam = ({
       } else {
         const teams = await clashTeamsDbImpl.retrieveTeamsByFilter({
           teamName: name,
-          serverName: server,
+          serverId,
           tournamentName: tournament,
           tournamentDay: day,
         });
@@ -238,20 +238,20 @@ const getTeam = ({
  * Removes a Player from a Team
  *
  * name String the name of the Team to retrieve.
- * serverName String the name of the Server to filter the Teams by.
+ * serverId String the name of the Server to filter the Teams by.
  * tournament String the name of the Tournament to filter the Teams by.
  * tournamentDay String the day of the Tournament to filter the Teams by.
  * playerId String the player id to remove from the Team.
  * returns removePlayerFromTeam_200_response
  * */
 const removePlayerFromTeam = ({
-  name, serverName, tournament, tournamentDay, playerId,
+  name, serverId, tournament, tournamentDay, playerId,
 }) => new Promise(
   async (resolve, reject) => {
     const loggerContext = { class: 'TeamService', method: 'removePlayerFromTeam' };
     try {
       const retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
-        serverName,
+        serverId,
         tournamentName: tournament,
         tournamentDay,
         teamName: name,
@@ -261,36 +261,36 @@ const removePlayerFromTeam = ({
         reject(Service.rejectResponse('No Team found with criteria.', 400));
       } else if (!retrievedTeams[0].players.some((id) => id === playerId)) {
         reject(Service.rejectResponse(
-          `Player does not exist on Team '${serverName}#${tournament}#${tournamentDay}#${name}'.`,
+          `Player does not exist on Team '${serverId}#${tournament}#${tournamentDay}#${name}'.`,
           400,
         ));
       } else {
         logger.debug(
           loggerContext,
-          `Retrieved Teams Server ('${serverName}') length ('${retrievedTeams.length}')`,
+          `Retrieved Teams Server ('${serverId}') length ('${retrievedTeams.length}')`,
         );
         const teamToUpdate = { ...retrievedTeams[0] };
         logger.debug(
           loggerContext,
-          `Removing player ('${playerId}') from Server ('${retrievedTeams[0].serverName}') Team ('${retrievedTeams[0].details}')...`,
+          `Removing player ('${playerId}') from Server ('${retrievedTeams[0].serverId}') Team ('${retrievedTeams[0].details}')...`,
         );
         removeUserFromTeam(teamToUpdate, playerId, loggerContext);
         if (teamToUpdate.players <= 0) {
           logger.debug(loggerContext, 'Team will be empty after removal, deleting team instead...');
           await clashTeamsDbImpl.deleteTeam({
-            serverName: teamToUpdate.serverName,
+            serverId: teamToUpdate.serverId,
             details: teamToUpdate.details,
           });
           await clashUserTeamAssociationDbImpl.removeUserAssociation({
             playerId,
             tournament,
             tournamentDay,
-            serverName,
+            serverId,
             teamName: teamToUpdate.teamName,
           });
           logger.debug(
             loggerContext,
-            `Server ('${serverName}') Team ('${teamToUpdate.details}') successfully deleted.`,
+            `Server ('${serverId}') Team ('${teamToUpdate.details}') successfully deleted.`,
           );
           sendAsyncEvent(
             objectMapper(teamToUpdate, teamEntityDeletionToResponse),
@@ -304,10 +304,10 @@ const removePlayerFromTeam = ({
             playerId,
             tournament,
             tournamentDay,
-            serverName,
+            serverId,
             teamName: updatedTeam.teamName,
           });
-          logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Server ('${retrievedTeams[0].serverName}') Team ('${updatedTeam.details}')`);
+          logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Server ('${retrievedTeams[0].serverId}') Team ('${updatedTeam.details}')`);
           logger.debug(loggerContext, `Player ('${playerId}') removed successfully from Team association.`);
           const idToPlayerMap = await clashSubscriptionDbImpl
             .retrieveAllUserDetails(updatedTeam.players);
@@ -345,7 +345,7 @@ const updateTeam = ({ body }) => new Promise(
           playerId: body.playerId,
           tournamentName: body.tournamentDetails.tournamentName,
           tournamentDay: body.tournamentDetails.tournamentDay,
-          serverName: body.serverName,
+          serverId: body.serverId,
           role: body.role,
           teamName: body.teamName,
         },
@@ -356,7 +356,7 @@ const updateTeam = ({ body }) => new Promise(
         let retrievedTeams = [];
         if (!swapRoleTeam) {
           retrievedTeams = await clashTeamsDbImpl.retrieveTeamsByFilter({
-            serverName: body.serverName,
+            serverId: body.serverId,
             tournamentName: body.tournamentDetails.tournamentName,
             tournamentDay: body.tournamentDetails.tournamentDay,
             teamName: body.teamName,
@@ -367,17 +367,17 @@ const updateTeam = ({ body }) => new Promise(
 
         if (!retrievedTeams || retrievedTeams.length <= 0) {
           reject(Service.rejectResponse(
-            `No team found matching criteria '${body.serverName}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}'.`,
+            `No team found matching criteria '${body.serverId}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}'.`,
             400,
           ));
         } else if (retrievedTeams[0].players.length >= 5) {
           reject(Service.rejectResponse(
-            `Team requested is already full - '${body.serverName}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}'.`,
+            `Team requested is already full - '${body.serverId}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}'.`,
             400,
           ));
         } else if (retrievedTeams[0].playersWRoles[body.role]) {
           reject(Service.rejectResponse(
-            `Role is already taken - '${body.serverName}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}#${body.role}'.`,
+            `Role is already taken - '${body.serverId}#${body.tournamentDetails.tournamentName}#${body.tournamentDetails.tournamentDay}#${body.teamName}#${body.role}'.`,
             400,
           ));
         } else {
@@ -393,7 +393,7 @@ const updateTeam = ({ body }) => new Promise(
             playerId: body.playerId,
             tournament: body.tournamentDetails.tournamentName,
             tournamentDay: body.tournamentDetails.tournamentDay,
-            serverName: body.serverName,
+            serverId: body.serverId,
             teamName: updatedTeam.teamName,
             role: body.role,
           });

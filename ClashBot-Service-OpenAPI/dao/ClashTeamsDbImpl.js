@@ -14,11 +14,11 @@ class ClashTeamsDbImpl {
         const loggerContext = {class: 'ClashTeamsDbImpl', method: 'initialize'};
         return new Promise((resolve, reject) => {
             dynamoDbHelper.initialize(this.tableName, {
-                hashKey: 'serverName',
+                hashKey: 'serverId',
                 rangeKey: 'details',
                 timestamps: true,
                 schema: {
-                    serverName: Joi.string(),
+                    serverId: Joi.string(),
                     details: Joi.string(),
                     teamName: Joi.string(),
                     players: dynamodb.types.stringSet(),
@@ -41,13 +41,13 @@ class ClashTeamsDbImpl {
         })
     }
 
-    createTeam({ serverName, players, playersWRoles, tournamentDetails }) {
+    createTeam({ serverId, players, playersWRoles, tournamentDetails }) {
         const loggerContext = {class: 'ClashTeamsDbImpl', method: 'createTeam'};
         return new Promise((resolve, reject) => {
             logger.debug(loggerContext, 'Creating new Team...');
             const teamName = namingUtils.retrieveName().toLowerCase();
             const builtTeam = {
-                serverName,
+                serverId,
                 details: `${tournamentDetails.tournamentName}#${tournamentDetails.tournamentDay}#${teamName}`,
                 tournamentName: tournamentDetails.tournamentName,
                 tournamentDay: tournamentDetails.tournamentDay,
@@ -55,7 +55,7 @@ class ClashTeamsDbImpl {
                 playersWRoles,
                 teamName
             };
-            logger.debug(loggerContext, `New Team to be persisted Server ('${serverName}') Team('${builtTeam.details}')...`);
+            logger.debug(loggerContext, `New Team to be persisted Server ('${serverId}') Team('${builtTeam.details}')...`);
             this.Team.create(builtTeam, (err, data) => {
                 if (err) {
                     logger.error(
@@ -64,7 +64,7 @@ class ClashTeamsDbImpl {
                       )
                     reject(err);
                 } else {
-                    logger.debug(loggerContext, `Successfully created new Server ('${data.attrs.serverName}') Team ('${data.attrs.details}')`);
+                    logger.debug(loggerContext, `Successfully created new Server ('${data.attrs.serverId}') Team ('${data.attrs.details}')`);
                     resolve(data.attrs);
                 }
             });
@@ -88,13 +88,13 @@ class ClashTeamsDbImpl {
         });
     }
 
-    retrieveTeamsByFilter({serverName, tournamentName, tournamentDay, teamName}) {
+    retrieveTeamsByFilter({serverId, tournamentName, tournamentDay, teamName}) {
         const loggerContext = {class: 'ClashTeamsDbImpl', method: 'retrieveTeamsByFilter'};
         return new Promise((resolve, reject) => {
-            logger.debug(loggerContext, `Retrieving Teams based on criteria serverName ('${serverName}') tournamentName ('${tournamentName}') tournamentDay ('${tournamentDay}') teamName ('${teamName}')`)
+            logger.debug(loggerContext, `Retrieving Teams based on criteria serverId ('${serverId}') tournamentName ('${tournamentName}') tournamentDay ('${tournamentDay}') teamName ('${teamName}')`)
             let stream = this.Team
-              .query(serverName);
-            let filteringCriteria = serverName;
+              .query(serverId);
+            let filteringCriteria = serverId;
               if (tournamentName
                 || tournamentDay
                 || teamName) {

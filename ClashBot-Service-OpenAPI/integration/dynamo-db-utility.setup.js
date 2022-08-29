@@ -52,7 +52,7 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
     tournamentDayFour: '4',
     datePlusFourDays: formattedDatePlusSevenDays,
     tournamentDayFive: '5',
-    serverName: 'LoL-ClashBotSupport',
+    serverId: '837685892885512202',
   };
   logger.info(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
   const clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);

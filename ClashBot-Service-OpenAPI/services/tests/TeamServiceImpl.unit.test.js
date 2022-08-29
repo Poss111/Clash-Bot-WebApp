@@ -21,7 +21,7 @@ function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetai
     code: 200,
     payload: {
       name: expectedTeams.teamName,
-      serverName: expectedTeams.serverName,
+      serverId: expectedTeams.serverId,
       tournament: {
         tournamentName: expectedTeams.tournamentName,
         tournamentDay: expectedTeams.tournamentDay,
@@ -41,13 +41,13 @@ function buildExpectedSingleTeamResponseWithUserMap(expectedTeams, mockUserDetai
 }
 
 function validateTeamDeletion(
-  serverName, currentTeam, playerId, tournamentName, tournamentDay,
+  serverId, currentTeam, playerId, tournamentName, tournamentDay,
 ) {
   expect(clashTeamsDbImpl.deleteTeam)
     .toHaveBeenCalledTimes(1);
   expect(clashTeamsDbImpl.deleteTeam)
     .toHaveBeenCalledWith({
-      serverName,
+      serverId,
       details: currentTeam.details,
     });
   expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
@@ -57,17 +57,17 @@ function validateTeamDeletion(
       playerId,
       tournament: tournamentName,
       tournamentDay,
-      serverName,
+      serverId,
       teamName: currentTeam.teamName,
     });
 }
 
-function validateTentativeRemoval(serverName, tournamentName, tournamentDay, playerId) {
+function validateTentativeRemoval(serverId, tournamentName, tournamentDay, playerId) {
   expect(tentativeService.removePlayerFromTentative)
     .toHaveBeenCalledTimes(1);
   expect(tentativeService.removePlayerFromTentative)
     .toHaveBeenCalledWith({
-      serverName,
+      serverId,
       playerId,
       tournament: tournamentName,
       tournamentDay,
@@ -75,7 +75,7 @@ function validateTentativeRemoval(serverName, tournamentName, tournamentDay, pla
 }
 
 function validateAssociationSwap(
-  playerId, tournamentName, tournamentDay, serverName, originalTeamName, newTeamName, role,
+  playerId, tournamentName, tournamentDay, serverId, originalTeamName, newTeamName, role,
 ) {
   expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
     .toHaveBeenCalledTimes(1);
@@ -84,7 +84,7 @@ function validateAssociationSwap(
       playerId,
       tournament: tournamentName,
       tournamentDay,
-      serverName,
+      serverId,
       teamName: originalTeamName,
     });
   expect(clashUserTeamAssociationDbImpl.createUserAssociation)
@@ -94,7 +94,7 @@ function validateAssociationSwap(
       playerId,
       tournament: tournamentName,
       tournamentDay,
-      serverName,
+      serverId,
       teamName: newTeamName,
       role,
     });
@@ -107,20 +107,20 @@ beforeEach(() => {
 
 describe('Clash Teams Service Impl', () => {
   describe('Team - GET', () => {
-    test('getTeam - Retrieve all teams based on serverName.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - Retrieve all teams based on serverId.', () => {
+      const serverId = 'Goon Squad';
       const mockUserDetails = {
         1: createUserDetails({}),
         2: createUserDetails({
           key: '2',
           playerName: 'Meso',
-          serverName,
+          serverId,
           preferredChampions: ['Elise'],
         }),
       };
       const expectedTeams = [createV3Team(
         {
-          serverName,
+          serverId,
           tournamentDay: '1',
           playersWRoles: { Top: '1', Jg: '2' },
           players: ['1', '2'],
@@ -129,10 +129,10 @@ describe('Clash Teams Service Impl', () => {
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
-      return clashTeamsServiceImpl.getTeam({ server: serverName })
+      return clashTeamsServiceImpl.getTeam({ serverId })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverId });
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
             .toHaveBeenCalledWith(expectedTeams[0].players);
@@ -140,21 +140,21 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
-    test('getTeam - Retrieve all teams based on serverName and tournamentName.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - Retrieve all teams based on serverId and tournamentName.', () => {
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const mockUserDetails = {
         1: createUserDetails({}),
         2: createUserDetails({
           key: '2',
           playerName: 'Meso',
-          serverName,
+          serverId,
           preferredChampions: ['Elise'],
         }),
       };
       const expectedTeams = [createV3Team(
         {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay: '1',
           playersWRoles: { Top: '1', Jg: '2' },
@@ -164,17 +164,17 @@ describe('Clash Teams Service Impl', () => {
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
-      return clashTeamsServiceImpl.getTeam({ server: serverName, tournament: tournamentName })
+      return clashTeamsServiceImpl.getTeam({ serverId, tournament: tournamentName })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
-            .toHaveBeenCalledWith({ serverName, tournamentName });
+            .toHaveBeenCalledWith({ serverId, tournamentName });
           expect(teams).toEqual(expectedResponse);
         });
     });
 
-    test('getTeam - Retrieve all teams based on serverName, tournamentName, and tournamentDay.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - Retrieve all teams based on serverId, tournamentName, and tournamentDay.', () => {
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const mockUserDetails = {
@@ -182,13 +182,13 @@ describe('Clash Teams Service Impl', () => {
         2: createUserDetails({
           key: '2',
           playerName: 'Meso',
-          serverName,
+          serverId,
           preferredChampions: ['Elise'],
         }),
       };
       const expectedTeams = [createV3Team(
         {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay,
           playersWRoles: { Top: '1', Jg: '2' },
@@ -199,20 +199,20 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
-        server: serverName,
+        serverId,
         tournament: tournamentName,
         day: tournamentDay,
       })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
-            .toHaveBeenCalledWith({ serverName, tournamentName, tournamentDay });
+            .toHaveBeenCalledWith({ serverId, tournamentName, tournamentDay });
           expect(teams).toEqual(expectedResponse);
         });
     });
 
-    test('getTeam - Retrieve all teams based on serverName, tournamentName, tournamentDay, and name.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - Retrieve all teams based on serverId, tournamentName, tournamentDay, and name.', () => {
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Charizard';
@@ -221,13 +221,13 @@ describe('Clash Teams Service Impl', () => {
         2: createUserDetails({
           key: '2',
           playerName: 'Meso',
-          serverName,
+          serverId,
           preferredChampions: ['Elise'],
         }),
       };
       const expectedTeams = [createV3Team(
         {
-          serverName,
+          serverId,
           tournamentName,
           tournamentDay,
           teamName,
@@ -240,21 +240,21 @@ describe('Clash Teams Service Impl', () => {
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
         name: teamName,
-        server: serverName,
+        serverId,
         tournament: tournamentName,
         day: tournamentDay,
       })
         .then((teams) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            teamName, serverName, tournamentName, tournamentDay,
+            teamName, serverId, tournamentName, tournamentDay,
           });
           expect(teams).toEqual(expectedResponse);
         });
     });
 
-    test('getTeam - If serverName and only tournamentDay are passed, it should return 400.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - If serverId and only tournamentDay are passed, it should return 400.', () => {
+      const serverId = 'Goon Squad';
       const tournamentDay = '1';
       const name = 'Abra';
       const response = {
@@ -263,7 +263,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        serverName,
+        serverId,
         day: tournamentDay,
       })
         .then(() => expect(true).toBeFalsy())
@@ -273,8 +273,8 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
-    test('getTeam - If serverName and only team are passed, it should return 400.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - If serverId and only team are passed, it should return 400.', () => {
+      const serverId = 'Goon Squad';
       const name = 'Abra';
       const response = {
         code: 400,
@@ -282,7 +282,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        serverName,
+        serverId,
       })
         .then(() => expect(true).toBeFalsy())
         .catch((err) => {
@@ -291,8 +291,8 @@ describe('Clash Teams Service Impl', () => {
         });
     });
 
-    test('getTeam - If serverName and tournamentName, and team are passed, it should return 400.', () => {
-      const serverName = 'Goon Squad';
+    test('getTeam - If serverId and tournamentName, and team are passed, it should return 400.', () => {
+      const serverId = 'Goon Squad';
       const name = 'Abra';
       const tournamentName = 'awesome_sauce';
       const response = {
@@ -301,7 +301,7 @@ describe('Clash Teams Service Impl', () => {
       };
       return clashTeamsServiceImpl.getTeam({
         name,
-        serverName,
+        serverId,
         tournament: tournamentName,
       })
         .then(() => expect(true).toBeFalsy())
@@ -314,7 +314,7 @@ describe('Clash Teams Service Impl', () => {
 
   describe('Team - PATCH', () => {
     test('updateTeam - If user is not on the Team, they should be added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const expectedUserMap = {
@@ -322,7 +322,7 @@ describe('Clash Teams Service Impl', () => {
         3: createUserDetails({ key: '3' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -331,7 +331,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         playersWRoles: { Supp: '3' },
@@ -347,7 +347,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -365,7 +365,7 @@ describe('Clash Teams Service Impl', () => {
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -377,7 +377,7 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
+              serverId: teamPatchPayload.serverId,
               teamName: expectedUpdatedTeam.teamName,
               role: teamPatchPayload.role,
             });
@@ -392,7 +392,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (User belongs to another Team) - If user is not on the Team and on another Team, they should be removed from the first team and added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const expectedUserMap = {
@@ -401,7 +401,7 @@ describe('Clash Teams Service Impl', () => {
         4: createUserDetails({ key: '4' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -410,7 +410,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         playersWRoles: { Supp: '3' },
@@ -424,14 +424,14 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '2',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
-          serverName: teamPatchPayload.serverName,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
+          serverId: teamPatchPayload.serverId,
           role: 'Supp',
           teamName: 'some-team',
         },
       ]);
       const currentTeam = createV3Team({
-        serverName,
+        serverId,
         teamName: 'some-team',
         tournamentName,
         tournamentDay,
@@ -455,7 +455,7 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValueOnce(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -475,20 +475,20 @@ describe('Clash Teams Service Impl', () => {
             teamPatchPayload.playerId,
             tournamentName,
             tournamentDay,
-            serverName,
+            serverId,
             currentTeam.teamName,
             expectedUpdatedTeam.teamName,
             teamPatchPayload.role,
           );
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: currentTeam.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -508,7 +508,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (User belongs to another Team with same Role) - If user is not on the Team and on another Team, they should be removed from the first team and added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const expectedUserMap = {
@@ -517,7 +517,7 @@ describe('Clash Teams Service Impl', () => {
         4: createUserDetails({ key: '4' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -527,7 +527,7 @@ describe('Clash Teams Service Impl', () => {
         // teamName: 'Abra'
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         playersWRoles: { Supp: '3' },
@@ -541,13 +541,13 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '2',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
           role: 'Top',
           teamName: 'some-team',
         },
       ]);
       const currentTeam = createV3Team({
-        serverName,
+        serverId,
         teamName: 'some-team',
         tournamentName,
         tournamentDay,
@@ -571,14 +571,14 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValueOnce(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([{
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
-        serverName: teamPatchPayload.serverName,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
+        serverId: teamPatchPayload.serverId,
         role: 'Top',
         teamName: 'some-team',
       }]);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -598,20 +598,20 @@ describe('Clash Teams Service Impl', () => {
             teamPatchPayload.playerId,
             tournamentName,
             tournamentDay,
-            serverName,
+            serverId,
             currentTeam.teamName,
             expectedUpdatedTeam.teamName,
             teamPatchPayload.role,
           );
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: currentTeam.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -631,11 +631,11 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (Error, User already belongs to Team) - If user is already associated to the requested Team with the same role, they should be returned 400 as an error.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -647,7 +647,7 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '2',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#abra`,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#abra`,
           role: 'Top',
           teamName: 'abra',
         },
@@ -674,7 +674,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (User belongs to another Team by themselves) - If user is not on the Team and is on another Team by themselves, the original team should be deleted and then they should added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const expectedUserMap = {
@@ -682,7 +682,7 @@ describe('Clash Teams Service Impl', () => {
         3: createUserDetails({ key: '3' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -691,7 +691,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         playersWRoles: { Supp: '3' },
@@ -705,14 +705,14 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '2',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
-          serverName: teamPatchPayload.serverName,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
+          serverId: teamPatchPayload.serverId,
           role: 'Supp',
           teamName: 'some-team',
         },
       ]);
       const currentTeam = createV3Team({
-        serverName,
+        serverId,
         teamName: 'some-team',
         tournamentName,
         tournamentDay,
@@ -734,7 +734,7 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValue(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -752,19 +752,19 @@ describe('Clash Teams Service Impl', () => {
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: currentTeam.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
           });
           validateTeamDeletion(
-            serverName,
+            serverId,
             currentTeam,
             teamPatchPayload.playerId,
             tournamentName,
@@ -779,7 +779,7 @@ describe('Clash Teams Service Impl', () => {
           expect(socketService.sendMessage)
             .toHaveBeenNthCalledWith(1, {
               name: expectedRemoveEvent.payload.name,
-              serverName: expectedRemoveEvent.payload.serverName,
+              serverId: expectedRemoveEvent.payload.serverId,
             });
           expect(socketService.sendMessage)
             .toHaveBeenNthCalledWith(2, expectedResponse.payload);
@@ -788,7 +788,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (User belongs to a Tentative Queue) - If user is not on the Team and on another Tentative Queue, they should be removed from the Tentative Queue then added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const expectedUserMap = {
@@ -797,7 +797,7 @@ describe('Clash Teams Service Impl', () => {
         4: createUserDetails({ key: '4' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -806,7 +806,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         playersWRoles: { Supp: '3' },
@@ -820,15 +820,15 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '2',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#tentative`,
-          serverName: teamPatchPayload.serverName,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#tentative`,
+          serverId: teamPatchPayload.serverId,
         },
       ]);
       tentativeService.removePlayerFromTentative
         .mockResolvedValue({
           code: 200,
           payload: {
-            serverName,
+            serverId,
             tournamentDetails: {
               tournamentName,
               tournamentDay,
@@ -842,7 +842,7 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValueOnce(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -859,11 +859,11 @@ describe('Clash Teams Service Impl', () => {
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             });
           validateTentativeRemoval(
-            serverName, tournamentName, tournamentDay, teamPatchPayload.playerId,
+            serverId, tournamentName, tournamentDay, teamPatchPayload.playerId,
           );
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -880,7 +880,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - If user is not on the Team, and name is passed, they should be added.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamName = 'Charizard';
@@ -889,7 +889,7 @@ describe('Clash Teams Service Impl', () => {
         3: createUserDetails({ key: '3' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -899,7 +899,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         teamName,
@@ -916,7 +916,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.updateTeam.mockResolvedValue(expectedUpdatedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '2',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -934,7 +934,7 @@ describe('Clash Teams Service Impl', () => {
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -949,7 +949,7 @@ describe('Clash Teams Service Impl', () => {
               playerId: teamPatchPayload.playerId,
               tournament: teamPatchPayload.tournamentDetails.tournamentName,
               tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
-              serverName: teamPatchPayload.serverName,
+              serverId: teamPatchPayload.serverId,
               teamName: expectedUpdatedTeam.teamName,
               role: teamPatchPayload.role,
             });
@@ -961,7 +961,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - (User wants to swap role) - If user already belongs to teamName passed with a different role, then they should be added with the requested role and removed from the current role.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamName = 'charizard';
@@ -969,7 +969,7 @@ describe('Clash Teams Service Impl', () => {
         1: createUserDetails({ key: '1' }),
       };
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -979,7 +979,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Top',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         teamName,
@@ -994,9 +994,9 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '1',
-          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#${teamName}`,
+          association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#${teamName}`,
           teamName,
-          serverName: teamPatchPayload.serverName,
+          serverId: teamPatchPayload.serverId,
           role: 'Supp',
         },
       ]);
@@ -1004,7 +1004,7 @@ describe('Clash Teams Service Impl', () => {
       socketService.sendMessage.mockResolvedValue(true);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '1',
-        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverName}#some-team`,
+        association: `${teamPatchPayload.tournamentDetails.tournamentName}#${teamPatchPayload.tournamentDetails.tournamentDay}#${teamPatchPayload.serverId}#some-team`,
         role: 'Top',
         teamName: expectedUpdatedTeam.teamName,
       });
@@ -1016,7 +1016,7 @@ describe('Clash Teams Service Impl', () => {
         .then((response) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -1032,7 +1032,7 @@ describe('Clash Teams Service Impl', () => {
             playerId: '1',
             tournament: tournamentName,
             tournamentDay,
-            serverName,
+            serverId,
             teamName,
             role: 'Top',
           });
@@ -1044,12 +1044,12 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('updateTeam - If no team is found, then it should return with 400.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamName = 'Charizard';
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -1066,14 +1066,14 @@ describe('Clash Teams Service Impl', () => {
         .catch((err) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -1081,18 +1081,18 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `No team found matching criteria '${serverName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
+            error: `No team found matching criteria '${serverId}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
 
     test('updateTeam - If  team is found is full (5 teamMembers), then it should return with 400.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamName = 'Charizard';
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -1102,7 +1102,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Supp',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         teamName,
@@ -1128,14 +1128,14 @@ describe('Clash Teams Service Impl', () => {
         .catch((err) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -1143,18 +1143,18 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `Team requested is already full - '${serverName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
+            error: `Team requested is already full - '${serverId}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
 
     test('updateTeam - If role is already taken, then it should return with 400.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '2';
       const teamName = 'Charizard';
       const teamPatchPayload = {
-        serverName,
+        serverId,
         tournamentDetails: {
           tournamentName,
           tournamentDay,
@@ -1164,7 +1164,7 @@ describe('Clash Teams Service Impl', () => {
         role: 'Supp',
       };
       const returnedFilteredTeams = [createV3Team({
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         teamName,
@@ -1182,14 +1182,14 @@ describe('Clash Teams Service Impl', () => {
         .catch((err) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
           });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: teamPatchPayload.serverName,
+            serverId: teamPatchPayload.serverId,
             tournamentName: teamPatchPayload.tournamentDetails.tournamentName,
             tournamentDay: teamPatchPayload.tournamentDetails.tournamentDay,
             teamName: teamPatchPayload.teamName,
@@ -1197,7 +1197,7 @@ describe('Clash Teams Service Impl', () => {
           expect(clashTeamsDbImpl.updateTeam).not.toHaveBeenCalled();
           expect(err).toEqual({
             code: 400,
-            error: `Role is already taken - '${serverName}#${tournamentName}#${tournamentDay}#${teamName}#Supp'.`,
+            error: `Role is already taken - '${serverId}#${tournamentName}#${tournamentDay}#${teamName}#Supp'.`,
           });
         });
     });
@@ -1205,7 +1205,7 @@ describe('Clash Teams Service Impl', () => {
 
   describe('Team - DELETE', () => {
     test('removePlayerFromTeam - If a player exists on the Team, they should be removed from it.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
@@ -1215,7 +1215,7 @@ describe('Clash Teams Service Impl', () => {
         2: createUserDetails({ key: '2' }),
       };
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1235,7 +1235,7 @@ describe('Clash Teams Service Impl', () => {
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(expectedUserMap);
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1243,7 +1243,7 @@ describe('Clash Teams Service Impl', () => {
         .then((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
@@ -1259,7 +1259,7 @@ describe('Clash Teams Service Impl', () => {
               playerId: expectedPlayerToRemove,
               tournament: tournamentName,
               tournamentDay,
-              serverName: expectedServerName,
+              serverId: expectedserverId,
               teamName: updatedTeam.teamName,
             });
           expect(socketService.sendMessage)
@@ -1273,13 +1273,13 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('removePlayerFromTeam - retrieveTeamsByFilter fails, it should return 500.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const removalPayload = {
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         playerId: expectedPlayerToRemove,
         tournamentDetails: {
           tournamentName,
@@ -1294,13 +1294,13 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('removePlayerFromTeam - deleteTeam fails, it should return 500.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1316,7 +1316,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.deleteTeam.mockRejectedValue(new Error('Failed'));
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1325,14 +1325,14 @@ describe('Clash Teams Service Impl', () => {
         .catch((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
           });
           expect(clashTeamsDbImpl.deleteTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.deleteTeam).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             details: retrieveTeams[0].details,
           });
           expect(teamWithRemoved).toEqual({
@@ -1343,13 +1343,13 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('removePlayerFromTeam - updateTeam fails, it should return 500.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1366,7 +1366,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.updateTeam.mockRejectedValue(new Error('Failed'));
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1375,7 +1375,7 @@ describe('Clash Teams Service Impl', () => {
         .catch((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
@@ -1391,13 +1391,13 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('removePlayerFromTeam - retrieveAllUserDetails fails, it should return 500', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1415,7 +1415,7 @@ describe('Clash Teams Service Impl', () => {
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockRejectedValue(new Error('Failed'));
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1424,7 +1424,7 @@ describe('Clash Teams Service Impl', () => {
         .catch((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
@@ -1441,13 +1441,13 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('removePlayerFromTeam - If a player exists on the Team, and they are the last person on the Team. The team should be removed completely.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1464,7 +1464,7 @@ describe('Clash Teams Service Impl', () => {
       socketService.sendMessage.mockResolvedValue(true);
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1472,14 +1472,14 @@ describe('Clash Teams Service Impl', () => {
         .then((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
           });
           expect(clashTeamsDbImpl.deleteTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.deleteTeam).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             details: retrieveTeams[0].details,
           });
           expect(clashUserTeamAssociationDbImpl.removeUserAssociation)
@@ -1489,32 +1489,32 @@ describe('Clash Teams Service Impl', () => {
               playerId: expectedPlayerToRemove,
               tournament: tournamentName,
               tournamentDay,
-              serverName: expectedServerName,
+              serverId: expectedserverId,
               teamName: updatedTeam.teamName,
             });
           expect(socketService.sendMessage).toHaveBeenCalledTimes(1);
           expect(socketService.sendMessage).toHaveBeenCalledWith({
             name: teamName,
-            serverName: expectedServerName,
+            serverId: expectedserverId,
           });
           expect(teamWithRemoved).toEqual({
             code: 200,
             payload: {
               name: teamName,
-              serverName: expectedServerName,
+              serverId: expectedserverId,
             },
           });
         });
     });
 
     test('removePlayerFromTeam - If the player is not on the team, return 400 as bad request.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const teamName = 'Abra';
       const retrieveTeams = [createV3Team({
-        serverName: expectedServerName,
+        serverId: expectedserverId,
         tournamentName,
         tournamentDay,
         playersWRoles: {
@@ -1526,7 +1526,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(retrieveTeams);
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1535,7 +1535,7 @@ describe('Clash Teams Service Impl', () => {
         .catch((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
@@ -1544,13 +1544,13 @@ describe('Clash Teams Service Impl', () => {
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).not.toHaveBeenCalled();
           expect(teamWithRemoved).toEqual({
             code: 400,
-            error: `Player does not exist on Team '${expectedServerName}#${tournamentName}#${tournamentDay}#${teamName}'.`,
+            error: `Player does not exist on Team '${expectedserverId}#${tournamentName}#${tournamentDay}#${teamName}'.`,
           });
         });
     });
 
     test('removePlayerFromTeam - If no Team was found, return 400 as bad request.', () => {
-      const expectedServerName = 'Goon Squad';
+      const expectedserverId = 'Goon Squad';
       const expectedPlayerToRemove = '1';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
@@ -1559,7 +1559,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(retrieveTeams);
       return clashTeamsServiceImpl.removePlayerFromTeam({
         name: teamName,
-        serverName: 'Goon Squad',
+        serverId: 'Goon Squad',
         tournament: tournamentName,
         tournamentDay,
         playerId: expectedPlayerToRemove,
@@ -1568,7 +1568,7 @@ describe('Clash Teams Service Impl', () => {
         .catch((teamWithRemoved) => {
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
-            serverName: expectedServerName,
+            serverId: expectedserverId,
             tournamentName,
             tournamentDay,
             teamName,
@@ -1585,7 +1585,7 @@ describe('Clash Teams Service Impl', () => {
 
   describe('Team - POST', () => {
     test('createNewTeam - should invoke creating a new team and return it.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const playerDetails = {
@@ -1598,14 +1598,14 @@ describe('Clash Teams Service Impl', () => {
       };
       const teamPostPayload = {
         playerDetails,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
       };
       const persistedTeam = {
         teamName: 'abra',
         details: `${tournamentName}#${tournamentDay}#abra`,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         players: ['1'],
@@ -1617,7 +1617,7 @@ describe('Clash Teams Service Impl', () => {
         code: 200,
         payload: {
           name: 'abra',
-          serverName,
+          serverId,
           tournament: {
             tournamentName,
             tournamentDay,
@@ -1636,7 +1636,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '1',
-        association: `${tournamentName}#${tournamentDay}#${serverName}#abra`,
+        association: `${tournamentName}#${tournamentDay}#${serverId}#abra`,
         role: 'Top',
         teamName: 'abra',
       });
@@ -1646,7 +1646,7 @@ describe('Clash Teams Service Impl', () => {
         .then((createdTeam) => {
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
-            serverName,
+            serverId,
             players: ['1'],
             playersWRoles: {
               Top: '1',
@@ -1663,7 +1663,7 @@ describe('Clash Teams Service Impl', () => {
               playerId: playerDetails.id,
               tournament: tournamentName,
               tournamentDay,
-              serverName,
+              serverId,
               teamName: persistedTeam.teamName,
               role: playerDetails.role,
             });
@@ -1679,7 +1679,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('createNewTeam - (User is on another Team) - should be removed from other Team and then a new team created.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const playerDetails = {
@@ -1693,14 +1693,14 @@ describe('Clash Teams Service Impl', () => {
       };
       const teamPostPayload = {
         playerDetails,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
       };
       const persistedTeam = {
         teamName: 'abra',
         details: `${tournamentName}#${tournamentDay}#abra`,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         players: ['1'],
@@ -1712,7 +1712,7 @@ describe('Clash Teams Service Impl', () => {
         code: 200,
         payload: {
           name: 'abra',
-          serverName,
+          serverId,
           tournament: {
             tournamentName,
             tournamentDay,
@@ -1727,7 +1727,7 @@ describe('Clash Teams Service Impl', () => {
         },
       };
       const currentTeam = createV3Team({
-        serverName,
+        serverId,
         teamName: 'some-team',
         tournamentName,
         tournamentDay,
@@ -1748,8 +1748,8 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValue([
           {
             playerId: '1',
-            association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
-            serverName,
+            association: `${tournamentName}#${tournamentDay}#${serverId}#some-team`,
+            serverId,
             role: 'Top',
             teamName: 'some-team',
           },
@@ -1761,7 +1761,7 @@ describe('Clash Teams Service Impl', () => {
       clashTeamsDbImpl.createTeam.mockResolvedValue(persistedTeam);
       clashUserTeamAssociationDbImpl.createUserAssociation.mockResolvedValue({
         playerId: '1',
-        association: `${tournamentName}#${tournamentDay}#${serverName}#abra`,
+        association: `${tournamentName}#${tournamentDay}#${serverId}#abra`,
         role: 'Top',
         teamName: 'abra',
       });
@@ -1779,14 +1779,14 @@ describe('Clash Teams Service Impl', () => {
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledWith({
-              serverName,
+              serverId,
               tournamentName,
               tournamentDay,
               teamName: 'some-team',
             });
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
-            serverName,
+            serverId,
             players: ['1'],
             playersWRoles: {
               Top: '1',
@@ -1800,7 +1800,7 @@ describe('Clash Teams Service Impl', () => {
             playerDetails.id,
             tournamentName,
             tournamentDay,
-            serverName,
+            serverId,
             currentTeam.teamName,
             persistedTeam.teamName,
             'Top',
@@ -1821,7 +1821,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('createNewTeam - (User is on another Team by themselves) - should delete other Team and then a new team created.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const playerDetails = {
@@ -1835,14 +1835,14 @@ describe('Clash Teams Service Impl', () => {
       };
       const teamPostPayload = {
         playerDetails,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
       };
       const persistedTeam = {
         teamName: 'abra',
         details: `${tournamentName}#${tournamentDay}#abra`,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         players: ['1'],
@@ -1854,7 +1854,7 @@ describe('Clash Teams Service Impl', () => {
         code: 200,
         payload: {
           name: 'abra',
-          serverName,
+          serverId,
           tournament: {
             tournamentName,
             tournamentDay,
@@ -1869,7 +1869,7 @@ describe('Clash Teams Service Impl', () => {
         },
       };
       const currentTeam = createV3Team({
-        serverName,
+        serverId,
         teamName: 'some-team',
         tournamentName,
         tournamentDay,
@@ -1890,8 +1890,8 @@ describe('Clash Teams Service Impl', () => {
         .mockResolvedValue([
           {
             playerId: '1',
-            association: `${tournamentName}#${tournamentDay}#${serverName}#some-team`,
-            serverName,
+            association: `${tournamentName}#${tournamentDay}#${serverId}#some-team`,
+            serverId,
             role: 'Top',
             teamName: 'some-team',
           },
@@ -1915,17 +1915,17 @@ describe('Clash Teams Service Impl', () => {
             });
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledWith({
-              serverName,
+              serverId,
               tournamentName,
               tournamentDay,
               teamName: 'some-team',
             });
           validateTeamDeletion(
-            serverName, currentTeam, playerDetails.id, tournamentName, tournamentDay,
+            serverId, currentTeam, playerDetails.id, tournamentName, tournamentDay,
           );
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
-            serverName,
+            serverId,
             players: ['1'],
             playersWRoles: {
               Top: '1',
@@ -1942,7 +1942,7 @@ describe('Clash Teams Service Impl', () => {
               playerId: playerDetails.id,
               tournament: tournamentName,
               tournamentDay,
-              serverName,
+              serverId,
               teamName: persistedTeam.teamName,
               role: playerDetails.role,
             });
@@ -1950,7 +1950,7 @@ describe('Clash Teams Service Impl', () => {
           expect(socketService.sendMessage)
             .toHaveBeenNthCalledWith(1, {
               name: expectedRemoveEvent.payload.name,
-              serverName: expectedRemoveEvent.payload.serverName,
+              serverId: expectedRemoveEvent.payload.serverId,
             });
           expect(socketService.sendMessage)
             .toHaveBeenNthCalledWith(2, expectedResponse.payload);
@@ -1963,7 +1963,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('createNewTeam - (User is on Tentative Queue) - should be removed from Tentative Queue and then a new team created.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const playerDetails = {
@@ -1977,14 +1977,14 @@ describe('Clash Teams Service Impl', () => {
       };
       const teamPostPayload = {
         playerDetails,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
       };
       const persistedTeam = {
         teamName: 'abra',
         details: `${tournamentName}#${tournamentDay}#abra`,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
         players: ['1'],
@@ -1996,7 +1996,7 @@ describe('Clash Teams Service Impl', () => {
         code: 200,
         payload: {
           name: 'abra',
-          serverName,
+          serverId,
           tournament: {
             tournamentName,
             tournamentDay,
@@ -2013,15 +2013,15 @@ describe('Clash Teams Service Impl', () => {
       clashUserTeamAssociationDbImpl.getUserAssociation.mockResolvedValue([
         {
           playerId: '1',
-          association: `${tournamentName}#${tournamentDay}#${serverName}#tentative`,
-          serverName,
+          association: `${tournamentName}#${tournamentDay}#${serverId}#tentative`,
+          serverId,
         },
       ]);
       tentativeService.removePlayerFromTentative
         .mockResolvedValue({
           code: 200,
           payload: {
-            serverName,
+            serverId,
             tournamentDetails: {
               tournamentName,
               tournamentDay,
@@ -2044,10 +2044,10 @@ describe('Clash Teams Service Impl', () => {
               tournament: tournamentName,
               tournamentDay,
             });
-          validateTentativeRemoval(serverName, tournamentName, tournamentDay, playerDetails.id);
+          validateTentativeRemoval(serverId, tournamentName, tournamentDay, playerDetails.id);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.createTeam).toHaveBeenCalledWith({
-            serverName,
+            serverId,
             players: ['1'],
             playersWRoles: {
               Top: '1',
@@ -2069,7 +2069,7 @@ describe('Clash Teams Service Impl', () => {
     });
 
     test('createNewTeam - If tournament is invalid and is not upcoming, it should return 400.', () => {
-      const serverName = 'Goon Squad';
+      const serverId = 'Goon Squad';
       const tournamentName = 'awesome_sauce';
       const tournamentDay = '1';
       const playerDetails = {
@@ -2078,7 +2078,7 @@ describe('Clash Teams Service Impl', () => {
       };
       const teamPostPayload = {
         playerDetails,
-        serverName,
+        serverId,
         tournamentName,
         tournamentDay,
       };

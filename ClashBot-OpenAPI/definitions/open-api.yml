@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: http://localhost:{port}/{basePath}
     description: The local API server.
@@ -50,8 +50,8 @@ components:
               $ref: '#/components/schemas/Player'
             Supp:
               $ref: '#/components/schemas/Player'
-        serverName:
-          description: The Discord server that the Team belongs to.
+        serverId:
+          description: The Discord Server identifier that the Team belongs to.
           type: string
         tournament:
           $ref: '#/components/schemas/Tournament'
@@ -78,8 +78,8 @@ components:
       description: A queue for Players unsure if they will play Clash for a given Tournament.
       type: object
       properties:
-        serverName:
-          description: 'The Server that the tentative queue belongs to.'
+        serverId:
+          description: The Server identifier that the tentative queue belongs to.
           type: string
         tournamentDetails:
           $ref: '#/components/schemas/Tournament'
@@ -107,7 +107,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
-        serverName:
+        serverId:
           type: string
     Subscription:
       description: A map of subscriptions a player has for Clash Bot
@@ -143,16 +143,16 @@ components:
           examples:
             simple:
               summary: A base sample object.
-              value: { "serverName": "LoL-ClashBotSupport", "tournamentName": "awesome_sauce", "tournamentDay": "4", "playerDetails": { "id": "1", "role": "Top" }}
+              value: { "serverId": "LoL-ClashBotSupport", "tournamentName": "awesome_sauce", "tournamentDay": "4", "playerDetails": { "id": "1", "role": "Top" }}
           schema:
             type: object
             required:
-              - serverName
+              - serverId
               - tournamentName
               - tournamentDay
               - playerDetails
             properties:
-              serverName:
+              serverId:
                 description: The dedicated for the server team
                 type: string
               tournamentName:
@@ -176,13 +176,13 @@ components:
           schema:
             type: object
             required:
-              - serverName
+              - serverId
               - tournamentDetails
               - playerId
               - role
               - teamName
             properties:
-              serverName:
+              serverId:
                 type: string
               teamName:
                 type: string
@@ -200,12 +200,12 @@ components:
           schema:
             type: object
             required:
-              - serverName
+              - serverId
               - playerId
               - tournamentDetails
               - teamName
             properties:
-              serverName:
+              serverId:
                 type: string
               playerId:
                 description: The id of the player to be removed from a given Team.
@@ -224,7 +224,7 @@ components:
             required:
               - id
               - name
-              - serverName
+              - serverId
             properties:
               id:
                 description: The id of the player
@@ -232,7 +232,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              serverName:
+              serverId:
                 description: The server the player is from.
                 type: string
     PlayerUpdateBody:
@@ -250,7 +250,7 @@ components:
               name:
                 description: The name of the player
                 type: string
-              serverName:
+              serverId:
                 description: The server the player is from.
                 type: string
     ChampionPostBody:
@@ -284,11 +284,11 @@ components:
           schema:
             type: object
             required:
-              - serverName
+              - serverId
               - playerId
               - tournamentDetails
             properties:
-              serverName:
+              serverId:
                 description: 'The Server that the tentative queue belongs to.'
                 type: string
               tournamentDetails:
@@ -326,25 +326,25 @@ paths:
         - Team
       parameters:
         - name: name
-          description: the name of the Team to retrieve.
+          description: The name of the Team to retrieve.
           in: query
           required: false
           schema:
             type: string
-        - name: server
-          description: the name of the Server to filter the Teams by.
+        - name: serverId
+          description: The identifier of the Server to filter the Teams by.
           in: query
           required: true
           schema:
             type: string
         - name: tournament
-          description: the name of the Tournament to filter the Teams by.
+          description: The name of the Tournament to filter the Teams by.
           in: query
           required: false
           schema:
             type: string
         - name: day
-          description: the day of the Tournament to filter the Teams by.
+          description: The day of the Tournament to filter the Teams by.
           in: query
           required: false
           schema:
@@ -352,7 +352,7 @@ paths:
       operationId: getTeam
       responses:
         '200':
-          description: the Teams that match the passed filtering criteria.
+          description: The Teams that match the passed filtering criteria.
           content:
             application/json:
               schema:
@@ -360,7 +360,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Team'
         '204':
-          description: no Teams match the passed filtering criteria.
+          description: No Teams match the passed filtering criteria.
           content:
             application/json:
               schema:
@@ -437,7 +437,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: serverName
+        - name: serverId
           description: the name of the Server to filter the Teams by.
           in: query
           required: true
@@ -486,8 +486,8 @@ paths:
       description: A list of people on the tentative queue for upcoming Tournaments.
       operationId: getTentativeDetails
       parameters:
-        - name: serverName
-          description: The Server to filter the tentative queue by.
+        - name: serverId
+          description: The Server identifier to filter the tentative queue by.
           in: query
           style: form
           required: true
@@ -531,7 +531,7 @@ paths:
         $ref: '#/components/requestBodies/TentativeBody'
       responses:
         200:
-          description: Successfully placed the requested player on the Tentative queue for the give Server and Tournament.
+          description: Successfully placed the requested player on the Tentative queue for the given Server and Tournament.
           content:
             application/json:
               schema:
@@ -548,26 +548,26 @@ paths:
       tags:
         - Tentative
       parameters:
-        - name: serverName
-          description: the name of the Server the queue falls under.
+        - name: serverId
+          description: The name of the Server identifier the queue falls under.
           in: query
           required: true
           schema:
             type: string
         - name: playerId
-          description: the player id to remove from the tentative queue with.
+          description: The player id to remove from the tentative queue with.
           in: query
           required: true
           schema:
             type: string
         - name: tournament
-          description: the Tournament that the tentative queue belongs to.
+          description: The Tournament that the tentative queue belongs to.
           in: query
           required: true
           schema:
             type: string
         - name: tournamentDay
-          description: the Tournament day that the tentative queue belongs to.
+          description: The Tournament day that the tentative queue belongs to.
           in: query
           required: true
           schema:

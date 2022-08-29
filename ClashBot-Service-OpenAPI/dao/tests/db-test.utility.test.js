@@ -9,7 +9,7 @@ const logger = require('../../logger');
 //   clashTeamsDb.initialize(),
 // ]).then(() => {
 //   clashTeamsDb.retrieveTeamsByFilter({
-//     serverName: 'TestServer',
+//     serverId: 'TestServer',
 //     tournamentName: 'awesome_sauce',
 //     tournamentDay: '3',
 //     teamName: 'Ambipom',

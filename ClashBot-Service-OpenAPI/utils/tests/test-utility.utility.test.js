@@ -1,12 +1,12 @@
 const deepCopy = (object) => JSON.parse(JSON.stringify(object));
 
 function createV3Team({
-  serverName, teamName = 'abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
+  serverId, teamName = 'abra', tournamentName = 'awesome_sauce', tournamentDay = '1', playersWRoles = {}, players = [],
 }) {
   return {
     details: `${tournamentName}#${tournamentDay}#${teamName}`,
     teamName,
-    serverName,
+    serverId,
     players,
     playersWRoles,
     tournamentName,
@@ -16,12 +16,12 @@ function createV3Team({
 }
 
 function createUserDetails({
-  key = '1', playerName = 'Roid', serverName = 'Goon Squad', preferredChampions = ['Braum', 'Mordekaiser', 'Lissandra'],
+  key = '1', playerName = 'Roid', serverId = 'Goon Squad', preferredChampions = ['Braum', 'Mordekaiser', 'Lissandra'],
 }) {
   return {
     key,
     playerName,
-    serverName,
+    serverId,
     timeAdded: new Date().toISOString(),
     preferredChampions,
   };
@@ -33,7 +33,7 @@ function buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails) {
     payload: expectedTeams.map((team) => {
       const mappedTeam = {
         name: team.teamName,
-        serverName: team.serverName,
+        serverId: team.serverId,
         tournament: {
           tournamentName: team.tournamentName,
           tournamentDay: team.tournamentDay,
