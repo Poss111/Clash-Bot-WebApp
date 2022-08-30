@@ -477,13 +477,13 @@ CreateNewTeam.args = {
 
 export const NoData = Template.bind({});
 NoData.args = {
-    selectedServer: "Clash Bot",
+    selectedServer: createMockGuild("Clash Bot", "0"),
     eligibleTournaments: [],
-    defaultServer: "Clash Bot",
+    defaultServer: createMockGuild("Clash Bot", "0"),
     tentativeDataStatus: "SUCCESSFUL",
     tentativeList: [
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -492,7 +492,7 @@ NoData.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -501,7 +501,7 @@ NoData.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -510,7 +510,7 @@ NoData.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -520,27 +520,9 @@ NoData.args = {
         }
     ],
     teamFilters: [
-        {
-            value: "Goon Squad",
-            type: FilterType.SERVER,
-            state: false,
-            id: "1",
-            numberOfTeams: 0
-        },
-        {
-            value: "Clash Bot",
-            type: FilterType.SERVER,
-            state: false,
-            id: "2",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro",
-            type: FilterType.SERVER,
-            state: false,
-            id: "3",
-            numberOfTeams: 0
-        }
+        createMockFilter("Goon Squad", "0", 0),
+        createMockFilter("Clash Bot", "1", 0),
+        createMockFilter("Extro", "2", 0),
     ],
     teams: [{
         error: "Failed to load"
@@ -549,14 +531,14 @@ NoData.args = {
 
 export const Loading = Template.bind({});
 Loading.args = {
-    selectedServer: "Clash Bot",
+    selectedServer: createMockGuild("Clash Bot", "0"),
     eligibleTournaments: [],
-    defaultServer: "Clash Bot",
+    defaultServer: createMockGuild("Clash Bot", "0"),
     tentativeDataStatus: "SUCCESSFUL",
     showSpinner: true,
     tentativeList: [
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -565,7 +547,7 @@ Loading.args = {
             },
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -574,7 +556,7 @@ Loading.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -583,7 +565,7 @@ Loading.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -593,27 +575,9 @@ Loading.args = {
         }
     ],
     teamFilters: [
-        {
-            value: "Goon Squad",
-            type: FilterType.SERVER,
-            state: false,
-            id: "1",
-            numberOfTeams: 0
-        },
-        {
-            value: "Clash Bot",
-            type: FilterType.SERVER,
-            state: false,
-            id: "2",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro",
-            type: FilterType.SERVER,
-            state: false,
-            id: "3",
-            numberOfTeams: 0
-        }
+        createMockFilter("Goon Squad", "0", 0),
+        createMockFilter("Clash Bot", "1", 0),
+        createMockFilter("Extro", "2", 0),
     ],
     teams: [{
         error: "Failed to load"
@@ -623,13 +587,13 @@ Loading.args = {
 
 export const Primary = Template.bind({});
 Primary.args = {
-    selectedServer: "Clash Bot",
+    selectedServer: createMockGuild("Clash Bot", "0"),
     eligibleTournaments: [],
-    defaultServer: "Clash Bot",
+    defaultServer: createMockGuild("Clash Bot", "0"),
     tentativeDataStatus: "SUCCESSFUL",
     tentativeList: [
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -638,7 +602,7 @@ Primary.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -647,7 +611,7 @@ Primary.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -656,7 +620,7 @@ Primary.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -666,27 +630,9 @@ Primary.args = {
         }
     ],
     teamFilters: [
-        {
-            value: "Goon Squad",
-            type: FilterType.SERVER,
-            state: false,
-            id: "1",
-            numberOfTeams: 0
-        },
-        {
-            value: "Clash Bot",
-            type: FilterType.SERVER,
-            state: false,
-            id: "2",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro",
-            type: FilterType.SERVER,
-            state: false,
-            id: "3",
-            numberOfTeams: 0
-        }
+        createMockFilter("Goon Squad", "0", 0),
+        createMockFilter("Clash Bot", "1", 0),
+        createMockFilter("Extro", "2", 0),
     ],
     teams: [
         {
@@ -728,7 +674,7 @@ Primary.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "1"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "1"
         },
         {
@@ -772,7 +718,7 @@ Primary.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "2"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "2"
         },
         {
@@ -816,7 +762,7 @@ Primary.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "3"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "3"
         },
         {
@@ -859,7 +805,7 @@ Primary.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "4"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "4"
         }
     ]

@@ -34,6 +34,18 @@ export default {
   ]
 } as Meta;
 
+const createMockGuild = (name: string, id: string) => {
+  return {
+    features: [],
+    icon: "",
+    id,
+    name,
+    owner: false,
+    permissions: 0,
+    permissions_new: ""
+  }
+};
+
 const Template: Story<TeamCardComponent> = (args: TeamCardComponent) => ({
   props: args,
 });
@@ -83,7 +95,7 @@ Primary.args = {
       tournamentName: "awesome_sauce",
       tournamentDay: "1"
     },
-    serverName: "Goon Squad",
+    server: createMockGuild("Goon Squad", "0"),
     id: "charizard"
   }
 };
@@ -133,7 +145,7 @@ Bot.args = {
       tournamentName: "awesome_sauce",
       tournamentDay: "1"
     },
-    serverName: "Goon Squad",
+    server: createMockGuild("Goon Squad", "0"),
     id: "charizard"
   }
 };
@@ -183,7 +195,7 @@ Mid.args = {
       tournamentName: "awesome_sauce",
       tournamentDay: "1"
     },
-    serverName: "Goon Squad",
+    server: createMockGuild("Goon Squad", "0"),
     id: "charizard"
   }
 };
@@ -233,7 +245,7 @@ Jg.args = {
       tournamentName: "awesome_sauce",
       tournamentDay: "1"
     },
-    serverName: "Goon Squad",
+    server: createMockGuild("Goon Squad", "0"),
     id: "charizard"
   }
 };
@@ -283,7 +295,7 @@ Supp.args = {
       tournamentName: "awesome_sauce",
       tournamentDay: "1"
     },
-    serverName: "Goon Squad",
+    server: createMockGuild("Goon Squad", "0"),
     id: "charizard"
   }
 };

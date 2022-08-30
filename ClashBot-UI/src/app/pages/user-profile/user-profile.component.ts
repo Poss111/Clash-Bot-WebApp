@@ -28,7 +28,15 @@ export class UserProfileComponent implements OnInit {
     listOfChampions: string[] = [];
     initialFormControlState: any = {};
     initialAutoCompleteArray: string[] = [];
-    defaultGuild: string = "";
+    defaultGuild: DiscordGuild = {
+        features: [],
+        icon: "",
+        id: "",
+        name: "",
+        owner: false,
+        permissions: 0,
+        permissions_new: ""
+    };
     userDetails?: UserDetails;
     guilds: DiscordGuild[] = [];
 
@@ -92,12 +100,7 @@ export class UserProfileComponent implements OnInit {
                 finalize(() => setTimeout(() => this.pageLoadingService.updateSubject(false), 300))
             )
             .subscribe((userProfileDetails) => {
-                let defaultGuild = "";
-                if (userProfileDetails.appDetails.userGuilds) {
-                  const [firstKey] = userProfileDetails.appDetails.userGuilds.keys();
-                  defaultGuild = userProfileDetails.appDetails.userGuilds.get(firstKey)?.name ?? "N/A";
-                  userProfileDetails.appDetails.userGuilds.forEach(guild => this.guilds.push(guild));
-                }
+                userProfileDetails.appDetails.userGuilds?.forEach(guild => this.guilds.push(guild));
                 if (!userProfileDetails.appDetails.loggedIn) {
                     this.matSnackBar.open(
                         "Oops! You are not logged in. Please navigate back to the home screen and log in.",
@@ -106,14 +109,17 @@ export class UserProfileComponent implements OnInit {
                 } else if (userProfileDetails.clashBotUserDetails) {
                     this.userDetails = userProfileDetails.appDetails.userDetails;
                     if (!userProfileDetails.clashBotUserDetails || !userProfileDetails.clashBotUserDetails.id) {
-                        userProfileDetails.clashBotUserDetails.serverName = defaultGuild;
+                        userProfileDetails.clashBotUserDetails.serverId = this.guilds[0].id;
                         userProfileDetails.clashBotUserDetails.champions = [];
                         userProfileDetails.clashBotUserDetails.subscriptions = [{
                             key: "UpcomingClashTournamentDiscordDM",
                             isOn: false
                         }];
                     }
-                    this.defaultGuild = userProfileDetails.clashBotUserDetails.serverName === undefined ? "" : userProfileDetails.clashBotUserDetails.serverName;
+                    let foundGuild = userProfileDetails
+                        .appDetails
+                        .userGuilds?.get(userProfileDetails.clashBotUserDetails.serverId ?? "-1");
+                    this.defaultGuild = foundGuild ?? this.guilds[0];
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
@@ -188,7 +194,7 @@ export class UserProfileComponent implements OnInit {
                 updateCallsToMake.push(this.userService.updateUser({
                     id: `${this.userDetails.id}`,
                     name: this.userDetails.username,
-                    serverName: this.userDetailsForm.value.defaultGuildFC,
+                    serverId: this.userDetailsForm.value.defaultGuildFC,
                 }).pipe(timeout(4000),
                     catchError((err) => throwError(err))));
             } if (!this.compareArray(this.userDetailsForm.value
