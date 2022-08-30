@@ -172,7 +172,7 @@ export class WelcomeDashboardComponent implements OnInit {
                     if (!loginDetails.clashBotUserDetails.id) {
                         return this.userService.createUser({
                             id: `${loginDetails.discordUser.id}`,
-                            serverName: loginDetails.discordGuilds[0].name,
+                            serverId: loginDetails.discordGuilds[0].id,
                             name: loginDetails.discordUser.username,
                         }).pipe(
                                 catchError(err => throwError(err)),
@@ -191,7 +191,8 @@ export class WelcomeDashboardComponent implements OnInit {
                         loginDetails.discordUser.username !== loginDetails.clashBotUserDetails.name) {
                         return this.userService.updateUser({
                             id: `${loginDetails.discordUser.id}`,
-                            serverName: loginDetails.discordGuilds[0].name,
+                            serverId: loginDetails.clashBotUserDetails.serverId
+                              ?? loginDetails.discordGuilds[0].id,
                             name: loginDetails.discordUser.username,
                         })
                             .pipe(
@@ -242,7 +243,7 @@ export class WelcomeDashboardComponent implements OnInit {
         appDetails.userDetails = discordUser;
         appDetails.userGuilds = guildMap;
         appDetails.clashBotUserDetails = clashBotUserDetails;
-        appDetails.defaultGuild = clashBotUserDetails.serverName;
+        appDetails.defaultGuild = guildMap.get(<string>clashBotUserDetails.serverId);
         appDetails.loggedIn = true;
         appDetails.loginStatus = LoginStatus.LOGGED_IN;
         return appDetails;

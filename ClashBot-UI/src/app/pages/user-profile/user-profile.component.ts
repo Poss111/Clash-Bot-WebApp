@@ -67,7 +67,6 @@ export class UserProfileComponent implements OnInit {
                             take(1),
                             timeout(4000),
                             catchError((err) => {
-                                console.error(err);
                                 this.matSnackBar.open("Oops! Failed to retrieve your User Information. Please try again later.",
                                     "X",
                                     {duration: 5000});
@@ -189,12 +188,12 @@ export class UserProfileComponent implements OnInit {
 
             const updateCallsToMake = [];
             if (this.userDetailsForm.value
-                .defaultGuildFC !== this.initialFormControlState
-                .defaultGuildFC) {
+                .defaultGuildFC.id !== this.initialFormControlState
+                .defaultGuildFC.id) {
                 updateCallsToMake.push(this.userService.updateUser({
                     id: `${this.userDetails.id}`,
                     name: this.userDetails.username,
-                    serverId: this.userDetailsForm.value.defaultGuildFC,
+                    serverId: this.userDetailsForm.value.defaultGuildFC.id,
                 }).pipe(timeout(4000),
                     catchError((err) => throwError(err))));
             } if (!this.compareArray(this.userDetailsForm.value
@@ -232,8 +231,7 @@ export class UserProfileComponent implements OnInit {
                             appDetails.defaultGuild = this.userDetailsForm?.value.defaultGuildFC;
                             this.applicationDetailsService.setApplicationDetails(appDetails);
                         })
-                }, (err) => {
-                    console.error(err);
+                }, () => {
                     this.matSnackBar.open("Oops! Failed to persist your requested update. Please try again.", "X", {duration: 5000});
                 });
         }

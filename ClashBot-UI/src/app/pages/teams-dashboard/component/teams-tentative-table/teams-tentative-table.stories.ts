@@ -49,7 +49,7 @@ export const Successful = Template.bind({});
 Successful.args = {
     tentativeList: [
         {
-            serverName: "Goon Squad",
+            serverId: "0",
             tentativePlayers: [
                 {
                     name: "Hehoo",
@@ -68,7 +68,7 @@ Successful.args = {
             isMember: true
         },
         {
-            serverName: "Goon Squad",
+            serverId: "0",
             tentativePlayers: [],
             tournamentDetails: {
                 tournamentName: "awesome_sauce",
@@ -77,7 +77,7 @@ Successful.args = {
             isMember: false
         },
         {
-            serverName: "Goon Squad",
+            serverId: "0",
             tentativePlayers: [{
                 name: "Hehoo",
                 id: "1"
@@ -90,7 +90,7 @@ Successful.args = {
             isMember: true
         },
         {
-            serverName: "Goon Squad",
+            serverId: "0",
             tentativePlayers: [],
             tournamentDetails: {
                 tournamentName: "awesome_sauce",

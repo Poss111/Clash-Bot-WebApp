@@ -14,7 +14,7 @@ describe("TeamsWebsocketService", () => {
     expect(service).toBeTruthy();
   });
 
-  test("getSubject - (Subscribe) - should subscribe to a websocket subject with a query param of serverName.", () => {
+  test("getSubject - (Subscribe) - should subscribe to a websocket subject with a query param of serverId.", () => {
 
   });
 });

@@ -23,7 +23,8 @@ describe('Validate User Profile of Clash Bot', () => {
     localStorage.setItem('leagueApiVersion', '12.8.1');
     cy.request('patch', 'http://localhost:8080/api/v2/user', {
       id: '299370234228506627',
-      serverName: 'LoL-ClashBotSupport',
+      // TODO - Update with LoL-ClashBotSupport id
+      serverId: '',
       name: 'Roïdräge'
     });
     cy.request('post', 'http://localhost:8080/api/v2/user/299370234228506627/champions', {

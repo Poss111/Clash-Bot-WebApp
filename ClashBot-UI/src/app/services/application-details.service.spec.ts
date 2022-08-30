@@ -6,6 +6,7 @@ import {take} from "rxjs/operators";
 import {BehaviorSubject} from "rxjs";
 import {LoginStatus} from "../login-status";
 import {DiscordGuild} from "../interfaces/discord-guild";
+import {mockDiscordGuilds} from "../shared/shared-test-mocks.spec";
 
 describe("ApplicationDetailsService", () => {
   let service: ApplicationDetailsService;
@@ -68,6 +69,7 @@ describe("ApplicationDetailsService", () => {
 
   describe("Log Out User", () => {
     test("logOutUser - it should clear the applicationsDetails and set it back to default.", () => {
+      const guilds = mockDiscordGuilds();
       let applicationDetails: ApplicationDetails = {
         currentTournaments: [{
           tournamentName: "awesome_sauce",
@@ -77,7 +79,7 @@ describe("ApplicationDetailsService", () => {
         }],
         loggedIn: true,
         loginStatus: LoginStatus.LOGGED_IN,
-        defaultGuild: "Goon Squad",
+        defaultGuild: guilds[0],
         userGuilds: new Map<string, DiscordGuild>(),
         userDetails: {
           id: 1,
@@ -99,7 +101,7 @@ describe("ApplicationDetailsService", () => {
           name: "Roidrage",
           champions: ["Sett"],
           subscriptions: [],
-          serverName: "Goon Squad",
+          serverId: "0",
         }
       };
       service.applicationDetails = new BehaviorSubject<ApplicationDetails>(applicationDetails);
@@ -108,6 +110,7 @@ describe("ApplicationDetailsService", () => {
       expect(updatedApplicationDetails.userDetails).toBeFalsy();
       expect(updatedApplicationDetails.clashBotUserDetails).toBeFalsy();
       expect(updatedApplicationDetails.loggedIn).toBeFalsy();
+      expect(updatedApplicationDetails.userGuilds).toBeTruthy();
       expect(updatedApplicationDetails.userGuilds?.size).toEqual(0);
       expect(updatedApplicationDetails.defaultGuild).toBeFalsy();
       expect(updatedApplicationDetails.currentTournaments).toEqual(applicationDetails.currentTournaments);

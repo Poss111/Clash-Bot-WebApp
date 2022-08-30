@@ -35,10 +35,12 @@ export class ApplicationDetailsService {
 
     logOutUser() {
         let value = this.applicationDetails.value;
+        value.userGuilds?.clear();
         this.applicationDetails.next({
           currentTournaments: value.currentTournaments,
           loggedIn: false,
           loginStatus: LoginStatus.NOT_LOGGED_IN,
+          userGuilds: value.userGuilds,
         });
     }
 }

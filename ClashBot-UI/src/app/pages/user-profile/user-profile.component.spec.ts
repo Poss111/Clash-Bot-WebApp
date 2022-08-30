@@ -18,6 +18,7 @@ import {Subscription, UserService} from "clash-bot-service-api";
 import {Player} from "clash-bot-service-api/model/player";
 import {CreateUserRequest} from "clash-bot-service-api/model/createUserRequest";
 import Mock = jest.Mock;
+import {create401HttpError, mockDiscordGuilds} from "../../shared/shared-test-mocks.spec";
 
 jest.mock("../../services/riot-ddragon.service");
 jest.mock("../../services/application-details.service");
@@ -28,20 +29,18 @@ function expectDefaultState(component: UserProfileComponent, mockGuilds: Discord
   expect(component.userDetailsForm).toBeFalsy();
   expect(component.preferredChampions).toEqual(new Set());
   expect(component.initialFormControlState).toEqual({});
-  expect(component.defaultGuild).toEqual("");
+  expect(component.defaultGuild).toEqual({
+    features: [],
+    icon: "",
+    id: "",
+    name: "",
+    owner: false,
+    permissions: 0,
+    permissions_new: ""
+  });
   expect(component.guilds).toEqual(mockGuilds);
   expect(component.listOfChampions.length).toBeLessThan(1);
   expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
-}
-
-function createMockErrorResponse() {
-  return new HttpErrorResponse({
-    error: "Failed to make call.",
-    headers: undefined,
-    status: 401,
-    statusText: "Not allowed to make call",
-    url: "https://localhost:80/api/user"
-  });
 }
 
 describe("UserProfileComponent", () => {
@@ -190,10 +189,10 @@ describe("UserProfileComponent", () => {
           let expectedInitialFormControlState = {
             preferredChampionsFC: [],
             subscribedDiscordDMFC: false,
-            defaultGuildFC: mockGuilds[0].name
+            defaultGuildFC: mockGuilds[0]
           };
           expect(component.initialFormControlState).toEqual(expectedInitialFormControlState);
-          expect(component.defaultGuild).toEqual(mockGuilds[0].name);
+          expect(component.defaultGuild).toEqual(mockGuilds[0]);
           expect(component.listOfChampions)
             .toEqual(Object.keys(mockDdragonChampionList.data));
           expect(component.initialAutoCompleteArray)
@@ -213,7 +212,7 @@ describe("UserProfileComponent", () => {
           mockAppDetails.loggedIn = true;
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
-          (userServiceMock.getUser as Mock).mockReturnValue(cold("#|", undefined, createMockErrorResponse()));
+          (userServiceMock.getUser as Mock).mockReturnValue(cold("#|", undefined, create401HttpError()));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
           createComponent();
@@ -231,7 +230,15 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm).toBeFalsy();
           expect(component.preferredChampions).toEqual(new Set());
           expect(component.initialFormControlState).toEqual({});
-          expect(component.defaultGuild).toEqual("");
+          expect(component.defaultGuild).toEqual({
+            features: [],
+            icon: "",
+            id: "",
+            name: "",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          });
           expect(component.guilds).toEqual([]);
           expect(component.listOfChampions.length).toBeLessThan(1);
           expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
@@ -267,7 +274,15 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm).toBeFalsy();
           expect(component.preferredChampions).toEqual(new Set());
           expect(component.initialFormControlState).toEqual({});
-          expect(component.defaultGuild).toEqual("");
+          expect(component.defaultGuild).toEqual({
+            features: [],
+            icon: "",
+            id: "",
+            name: "",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          });
           expect(component.guilds).toEqual([]);
           expect(component.listOfChampions.length).toBeLessThan(1);
           expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
@@ -284,7 +299,7 @@ describe("UserProfileComponent", () => {
 
           applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails)}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("x|", {x: mockClashBotUserDetails}));
-          (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("#", undefined, createMockErrorResponse()));
+          (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("#", undefined, create401HttpError()));
 
           createComponent();
           fixture.detectChanges();
@@ -301,7 +316,15 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm).toBeFalsy();
           expect(component.preferredChampions).toEqual(new Set());
           expect(component.initialFormControlState).toEqual({});
-          expect(component.defaultGuild).toEqual("");
+          expect(component.defaultGuild).toEqual({
+            features: [],
+            icon: "",
+            id: "",
+            name: "",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          });
           expect(component.listOfChampions.length).toBeLessThan(1);
           expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
         })
@@ -339,7 +362,15 @@ describe("UserProfileComponent", () => {
         expect(component.userDetailsForm).toBeFalsy();
         expect(component.preferredChampions).toEqual(new Set());
         expect(component.initialFormControlState).toEqual({});
-        expect(component.defaultGuild).toEqual("");
+        expect(component.defaultGuild).toEqual({
+          features: [],
+          icon: "",
+          id: "",
+          name: "",
+          owner: false,
+          permissions: 0,
+          permissions_new: ""
+        });
         expect(component.listOfChampions.length).toBeLessThan(1);
         expect(component.initialAutoCompleteArray.length).toBeLessThan(1);
       })
@@ -595,9 +626,12 @@ describe("UserProfileComponent", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         createComponent();
+        const guilds = mockDiscordGuilds();
+        const guildMap = new Map<string, DiscordGuild>();
+        guilds.map((guild) => guildMap.set(guild.id, guild));
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: "Sejjjus",
+            defaultGuildFC: guilds[1],
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -605,7 +639,7 @@ describe("UserProfileComponent", () => {
           markAsPending: jest.fn()
         } as any);
         component.initialFormControlState = {
-          defaultGuildFC: "Goon Squad",
+          defaultGuildFC: guilds[0],
           preferredChampionsFC: ["Ahri"],
           subscribedDiscordDMFC: false
         };
@@ -617,7 +651,7 @@ describe("UserProfileComponent", () => {
         let userDetailsResponse: Player = {
           id: "12321",
           name: "Roidrage",
-          serverId: "0",
+          serverId: guilds[1].id,
           champions: ["Sett"],
           subscriptions: [
             {
@@ -646,7 +680,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC}`
+            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
           };
           expect(userServiceMock.updateUser)
               .toHaveBeenCalledWith(expectedUpdateUserRequest);
@@ -661,7 +695,7 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
-          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: userDetailsResponse.serverId});
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1]});
         } else {
           expect(true).toBeFalsy();
         }
@@ -839,9 +873,11 @@ describe("UserProfileComponent", () => {
       testScheduler.run((helpers) => {
         const {cold, flush} = helpers;
         createComponent();
+        const guilds = mockDiscordGuilds();
+        const guildMap = new Map<string, DiscordGuild>();
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: "Goon Squad",
+            defaultGuildFC: guilds[1],
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -849,7 +885,7 @@ describe("UserProfileComponent", () => {
           markAsPending: jest.fn()
         } as any);
         component.initialFormControlState = {
-          defaultGuildFC: "Sejjjjjjj",
+          defaultGuildFC: guilds[0],
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
         };
@@ -861,7 +897,7 @@ describe("UserProfileComponent", () => {
         let userDetailsResponse: Player = {
           id: "12321",
           name: "Roidrage",
-          serverId: "0",
+          serverId: guilds[1].id,
           champions: ["Sett"],
           subscriptions: [
             {
@@ -888,7 +924,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC}`
+            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
@@ -896,7 +932,7 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
-          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: "Goon Squad"});
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1]});
         } else {
           expect(true).toBeFalsy();
         }
@@ -907,9 +943,10 @@ describe("UserProfileComponent", () => {
       testScheduler.run((helpers) => {
         const {cold, expectObservable, flush} = helpers;
         createComponent();
+        const guilds = mockDiscordGuilds();
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: "HeeeeeHoooo",
+            defaultGuildFC: guilds[1],
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -922,7 +959,7 @@ describe("UserProfileComponent", () => {
           username: "Roidrage"
         };
         component.initialFormControlState = {
-          defaultGuildFC: "Goon Squad",
+          defaultGuildFC: guilds[0],
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
         };
@@ -954,7 +991,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC}`
+            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
@@ -970,9 +1007,10 @@ describe("UserProfileComponent", () => {
       testScheduler.run((helpers) => {
         const {cold, expectObservable, flush} = helpers;
         createComponent();
+        const guilds = mockDiscordGuilds();
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: "Goon Squad",
+            defaultGuildFC: guilds[1],
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -985,7 +1023,7 @@ describe("UserProfileComponent", () => {
           username: "Roidrage"
         };
         component.initialFormControlState = {
-          defaultGuildFC: "Sejj",
+          defaultGuildFC: guilds[0],
           username: "Roidrage",
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
@@ -993,7 +1031,7 @@ describe("UserProfileComponent", () => {
         let userDetailsResponse: Player = {
           id: "12321",
           name: "Roidrage",
-          serverId: "0",
+          serverId: guilds[1].id,
           champions: ["Sett"],
           subscriptions: [
             {
@@ -1027,7 +1065,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC}`
+            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);

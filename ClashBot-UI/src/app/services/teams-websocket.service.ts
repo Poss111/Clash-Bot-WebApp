@@ -11,11 +11,11 @@ export class TeamsWebsocketService {
 
   constructor() {}
 
-  connect(serverName: string) : WebSocketSubject<Team> {
+  connect(serverId: string) : WebSocketSubject<Team> {
     if (window.location.hostname === "localhost") {
-      this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverName=${encodeURIComponent(serverName)}`)}`);
+      this.subject$ = webSocket<Team>(`ws://${this.buildLocalhostUrl(`/ws/teams?serverId=${encodeURIComponent(serverId)}`)}`);
     } else {
-      this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverName=${encodeURIComponent(serverName)}`);
+      this.subject$ = webSocket<Team>(`wss://${window.location.hostname}/ws/teams?serverId=${encodeURIComponent(serverId)}`);
     }
     return this.subject$;
   }

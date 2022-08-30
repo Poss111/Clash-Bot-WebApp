@@ -24,14 +24,13 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('.mat-drawer-backdrop').click({force: true})
   }
 
-  let getTeamCard = (serverName, teamName) => {
-    let updatedServerName = serverName.toLowerCase().replace(new RegExp(/ /g), '-');
+  let getTeamCard = (serverId, teamName) => {
     let updatedTeamName = teamName.toLowerCase().replace(new RegExp(/ /g), '-');
-    return `${updatedServerName}-${updatedTeamName}`;
+    return `${serverId}-${updatedTeamName}`;
   }
 
-  let getServerFilter = (serverName) => {
-    return `#clash-bot-teams-${serverName.toLowerCase().replace(new RegExp(/ /g), '-')}`;
+  let getServerFilter = (serverId) => {
+    return `#clash-bot-teams-${serverId}`;
   }
 
   // Needs a Team named 'Pikachu'

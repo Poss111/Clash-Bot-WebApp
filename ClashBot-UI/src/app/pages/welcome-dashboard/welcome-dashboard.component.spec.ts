@@ -29,13 +29,13 @@ import {
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
 import {MarkdownModule} from "ngx-markdown";
 import {
-    create400HttpError,
-    create404HttpError,
-    create429HttpError,
-    createMockGuilds,
-    createMockPlayer,
-    createMockUserDetails,
-    setupLoggedOutMockApplicationDetails
+  create400HttpError,
+  create404HttpError,
+  create429HttpError,
+  createMockGuilds,
+  createMockPlayer,
+  createMockUserDetails, mockDiscordGuilds,
+  setupLoggedOutMockApplicationDetails
 } from "../../shared/shared-test-mocks.spec";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {SharedModule} from "../../shared/shared.module";
@@ -344,6 +344,7 @@ describe("WelcomeDashboardComponent", () => {
                 mockClashBotUser.name = mockUser.username;
                 let mockGuilds = createMockGuilds();
                 const guildMap = new Map<string, DiscordGuild>();
+                mockClashBotUser.serverId = mockGuilds[0].id
                 mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
@@ -360,7 +361,7 @@ describe("WelcomeDashboardComponent", () => {
                 flush();
 
                 const expectedApplicationDetails: ApplicationDetails = {
-                    defaultGuild: mockClashBotUser.serverName,
+                    defaultGuild: mockGuilds[0],
                     userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
@@ -375,7 +376,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(userServiceMock.createUser).toHaveBeenCalledTimes(1);
                 expect(userServiceMock.createUser).toHaveBeenCalledWith({
                     id: `${mockUser.id}`,
-                    serverName: `${mockGuilds[0].name}`,
+                    serverId: `${mockGuilds[0].id}`,
                     name: mockUser.username
                 });
             })
@@ -410,7 +411,7 @@ describe("WelcomeDashboardComponent", () => {
                 flush();
 
                 const expectedApplicationDetails: ApplicationDetails = {
-                    defaultGuild: mockClashBotUser.serverName,
+                    defaultGuild: guildMap.get(<string>mockClashBotUser.serverId),
                     userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
@@ -434,15 +435,23 @@ describe("WelcomeDashboardComponent", () => {
                 let mockUser = createMockUser();
                 mockUser.username = "The Boas";
                 let mockClashBotUser = createMockPlayer();
-                let mockGuilds = createMockGuilds();
+                let mockGuilds = mockDiscordGuilds();
                 const guildMap = new Map<string, DiscordGuild>();
                 mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
+                mockClashBotUser.serverId = mockGuilds[1].id;
 
-                discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
-                discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
-                (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
-                (userServiceMock.updateUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
-                applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
+                discordServiceMock
+                  .getUserDetails
+                  .mockReturnValue(cold("x|", {x: mockUser}));
+                discordServiceMock
+                  .getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
+                (userServiceMock.getUser as any)
+                  .mockReturnValue(cold("x|", {x: mockClashBotUser}));
+                (userServiceMock.updateUser as any)
+                  .mockReturnValue(cold("x|", {x: mockClashBotUser}));
+                applicationDetailsServiceMock
+                  .getApplicationDetails
+                  .mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
                 setupEmptyApplicationDetailsForInit();
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
@@ -453,7 +462,7 @@ describe("WelcomeDashboardComponent", () => {
                 flush();
 
                 const expectedApplicationDetails: ApplicationDetails = {
-                    defaultGuild: mockClashBotUser.serverName,
+                    defaultGuild: guildMap.get(<string>mockClashBotUser.serverId),
                     userGuilds: guildMap,
                     clashBotUserDetails: mockClashBotUser,
                     userDetails: mockUser,
@@ -467,7 +476,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
                 expect(userServiceMock.updateUser).toHaveBeenCalledWith({
                     id: `${mockUser.id}`,
-                    serverName: mockGuilds[0].name,
+                    serverId: mockGuilds[1].id,
                     name: mockUser.username
                 });
             })
@@ -614,11 +623,13 @@ describe("WelcomeDashboardComponent", () => {
                 const {cold, flush} = helpers;
 
                 let mockUserDetails = createMockUserDetails();
+                let mockClashBotPlayer = createMockPlayer();
                 mockUserDetails.username = "Pompous Loaf";
-                let mockGuilds = createMockGuilds();
+                let mockGuilds = mockDiscordGuilds();
+                mockClashBotPlayer.serverId = mockGuilds[1].id;
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUserDetails}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
-                (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: createMockPlayer()}));
+                (userServiceMock.getUser as any).mockReturnValue(cold("x|", {x: mockClashBotPlayer}));
                 (userServiceMock.updateUser as any).mockReturnValue(cold("#|", undefined, create400HttpError()));
                 setupEmptyApplicationDetailsForInit();
 
@@ -636,7 +647,7 @@ describe("WelcomeDashboardComponent", () => {
                 expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
                 expect(userServiceMock.updateUser).toHaveBeenCalledWith({
                     id: `${mockUserDetails.id}`,
-                    serverName: mockGuilds[0].name,
+                    serverId: mockGuilds[1].id,
                     name: mockUserDetails.username
                 });
                 expect(matSnackBarMock.open).toHaveBeenCalledTimes(1);
@@ -645,8 +656,8 @@ describe("WelcomeDashboardComponent", () => {
                     "X",
                     {duration: 5000});
             })
-        })
-    })
+        });
+    });
 
 });
 

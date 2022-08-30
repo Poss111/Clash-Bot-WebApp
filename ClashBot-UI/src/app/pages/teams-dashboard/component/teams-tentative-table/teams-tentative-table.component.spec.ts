@@ -51,7 +51,7 @@ describe("TeamsTentativeTableComponent", () => {
       })
       matDialogMock.open = openMock;
       const mockClashBotTentativeDetails : TentativeRecord = {
-        serverName: "ClashBot",
+        serverId: "0",
         tentativePlayers: [{
           id: "0",
           name: "Roidrage"
@@ -81,7 +81,7 @@ describe("TeamsTentativeTableComponent", () => {
       })
       matDialogMock.open = openMock;
       const mockClashBotTentativeDetails : TentativeRecord = {
-        serverName: "ClashBot",
+        serverId: "0",
         tentativePlayers: [{
           id: "0",
           name: "Roidrage"
@@ -112,7 +112,7 @@ describe("TeamsTentativeTableComponent", () => {
       matDialogMock.open = openMock;
       component.register.emit = jest.fn().mockImplementation();
       const mockClashBotTentativeDetails : TentativeRecord = {
-        serverName: "ClashBot",
+        serverId: "0",
         tentativePlayers: [{
           id: "0",
           name: "Roidrage"
