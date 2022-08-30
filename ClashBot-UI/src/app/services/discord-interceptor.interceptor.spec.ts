@@ -72,7 +72,7 @@ describe("DiscordInterceptorInterceptor", () => {
   })
 
   test("When a call is made for Clash Bot Service, it should not add anything.", () => {
-    mockTeamService.getTeam("Goon Squad").subscribe(response => {
+    mockTeamService.getTeam("123").subscribe(response => {
       expect(response).toBeTruthy();
     })
     const mockResponse = [
@@ -89,7 +89,7 @@ describe("DiscordInterceptorInterceptor", () => {
         "registrationTime": "August 22 2021 04:15 pm PDT"
       }
     ];
-    const request = httpMock.expectOne("http://localhost:8080/api/v2/team?server=Goon%20Squad");
+    const request = httpMock.expectOne("http://localhost:8080/api/v2/team?serverId=123");
     request.flush(mockResponse);
     expect(request.request.headers.has("Authorization")).toBeFalsy();
   })
