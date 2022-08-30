@@ -219,11 +219,11 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    filterTeam(guildId: string) {
+    filterTeam(guild: DiscordGuild) {
         this.applicationDetailsService.getApplicationDetails()
             .pipe(take(1))
             .subscribe((appDetails) => {
-            const foundGuild = appDetails.userGuilds?.get(guildId);
+            const foundGuild = appDetails.userGuilds?.get(guild.id);
             if (foundGuild) this.currentSelectedGuild = foundGuild;
             this.$updateList.next(true);
             this.showInnerSpinner = true;
@@ -231,7 +231,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 this.$teamsSub.unsubscribe();
             }
             this.teams = [];
-            this.filterForTeamsByServer(guildId);
+            this.filterForTeamsByServer(guild.id);
         });
     }
 

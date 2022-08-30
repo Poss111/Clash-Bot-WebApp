@@ -546,7 +546,7 @@ describe("TeamsDashboardComponent", () => {
         component.currentApplicationDetails.loggedIn = true;
         component.$callObs.next(expectedTeamsFilter);
 
-        component.filterTeam(mockGuilds[0].id);
+        component.filterTeam(mockGuilds[0]);
         expect(component.currentSelectedGuild).toEqual({
           features: [],
               icon: "",
