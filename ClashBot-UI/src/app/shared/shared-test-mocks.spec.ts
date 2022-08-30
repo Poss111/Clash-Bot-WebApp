@@ -47,7 +47,7 @@ export function createMockPlayer() : Player {
     return {
         id: "12312321312",
         name: "Roidrage",
-        serverName: "Goon Squad",
+        serverId: "0",
         champions: ["Sett"],
         subscriptions: [{
             key: "UpcomingClashTournamentDiscordDM",
@@ -74,7 +74,7 @@ export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUse
     mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
     return {
         currentTournaments: [],
-        defaultGuild: "",
+        defaultGuild: mockGuilds[0],
         userGuilds: guildMap,
         clashBotUserDetails: mockClashBotUserDetails,
         userDetails: mockUserDetails,
@@ -86,17 +86,17 @@ export function createMockAppDetails(mockGuilds: DiscordGuild[], mockClashBotUse
 export function createEmptyMockClashTentativeDetails() : Tentative[] {
     return [
         {
-            serverName: "LoL-ClashBotSupport",
+            serverId: "0",
             tournamentDetails: {"tournamentName": "awesome_sauce", "tournamentDay": "2"},
             tentativePlayers: []
         },
         {
-            serverName: "LoL-ClashBotSupport",
+            serverId: "0",
             tournamentDetails: {"tournamentName": "awesome_sauce", "tournamentDay": "3"},
             tentativePlayers: []
         },
         {
-            serverName: "LoL-ClashBotSupport",
+            serverId: "0",
             tournamentDetails: {"tournamentName": "awesome_sauce", "tournamentDay": "4"},
             tentativePlayers: []
         }
@@ -107,7 +107,7 @@ export function createMockClashTeam() : ClashTeam {
     return {
         teamName: "Team toBeAdded",
         playersDetails: [],
-        serverName: "Goon Squad",
+        serverId: "0",
         startTime: new Date().toISOString()
     };
 }

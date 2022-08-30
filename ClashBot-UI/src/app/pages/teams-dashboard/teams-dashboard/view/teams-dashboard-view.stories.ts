@@ -83,15 +83,37 @@ const Template: Story<TeamsDashboardViewComponent> = (args: TeamsDashboardViewCo
     },
 });
 
+const createMockGuild = (name: string, id: string) => {
+    return {
+        features: [],
+        icon: "",
+        id,
+        name,
+        owner: false,
+        permissions: 0,
+        permissions_new: ""
+    }
+};
+
+const createMockFilter = (name: string, id: string, numberOfTeams: number = 0) => {
+    return {
+        value: createMockGuild(name, id),
+        type: FilterType.SERVER,
+        state: false,
+        id: id,
+        numberOfTeams
+    }
+};
+
 export const TwentyServers = Template.bind({});
 TwentyServers.args = {
-    selectedServer: "Clash Bot",
+    selectedServer: createMockGuild("Clash Bot", "0"),
     eligibleTournaments: [],
-    defaultServer: "Clash Bot",
+    defaultServer: createMockGuild("Clash Bot", "0"),
     tentativeDataStatus: "SUCCESSFUL",
     tentativeList: [
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -100,7 +122,7 @@ TwentyServers.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -109,7 +131,7 @@ TwentyServers.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -118,7 +140,7 @@ TwentyServers.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -128,188 +150,32 @@ TwentyServers.args = {
         }
     ],
     teamFilters: [
-        {
-            value: "Goon Squad",
-            type: FilterType.SERVER,
-            state: true,
-            id: "1",
-            numberOfTeams: 10
-        },
-        {
-            value: "Clash Bot",
-            type: FilterType.SERVER,
-            state: false,
-            id: "2",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro",
-            type: FilterType.SERVER,
-            state: false,
-            id: "3",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro1",
-            type: FilterType.SERVER,
-            state: false,
-            id: "4",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro2",
-            type: FilterType.SERVER,
-            state: false,
-            id: "5",
-            numberOfTeams: 0
-        },
-        {
-            value: "ReallyLongNameForServer",
-            type: FilterType.SERVER,
-            state: false,
-            id: "6",
-            numberOfTeams: 0
-        },
-        {
-            value: "123 AbC",
-            type: FilterType.SERVER,
-            state: false,
-            id: "7",
-            numberOfTeams: 0
-        },
-        {
-            value: "Heheh",
-            type: FilterType.SERVER,
-            state: false,
-            id: "8",
-            numberOfTeams: 0
-        },
-        {
-            value: "I really do not know",
-            type: FilterType.SERVER,
-            state: false,
-            id: "9",
-            numberOfTeams: 0
-        },
-        {
-            value: "Boom Boom",
-            type: FilterType.SERVER,
-            state: false,
-            id: "10",
-            numberOfTeams: 0
-        },
-        {
-            value: "Not My Server",
-            type: FilterType.SERVER,
-            state: false,
-            id: "11",
-            numberOfTeams: 0
-        },
-        {
-            value: "I am special!",
-            type: FilterType.SERVER,
-            state: false,
-            id: "12",
-            numberOfTeams: 0
-        },
-        {
-            value: "Kerissa",
-            type: FilterType.SERVER,
-            state: false,
-            id: "13",
-            numberOfTeams: 0
-        },
-        {
-            value: "Micah-chan",
-            type: FilterType.SERVER,
-            state: false,
-            id: "14",
-            numberOfTeams: 0
-        },
-        {
-            value: "Jumanji",
-            type: FilterType.SERVER,
-            state: false,
-            id: "15",
-            numberOfTeams: 0
-        },
-        {
-            value: "Leaguy",
-            type: FilterType.SERVER,
-            state: false,
-            id: "16",
-            numberOfTeams: 0
-        },
-        {
-            value: "IDK",
-            type: FilterType.SERVER,
-            state: false,
-            id: "17",
-            numberOfTeams: 0
-        },
-        {
-            value: "Woah",
-            type: FilterType.SERVER,
-            state: false,
-            id: "18",
-            numberOfTeams: 0
-        },
-        {
-            value: "Miso",
-            type: FilterType.SERVER,
-            state: false,
-            id: "19",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
-        {
-            value: "This is a sentence",
-            type: FilterType.SERVER,
-            state: false,
-            id: "20",
-            numberOfTeams: 0
-        },
+        createMockFilter("Clash Bot", "0", 10),
+        createMockFilter("Clash Bot Two", "1", 2),
+        createMockFilter("Extro", "3", 0),
+        createMockFilter("Extro1", "4", 0),
+        createMockFilter("Extro2", "5", 0),
+        createMockFilter("ReallyLongNameForServer", "6", 0),
+        createMockFilter("123 AbC", "7", 0),
+        createMockFilter("Heheh", "8", 0),
+        createMockFilter("I really do not know", "9", 0),
+        createMockFilter("Boom Boom", "10", 0),
+        createMockFilter("Not My Server", "11", 0),
+        createMockFilter("I am special!", "12", 0),
+        createMockFilter("Kerissa", "13", 0),
+        createMockFilter("Micah-chan", "14", 0),
+        createMockFilter("Jumanji", "15", 0),
+        createMockFilter("Leaguy", "16", 0),
+        createMockFilter("IDK", "17", 0),
+        createMockFilter("Woah", "18", 0),
+        createMockFilter("Miso", "19", 0),
+        createMockFilter("This is a sentence", "20", 0),
+        createMockFilter("This is a sentence too", "21", 0),
+        createMockFilter("This is a sente", "22", 0),
+        createMockFilter("This is a", "23", 0),
+        createMockFilter("This is a sentence toosdf", "24", 0),
+        createMockFilter("This is a senten", "25", 0),
+        createMockFilter("This is a sentenc", "26", 0),
     ],
     teams: [
         {
@@ -351,7 +217,7 @@ TwentyServers.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "1"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "1"
         },
         {
@@ -395,7 +261,7 @@ TwentyServers.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "2"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "2"
         },
         {
@@ -439,7 +305,7 @@ TwentyServers.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "3"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "3"
         },
         {
@@ -482,7 +348,7 @@ TwentyServers.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "4"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "4"
         }
     ]
@@ -490,7 +356,7 @@ TwentyServers.args = {
 
 export const CreateNewTeam = Template.bind({});
 CreateNewTeam.args = {
-    selectedServer: "Clash Bot",
+    selectedServer: createMockGuild("Clash Bot", "0"),
     eligibleTournaments: [
         {
             tournamentName: "awesome_sauce",
@@ -517,12 +383,12 @@ CreateNewTeam.args = {
             registrationTime: new Date().toISOString()
         }
     ],
-    defaultServer: "Clash Bot",
+    defaultServer: createMockGuild("Clash Bot", "0"),
     tentativeDataStatus: "SUCCESSFUL",
     canCreateNewTeam: true,
     tentativeList: [
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -531,7 +397,7 @@ CreateNewTeam.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -540,7 +406,7 @@ CreateNewTeam.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -549,7 +415,7 @@ CreateNewTeam.args = {
             }
         },
         {
-            serverName: "Clash Bot",
+            serverId: "0",
             tentativePlayers: [],
             isMember: false,
             tournamentDetails: {
@@ -559,27 +425,9 @@ CreateNewTeam.args = {
         }
     ],
     teamFilters: [
-        {
-            value: "Goon Squad",
-            type: FilterType.SERVER,
-            state: false,
-            id: "1",
-            numberOfTeams: 0
-        },
-        {
-            value: "Clash Bot",
-            type: FilterType.SERVER,
-            state: false,
-            id: "2",
-            numberOfTeams: 0
-        },
-        {
-            value: "Extro",
-            type: FilterType.SERVER,
-            state: false,
-            id: "3",
-            numberOfTeams: 0
-        }
+        createMockFilter("Goon Squad", "0", 0),
+        createMockFilter("Clash Bot", "1", 0),
+        createMockFilter("Extro", "2", 0)
     ],
     teams: [
         {
@@ -621,7 +469,7 @@ CreateNewTeam.args = {
                 tournamentName: "awesome_sauce",
                 tournamentDay: "1"
             },
-            serverName: "Clash Bot",
+            server: createMockGuild("Clash Bot", "0"),
             id: "1"
         }
     ]

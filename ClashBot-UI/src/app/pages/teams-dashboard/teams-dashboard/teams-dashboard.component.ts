@@ -93,7 +93,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                 if (appDetails.userGuilds) {
                     const calls: Observable<TeamFilter>[] = [];
                     appDetails.userGuilds.forEach((details) => {
-                        calls.push(this.teamsService.getTeam(details.name)
+                        calls.push(this.teamsService.getTeam(details.id)
                             .pipe(
                                 take(1),
                                 catchError((err: HttpErrorResponse) => {
@@ -109,7 +109,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                                         numberOfTeams = response.length;
                                     }
                                     return {
-                                        value: details.name,
+                                        value: details,
                                         type: FilterType.SERVER,
                                         state: details.name === appDetails.defaultGuild?.name,
                                         id: details.name.replace(new RegExp(/ /, "g"), "-").toLowerCase(),
@@ -130,7 +130,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
                             map(() => this.$callObs.value.map((item) => {
                                 return {
                                     ...item,
-                                    state: item.value === this.currentSelectedGuild.name
+                                    state: item.value.name === this.currentSelectedGuild.name
                                 }
                             })),
                             map((items) => this.sortFilters(items)),
@@ -160,7 +160,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             } else if (b.numberOfTeams - a.numberOfTeams !== 0) {
                 return b.numberOfTeams - a.numberOfTeams
             } else {
-                return a.value.localeCompare(b.value);
+                return a.value.name.localeCompare(b.value.name);
             }
         });
     }
@@ -220,18 +220,19 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
     }
 
     filterTeam(guildId: string) {
-        const foundGuild = this.applicationDetailsService
-          .getApplicationDetails()
-          .value
-          .userGuilds?.get(guildId);
-        if (foundGuild) this.currentSelectedGuild = foundGuild;
-        this.$updateList.next(true);
-        this.showInnerSpinner = true;
-        if (this.$teamsSub) {
-            this.$teamsSub.unsubscribe();
-        }
-        this.teams = [];
-        this.filterForTeamsByServer(guildId);
+        this.applicationDetailsService.getApplicationDetails()
+            .pipe(take(1))
+            .subscribe((appDetails) => {
+            const foundGuild = appDetails.userGuilds?.get(guildId);
+            if (foundGuild) this.currentSelectedGuild = foundGuild;
+            this.$updateList.next(true);
+            this.showInnerSpinner = true;
+            if (this.$teamsSub) {
+                this.$teamsSub.unsubscribe();
+            }
+            this.teams = [];
+            this.filterForTeamsByServer(guildId);
+        });
     }
 
     private filterForTeamsByServer(valueToSearchFor: string) {
@@ -409,6 +410,8 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         teamUiWrapper.id = `${record.serverId}-${record.name}`
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
+        teamUiWrapper.server = this.currentApplicationDetails
+            .userGuilds?.get(record.serverId ?? "0");
         let rolesMissing: string[] = [...Object.keys(this.roles)];
         if (record.playerDetails) {
             teamUiWrapper.teamDetails = Object.entries(record.playerDetails)

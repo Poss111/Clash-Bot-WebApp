@@ -96,7 +96,7 @@ describe("TeamsDashboardComponent", () => {
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
           return {
-            value: record.name,
+            value: record,
             type: FilterType.SERVER,
             state: record.name === mockGuilds[2].name,
             id: id,
@@ -175,9 +175,9 @@ describe("TeamsDashboardComponent", () => {
         expect(component.currentApplicationDetails).toEqual(mockApplicationsDetails);
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
         expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(4);
-        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild.id);
         expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledTimes(1);
-        expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild);
+        expect(tentativeServiceMock.getTentativeDetails).toHaveBeenCalledWith(mockApplicationsDetails.defaultGuild.id);
         expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledTimes(1);
         expect(component.tentativeList).toEqual(mockClashTentativeDetails);
         expect(component.teams).toEqual([...mockMappedTeams])
@@ -208,7 +208,7 @@ describe("TeamsDashboardComponent", () => {
         const mappedFilters = mockObservableGuilds.map((record) => {
           let id = record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase();
           return {
-            value: record.name,
+            value: record,
             type: FilterType.SERVER,
             state: false,
             id: id,
@@ -242,7 +242,7 @@ describe("TeamsDashboardComponent", () => {
         expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(2);
         expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(mappedFilters.length);
         mappedFilters.forEach((filter) => {
-          expect(teamServiceMock.getTeam).toHaveBeenCalledWith(filter.value)
+          expect(teamServiceMock.getTeam).toHaveBeenCalledWith(filter.value.id)
         });
       })
     })
@@ -250,23 +250,48 @@ describe("TeamsDashboardComponent", () => {
 
   describe("Sort Server Filter", () => {
     test("sortFilters - (Sort by state, numberOfTeams, then name) - when sorted is called with a TeamFilter array, it should have the selected Guild at the top, then be sorted by numberOfTeams, then finally sorted by name.", () => {
+
       const mappedGuilds: TeamFilter[] = [
         {
-          value: "Goon Squad",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "Goon Squad",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "goon-squad",
           numberOfTeams: 0
         },
         {
-          value: "ClashBot-Server",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "ClashBot-Server",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "clashbot-server",
           numberOfTeams: 5
         },
         {
-          value: "LoL-ClashBotSupport",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "LoL-ClashBotSupport",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: true,
           id: "lol-clashbotsupport",
@@ -281,21 +306,45 @@ describe("TeamsDashboardComponent", () => {
     test("sortFilters - (Sort by numberOfTeams) - If state is not true then it should just sort by number of Teams.", () => {
       const mappedGuilds: TeamFilter[] = [
         {
-          value: "Goon Squad",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "Goon Squad",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "goon-squad",
           numberOfTeams: 0
         },
         {
-          value: "ClashBot-Server",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "ClashBot-Server",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "clashbot-server",
           numberOfTeams: 8
         },
         {
-          value: "LoL-ClashBotSupport",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "LoL-ClashBotSupport",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "lol-clashbotsupport",
@@ -314,21 +363,45 @@ describe("TeamsDashboardComponent", () => {
     test("sortFilters - (Sort by name) - If all numberOfTeams are 0 then it should just sort by server name.", () => {
       const mappedGuilds: TeamFilter[] = [
         {
-          value: "Goon Squad",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "Goon Squad",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "goon-squad",
           numberOfTeams: 0
         },
         {
-          value: "ClashBot-Server",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "ClashBot-Server",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "clashbot-server",
           numberOfTeams: 0
         },
         {
-          value: "LoL-ClashBotSupport",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "LoL-ClashBotSupport",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "lol-clashbotsupport",
@@ -347,28 +420,60 @@ describe("TeamsDashboardComponent", () => {
     test("sortFilters - (Sort by numberOfTeams, then by name) - If number of Teams are equal, then name should take precedencee.", () => {
       const mappedGuilds: TeamFilter[] = [
         {
-          value: "Goon Squad",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "Goon Squad",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "goon-squad",
           numberOfTeams: 0
         },
         {
-          value: "ClashBot-Server",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "ClashBot-Server",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "clashbot-server",
           numberOfTeams: 2
         },
         {
-          value: "LoL-ClashBotSupport",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "LoL-ClashBotSupport",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "lol-clashbotsupport",
           numberOfTeams: 9
         },
         {
-          value: "ABCDE",
+          value: {
+            features: [],
+            icon: "",
+            id: "0",
+            name: "ABCDE",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+          },
           type: FilterType.SERVER,
           state: false,
           id: "abcde",
@@ -395,12 +500,14 @@ describe("TeamsDashboardComponent", () => {
         let mockClashTournaments =
             createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
+        const guildMap = new Map<string, DiscordGuild>();
+        mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
         const mappedFilters = mockGuilds.map((record) => {
           let id = record.name
               .replace(new RegExp(/ /, "g"), "-")
               .toLowerCase();
           return {
-            value: record.name,
+            value: record,
             type: FilterType.SERVER,
             state: record.name === mockGuilds[2].name,
             id: id,
@@ -415,6 +522,7 @@ describe("TeamsDashboardComponent", () => {
         let mockApplicationsDetails: ApplicationDetails =
             createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
+        mockApplicationsDetails.userGuilds = guildMap;
         mockApplicationsDetails.defaultGuild = mockGuilds[2];
         let mockClashTentativeDetails: Tentative[] =
             createEmptyMockClashTentativeDetails();
@@ -438,14 +546,22 @@ describe("TeamsDashboardComponent", () => {
         component.currentApplicationDetails.loggedIn = true;
         component.$callObs.next(expectedTeamsFilter);
 
-        component.filterTeam(mockGuilds[0].name);
-
-        expect(component.currentSelectedGuild).toEqual(mockGuilds[0]);
-        expect(component.showInnerSpinner).toBeTruthy();
-        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(1);
-        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockGuilds[0].id);
+        component.filterTeam(mockGuilds[0].id);
+        expect(component.currentSelectedGuild).toEqual({
+          features: [],
+              icon: "",
+            id: "",
+            name: "",
+            owner: false,
+            permissions: 0,
+            permissions_new: ""
+        });
 
         flush();
+
+        expect(component.currentSelectedGuild).toEqual(mockGuilds[0]);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledTimes(1);
+        expect(teamServiceMock.getTeam).toHaveBeenCalledWith(mockGuilds[0].id);
 
         expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledTimes(1);
         expect(teamsWebsocketServiceMock.connect).toHaveBeenCalledWith(mockGuilds[0].id);
@@ -612,7 +728,7 @@ describe("TeamsDashboardComponent", () => {
       };
 
       const expectedTeamUiWrapper : TeamUiWrapper = {...teamUpdate};
-      expectedTeamUiWrapper.id = "test-server-team-abra";
+      expectedTeamUiWrapper.id = "0-team-abra";
       expectedTeamUiWrapper.teamDetails =  [
             {
               id: "0",
@@ -735,7 +851,7 @@ describe("TeamsDashboardComponent", () => {
         }
       };
       const expectedMappedTeam: TeamUiWrapper = ({...mockTeam} as TeamUiWrapper);
-      expectedMappedTeam.id = "goon-squad-oooooogi";
+      expectedMappedTeam.id = "1-oooooogi";
       expectedMappedTeam.teamDetails = [
         {
           name: "Roid",
@@ -803,7 +919,7 @@ describe("TeamsDashboardComponent", () => {
         }
       };
       const expectedMappedTeam: TeamUiWrapper = ({...mockTeam} as TeamUiWrapper);
-      expectedMappedTeam.id = "goon-squad-oooooogi";
+      expectedMappedTeam.id = "1-oooooogi";
       expectedMappedTeam.teamDetails = [
         {
           name: "Roid",
@@ -1054,7 +1170,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverId: "1",
+          serverId: guilds[0].id,
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1093,7 +1209,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverId: "0",
+          serverId: guilds[0].id,
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1134,7 +1250,7 @@ describe("TeamsDashboardComponent", () => {
         };
 
         const expectedUpdatedPayload: UpdateTeamRequest = {
-          serverId: "0",
+          serverId: guilds[0].id,
           teamName: "Teamy",
           tournamentDetails: {
             tournamentName: "awesome_sauce",
@@ -1178,6 +1294,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentDay: "1"
           },
           server: guilds[0],
+          serverId: guilds[0].id,
           id: "1"
         };
 
@@ -1186,7 +1303,7 @@ describe("TeamsDashboardComponent", () => {
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
             .toHaveBeenCalledWith("Teamy",
-              "Goon Squad",
+              guilds[0].id,
               "awesome_sauce",
               "1",
               `${component.currentApplicationDetails.userDetails.id}`);
@@ -1216,6 +1333,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentDay: "1"
           },
           server: guilds[0],
+          serverId: guilds[0].id,
           id: "1"
         };
 
@@ -1224,7 +1342,7 @@ describe("TeamsDashboardComponent", () => {
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
             .toHaveBeenCalledWith("Teamy",
-                "Goon Squad",
+                guilds[0].id,
                 "awesome_sauce",
                 "1",
                 `${component.currentApplicationDetails.userDetails.id}`);
@@ -1256,6 +1374,7 @@ describe("TeamsDashboardComponent", () => {
             tournamentDay: "1"
           },
           server: guilds[0],
+          serverId: guilds[0].id,
           id: "1"
         };
 
@@ -1264,7 +1383,7 @@ describe("TeamsDashboardComponent", () => {
         expect(teamServiceMock.removePlayerFromTeam).toHaveBeenCalledTimes(1);
         expect(teamServiceMock.removePlayerFromTeam)
             .toHaveBeenCalledWith("Teamy",
-                "Goon Squad",
+                guilds[0].id,
                 "awesome_sauce",
                 "1",
                 `${component.currentApplicationDetails.userDetails.id}`);
@@ -1506,7 +1625,7 @@ describe("TeamsDashboardComponent", () => {
 
         expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledTimes(1);
         expect(tentativeServiceMock.removePlayerFromTentative).toHaveBeenCalledWith(
-            "Goon Squad", "12312321312", "awesome_sauce", "1"
+            guilds[0].id, "12312321312", "awesome_sauce", "1"
         );
 
         expect(component.tentativeList[0].isMember).toBeFalsy();

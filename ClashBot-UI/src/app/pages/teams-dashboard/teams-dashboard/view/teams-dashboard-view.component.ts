@@ -7,6 +7,7 @@ import {TeamUiWrapper} from "src/app/interfaces/team-ui-wrapper";
 import {TentativeRecord} from "../../../../interfaces/tentative-record";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {MatDrawer} from "@angular/material/sidenav";
+import {DiscordGuild} from "../../../../interfaces/discord-guild";
 
 /** Custom options the configure the tooltip's default show/hide delays. */
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
@@ -24,7 +25,15 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
 export class TeamsDashboardViewComponent implements AfterViewInit {
 
   @Input()
-  selectedServer: string = "";
+  selectedServer: DiscordGuild = {
+    features: [],
+    icon: "",
+    id: "",
+    name: "",
+    owner: false,
+    permissions: 0,
+    permissions_new: ""
+  };
 
   @Input()
   eligibleTournaments: Tournament[] = [];
@@ -39,7 +48,7 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
   teamFilters: TeamFilter[] = [];
 
   @Input()
-  defaultServer?: string;
+  defaultServer?: DiscordGuild;
 
   @Input()
   tentativeDataStatus: string = "NOT_LOADED";
@@ -63,7 +72,7 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
   tentativeRegisterEvent: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();
 
   @Output()
-  filterTeamEvent: EventEmitter<string> = new EventEmitter<string>();
+  filterTeamEvent: EventEmitter<DiscordGuild> = new EventEmitter<DiscordGuild>();
 
   @ViewChild("tooltip") tooltip?: MatTooltip;
 
@@ -93,7 +102,7 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
     this.tentativeRegisterEvent.emit($event)
   }
 
-  filterTeam($event: string) {
+  filterTeam($event: DiscordGuild) {
     this.filterTeamEvent.emit($event);
     this.drawer?.toggle();
     this.selectedServer = $event;

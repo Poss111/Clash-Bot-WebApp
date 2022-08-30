@@ -1,7 +1,8 @@
 import {FilterType} from "./filter-type";
+import {DiscordGuild} from "./discord-guild";
 
 export interface TeamFilter {
-  value: string,
+  value: DiscordGuild,
   type: FilterType
   state: boolean,
   id: string,
