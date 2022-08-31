@@ -9,10 +9,11 @@
                     <mat-list-item *ngFor="let server of teamFilters"
                                    role="listitem">
                         <button mat-raised-button
+                                id="number-of-teams-{{server.value.id}}"
                                 class="number-of-teams"
                                 disabled="true">{{server.numberOfTeams}}</button>
                         <button mat-raised-button
-                                id="clash-bot-teams-{{server.id}}"
+                                id="clash-bot-teams-{{server.value.id}}"
                                 (click)="filterTeam(server.value)"
                                 [disabled]="server.state">
                             <div class="server-list-item">

@@ -1,3 +1,12 @@
+const LOL_CLASHBOTSUPPORT_SERVER_ID = {
+  name: 'LoL-ClashBotSupport',
+  id: '837685892885512202',
+};
+const GOON_SQUAD_SERVER_ID = {
+  name: 'Goon Squad',
+  id: '460520499680641035',
+};
+
 describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   before(() => {
     localStorage.setItem('version', 'v4.0.1');
@@ -42,11 +51,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
     cy.get('#clash-bot-menu-welcome-page').should('exist');
     cy.get('#clash-bot-menu-teams-page').should('exist');
     cy.get('#clash-bot-menu-teams-page').click();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -54,14 +63,14 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get('#change-server-btn').click();
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
       cy.get('app-team-card>#clash-bot-team-card').should('have.length.greaterThan', 4);
       cy.get('#clash-bot-teams-card-create-new-team-card').should('exist');
-      cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-title')
+      cy.get(`#clash-bot-team-card-${serverToTestWith.id}-pikachu-title`)
         .should('have.text', 'Pikachu');
-      cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-subtitle-tournament')
+      cy.get(`#clash-bot-team-card-${serverToTestWith.id}-pikachu-subtitle-tournament`)
         .should('have.text', 'Awesome Sauce - Day 2');
-      cy.get('#clash-bot-team-card-lol-clashbotsupport-pikachu-players mat-accordion')
+      cy.get(`#clash-bot-team-card-${serverToTestWith.id}-pikachu-players mat-accordion`)
         .should('have.length.greaterThan', 4);
     })
   })
@@ -69,11 +78,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // Swapping between a role on a same Team
   it('Should be able to swap roles on the same Team (\'Blastoise\')', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -81,8 +90,8 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get('#change-server-btn').click();
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
-      let id = getTeamCard(serverToTestWith, 'Blastoise');
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
+      let id = getTeamCard(serverToTestWith.id, 'Blastoise');
       cy.get(`#clash-bot-teams-card-${id} #clash-bot-team-card-join-jg-register-button`).click();
       cy.get(`#clash-bot-dialog-box-yes-button`).click();
       verifyCard(id, 1, "Roïdräge");
@@ -95,16 +104,16 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // Using 'awesome_sauce' with day '2' on server 'Goon Squad'
   it('Check to see if User is able to create a new Team on a Server that does not have any Clash Teams', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'Goon Squad'
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = GOON_SQUAD_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
       }
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
       cy.get('#clash-bot-team-card-no-data').should('exist');
       cy.get('app-team-card>#clash-bot-team-card').should('have.length', 1);
       let createNewTeamCard = cy.get('#clash-bot-teams-card-create-new-team-card');
@@ -132,11 +141,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // Needs a team with name 'Charizard' that User is not registered to
   it('User should be able to register for an existing Team', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -145,7 +154,7 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
       cy.get('#selected-server').should('contain.text', 'LoL-ClashBotSupport');
-      let id = getTeamCard(serverToTestWith, 'Charizard');
+      let id = getTeamCard(serverToTestWith.id, 'Charizard');
       verifyCard(id, 1, undefined, "Roïdräge");
       cy.get(`#clash-bot-teams-card-${id} #clash-bot-team-card-join-top-register-button`).click();
       cy.get(`#clash-bot-dialog-box-yes-button`).click();
@@ -156,11 +165,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // Needs to unregister from a Team named 'Ho-oh' that User is registered to
   it('User should be able to unregister from an existing Team', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -168,8 +177,8 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get('#change-server-btn').click();
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
-      let id = getTeamCard(serverToTestWith, 'Ho-oh');
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
+      let id = getTeamCard(serverToTestWith.id, 'Ho-oh');
       verifyCard(id, 2, "Roïdräge");
       cy.get('#clash-bot-team-card-mid-unregister-button').click();
       cy.get(`#clash-bot-dialog-box-yes-button`).click();
@@ -180,11 +189,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // Uses 'awesome_sauce' day '3', teams 'Blastoise' and 'Blaziken'
   it('If a User belongs to another Team for the same tournament, they should be able to unregister from the existing Team and registered to the expected Team', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -192,9 +201,9 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get('#change-server-btn').click();
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
-      let startTeamId = getTeamCard(serverToTestWith, 'Blastoise');
-      let endTeamId = getTeamCard(serverToTestWith, 'Blaziken');
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
+      let startTeamId = getTeamCard(serverToTestWith.id, 'Blastoise');
+      let endTeamId = getTeamCard(serverToTestWith.id, 'Blaziken');
       verifyCard(startTeamId, 1, "Roïdräge");
       verifyCard(endTeamId, 1, undefined, "Roïdräge");
       cy.get(`#clash-bot-teams-card-${endTeamId} #clash-bot-team-card-join-top-register-button`)
@@ -208,11 +217,11 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
   // User needs to exist on Team 'Blaziken' for 'awesome_sauce' day 3 to start
   it('If a user requests to be on tentative, they should be able to see their name show in the tentative column.', () => {
     navigateToTeamsPage();
-    const serverToTestWith = 'LoL-ClashBotSupport';
-    const serverFilterId = getServerFilter(serverToTestWith);
+    const serverToTestWith = LOL_CLASHBOTSUPPORT_SERVER_ID;
+    const serverFilterId = getServerFilter(serverToTestWith.id);
     cy.get('#selected-server').then((element) => {
       const selectedServer = element.text();
-      if (serverToTestWith !== selectedServer) {
+      if (serverToTestWith.name !== selectedServer) {
         cy.get('#change-server-btn').click();
         cy.get(serverFilterId).click();
         dismissSideNav();
@@ -220,19 +229,19 @@ describe('Oauth2 Clash-Bot Webapp Application workflow', () => {
       cy.get('#change-server-btn').click();
       cy.get(serverFilterId).should('be.disabled');
       dismissSideNav();
-      cy.get('#selected-server').should('contain.text', serverToTestWith);
+      cy.get('#selected-server').should('contain.text', serverToTestWith.name);
       cy.get('#clash-bot-teams-dashboard-show-tentative').click();
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players')
         .should('not.text', 'Roïdräge');
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('exist');
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('not.exist');
-      let startingCardStateId = getTeamCard(serverToTestWith, 'Blaziken');
+      let startingCardStateId = getTeamCard(serverToTestWith.id, 'Blaziken');
       verifyCard(startingCardStateId, 2, "Roïdräge");
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').click();
       cy.get(`#clash-bot-dialog-box-yes-button`).click();
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-remove').should('exist');
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-add').should('not.exist');
-      let endingCardStateId = getTeamCard(serverToTestWith, 'Blaziken');
+      let endingCardStateId = getTeamCard(serverToTestWith.id, 'Blaziken');
       verifyCard(endingCardStateId, 1, undefined, "Roïdräge");
       cy.get('#clash-bot-teams-dashboard-awesome_sauce-3-tentative-players')
         .should('contain.text', 'Roïdräge');
