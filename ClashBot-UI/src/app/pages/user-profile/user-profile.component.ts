@@ -42,6 +42,7 @@ export class UserProfileComponent implements OnInit {
 
     @ViewChild("championInput") championInput: any = "";
     userDetailsForm?: FormGroup;
+    selectedGuild?: string;
 
     constructor(private riotDdragonService: RiotDdragonService,
                 private applicationDetailsService: ApplicationDetailsService,
@@ -119,6 +120,7 @@ export class UserProfileComponent implements OnInit {
                         .appDetails
                         .userGuilds?.get(userProfileDetails.clashBotUserDetails.serverId ?? "-1");
                     this.defaultGuild = foundGuild ?? this.guilds[0];
+                    console.dir(this.defaultGuild);
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
@@ -127,7 +129,7 @@ export class UserProfileComponent implements OnInit {
                         preferredChampionsFC: new FormControl([...preferredChampions]),
                         subscribedDiscordDMFC: new FormControl(userProfileDetails.clashBotUserDetails.subscriptions === undefined
                             ? false : userProfileDetails.clashBotUserDetails.subscriptions[0].isOn),
-                        defaultGuildFC: new FormControl(this.defaultGuild)
+                        defaultGuildFC: new FormControl(this.defaultGuild.name)
                     });
                     this.preferredChampions = new Set<string>(userProfileDetails.clashBotUserDetails.champions);
                     this.initialFormControlState = JSON.parse(JSON.stringify(this.userDetailsForm.value));
@@ -187,13 +189,14 @@ export class UserProfileComponent implements OnInit {
             this.userDetailsForm.markAsPending();
 
             const updateCallsToMake = [];
+            const foundGuild = this.guilds.find(guild => guild.name === this.userDetailsForm?.value.defaultGuildFC);
             if (this.userDetailsForm.value
-                .defaultGuildFC.id !== this.initialFormControlState
-                .defaultGuildFC.id) {
+                .defaultGuildFC !== this.initialFormControlState
+                .defaultGuildFC && foundGuild) {
                 updateCallsToMake.push(this.userService.updateUser({
                     id: `${this.userDetails.id}`,
                     name: this.userDetails.username,
-                    serverId: this.userDetailsForm.value.defaultGuildFC.id,
+                    serverId: foundGuild.id,
                 }).pipe(timeout(4000),
                     catchError((err) => throwError(err))));
             } if (!this.compareArray(this.userDetailsForm.value

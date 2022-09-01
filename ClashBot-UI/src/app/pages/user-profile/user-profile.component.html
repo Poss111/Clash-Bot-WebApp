@@ -19,7 +19,8 @@
           <mat-form-field appearance="fill">
             <mat-label>Default Guild</mat-label>
             <mat-select id="clash-bot-user-profile-default-guild" name="defaultGuild" formControlName="defaultGuildFC">
-              <mat-option  id="clash-bot-user-profile-autocomplete-{{ guild.name | kebabcase }}-guild" *ngFor="let guild of guilds" [value]="guild.name">
+              <mat-option id="clash-bot-user-profile-autocomplete-{{ guild.name | kebabcase }}-guild" *ngFor="let guild of guilds"
+                          [value]="guild.name">
                 {{guild.name}}
               </mat-option>
             </mat-select>

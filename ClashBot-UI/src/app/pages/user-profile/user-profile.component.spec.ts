@@ -111,7 +111,7 @@ describe("UserProfileComponent", () => {
         let expectedInitialFormControlState = {
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true,
-          defaultGuildFC: mockGuilds[0]
+          defaultGuildFC: mockGuilds[0].name
         };
         expect(component.initialFormControlState).toEqual(expectedInitialFormControlState);
         expect(component.defaultGuild).toEqual(mockGuilds[0]);
@@ -189,7 +189,7 @@ describe("UserProfileComponent", () => {
           let expectedInitialFormControlState = {
             preferredChampionsFC: [],
             subscribedDiscordDMFC: false,
-            defaultGuildFC: mockGuilds[0]
+            defaultGuildFC: mockGuilds[0].name
           };
           expect(component.initialFormControlState).toEqual(expectedInitialFormControlState);
           expect(component.defaultGuild).toEqual(mockGuilds[0]);
@@ -629,9 +629,10 @@ describe("UserProfileComponent", () => {
         const guilds = mockDiscordGuilds();
         const guildMap = new Map<string, DiscordGuild>();
         guilds.map((guild) => guildMap.set(guild.id, guild));
+        component.guilds = [...guilds];
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: guilds[1],
+            defaultGuildFC: guilds[1].name,
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -639,7 +640,7 @@ describe("UserProfileComponent", () => {
           markAsPending: jest.fn()
         } as any);
         component.initialFormControlState = {
-          defaultGuildFC: guilds[0],
+          defaultGuildFC: guilds[0].name,
           preferredChampionsFC: ["Ahri"],
           subscribedDiscordDMFC: false
         };
@@ -680,7 +681,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
+            serverId: guilds[1].id
           };
           expect(userServiceMock.updateUser)
               .toHaveBeenCalledWith(expectedUpdateUserRequest);
@@ -695,7 +696,7 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
-          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1]});
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1].name});
         } else {
           expect(true).toBeFalsy();
         }
@@ -874,10 +875,10 @@ describe("UserProfileComponent", () => {
         const {cold, flush} = helpers;
         createComponent();
         const guilds = mockDiscordGuilds();
-        const guildMap = new Map<string, DiscordGuild>();
+        component.guilds = [...guilds];
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: guilds[1],
+            defaultGuildFC: guilds[1].name,
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -885,7 +886,7 @@ describe("UserProfileComponent", () => {
           markAsPending: jest.fn()
         } as any);
         component.initialFormControlState = {
-          defaultGuildFC: guilds[0],
+          defaultGuildFC: guilds[0].name,
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
         };
@@ -924,7 +925,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
+            serverId: guilds[1].id
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).toEqual(component.userDetailsForm.value);
@@ -932,7 +933,7 @@ describe("UserProfileComponent", () => {
           expect(component.userDetailsForm.markAsPristine).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.getApplicationDetails).toHaveBeenCalledTimes(1);
           expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledTimes(1);
-          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1]});
+          expect(applicationDetailsMock.setApplicationDetails).toHaveBeenCalledWith({defaultGuild: guilds[1].name});
         } else {
           expect(true).toBeFalsy();
         }
@@ -944,9 +945,10 @@ describe("UserProfileComponent", () => {
         const {cold, expectObservable, flush} = helpers;
         createComponent();
         const guilds = mockDiscordGuilds();
+        component.guilds = [...guilds];
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: guilds[1],
+            defaultGuildFC: guilds[1].name,
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -959,7 +961,7 @@ describe("UserProfileComponent", () => {
           username: "Roidrage"
         };
         component.initialFormControlState = {
-          defaultGuildFC: guilds[0],
+          defaultGuildFC: guilds[0].name,
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
         };
@@ -991,7 +993,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
+            serverId: guilds[1].id
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
@@ -1008,9 +1010,10 @@ describe("UserProfileComponent", () => {
         const {cold, expectObservable, flush} = helpers;
         createComponent();
         const guilds = mockDiscordGuilds();
+        component.guilds = [...guilds];
         component.userDetailsForm = ({
           value: {
-            defaultGuildFC: guilds[1],
+            defaultGuildFC: guilds[1].name,
             preferredChampionsFC: ["Sett"],
             subscribedDiscordDMFC: true
           },
@@ -1023,7 +1026,7 @@ describe("UserProfileComponent", () => {
           username: "Roidrage"
         };
         component.initialFormControlState = {
-          defaultGuildFC: guilds[0],
+          defaultGuildFC: guilds[0].name,
           username: "Roidrage",
           preferredChampionsFC: ["Sett"],
           subscribedDiscordDMFC: true
@@ -1065,7 +1068,7 @@ describe("UserProfileComponent", () => {
           const expectedUpdateUserRequest: CreateUserRequest = {
             id: `${component.userDetails.id}`,
             name: component.userDetails.username,
-            serverId: `${component.userDetailsForm.value.defaultGuildFC.id}`
+            serverId: guilds[1].id
           };
           expect(userServiceMock.updateUser).toHaveBeenCalledWith(expectedUpdateUserRequest);
           expect(component.initialFormControlState).not.toEqual(component.userDetailsForm.value);
