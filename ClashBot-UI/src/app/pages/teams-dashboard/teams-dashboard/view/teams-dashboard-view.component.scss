@@ -81,3 +81,17 @@
   padding-right: 1em;
   padding-left: 1em;
 }
+
+.free-agent-team-btn {
+  transition: opacity 500ms;
+}
+
+.server-team-btn {
+  transition: opacity 500ms;
+}
+
+.free-agent-team-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}

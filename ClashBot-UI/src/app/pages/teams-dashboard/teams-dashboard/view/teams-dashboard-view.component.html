@@ -35,6 +35,13 @@
             <mat-icon>filter_list</mat-icon>
         </button>
     </div>
+    <div class="free-agent-team-container">
+        <button mat-raised-button class="free-agent-team-btn" (click)="swap()">
+            <mat-icon>swap_horizontal_circle</mat-icon>
+                <div [@inOutAnimation]="freeAgent ? 'enter' : 'leave'" *ngIf="!freeAgent">Swap to Discord Server Teams</div>
+                <div [@inOutAnimation]="freeAgent ? 'enter' : 'leave'" *ngIf="freeAgent">Swap to Free Agent Teams</div>
+            </button>
+    </div>
     <app-teams-tentative-table [tentativeList]="tentativeList"
                                [tentativeDataStatus]="tentativeDataStatus"
                                (register)="tentativeRegister($event)"></app-teams-tentative-table>

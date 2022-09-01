@@ -8,6 +8,7 @@ import {TentativeRecord} from "../../../../interfaces/tentative-record";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {MatDrawer} from "@angular/material/sidenav";
 import {DiscordGuild} from "../../../../interfaces/discord-guild";
+import {animate, style, transition, trigger} from "@angular/animations";
 
 /** Custom options the configure the tooltip's default show/hide delays. */
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
@@ -21,6 +22,29 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   templateUrl: "./teams-dashboard-view.component.html",
   styleUrls: ["./teams-dashboard-view.component.scss"],
   providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}],
+  animations: [
+    trigger(
+        "inOutAnimation",
+        [
+          transition(
+              ":enter",
+              [
+                style({opacity: 0}),
+                animate("1s ease-out",
+                    style({opacity: 1}))
+              ]
+          ),
+          transition(
+              ":leave",
+              [
+                style({opacity: 1}),
+                animate("1s ease-in",
+                    style({opacity: 0}))
+              ]
+          )
+        ]
+    )
+  ]
 })
 export class TeamsDashboardViewComponent implements AfterViewInit {
 
@@ -78,6 +102,8 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
 
   @ViewChild("drawer") drawer?: MatDrawer;
 
+  freeAgent: boolean = false;
+
   constructor(private cd: ChangeDetectorRef) { }
 
   ngAfterViewInit(): void {
@@ -106,5 +132,9 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
     this.filterTeamEvent.emit($event);
     this.drawer?.toggle();
     this.selectedServer = $event;
+  }
+
+  swap() {
+    this.freeAgent = !this.freeAgent;
   }
 }
