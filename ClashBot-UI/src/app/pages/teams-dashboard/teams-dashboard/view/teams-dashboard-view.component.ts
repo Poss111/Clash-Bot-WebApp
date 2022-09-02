@@ -51,13 +51,13 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
       )
     ]),
     trigger("fadeInAnim", [
-      state("open", style({opacity: 0})),
-      state("closed", style({opacity: 1})),
-      transition("* => *", [
-        query("button", [
-          stagger(1000, [
-            animate("1s", )
-          ])
+      state("open", style({opacity: 1})),
+      state("closed", style({opacity: 0})),
+      transition("closed => open", [
+        query(".to-disappear", [
+          // stagger(1000, [
+            animate("1s ease-in" )
+          // ])
         ]),
       ]),
     ])
@@ -120,6 +120,7 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
   @ViewChild("drawer") drawer?: MatDrawer;
 
   freeAgent: boolean = false;
+  event: boolean = false;
 
   constructor(private cd: ChangeDetectorRef) { }
 
@@ -127,6 +128,10 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
     this.tooltip?.show();
     this.cd.detectChanges();
     setTimeout(() => this.tooltip?.hide(), 2000);
+    this.drawer?.openedChange.subscribe((item) => {
+      this.event = item;
+      console.dir(item ? "open" : "closed");
+    })
   }
 
   createNewTeam($event: CreateNewTeamDetails) {

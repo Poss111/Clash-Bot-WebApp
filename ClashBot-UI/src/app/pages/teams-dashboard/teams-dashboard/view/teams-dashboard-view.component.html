@@ -6,19 +6,22 @@
             </mat-card>
             <div class="server-list">
                 <mat-list role="list">
-                    <mat-list-item [@fadeInAnim]="this.drawer._animationState === 'open' ? 'closed' : 'open'"  *ngFor="let server of teamFilters; trackBy: trackByFn"
+                    <mat-list-item [@fadeInAnim]="(this.drawer.openedChange | async) ? 'open' : 'closed'" *ngFor="let server of teamFilters; trackBy: trackByFn"
                                    role="listitem">
                         <button mat-raised-button
                                 id="number-of-teams-{{server.value.id}}"
                                 class="number-of-teams"
                                 disabled="true">{{server.numberOfTeams}}</button>
-                        <button mat-raised-button
-                                id="clash-bot-teams-{{server.value.id}}"
-                                (click)="filterTeam(server.value)"
-                                [disabled]="server.state">
-                            <div class="server-list-item">
-                                <mat-icon class="server-icon">discord</mat-icon>{{server.value.name}}
-                            </div></button>
+                        <div class="to-disappear">
+                          <button mat-raised-button
+                                  id="clash-bot-teams-{{server.value.id}}"
+                                  class="server-list-btn"
+                                  (click)="filterTeam(server.value)"
+                                  [disabled]="server.state">
+                              <div class="server-list-item">
+                                  <mat-icon class="server-icon">discord</mat-icon>{{server.value.name}}
+                              </div></button>
+                        </div>
                     </mat-list-item>
                 </mat-list>
             </div>
