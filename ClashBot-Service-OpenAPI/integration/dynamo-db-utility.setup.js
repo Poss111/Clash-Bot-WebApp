@@ -28,6 +28,7 @@ Date.prototype.addHours = function (hours) {
 };
 
 const loadAllTables = async () => new Promise((resolve, reject) => {
+  const LOL_CLASHBOTSUPPORT_ID = '837685892885512202';
   const options = { dateStyle: 'medium', timeStyle: 'long' };
   const datePlusOneHour = new Date().addHours(1);
   const datePlusOneDay = new Date().addDays(1);
@@ -52,7 +53,7 @@ const loadAllTables = async () => new Promise((resolve, reject) => {
     tournamentDayFour: '4',
     datePlusFourDays: formattedDatePlusSevenDays,
     tournamentDayFive: '5',
-    serverId: '837685892885512202',
+    serverId: LOL_CLASHBOTSUPPORT_ID,
   };
   logger.info(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
   const clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);

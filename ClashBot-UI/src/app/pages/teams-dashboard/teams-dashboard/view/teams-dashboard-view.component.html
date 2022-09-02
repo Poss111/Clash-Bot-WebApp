@@ -6,7 +6,7 @@
             </mat-card>
             <div class="server-list">
                 <mat-list role="list">
-                    <mat-list-item *ngFor="let server of teamFilters"
+                    <mat-list-item [@fadeInAnim]="this.drawer._animationState === 'open' ? 'closed' : 'open'"  *ngFor="let server of teamFilters; trackBy: trackByFn"
                                    role="listitem">
                         <button mat-raised-button
                                 id="number-of-teams-{{server.value.id}}"
@@ -36,11 +36,11 @@
         </button>
     </div>
     <div class="free-agent-team-container">
-        <button mat-raised-button class="free-agent-team-btn" (click)="swap()">
+        <button [@inOutAnimation]="freeAgent" [color]="freeAgent ? 'primary' : 'accent'" mat-raised-button class="free-agent-team-btn" (click)="swap()">
             <mat-icon>swap_horizontal_circle</mat-icon>
-                <div [@inOutAnimation]="freeAgent ? 'enter' : 'leave'" *ngIf="!freeAgent">Swap to Discord Server Teams</div>
-                <div [@inOutAnimation]="freeAgent ? 'enter' : 'leave'" *ngIf="freeAgent">Swap to Free Agent Teams</div>
-            </button>
+            <div *ngIf="!freeAgent">Swap to Discord Server Teams</div>
+            <div *ngIf="freeAgent">Swap to Free Agent Teams</div>
+        </button>
     </div>
     <app-teams-tentative-table [tentativeList]="tentativeList"
                                [tentativeDataStatus]="tentativeDataStatus"

@@ -4255,7 +4255,7 @@
         },
         {
             "name": "TeamsDashboardViewComponent",
-            "id": "component-TeamsDashboardViewComponent-d88db2959958a3c8570ecc6b7cf4259366eba7263bcf66ec88d229e739e24055b55f4a31e3837afeb204734d371e02adc6a6eb3d2c8c974a6a2d5a983b9bb00a",
+            "id": "component-TeamsDashboardViewComponent-36e198c17e4a66ebe9f1d356fede00832b8a9c7a32be4b6c57a86a1832c0a131360d45d6cbdaef446ceea6a20ac88443ee71b6c52d56d557a31bd709c0eec164",
             "file": "src/app/pages/teams-dashboard/teams-dashboard/view/teams-dashboard-view.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -4280,7 +4280,7 @@
                     "name": "canCreateNewTeam",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 60,
+                    "line": 84,
                     "type": "boolean",
                     "decorators": []
                 },
@@ -4288,7 +4288,7 @@
                     "name": "defaultServer",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 51,
+                    "line": 75,
                     "type": "DiscordGuild",
                     "decorators": []
                 },
@@ -4297,7 +4297,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 39,
+                    "line": 63,
                     "type": "Tournament[]",
                     "decorators": []
                 },
@@ -4306,7 +4306,7 @@
                     "defaultValue": "{\n    features: [],\n    icon: \"\",\n    id: \"\",\n    name: \"\",\n    owner: false,\n    permissions: 0,\n    permissions_new: \"\"\n  }",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 28,
+                    "line": 52,
                     "type": "DiscordGuild",
                     "decorators": []
                 },
@@ -4314,7 +4314,7 @@
                     "name": "showSpinner",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 57,
+                    "line": 81,
                     "type": "boolean",
                     "decorators": []
                 },
@@ -4323,7 +4323,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 48,
+                    "line": 72,
                     "type": "TeamFilter[]",
                     "decorators": []
                 },
@@ -4332,7 +4332,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 42,
+                    "line": 66,
                     "type": "TeamUiWrapper[]",
                     "decorators": []
                 },
@@ -4341,7 +4341,7 @@
                     "defaultValue": "\"NOT_LOADED\"",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 54,
+                    "line": 78,
                     "type": "string",
                     "decorators": []
                 },
@@ -4350,7 +4350,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 45,
+                    "line": 69,
                     "type": "TentativeRecord[]",
                     "decorators": []
                 }
@@ -4361,7 +4361,7 @@
                     "defaultValue": "new EventEmitter<CreateNewTeamDetails>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 63,
+                    "line": 87,
                     "type": "EventEmitter<CreateNewTeamDetails>"
                 },
                 {
@@ -4369,7 +4369,7 @@
                     "defaultValue": "new EventEmitter<DiscordGuild>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 75,
+                    "line": 99,
                     "type": "EventEmitter<DiscordGuild>"
                 },
                 {
@@ -4377,7 +4377,7 @@
                     "defaultValue": "new EventEmitter<ClashBotUserRegister>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 69,
+                    "line": 93,
                     "type": "EventEmitter<ClashBotUserRegister>"
                 },
                 {
@@ -4385,7 +4385,7 @@
                     "defaultValue": "new EventEmitter<TentativeRecord>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 72,
+                    "line": 96,
                     "type": "EventEmitter<TentativeRecord>"
                 },
                 {
@@ -4393,7 +4393,7 @@
                     "defaultValue": "new EventEmitter<TeamUiWrapper>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 66,
+                    "line": 90,
                     "type": "EventEmitter<TeamUiWrapper>"
                 }
             ],
@@ -4405,7 +4405,7 @@
                     "type": "MatDrawer",
                     "optional": true,
                     "description": "",
-                    "line": 79,
+                    "line": 103,
                     "decorators": [
                         {
                             "name": "ViewChild",
@@ -4414,13 +4414,23 @@
                     ]
                 },
                 {
+                    "name": "freeAgent",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 105
+                },
+                {
                     "name": "tooltip",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "MatTooltip",
                     "optional": true,
                     "description": "",
-                    "line": 77,
+                    "line": 101,
                     "decorators": [
                         {
                             "name": "ViewChild",
@@ -4443,7 +4453,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 89,
+                    "line": 115,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4471,7 +4481,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 105,
+                    "line": 131,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4492,7 +4502,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 83,
+                    "line": 109,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -4509,7 +4519,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 97,
+                    "line": 123,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4525,6 +4535,16 @@
                     ]
                 },
                 {
+                    "name": "swap",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 137,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
                     "name": "tentativeRegister",
                     "args": [
                         {
@@ -4537,7 +4557,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 101,
+                    "line": 127,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4565,7 +4585,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 93,
+                    "line": 119,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -4588,11 +4608,11 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild} from \"@angular/core\";\nimport {ClashBotUserRegister} from \"../../../../interfaces/clash-bot-user-register\";\nimport {TeamFilter} from \"../../../../interfaces/team-filter\";\nimport {CreateNewTeamDetails} from \"../../../../interfaces/create-new-team-details\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {TeamUiWrapper} from \"src/app/interfaces/team-ui-wrapper\";\nimport {TentativeRecord} from \"../../../../interfaces/tentative-record\";\nimport {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from \"@angular/material/tooltip\";\nimport {MatDrawer} from \"@angular/material/sidenav\";\nimport {DiscordGuild} from \"../../../../interfaces/discord-guild\";\n\n/** Custom options the configure the tooltip's default show/hide delays. */\nexport const myCustomTooltipDefaults: MatTooltipDefaultOptions = {\n  showDelay: 0,\n  hideDelay: 1000,\n  touchendHideDelay: 1000,\n};\n\n@Component({\n  selector: \"app-teams-dashboard-view\",\n  templateUrl: \"./teams-dashboard-view.component.html\",\n  styleUrls: [\"./teams-dashboard-view.component.scss\"],\n  providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}],\n})\nexport class TeamsDashboardViewComponent implements AfterViewInit {\n\n  @Input()\n  selectedServer: DiscordGuild = {\n    features: [],\n    icon: \"\",\n    id: \"\",\n    name: \"\",\n    owner: false,\n    permissions: 0,\n    permissions_new: \"\"\n  };\n\n  @Input()\n  eligibleTournaments: Tournament[] = [];\n\n  @Input()\n  teams: TeamUiWrapper[] = [];\n\n  @Input()\n  tentativeList?: TentativeRecord[] = [];\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Input()\n  defaultServer?: DiscordGuild;\n\n  @Input()\n  tentativeDataStatus: string = \"NOT_LOADED\";\n\n  @Input()\n  showSpinner?: boolean;\n\n  @Input()\n  canCreateNewTeam?: boolean;\n\n  @Output()\n  createTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();\n\n  @Output()\n  unregisterFromTeamEvent: EventEmitter<TeamUiWrapper> = new EventEmitter<TeamUiWrapper>();\n\n  @Output()\n  registerForTeamEvent: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();\n\n  @Output()\n  tentativeRegisterEvent: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();\n\n  @Output()\n  filterTeamEvent: EventEmitter<DiscordGuild> = new EventEmitter<DiscordGuild>();\n\n  @ViewChild(\"tooltip\") tooltip?: MatTooltip;\n\n  @ViewChild(\"drawer\") drawer?: MatDrawer;\n\n  constructor(private cd: ChangeDetectorRef) { }\n\n  ngAfterViewInit(): void {\n    this.tooltip?.show();\n    this.cd.detectChanges();\n    setTimeout(() => this.tooltip?.hide(), 2000);\n  }\n\n  createNewTeam($event: CreateNewTeamDetails) {\n    this.createTeamEvent.emit($event);\n  }\n\n  unregisterFromTeam($event: TeamUiWrapper) {\n    this.unregisterFromTeamEvent.emit($event);\n  }\n\n  registerForTeam($event: ClashBotUserRegister) {\n    this.registerForTeamEvent.emit($event);\n  }\n\n  tentativeRegister($event: TentativeRecord) {\n    this.tentativeRegisterEvent.emit($event)\n  }\n\n  filterTeam($event: DiscordGuild) {\n    this.filterTeamEvent.emit($event);\n    this.drawer?.toggle();\n    this.selectedServer = $event;\n  }\n}\n",
+            "sourceCode": "import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild} from \"@angular/core\";\nimport {ClashBotUserRegister} from \"../../../../interfaces/clash-bot-user-register\";\nimport {TeamFilter} from \"../../../../interfaces/team-filter\";\nimport {CreateNewTeamDetails} from \"../../../../interfaces/create-new-team-details\";\nimport {Tournament} from \"clash-bot-service-api/model/tournament\";\nimport {TeamUiWrapper} from \"src/app/interfaces/team-ui-wrapper\";\nimport {TentativeRecord} from \"../../../../interfaces/tentative-record\";\nimport {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from \"@angular/material/tooltip\";\nimport {MatDrawer} from \"@angular/material/sidenav\";\nimport {DiscordGuild} from \"../../../../interfaces/discord-guild\";\nimport {animate, style, transition, trigger} from \"@angular/animations\";\n\n/** Custom options the configure the tooltip's default show/hide delays. */\nexport const myCustomTooltipDefaults: MatTooltipDefaultOptions = {\n  showDelay: 0,\n  hideDelay: 1000,\n  touchendHideDelay: 1000,\n};\n\n@Component({\n  selector: \"app-teams-dashboard-view\",\n  templateUrl: \"./teams-dashboard-view.component.html\",\n  styleUrls: [\"./teams-dashboard-view.component.scss\"],\n  providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}],\n  animations: [\n    trigger(\n        \"inOutAnimation\",\n        [\n          transition(\n              \":enter\",\n              [\n                style({opacity: 0}),\n                animate(\"1s ease-out\",\n                    style({opacity: 1}))\n              ]\n          ),\n          transition(\n              \":leave\",\n              [\n                style({opacity: 1}),\n                animate(\"1s ease-in\",\n                    style({opacity: 0}))\n              ]\n          )\n        ]\n    )\n  ]\n})\nexport class TeamsDashboardViewComponent implements AfterViewInit {\n\n  @Input()\n  selectedServer: DiscordGuild = {\n    features: [],\n    icon: \"\",\n    id: \"\",\n    name: \"\",\n    owner: false,\n    permissions: 0,\n    permissions_new: \"\"\n  };\n\n  @Input()\n  eligibleTournaments: Tournament[] = [];\n\n  @Input()\n  teams: TeamUiWrapper[] = [];\n\n  @Input()\n  tentativeList?: TentativeRecord[] = [];\n\n  @Input()\n  teamFilters: TeamFilter[] = [];\n\n  @Input()\n  defaultServer?: DiscordGuild;\n\n  @Input()\n  tentativeDataStatus: string = \"NOT_LOADED\";\n\n  @Input()\n  showSpinner?: boolean;\n\n  @Input()\n  canCreateNewTeam?: boolean;\n\n  @Output()\n  createTeamEvent: EventEmitter<CreateNewTeamDetails> = new EventEmitter<CreateNewTeamDetails>();\n\n  @Output()\n  unregisterFromTeamEvent: EventEmitter<TeamUiWrapper> = new EventEmitter<TeamUiWrapper>();\n\n  @Output()\n  registerForTeamEvent: EventEmitter<ClashBotUserRegister> = new EventEmitter<ClashBotUserRegister>();\n\n  @Output()\n  tentativeRegisterEvent: EventEmitter<TentativeRecord> = new EventEmitter<TentativeRecord>();\n\n  @Output()\n  filterTeamEvent: EventEmitter<DiscordGuild> = new EventEmitter<DiscordGuild>();\n\n  @ViewChild(\"tooltip\") tooltip?: MatTooltip;\n\n  @ViewChild(\"drawer\") drawer?: MatDrawer;\n\n  freeAgent: boolean = false;\n\n  constructor(private cd: ChangeDetectorRef) { }\n\n  ngAfterViewInit(): void {\n    this.tooltip?.show();\n    this.cd.detectChanges();\n    setTimeout(() => this.tooltip?.hide(), 2000);\n  }\n\n  createNewTeam($event: CreateNewTeamDetails) {\n    this.createTeamEvent.emit($event);\n  }\n\n  unregisterFromTeam($event: TeamUiWrapper) {\n    this.unregisterFromTeamEvent.emit($event);\n  }\n\n  registerForTeam($event: ClashBotUserRegister) {\n    this.registerForTeamEvent.emit($event);\n  }\n\n  tentativeRegister($event: TentativeRecord) {\n    this.tentativeRegisterEvent.emit($event)\n  }\n\n  filterTeam($event: DiscordGuild) {\n    this.filterTeamEvent.emit($event);\n    this.drawer?.toggle();\n    this.selectedServer = $event;\n  }\n\n  swap() {\n    this.freeAgent = !this.freeAgent;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ":host {\n  flex-grow: 1;\n  display: flex;\n}\n\n.team-dashboard-view-container {\n  flex-grow: 1;\n}\n\n.team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n\n.server-filter-container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.server-filter-container > h2 {\n  margin: 0 1em 0 0.5em;\n  max-width: 8em;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n.server-filter-container > button {\n  margin: 0 0 0 1em;\n}\n\n.server-list-item {\n  max-width: 8em;\n  width: 8em;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n}\n\n.server-list-title {\n  display: flex;\n  justify-content: center;\n}\n\n.server-list {\n  overflow-y:auto;\n}\n\n.server-icon {\n  padding-right: 0.25em;\n}\n\n.number-of-teams {\n  padding-right: 1em;\n  padding-left: 1em;\n}\n",
+                    "data": ":host {\n  flex-grow: 1;\n  display: flex;\n}\n\n.team-dashboard-view-container {\n  flex-grow: 1;\n}\n\n.team-cards {\n  padding-top: 1em;\n  display: flex;\n  justify-content: space-around;\n  flex-wrap: wrap;\n  align-items: center;\n}\n\n.team-card {\n  padding: 0.5em;\n}\n\n.clash-bot-teams-card-create-new-container {\n  display: flex;\n  justify-content: center;\n}\n\n.clash-bot-teams-card-create-new-forms {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n\n.show-tentative-button-container {\n  display: flex;\n  align-items: center;\n}\n\n.server-filter-container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.server-filter-container > h2 {\n  margin: 0 1em 0 0.5em;\n  max-width: 8em;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n.server-filter-container > button {\n  margin: 0 0 0 1em;\n}\n\n.server-list-item {\n  max-width: 8em;\n  width: 8em;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n}\n\n.server-list-title {\n  display: flex;\n  justify-content: center;\n}\n\n.server-list {\n  overflow-y:auto;\n}\n\n.server-icon {\n  padding-right: 0.25em;\n}\n\n.number-of-teams {\n  padding-right: 1em;\n  padding-left: 1em;\n}\n\n.free-agent-team-btn {\n  transition: opacity 500ms;\n}\n\n.server-team-btn {\n  transition: opacity 500ms;\n}\n\n.free-agent-team-container {\n  display: flex;\n  justify-content: center;\n  margin-top: 1em;\n}\n",
                     "styleUrl": "./teams-dashboard-view.component.scss"
                 }
             ],
@@ -4610,7 +4630,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 79,
+                "line": 105,
                 "jsdoctags": [
                     {
                         "name": "cd",
@@ -4626,7 +4646,7 @@
             "implements": [
                 "AfterViewInit"
             ],
-            "templateData": "<mat-drawer-container class=\"team-dashboard-view-container\" autosize>\n    <mat-drawer #drawer mode=\"over\">\n        <div>\n            <mat-card>\n                <mat-card-title class=\"server-list-title\"># of Teams | Servers</mat-card-title>\n            </mat-card>\n            <div class=\"server-list\">\n                <mat-list role=\"list\">\n                    <mat-list-item *ngFor=\"let server of teamFilters\"\n                                   role=\"listitem\">\n                        <button mat-raised-button\n                                id=\"number-of-teams-{{server.value.id}}\"\n                                class=\"number-of-teams\"\n                                disabled=\"true\">{{server.numberOfTeams}}</button>\n                        <button mat-raised-button\n                                id=\"clash-bot-teams-{{server.value.id}}\"\n                                (click)=\"filterTeam(server.value)\"\n                                [disabled]=\"server.state\">\n                            <div class=\"server-list-item\">\n                                <mat-icon class=\"server-icon\">discord</mat-icon>{{server.value.name}}\n                            </div></button>\n                    </mat-list-item>\n                </mat-list>\n            </div>\n        </div>\n    </mat-drawer>\n    <div class=\"server-filter-container\">\n        <mat-icon>discord</mat-icon>\n        <h2 id=\"selected-server\">{{selectedServer.name}}</h2>\n        <button mat-mini-fab\n                id=\"change-server-btn\"\n                #tooltip=\"matTooltip\"\n                matTooltip=\"Click to change Servers\"\n                (click)=\"drawer.toggle()\">\n            <mat-icon>filter_list</mat-icon>\n        </button>\n    </div>\n    <app-teams-tentative-table [tentativeList]=\"tentativeList\"\n                               [tentativeDataStatus]=\"tentativeDataStatus\"\n                               (register)=\"tentativeRegister($event)\"></app-teams-tentative-table>\n    <div class=\"team-cards\" *ngIf=\"!showSpinner; else elseBlock\">\n        <app-team-card *ngFor=\"let team of teams; index as i;\"\n                       id=\"clash-bot-teams-card-{{team.id}}\"\n                       [team]=\"team\"\n                       class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                       (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n        <app-new-team-card\n                *ngIf=\"canCreateNewTeam\"\n                [eligibleTournaments]=\"eligibleTournaments\"\n                (createNewTeamEvent)=\"createNewTeam($event)\"></app-new-team-card>\n    </div>\n    <ng-template #elseBlock>\n      <mat-progress-bar mode=\"query\"></mat-progress-bar>\n    </ng-template>\n</mat-drawer-container>"
+            "templateData": "<mat-drawer-container class=\"team-dashboard-view-container\" autosize>\n    <mat-drawer #drawer mode=\"over\">\n        <div>\n            <mat-card>\n                <mat-card-title class=\"server-list-title\"># of Teams | Servers</mat-card-title>\n            </mat-card>\n            <div class=\"server-list\">\n                <mat-list role=\"list\">\n                    <mat-list-item *ngFor=\"let server of teamFilters\"\n                                   role=\"listitem\">\n                        <button mat-raised-button\n                                id=\"number-of-teams-{{server.value.id}}\"\n                                class=\"number-of-teams\"\n                                disabled=\"true\">{{server.numberOfTeams}}</button>\n                        <button mat-raised-button\n                                id=\"clash-bot-teams-{{server.value.id}}\"\n                                (click)=\"filterTeam(server.value)\"\n                                [disabled]=\"server.state\">\n                            <div class=\"server-list-item\">\n                                <mat-icon class=\"server-icon\">discord</mat-icon>{{server.value.name}}\n                            </div></button>\n                    </mat-list-item>\n                </mat-list>\n            </div>\n        </div>\n    </mat-drawer>\n    <div class=\"server-filter-container\">\n        <mat-icon>discord</mat-icon>\n        <h2 id=\"selected-server\">{{selectedServer.name}}</h2>\n        <button mat-mini-fab\n                id=\"change-server-btn\"\n                #tooltip=\"matTooltip\"\n                matTooltip=\"Click to change Servers\"\n                (click)=\"drawer.toggle()\">\n            <mat-icon>filter_list</mat-icon>\n        </button>\n    </div>\n    <div class=\"free-agent-team-container\">\n        <button mat-raised-button class=\"free-agent-team-btn\" (click)=\"swap()\">\n            <mat-icon>swap_horizontal_circle</mat-icon>\n                <div [@inOutAnimation]=\"freeAgent ? 'enter' : 'leave'\" *ngIf=\"!freeAgent\">Swap to Discord Server Teams</div>\n                <div [@inOutAnimation]=\"freeAgent ? 'enter' : 'leave'\" *ngIf=\"freeAgent\">Swap to Free Agent Teams</div>\n            </button>\n    </div>\n    <app-teams-tentative-table [tentativeList]=\"tentativeList\"\n                               [tentativeDataStatus]=\"tentativeDataStatus\"\n                               (register)=\"tentativeRegister($event)\"></app-teams-tentative-table>\n    <div class=\"team-cards\" *ngIf=\"!showSpinner; else elseBlock\">\n        <app-team-card *ngFor=\"let team of teams; index as i;\"\n                       id=\"clash-bot-teams-card-{{team.id}}\"\n                       [team]=\"team\"\n                       class=\"team-card\" (registerUser)=\"registerForTeam($event)\"\n                       (unregisterUser)=\"unregisterFromTeam($event)\"></app-team-card>\n        <app-new-team-card\n                *ngIf=\"canCreateNewTeam\"\n                [eligibleTournaments]=\"eligibleTournaments\"\n                (createNewTeamEvent)=\"createNewTeam($event)\"></app-new-team-card>\n    </div>\n    <ng-template #elseBlock>\n      <mat-progress-bar mode=\"query\"></mat-progress-bar>\n    </ng-template>\n</mat-drawer-container>"
         },
         {
             "name": "TeamsTentativeTableComponent",
@@ -6358,21 +6378,21 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.int.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "object",
-                "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\",\n  authPath: \"http://localhost:8082/auth/token\"\n}"
-            },
-            {
-                "name": "environment",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/environments/environment.prod.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "object",
                 "defaultValue": "{\n  production: true,\n  discordClientId: \"837629412328734740\",\n  gTag: \"G-3V8T97537S\",\n  version: \"--APP-VERSION--\",\n  basePath: \"api/v2\",\n  authPath: \"/auth/token\"\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.int.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\",\n  authPath: \"http://localhost:8082/auth/token\"\n}"
             },
             {
                 "name": "environment",
@@ -6539,7 +6559,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6549,7 +6569,7 @@
                 "name": "Primary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
+                "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "",
@@ -6659,6 +6679,16 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<NewTeamCardComponent>",
+                "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl(\"\", Validators.required),\n      roleControl: new FormControl(\"\", Validators.required),\n      rolesAsString: [\"Top\", \"Mid\", \"Jg\", \"Bot\", \"Supp\"],\n      createNewTeamEvent: action(\"createNewTeamEvent\")\n    },\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/pages/teams-dashboard/component/team-card/team-card.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6674,16 +6704,6 @@
                 "deprecationMessage": "",
                 "type": "Story<TeamsTentativeTableComponent>",
                 "defaultValue": "(args: TeamsTentativeTableComponent) => ({\n    props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/pages/teams-dashboard/component/new-team-card/new-team-card.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story<NewTeamCardComponent>",
-                "defaultValue": "(args: NewTeamCardComponent) => ({\n    props: {\n      eligibleTournaments: args.eligibleTournaments,\n      tournamentControl: new FormControl(\"\", Validators.required),\n      roleControl: new FormControl(\"\", Validators.required),\n      rolesAsString: [\"Top\", \"Mid\", \"Jg\", \"Bot\", \"Supp\"],\n      createNewTeamEvent: action(\"createNewTeamEvent\")\n    },\n})"
             },
             {
                 "name": "Template",
@@ -7120,18 +7140,6 @@
                     "defaultValue": "Template.bind({})"
                 }
             ],
-            "src/environments/environment.int.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.int.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\",\n  authPath: \"http://localhost:8082/auth/token\"\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -7142,6 +7150,18 @@
                     "deprecationMessage": "",
                     "type": "object",
                     "defaultValue": "{\n  production: true,\n  discordClientId: \"837629412328734740\",\n  gTag: \"G-3V8T97537S\",\n  version: \"--APP-VERSION--\",\n  basePath: \"api/v2\",\n  authPath: \"/auth/token\"\n}"
+                }
+            ],
+            "src/environments/environment.int.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.int.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false,\n  discordClientId: \"839586949748228156\",\n  version: \"v4.0.1\",\n  gTag: undefined,\n  basePath: \"http://localhost:8080/api/v2\",\n  authPath: \"http://localhost:8082/auth/token\"\n}"
                 }
             ],
             "src/environments/environment.ts": [
@@ -8129,7 +8149,7 @@
                 "linktype": "component",
                 "name": "TeamsDashboardViewComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/24",
+                "coverageCount": "0/26",
                 "status": "low"
             },
             {

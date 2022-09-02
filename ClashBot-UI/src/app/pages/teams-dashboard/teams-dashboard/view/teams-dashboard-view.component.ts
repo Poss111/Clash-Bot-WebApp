@@ -8,7 +8,7 @@ import {TentativeRecord} from "../../../../interfaces/tentative-record";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {MatDrawer} from "@angular/material/sidenav";
 import {DiscordGuild} from "../../../../interfaces/discord-guild";
-import {animate, style, transition, trigger} from "@angular/animations";
+import {animate, group, query, stagger, state, style, transition, trigger} from "@angular/animations";
 
 /** Custom options the configure the tooltip's default show/hide delays. */
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
@@ -27,23 +27,40 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
         "inOutAnimation",
         [
           transition(
-              ":enter",
-              [
-                style({opacity: 0}),
-                animate("1s ease-out",
-                    style({opacity: 1}))
-              ]
-          ),
-          transition(
-              ":leave",
-              [
-                style({opacity: 1}),
-                animate("1s ease-in",
-                    style({opacity: 0}))
-              ]
-          )
+              "* => *", [
+              group([
+                query(":leave", animate(".2s", style({opacity: 0})), {optional: true}),
+                query(":enter", style({height: 0, width: 0, margin: 0, padding: 0, overflow: "hidden", opacity: 0}), {
+                  optional: true,
+                }),
+              ]),
+              style({overflow: "hidden"}),
+              group([
+                query(":leave", animate(".3s ease-in", style({height: 0, width: 0, margin: 0, padding: 0})), {
+                  optional: true,
+                }),
+                query(
+                  ":enter",
+                  animate(".3s ease-in", style({height: "*", width: "*", margin: "*", padding: "*", overflow: "visible"})),
+                  {optional: true}
+                ),
+            ]),
+            // Now that everything is the correct size, fade in the entering element.
+            query(":enter", animate(".4s", style({opacity: 1}))),
         ]
-    )
+      )
+    ]),
+    trigger("fadeInAnim", [
+      state("open", style({opacity: 0})),
+      state("closed", style({opacity: 1})),
+      transition("* => *", [
+        query("button", [
+          stagger(1000, [
+            animate("1s", )
+          ])
+        ]),
+      ]),
+    ])
   ]
 })
 export class TeamsDashboardViewComponent implements AfterViewInit {
@@ -136,5 +153,9 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
 
   swap() {
     this.freeAgent = !this.freeAgent;
+  }
+
+  trackByFn(index: number, guild: TeamFilter) {
+    return guild.value.id;
   }
 }
