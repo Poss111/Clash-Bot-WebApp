@@ -13,6 +13,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatIconRegisteryModule} from "../teams-dashboard/component/mat-icon-registery.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatCardModule} from "@angular/material/card";
+import {MatDividerModule} from "@angular/material/divider";
 
 
 
@@ -33,7 +34,8 @@ import {MatCardModule} from "@angular/material/card";
     MatAutocompleteModule,
     MatIconRegisteryModule,
     MatExpansionModule,
-    MatCardModule
+    MatCardModule,
+    MatDividerModule
   ]
 })
 export class ClashbotWalkthroughModule { }

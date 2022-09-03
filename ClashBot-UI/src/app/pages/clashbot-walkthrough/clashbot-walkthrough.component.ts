@@ -4,6 +4,7 @@ import {Tournament} from "clash-bot-service-api/model/tournament";
 import {TentativeRecord} from "../../interfaces/tentative-record";
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ApplicationDetailsService} from "../../services/application-details.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: "app-clashbot-walkthrough",
@@ -118,7 +119,8 @@ export class ClashbotWalkthroughComponent {
   // }
 
   constructor(private fb: FormBuilder,
-              private appDetails: ApplicationDetailsService) {
+              private appDetails: ApplicationDetailsService,
+              private router: Router) {
     const details = appDetails.getApplicationDetails().value;
     details.userGuilds?.forEach(item => {
       this.servers.push(item.name);
@@ -148,5 +150,9 @@ export class ClashbotWalkthroughComponent {
     // this.form.value.serveri.servers.forEach((server: any) => {
     //   serverIds.push(this.serverNameToIdMap.get(server.server) ?? "");
     // });
+  }
+
+  navigate(route: string) {
+
   }
 }

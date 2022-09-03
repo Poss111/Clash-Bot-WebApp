@@ -19,6 +19,8 @@ import {BehaviorSubject} from "rxjs";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {ClashbotWalkthroughRoutingModule} from "./clashbot-walkthrough-routing.module";
 import {MatExpansionModule} from "@angular/material/expansion";
+import {MatCardModule} from "@angular/material/card";
+import {MatDividerModule} from "@angular/material/divider";
 
 const createGuild = (name: string, id: string) => {
     return {
@@ -77,6 +79,8 @@ export default {
                 MatAutocompleteModule,
                 MatIconRegisteryModule,
                 MatExpansionModule,
+                MatCardModule,
+                MatDividerModule
             ],
             providers: [{
                 provide: ApplicationDetailsService, useClass: MockApplicationDetailsService

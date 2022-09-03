@@ -12,6 +12,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: 20em;
+}
+
+.server-filter-title {
+  max-width: 10em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .component-container > h2 {
@@ -39,4 +47,9 @@
 
 .headers-align {
   margin-left: 8px;
+}
+
+.stepper-btn-container {
+  display: flex;
+  justify-content: space-between;
 }
