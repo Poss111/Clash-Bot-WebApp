@@ -117,9 +117,9 @@ function persistSampleData(module, data) {
             logger.info(`Successfully created table ('${module.tableName}').`);
             data.Items.forEach((recordToInsert) => {
               console.debug(`Inserting record into ('${module.tableName}')...`);
-              table.create(recordToInsert, (err) => {
-                if (err) {
-                  logger.error('Failed to load data', err);
+              table.create(recordToInsert, (error) => {
+                if (error) {
+                  logger.error(error, 'Failed to load data');
                   failed += 1;
                 } else {
                   dataPersisted.push(recordToInsert);
