@@ -8,6 +8,7 @@ export interface ApplicationDetails {
   currentTournaments?: Tournament[],
   defaultGuild?: DiscordGuild,
   userGuilds?: Map<string, DiscordGuild>,
+  selectedGuilds?: Map<string, DiscordGuild>,
   userDetails?: UserDetails,
   clashBotUserDetails?: Player,
   loggedIn: boolean
