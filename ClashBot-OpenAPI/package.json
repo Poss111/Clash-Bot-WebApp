@@ -1,7 +1,7 @@
 {
   "name": "clashbot-openapi",
   "version": "1.0.0",
-  "description": "",
+  "description": "A contract setup for servers and clients that are part of the Clash Bot Application.",
   "scripts": {
     "generate-rest-server": "openapi-generator-cli generate -i definitions/open-api.yml -g nodejs-express-server -o ../ClashBot-Service-OpenAPI --minimal-update -s",
     "generate-auth-rest-server": "openapi-generator-cli generate -i definitions/auth-open-api.yml -g nodejs-express-server -o ../ClashBot-Auth-OpenAPI --minimal-update -s",
@@ -12,7 +12,7 @@
     "rest-server-dry-run-generate": "openapi-generator-cli generate -i definitions/open-api.yml -g nodejs-express-server -o ../Clash-Bot-Service-TS --minimal-update -s --dry-run",
     "start-rest-service-swagger": "swagger-ui-watcher ./definitions/open-api.yml"
   },
-  "author": "",
+  "author": "Poss111",
   "license": "ISC",
   "dependencies": {
     "@asyncapi/generator": "^1.9.5",

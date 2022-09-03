@@ -16,6 +16,7 @@ const userEntityToResponse = {
       return [{ key: 'UpcomingClashTournamentDiscordDM', isOn: false }];
     },
   },
+  selectedServers: 'selectedServers',
 };
 
 const requestToUserEntity = {
@@ -33,6 +34,7 @@ const requestToUserEntity = {
     },
   },
   serverId: 'serverId',
+  selectedServers: 'selectedServers',
 };
 
 const requestToNewUserEntity = {

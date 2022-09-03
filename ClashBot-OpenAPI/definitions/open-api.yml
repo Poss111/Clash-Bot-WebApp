@@ -109,6 +109,11 @@ components:
             $ref: '#/components/schemas/Subscription'
         serverId:
           type: string
+        selectedServers:
+          description: A list of servers that the Player has chosen to watch.
+          type: array
+          items:
+            type: string
     Subscription:
       description: A map of subscriptions a player has for Clash Bot
       type: object
@@ -126,12 +131,43 @@ components:
         - Jg
         - Bot
         - Supp
+    BadRequestError:
+      description: An error if the request parameters passed were invalid.
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+          format: int32
+        message:
+          type: string
+    NotFoundError:
+      description: An error if the object requested was not found.
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+          format: int32
+        message:
+          type: string
+    ServerExceptionError:
+      description: An error if an uncaught exception occurs.
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 500
+          format: int32
+        message:
+          type: string
     Error:
       description: The base error object.
       type: object
       properties:
         code:
           type: integer
+          example: 200
           format: int32
         message:
           type: string
@@ -253,6 +289,11 @@ components:
               serverId:
                 description: The server the player is from.
                 type: string
+              selectedServers:
+                description: A list of selected Servers that the Player has chosen to watch.
+                type: array
+                items:
+                  type: string
     ChampionPostBody:
       description: A list of champions.
       content:
@@ -302,21 +343,25 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: "#/components/schemas/NotFoundError"
     NoneFound:
       description: No results found matching the criteria.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: "#/components/schemas/NotFoundError"
     BadInput:
       description: Input given is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BadRequestError"
     ClashBotException:
       description: Default error.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: "#/components/schemas/ServerExceptionError"
 paths:
   /team:
     summary: 'Teams that will participate in a specific League of Legends Clash tournament.'
@@ -677,10 +722,10 @@ paths:
       tags:
         - User
       requestBody:
-        $ref: '#/components/requestBodies/PlayerCreateBody'
+        $ref: '#/components/requestBodies/PlayerUpdateBody'
       responses:
         200:
-          description: Created a new Clash Bot Player
+          description: Successfully pdated an existing Clash Bot Player
           content:
             application/json:
               schema:

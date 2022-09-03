@@ -71,14 +71,16 @@ describe('Clash User Service Impl', () => {
           key: 'UpcomingClashTournamentDiscordDM',
           isOn: true,
         }],
-        serverId: 'SampleServer',
+        serverId: '1',
+        selectedServers: ['1', '2'],
       };
       const expectedConvertedUser = {
         key: expectedId,
         playerName: expectedUpdatedUsername,
         preferredChampions: [],
         subscribed: 'true',
-        serverId: 'SampleServer',
+        serverId: '1',
+        selectedServers: ['1', '2'],
       };
       const expectedResponse = {
         code: 200,
@@ -90,7 +92,8 @@ describe('Clash User Service Impl', () => {
             key: 'UpcomingClashTournamentDiscordDM',
             isOn: true,
           }],
-          serverId: 'SampleServer',
+          serverId: '1',
+          selectedServers: ['1', '2'],
         },
       };
       clashSubscriptionDbImpl.updateUser.mockResolvedValue(expectedConvertedUser);
