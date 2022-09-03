@@ -1,0 +1,42 @@
+.component-desc-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.explanation-container {
+  max-width: 20em;
+  margin-right: 1em;
+}
+
+.component-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.component-container > h2 {
+  margin-right: 1em;
+}
+
+.tentative-component-container {
+  flex-grow: 1;
+}
+
+.server-form-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 15em;
+}
+
+.default-server-input {
+  margin-top: 1em;
+}
+
+.headers-align .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headers-align {
+  margin-left: 8px;
+}

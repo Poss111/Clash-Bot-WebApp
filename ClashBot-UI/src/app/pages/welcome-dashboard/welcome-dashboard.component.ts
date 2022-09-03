@@ -18,6 +18,7 @@ import {TournamentService, UserService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {Player} from "clash-bot-service-api/model/player";
 import {LoginStatus} from "../../login-status";
+import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
 
 @Component({
     selector: "app-welcome-dashboard",
@@ -146,6 +147,7 @@ export class WelcomeDashboardComponent implements OnInit {
                                     }
                                 }))),
                         map(response => {
+                            response.push(FREE_AGENT_GUILD);
                             return {
                                 discordUser: userDetails,
                                 discordGuilds: response

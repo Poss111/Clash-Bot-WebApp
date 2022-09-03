@@ -41,7 +41,9 @@ import {MatTooltipModule} from "@angular/material/tooltip";
         TeamsDashboardViewComponent
     ],
     exports: [
-        TeamCardComponent
+        TeamCardComponent,
+        NewTeamCardComponent,
+        TeamsTentativeTableComponent
     ],
     imports: [
         CommonModule,

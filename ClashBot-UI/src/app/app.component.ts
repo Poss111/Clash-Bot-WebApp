@@ -45,6 +45,12 @@ export class AppComponent implements OnInit, OnDestroy {
             route: "/teams",
             icon: "groups",
             id: "clash-bot-menu-teams-page"
+        },
+        {
+            name: "Walkthrough",
+            route: "/walkthrough",
+            icon: "groups",
+            id: "clash-bot-menu-walkthrough"
         }
     ];
 

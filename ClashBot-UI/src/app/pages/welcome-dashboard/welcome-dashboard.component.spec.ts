@@ -342,16 +342,27 @@ describe("WelcomeDashboardComponent", () => {
                 let mockUser = createMockUser();
                 let mockClashBotUser = createMockPlayer();
                 mockClashBotUser.name = mockUser.username;
-                let mockGuilds = createMockGuilds();
+                let mockGuilds = mockDiscordGuilds();
+                const freeAgentGuild = {
+                    id: "-1",
+                    name: "Free Agents",
+                    icon: "",
+                    owner: false,
+                    permissions: 0,
+                    features: [],
+                    permissions_new: "0"
+                };
                 const guildMap = new Map<string, DiscordGuild>();
                 mockClashBotUser.serverId = mockGuilds[0].id
-                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
                 (userServiceMock.getUser as any).mockReturnValue(cold("#|", undefined, create404HttpError()));
                 (userServiceMock.createUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
                 setupEmptyApplicationDetailsForInit();
+
+                const expectedGuilds = [...mockGuilds, freeAgentGuild];
+                expectedGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
@@ -388,9 +399,17 @@ describe("WelcomeDashboardComponent", () => {
 
                 let mockUser = createMockUserDetails();
                 let mockClashBotUser = createMockPlayer();
-                let mockGuilds = createMockGuilds();
+                let mockGuilds = mockDiscordGuilds();
+                const freeAgentGuild = {
+                    id: "-1",
+                    name: "Free Agents",
+                    icon: "",
+                    owner: false,
+                    permissions: 0,
+                    features: [],
+                    permissions_new: "0"
+                };
                 const guildMap = new Map<string, DiscordGuild>();
-                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 discordServiceMock.getUserDetails.mockReturnValue(cold("x|", {x: mockUser}));
                 discordServiceMock.getGuilds.mockReturnValue(cold("x|", {x: mockGuilds}));
@@ -402,6 +421,9 @@ describe("WelcomeDashboardComponent", () => {
                         {x: setupLoggedOutMockApplicationDetails()}
                     ));
                 setupEmptyApplicationDetailsForInit();
+
+                const expectedGuilds = [...mockGuilds, freeAgentGuild];
+                expectedGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;
@@ -436,8 +458,16 @@ describe("WelcomeDashboardComponent", () => {
                 mockUser.username = "The Boas";
                 let mockClashBotUser = createMockPlayer();
                 let mockGuilds = mockDiscordGuilds();
+                const freeAgentGuild = {
+                    id: "-1",
+                    name: "Free Agents",
+                    icon: "",
+                    owner: false,
+                    permissions: 0,
+                    features: [],
+                    permissions_new: "0"
+                };
                 const guildMap = new Map<string, DiscordGuild>();
-                mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
                 mockClashBotUser.serverId = mockGuilds[1].id;
 
                 discordServiceMock
@@ -453,6 +483,9 @@ describe("WelcomeDashboardComponent", () => {
                   .getApplicationDetails
                   .mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
                 setupEmptyApplicationDetailsForInit();
+
+                const expectedGuilds = [...mockGuilds, freeAgentGuild];
+                expectedGuilds.forEach(guild => guildMap.set(guild.id, guild));
 
                 fixture = TestBed.createComponent(WelcomeDashboardComponent);
                 component = fixture.componentInstance;

@@ -150,6 +150,7 @@ TwentyServers.args = {
         }
     ],
     teamFilters: [
+        createMockFilter("Free Agents", "-1", 2),
         createMockFilter("Clash Bot", "0", 10),
         createMockFilter("Clash Bot Two", "1", 2),
         createMockFilter("Extro", "3", 0),
@@ -425,6 +426,7 @@ CreateNewTeam.args = {
         }
     ],
     teamFilters: [
+        createMockFilter("Free Agents", "-1", 2),
         createMockFilter("Goon Squad", "0", 0),
         createMockFilter("Clash Bot", "1", 0),
         createMockFilter("Extro", "2", 0)
@@ -520,6 +522,7 @@ NoData.args = {
         }
     ],
     teamFilters: [
+        createMockFilter("Free Agents", "-1", 2),
         createMockFilter("Goon Squad", "0", 0),
         createMockFilter("Clash Bot", "1", 0),
         createMockFilter("Extro", "2", 0),
@@ -575,6 +578,7 @@ Loading.args = {
         }
     ],
     teamFilters: [
+        createMockFilter("Free Agents", "-1", 2),
         createMockFilter("Goon Squad", "0", 0),
         createMockFilter("Clash Bot", "1", 0),
         createMockFilter("Extro", "2", 0),
@@ -630,6 +634,7 @@ Primary.args = {
         }
     ],
     teamFilters: [
+        createMockFilter("Free Agents", "-1", 2),
         createMockFilter("Goon Squad", "0", 0),
         createMockFilter("Clash Bot", "1", 0),
         createMockFilter("Extro", "2", 0),

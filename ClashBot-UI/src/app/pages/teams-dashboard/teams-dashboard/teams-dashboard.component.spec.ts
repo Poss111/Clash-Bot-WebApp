@@ -249,111 +249,53 @@ describe("TeamsDashboardComponent", () => {
   });
 
   describe("Sort Server Filter", () => {
-    test("sortFilters - (Sort by state, numberOfTeams, then name) - when sorted is called with a TeamFilter array, it should have the selected Guild at the top, then be sorted by numberOfTeams, then finally sorted by name.", () => {
 
+    const createTeamFilterEntry = (identifier: string, name: string, id: string, state: boolean, numberOfTeams: number) => {
+      return {
+        value: {
+          features: [],
+              icon: "",
+              id: identifier,
+              name,
+              owner: false,
+              permissions: 0,
+              permissions_new: ""
+        },
+        type: FilterType.SERVER,
+          state,
+          id,
+          numberOfTeams
+      };
+    };
+
+    test("sortFilters - (Sort by Free Agents, state, numberOfTeams, then name) - when sorted is called with a TeamFilter array, it should have the Free Agents Guild at the top, then the selected server, then be sorted by numberOfTeams, then finally sorted by name.", () => {
       const mappedGuilds: TeamFilter[] = [
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "Goon Squad",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "goon-squad",
-          numberOfTeams: 0
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "ClashBot-Server",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "clashbot-server",
-          numberOfTeams: 5
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "LoL-ClashBotSupport",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: true,
-          id: "lol-clashbotsupport",
-          numberOfTeams: 0
-        }
+        createTeamFilterEntry("0", "Goon Squad", "goon-squad", false, 0),
+        createTeamFilterEntry("0", "ClashBot-Server", "clashbot-server", false, 5),
+        createTeamFilterEntry("-1", "Free Agents", "free-agents", false, 0),
+        createTeamFilterEntry("0", "LoL-ClashBotSupport", "lol-clashbotsupport", true, 0),
       ];
-      const expectedOrderedTeamFilters = [...mappedGuilds];
+      const expectedOrderedTeamFilters = [
+          mappedGuilds[2],
+          mappedGuilds[3],
+          mappedGuilds[1],
+          mappedGuilds[0]
+      ];
       const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
-      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters.reverse());
-    })
+      expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters);
+    });
 
     test("sortFilters - (Sort by numberOfTeams) - If state is not true then it should just sort by number of Teams.", () => {
       const mappedGuilds: TeamFilter[] = [
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "Goon Squad",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "goon-squad",
-          numberOfTeams: 0
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "ClashBot-Server",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "clashbot-server",
-          numberOfTeams: 8
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "LoL-ClashBotSupport",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "lol-clashbotsupport",
-          numberOfTeams: 3
-        }
+        createTeamFilterEntry("0", "Goon Squad", "goon-squad", false, 0),
+        createTeamFilterEntry("0", "ClashBot-Server", "clashbot-server", false, 5),
+        createTeamFilterEntry("-1", "Free Agents", "free-agents", false, 0),
+        createTeamFilterEntry("0", "LoL-ClashBotSupport", "lol-clashbotsupport", false, 3),
       ];
       const expectedOrderedTeamFilters = [
-        mappedGuilds[1],
         mappedGuilds[2],
+        mappedGuilds[1],
+        mappedGuilds[3],
         mappedGuilds[0],
       ];
       const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
@@ -362,56 +304,16 @@ describe("TeamsDashboardComponent", () => {
 
     test("sortFilters - (Sort by name) - If all numberOfTeams are 0 then it should just sort by server name.", () => {
       const mappedGuilds: TeamFilter[] = [
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "Goon Squad",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "goon-squad",
-          numberOfTeams: 0
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "ClashBot-Server",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "clashbot-server",
-          numberOfTeams: 0
-        },
-        {
-          value: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "LoL-ClashBotSupport",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-          },
-          type: FilterType.SERVER,
-          state: false,
-          id: "lol-clashbotsupport",
-          numberOfTeams: 0
-        }
+        createTeamFilterEntry("0", "Goon Squad", "goon-squad", false, 0),
+        createTeamFilterEntry("0", "ClashBot-Server", "clashbot-server", false, 0),
+        createTeamFilterEntry("-1", "Free Agents", "free-agents", false, 0),
+        createTeamFilterEntry("0", "LoL-ClashBotSupport", "lol-clashbotsupport", false, 0),
       ];
       const expectedOrderedTeamFilters = [
+        mappedGuilds[2],
         mappedGuilds[1],
         mappedGuilds[0],
-        mappedGuilds[2],
+        mappedGuilds[3],
       ];
       const sortedTeamFilters = fixture.componentInstance.sortFilters(mappedGuilds);
       expect(sortedTeamFilters).toEqual(expectedOrderedTeamFilters);

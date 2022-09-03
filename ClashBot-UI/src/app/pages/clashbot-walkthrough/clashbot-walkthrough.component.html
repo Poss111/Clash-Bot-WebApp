@@ -1,0 +1,168 @@
+<mat-stepper linear>
+    <mat-step label="Welcome to ClashBot" state="phone">
+        <h1>Welcome to Clash Bot!</h1>
+        <p>To handle all of your League of Legends Clash Tournament scheduling needs through discord!
+            The Riot Tournaments are pulled directly from Riot.</p>
+        <h2>Disclaimer</h2>
+        <p>Clash-Bot is not endorsed by Riot Games and does not reflect the
+            views
+            or opinions of
+            Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends
+            and Riot
+            Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
+        <div>
+            <button mat-button matStepperNext>Next</button>
+        </div>
+    </mat-step>
+    <mat-step label="Setup" >
+<!--    <mat-step label="Setup" [stepControl]="form">-->
+<!--        <form [formGroup]="form">-->
+<!--            <ng-template matStepLabel>Give us some details!</ng-template>-->
+<!--            <h1>We need some information from you!</h1>-->
+<!--            <p>We do not want to overload your screen with all of your awesome Discord Servers :).</p>-->
+<!--            <p>You can provide up to 5 Discord Servers that you want to see other Clash Tournament Teams with.</p>-->
+<!--            <p>When you are finished with this process, you can update this list in your settings.</p>-->
+<!--            <div class="server-form-container" formGroupName="serveri">-->
+<!--                <ng-container-->
+<!--                        formArrayName="servers"-->
+<!--                        *ngFor="-->
+<!--                            let item of serverFormControls.controls;-->
+<!--                            let itemIndex = index-->
+<!--                          ">-->
+<!--                    <mat-form-field [formGroupName]="itemIndex" appearance="fill">-->
+<!--                        <mat-label>Discord Server</mat-label>-->
+<!--                        <input matInput-->
+<!--                               placeholder="Discord Server"-->
+<!--                               formControlName="server"-->
+<!--                               [matAutocomplete]="auto">-->
+<!--                        <mat-autocomplete #auto="matAutocomplete">-->
+<!--                            <mat-option *ngFor="let server of servers" [value]="server">-->
+<!--                                {{server}}-->
+<!--                            </mat-option>-->
+<!--                        </mat-autocomplete>-->
+<!--                    </mat-form-field>-->
+<!--                </ng-container>-->
+<!--                <button mat-raised-button-->
+<!--                        color="primary"-->
+<!--                        *ngIf="serverFormControls.controls.length < 5"-->
+<!--                        (click)="addServer()">Add Another Server?</button>-->
+<!--                <mat-form-field-->
+<!--                        class="default-server-input"-->
+<!--                        *ngIf="serverFormControls.valid"-->
+<!--                        formGroupName="defaultServer"-->
+<!--                        appearance="fill">-->
+<!--                    <mat-label>Default Server</mat-label>-->
+<!--                    <input matInput-->
+<!--                           placeholder="Default Server"-->
+<!--                           formControlName="server"-->
+<!--                           [matAutocomplete]="auto">-->
+<!--                    <mat-autocomplete #auto="matAutocomplete">-->
+<!--                        <mat-option *ngFor="let server of serverFormControls.value" [value]="server.server">-->
+<!--                            {{server.server}}-->
+<!--                        </mat-option>-->
+<!--                    </mat-autocomplete>-->
+<!--                </mat-form-field>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <button mat-button-->
+<!--                        matStepperNext-->
+<!--                        (click)="submit()"-->
+<!--                        *ngIf="this.form.valid">Next</button>-->
+                <button mat-button
+                        matStepperNext
+                        (click)="submit()">Next</button>
+<!--            </div>-->
+<!--        </form>-->
+    </mat-step>
+    <mat-step label="How to use the Teams page" state="chat">
+        <h1>How to use Clash Bot?</h1>
+        <p>All of your scheduling will be done on the Teams page. You can navigate to it using the menu at the top left.</p>
+        <p>Here are the components and their usage below.</p>
+        <mat-accordion class="headers-align" multi>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Discord Server Filter
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        For switching between Servers
+                        <mat-icon>filter_list</mat-icon>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p>You can see which Discord Server you are currently using.</p>
+                <p>If you want to change, just use the filter button to then select any of your selected guilds.</p>
+                <p>The 'Free Agents' selection at the top can be used as a open Team for anyone across any server to join.</p>
+                <div class="component-container">
+                    <mat-icon>discord</mat-icon>
+                    <h2>LoL-ClashBotSupport</h2>
+                    <button mat-mini-fab>
+                        <mat-icon>filter_list</mat-icon>
+                    </button>
+                </div>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        New Team Card
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        For creating a brand new Clash Tournament Team
+                        <mat-icon>add</mat-icon>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="explanation-container">
+                    <p>To start, you can create a brand new Team for one of the upcoming Clash Tournaments in the Discord Server you have selected.</p>
+                    <p>Just click on the plus sign and select the Tournament, Day, and Role you want to sign up with.</p>
+                </div>
+                <div class="component-container">
+                    <app-new-team-card [eligibleTournaments]="eligibleTournaments"></app-new-team-card>
+                </div>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Team Cards
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        For joining existing Clash Tournament Teams
+                        <mat-icon>login</mat-icon>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="explanation-container">
+                    <p>Each Team contains one of each of the League of Legend's roles.</p>
+                    <p>To add yourself to a Team for a given role, just click on the role and click yes on the dialog box.</p>
+                    <p>To remove yourself from a Team, you can either join another Team or click the minus button next to your name.</p>
+                    <h2>Important!</h2>
+                    <p>You can only be assigned to a single Team or Tentative Queue per Tournament.</p>
+                </div>
+                <div class="component-container">
+                    <app-team-card [team]="mockTeam"></app-team-card>
+                </div>
+            </mat-expansion-panel>
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Tentative Queue
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        For letting others know you are unsure if you are able to play
+                        <mat-icon>flaky</mat-icon>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="explanation-container">
+                    <p>If you are uncertain if you will be able to play in a Clash Tournament, have no fear! You can use this component to let your Server mates know you are uncertain.</p>
+                    <p>You can use the plus and minus button on the far right of the table to add and remove yourself from the queue.</p>
+                </div>
+                <div class="tentative-component-container">
+                    <h3>Click It!</h3>
+                    <app-teams-tentative-table [tentativeList]="tentativeList"
+                                               tentativeDataStatus="SUCCESSFUL"></app-teams-tentative-table>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+        <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Finished</button>
+        </div>
+    </mat-step>
+</mat-stepper>

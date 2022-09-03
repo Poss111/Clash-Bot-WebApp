@@ -95,3 +95,8 @@
   justify-content: center;
   margin-top: 1em;
 }
+
+::ng-deep .ng-animating div mat-accordion mat-expansion-panel div.mat-expansion-panel-content {
+  height: 0px;
+  visibility: hidden;
+}

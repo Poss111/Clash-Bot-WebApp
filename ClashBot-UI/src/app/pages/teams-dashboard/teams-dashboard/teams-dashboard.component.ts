@@ -37,6 +37,7 @@ import {PlayerUiWrapper, TeamUiWrapper} from "../../../interfaces/team-ui-wrappe
 import {ClashBotTeamEvent, ClashBotTeamEventBehavior} from "../../../interfaces/clash-bot-team-event";
 import {LoginStatus} from "../../../login-status";
 import {DiscordGuild} from "../../../interfaces/discord-guild";
+import {FREE_AGENT_GUILD} from "../../../interfaces/clash-bot-constants";
 
 @Component({
     selector: "app-teams-dashboard",
@@ -155,8 +156,14 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
      */
     sortFilters(items: TeamFilter[]): TeamFilter[] {
         return items.sort((a, b) => {
-            if (a.state) {
+            if (a.value.id === FREE_AGENT_GUILD.id) {
                 return -1;
+            } else if (b.value.id === FREE_AGENT_GUILD.id) {
+                return 1;
+            } else if (a.state) {
+                return -1;
+            } else if (b.state) {
+                return 1;
             } else if (b.numberOfTeams - a.numberOfTeams !== 0) {
                 return b.numberOfTeams - a.numberOfTeams
             } else {

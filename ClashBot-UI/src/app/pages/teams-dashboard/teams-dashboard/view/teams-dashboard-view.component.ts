@@ -1,4 +1,12 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild
+} from "@angular/core";
 import {ClashBotUserRegister} from "../../../../interfaces/clash-bot-user-register";
 import {TeamFilter} from "../../../../interfaces/team-filter";
 import {CreateNewTeamDetails} from "../../../../interfaces/create-new-team-details";
@@ -50,17 +58,19 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
         ]
       )
     ]),
-    trigger("fadeInAnim", [
-      state("open", style({opacity: 1})),
-      state("closed", style({opacity: 0})),
-      transition("closed => open", [
-        query(".to-disappear", [
-          // stagger(1000, [
-            animate("1s ease-in" )
-          // ])
-        ]),
-      ]),
-    ])
+      trigger(
+          "flyInAnimation",
+          [
+              transition("void => *", [
+                  query(":enter", [
+                    style({transform: "translateX(100%)", opacity: 0}),
+                    stagger(250, [
+                      animate("0.25s ease-in", style({transform: "translateX(0)", opacity: 1}))
+                    ])
+                  ])
+              ])
+          ]
+      )
   ]
 })
 export class TeamsDashboardViewComponent implements AfterViewInit {
@@ -128,10 +138,6 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
     this.tooltip?.show();
     this.cd.detectChanges();
     setTimeout(() => this.tooltip?.hide(), 2000);
-    this.drawer?.openedChange.subscribe((item) => {
-      this.event = item;
-      console.dir(item ? "open" : "closed");
-    })
   }
 
   createNewTeam($event: CreateNewTeamDetails) {
@@ -154,10 +160,6 @@ export class TeamsDashboardViewComponent implements AfterViewInit {
     this.filterTeamEvent.emit($event);
     this.drawer?.toggle();
     this.selectedServer = $event;
-  }
-
-  swap() {
-    this.freeAgent = !this.freeAgent;
   }
 
   trackByFn(index: number, guild: TeamFilter) {
