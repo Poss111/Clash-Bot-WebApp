@@ -23,6 +23,7 @@ describe('Initialize Table connection', () => {
             key: Joi.string(),
             playerName: Joi.string(),
             serverId: Joi.string(),
+            selectedServers: Joi.array(),
             timeAdded: Joi.string(),
             subscribed: Joi.string(),
             preferredChampions: Joi.array(),
@@ -49,12 +50,13 @@ describe('Initialize Table connection', () => {
 describe('Get User Subscription', () => {
   test('I should be able to retrieve a user detail by an id.', () => {
     const id = '123456789';
-    const server = 'Goon Squad';
+    const server = '1';
     const playerName = 'Sample User';
     const expectedResults = {
       key: id,
       playerName,
       serverId: server,
+      selectedServer: [server],
       preferredChampions: ['Akali'],
       subscribed: false,
     };

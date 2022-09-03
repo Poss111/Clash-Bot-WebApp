@@ -9,6 +9,7 @@ erDiagram
         string key
         string playerName
         string serverId
+        array selectedServers
         string subscribed
         array preferredChampions
     }

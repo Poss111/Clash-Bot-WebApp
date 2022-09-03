@@ -17,6 +17,7 @@ class ClashUserDbImpl {
                     key: Joi.string(),
                     playerName: Joi.string(),
                     serverId: Joi.string(),
+                    selectedServers: Joi.array(),
                     timeAdded: Joi.string(),
                     subscribed: Joi.string(),
                     preferredChampions: Joi.array()
