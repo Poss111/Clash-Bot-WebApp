@@ -11,6 +11,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {PageLoadingService} from "../../services/page-loading.service";
 import {take} from "rxjs/operators";
 import {DiscordGuild} from "../../interfaces/discord-guild";
+import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
 
 @Component({
   selector: "app-clashbot-walkthrough",
@@ -115,7 +116,7 @@ export class ClashbotWalkthroughComponent implements OnInit {
   })
   servers: string[] = [];
   serverNameToIdMap: Map<string, string> = new Map();
-  serverIds: Map<string, DiscordGuild> = new Map();
+  serverMap: Map<string, DiscordGuild> = new Map();
 
   get serverFormControls(): FormArray {
     return this.form.get("serveri")?.get("servers") as FormArray
@@ -165,18 +166,18 @@ export class ClashbotWalkthroughComponent implements OnInit {
       listOfIds.push(this.serverNameToIdMap.get(formGroup.value.server) ?? "");
     });
     if (app.userGuilds) {
-      this.serverIds = new Map([...app.userGuilds]
+      this.serverMap = new Map([...app.userGuilds]
         .filter((key) => listOfIds.includes(key[0])));
     }
   }
 
   finishWalkthrough() {
-    console.dir(this.serverIds);
+    console.dir(this.serverMap);
     const app = this.appDetails.getApplicationDetails().value;
     const payload: UpdateUserRequest = {
       id: app.clashBotUserDetails?.id ?? "",
-      selectedServers: [...this.serverIds.keys()],
-    }
+      selectedServers: [...this.serverMap.keys()],
+    };
     this.userService.updateUser(payload)
       .pipe(take(1))
       .subscribe(() => {
@@ -184,9 +185,10 @@ export class ClashbotWalkthroughComponent implements OnInit {
           this.userService.getUser(`${app.userDetails?.id}`)
             .pipe(take(1))
             .subscribe((response) => {
+              this.serverMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
               this.appDetails.setApplicationDetails({
                 ...app,
-                selectedGuilds: this.serverIds,
+                selectedGuilds: this.serverMap,
                 clashBotUserDetails: response
               });
             });
