@@ -91,9 +91,9 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         this.applicationDetailsService.getApplicationDetails()
             .pipe(take(1))
             .subscribe((appDetails) => {
-                if (appDetails.userGuilds) {
+                if (appDetails.selectedGuilds) {
                     const calls: Observable<TeamFilter>[] = [];
-                    appDetails.userGuilds.forEach((details) => {
+                    appDetails.selectedGuilds.forEach((details) => {
                         calls.push(this.teamsService.getTeam(details.id)
                             .pipe(
                                 take(1),
@@ -230,7 +230,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
         this.applicationDetailsService.getApplicationDetails()
             .pipe(take(1))
             .subscribe((appDetails) => {
-            const foundGuild = appDetails.userGuilds?.get(guild.id);
+            const foundGuild = appDetails.selectedGuilds?.get(guild.id);
             if (foundGuild) this.currentSelectedGuild = foundGuild;
             this.$updateList.next(true);
             this.showInnerSpinner = true;
@@ -418,7 +418,7 @@ export class TeamsDashboardComponent implements OnInit, OnDestroy {
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
         teamUiWrapper.server = this.currentApplicationDetails
-            .userGuilds?.get(record.serverId ?? "0");
+            .selectedGuilds?.get(record.serverId ?? "0");
         let rolesMissing: string[] = [...Object.keys(this.roles)];
         if (record.playerDetails) {
             teamUiWrapper.teamDetails = Object.entries(record.playerDetails)

@@ -7,12 +7,13 @@ import {ApplicationDetailsService} from "./services/application-details.service"
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import {take} from "rxjs/operators";
+import {filter, take, tap} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
 import {JwksValidationHandler} from "angular-oauth2-oidc-jwks";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoginStatus} from "./login-status";
 
 @Component({
     selector: "app-root",
@@ -103,7 +104,17 @@ export class AppComponent implements OnInit, OnDestroy {
                             .open("Failed to refresh", "X", {duration: 5 * 1000});
                     });
             }
+            console.dir(event);
         });
+        this.applicationDetailsService.getApplicationDetails()
+          .pipe(
+            filter(details => (details.loginStatus === LoginStatus.LOAD_USER_DETAILS)
+                && this.oauthService.hasValidAccessToken()),
+            tap(() => this._snackBar.open("Logging in....", "X", {duration: 5 * 1000}))
+          )
+          .subscribe((details) => {
+            this.applicationDetailsService.initUserDetails();
+          });
         this.toggleDarkMode(this.darkMode);
         this.subscriptions.push(
             this.router.events.subscribe(event => {

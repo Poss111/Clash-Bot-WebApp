@@ -17,10 +17,12 @@ export class NewPlayerGuardGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return this.appDetails.getApplicationDetails()
       .pipe(map((details) => {
-        if (details.loggedIn && details.selectedGuilds) {
-          return true;
-        } else if (details.loggedIn && !details.selectedGuilds) {
+        if (details.loggedIn
+          && (!details.selectedGuilds
+            || details.selectedGuilds?.size === 0)) {
           return this.router.parseUrl("/walkthrough");
+        } else if (details.loggedIn && details.selectedGuilds) {
+          return true;
         }
         return this.router.parseUrl("/");
       }));
