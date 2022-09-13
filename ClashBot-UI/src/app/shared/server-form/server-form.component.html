@@ -1,0 +1,51 @@
+<form [formGroup]="preferredServerForm">
+    <div class="server-form-container">
+        <ng-container *ngFor="let item of serverForm;
+                        let itemIndex = index
+                          ">
+            <mat-form-field appearance="fill">
+                <mat-label>Discord Server</mat-label>
+                <input type="text"
+                       matInput
+                       [placeholder]="item.label"
+                       [formControlName]="item.key"
+                       aria-label="string"
+                       [matAutocomplete]="auto">
+                <mat-error *ngIf="this.preferredServerForm.get(item.key).hasError('duplicate')">Duplicate Server name</mat-error>
+                <mat-error *ngIf="this.preferredServerForm.get(item.key).hasError('notInList')">Server not found</mat-error>
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                    <mat-option *ngFor="let server of listOfAutoCompleteOptions[itemIndex] | async" [value]="server">
+                        {{server}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </ng-container>
+        <div class="server-form-button-container">
+            <button mat-raised-button
+                color="primary"
+                (click)="addServer()"
+                *ngIf="this.serverForm.length < 5">Add Server?</button>
+            <button mat-raised-button
+                    color="secondary"
+                    (click)="removeServer()"
+                    *ngIf="this.serverForm.length > 1">Remove Server?</button>
+        </div>
+    </div>
+</form>
+<form [formGroup]="defaultServerForm">
+    <mat-form-field
+            class="default-server-input"
+            *ngIf="this.preferredServerForm.valid"
+            appearance="fill">
+        <mat-label>Default Server</mat-label>
+        <input matInput
+               placeholder="Default Server"
+               formControlName="defaultServer"
+               [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let server of (this.defaultAutoCompleteOptions | async)" [value]="server">
+                    {{server}}
+                </mat-option>
+            </mat-autocomplete>
+    </mat-form-field>
+</form>

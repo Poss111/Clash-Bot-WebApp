@@ -14,8 +14,7 @@ import {MatIconRegisteryModule} from "../teams-dashboard/component/mat-icon-regi
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatCardModule} from "@angular/material/card";
 import {MatDividerModule} from "@angular/material/divider";
-
-
+import {SharedModule} from "../../shared/shared.module";
 
 @NgModule({
   declarations: [
@@ -35,7 +34,8 @@ import {MatDividerModule} from "@angular/material/divider";
     MatIconRegisteryModule,
     MatExpansionModule,
     MatCardModule,
-    MatDividerModule
+    MatDividerModule,
+    SharedModule
   ]
 })
 export class ClashbotWalkthroughModule { }

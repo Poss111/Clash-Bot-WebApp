@@ -13,61 +13,20 @@
             <button mat-raised-button matStepperNext>Next</button>
         </div>
     </mat-step>
-    <mat-step label="Setup" [stepControl]="form">
-        <form [formGroup]="form">
-            <ng-template matStepLabel>Give us some details!</ng-template>
-            <h1>We need some information from you!</h1>
-            <p>We do not want to overload your screen with all of your awesome Discord Servers :).</p>
-            <p>You can provide up to 5 Discord Servers that you want to see other Clash Tournament Teams with.</p>
-            <p>When you are finished with this process, you can update this list in your settings.</p>
-            <div class="server-form-container" formGroupName="serveri">
-                <ng-container
-                        formArrayName="servers"
-                        *ngFor="
-                            let item of serverFormControls.controls;
-                            let itemIndex = index
-                          ">
-                    <mat-form-field [formGroupName]="itemIndex" appearance="fill">
-                        <mat-label>Discord Server</mat-label>
-                        <input matInput
-                               placeholder="Discord Server"
-                               formControlName="server"
-                               [matAutocomplete]="auto">
-                        <mat-autocomplete #auto="matAutocomplete">
-                            <mat-option *ngFor="let server of servers" [value]="server">
-                                {{server}}
-                            </mat-option>
-                        </mat-autocomplete>
-                    </mat-form-field>
-                </ng-container>
-                <button mat-raised-button
-                        color="primary"
-                        *ngIf="serverFormControls.controls.length < 5"
-                        (click)="addServer()">Add Another Server?</button>
-                <mat-form-field
-                        class="default-server-input"
-                        *ngIf="serverFormControls.valid"
-                        formGroupName="defaultServer"
-                        appearance="fill">
-                    <mat-label>Default Server</mat-label>
-                    <input matInput
-                           placeholder="Default Server"
-                           formControlName="server"
-                           [matAutocomplete]="auto">
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option *ngFor="let server of serverFormControls.value" [value]="server.server">
-                            {{server.server}}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </div>
-            <div class="stepper-btn-container">
-              <button mat-raised-button matStepperPrevious>Back</button>
-                      <button mat-raised-button
-                              matStepperNext
-                              (click)="submit()">Next</button>
-            </div>
-        </form>
+    <mat-step label="Setup">
+        <ng-template matStepLabel>Give us some details!</ng-template>
+        <h1>We need some information from you!</h1>
+        <p>We do not want to overload your screen with all of your awesome Discord Servers :).</p>
+        <p>You can provide up to 5 Discord Servers that you want to see other Clash Tournament Teams with.</p>
+        <p>When you are finished with this process, you can update this list in your settings.</p>
+        <app-server-form
+                [serverNames]="($appDetailsObs | async)?.userGuilds" (formGroupChange)="onFormGroupChange($event)"></app-server-form>
+        <div class="stepper-btn-container">
+          <button mat-raised-button matStepperPrevious>Back</button>
+                  <button mat-raised-button
+                          matStepperNext
+                          [disabled]="!(this.emittedPreferredServers?.valid && this.emittedDefaultServerGroup?.valid)">Next</button>
+        </div>
     </mat-step>
     <mat-step label="How to use Clash Bot" state="chat">
         <h1>How to use Clash Bot?</h1>
@@ -123,8 +82,8 @@
                                      tentativeDataStatus="SUCCESSFUL"></app-teams-tentative-table>
         </div>
         <div class="stepper-btn-container">
-            <button mat-raised-button matStepperPrevious>Back</button>
-            <button mat-raised-button (click)="finishWalkthrough()">Finished</button>
+            <button mat-raised-button [disabled]="($pageLoadingServiceObs | async)" matStepperPrevious>Back</button>
+            <button mat-raised-button [disabled]="($pageLoadingServiceObs | async)" (click)="finishWalkThrough()">Finished</button>
         </div>
     </mat-step>
 </mat-vertical-stepper>

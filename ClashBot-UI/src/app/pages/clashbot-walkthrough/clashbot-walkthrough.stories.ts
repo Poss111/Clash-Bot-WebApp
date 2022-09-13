@@ -15,12 +15,17 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {LoginStatus} from "../../login-status";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, Observable, of} from "rxjs";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {ClashbotWalkthroughRoutingModule} from "./clashbot-walkthrough-routing.module";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatCardModule} from "@angular/material/card";
 import {MatDividerModule} from "@angular/material/divider";
+import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {SharedModule} from "../../shared/shared.module";
+import {UserService} from "clash-bot-service-api";
+import {Player} from "clash-bot-service-api/model/player";
+import {HttpContext, HttpEvent, HttpResponse} from "@angular/common/http";
 
 const createGuild = (name: string, id: string) => {
     return {
@@ -44,6 +49,14 @@ guildMap.set("5", createGuild("Wow", "5"));
 class MockApplicationDetailsService implements Partial<ApplicationDetailsService> {
 
     private defaultStatus: ApplicationDetails = {
+        clashBotUserDetails: {
+          id: "1"
+        },
+        userDetails: {
+            id: 1,
+            username: "Test User",
+            discriminator: "sdf"
+        },
         loggedIn: true,
         loginStatus: LoginStatus.LOGGED_IN,
         userGuilds: guildMap
@@ -55,6 +68,26 @@ class MockApplicationDetailsService implements Partial<ApplicationDetailsService
 
     getApplicationDetails(): BehaviorSubject<ApplicationDetails> {
         return this.applicationDetails;
+    }
+}
+
+class MockUserService implements Partial<UserService> {
+
+    getUser(id: string, observe?: "body", reportProgress?: boolean, options?: { httpHeaderAccept?: "application/json"; context?: HttpContext }): Observable<Player>;
+    getUser(id: string, observe?: "response", reportProgress?: boolean, options?: { httpHeaderAccept?: "application/json"; context?: HttpContext }): Observable<HttpResponse<Player>>;
+    getUser(id: string, observe?: "events", reportProgress?: boolean, options?: { httpHeaderAccept?: "application/json"; context?: HttpContext }): Observable<HttpEvent<Player>>;
+    getUser(id: string, observe?: "body" | "response" | "events", reportProgress?: boolean, options?: { httpHeaderAccept?: "application/json"; context?: HttpContext }): Observable<Player> | Observable<HttpResponse<Player>> | Observable<HttpEvent<Player>> {
+        const player: Player = {
+            id: "0",
+            name: "Test User",
+            serverId: "0",
+            selectedServers: [
+                "1",
+                "2",
+                "3"
+            ]
+        };
+        return of(player);
     }
 }
 
@@ -80,10 +113,15 @@ export default {
                 MatIconRegisteryModule,
                 MatExpansionModule,
                 MatCardModule,
-                MatDividerModule
+                MatDividerModule,
+                MatSnackBarModule,
+                MatAutocompleteModule,
+                SharedModule
             ],
             providers: [{
-                provide: ApplicationDetailsService, useClass: MockApplicationDetailsService
+                provide: ApplicationDetailsService, useClass: MockApplicationDetailsService,
+            }, {
+                provide: UserService, userClass: MockUserService
             }]
         })
     ]
@@ -96,56 +134,5 @@ const Template: Story<ClashbotWalkthroughComponent> = (args: ClashbotWalkthrough
 });
 
 export const Primary = Template.bind({});
-Primary.args = {
-    mockTeam: {
-        name: "abra",
-        teamDetails: [
-            {
-                name: "Roidrage",
-                id: "1",
-                role: "Top",
-                champions: ["Sett"],
-                isUser: true
-            },
-            {
-                name: "",
-                id: "0",
-                role: "Mid",
-                isUser: false
-            },
-            {
-                name: "",
-                id: "0",
-                role: "Jg",
-                isUser: false
-            },
-            {
-                name: "",
-                id: "0",
-                role: "Bot",
-                isUser: false
-            },
-            {
-                name: "",
-                id: "0",
-                role: "Supp",
-                isUser: false
-            },
-        ],
-        tournament: {
-            tournamentName: "awesome_sauce",
-            tournamentDay: "1"
-        },
-        server: {
-            features: [],
-            icon: "",
-            id: "0",
-            name: "Clash Bot",
-            owner: false,
-            permissions: 0,
-            permissions_new: ""
-        },
-        id: "1"
-    }
-};
+Primary.args = {};
 

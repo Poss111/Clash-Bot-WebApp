@@ -1,0 +1,17 @@
+.server-form-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 15em;
+}
+
+.server-form-row-container {
+  display: flex;
+}
+
+.default-server-input {
+  margin-top: 1em;
+}
+
+.server-form-button-container {
+  display: flex;
+}

@@ -2,7 +2,13 @@ import {Component, OnInit} from "@angular/core";
 import {TeamUiWrapper} from "../../interfaces/team-ui-wrapper";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {TentativeRecord} from "../../interfaces/tentative-record";
-import {FormArray, FormBuilder, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+} from "@angular/forms";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {Router} from "@angular/router";
 import {UserService} from "clash-bot-service-api";
@@ -12,6 +18,8 @@ import {PageLoadingService} from "../../services/page-loading.service";
 import {take} from "rxjs/operators";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
+import {Observable} from "rxjs";
+import {ApplicationDetails} from "../../interfaces/application-details";
 
 @Component({
   selector: "app-clashbot-walkthrough",
@@ -102,29 +110,11 @@ export class ClashbotWalkthroughComponent implements OnInit {
       }
     }];
   data = [];
-  form = this.fb.group({
-    serveri: this.fb.group({
-      servers: this.fb.array([
-        this.fb.group({
-          server: ["", [Validators.required]],
-        })
-      ]),
-      defaultServer: this.fb.group({
-        server: ["", [Validators.required]],
-      }),
-    }),
-  })
-  servers: string[] = [];
-  serverNameToIdMap: Map<string, string> = new Map();
-  serverMap: Map<string, DiscordGuild> = new Map();
-
-  get serverFormControls(): FormArray {
-    return this.form.get("serveri")?.get("servers") as FormArray
-  }
-
-  get defaultServerFormControls(): FormArray {
-    return this.form.get("serveri")?.get("defaultServer") as FormArray
-  }
+  $pageLoadingServiceObs: Observable<boolean> = this.pageLoadingService.getSubject().asObservable();
+  emittedPreferredServers?: FormGroup;
+  emittedDefaultServerGroup?: FormGroup;
+  serverNameToIdMap: Map<string, string> = new Map<string, string>();
+  $appDetailsObs: Observable<ApplicationDetails> = this.appDetails.getApplicationDetails().asObservable();
 
   constructor(private fb: FormBuilder,
               private appDetails: ApplicationDetailsService,
@@ -132,78 +122,60 @@ export class ClashbotWalkthroughComponent implements OnInit {
               private userService: UserService,
               private pageLoadingService: PageLoadingService,
               private _snackBar: MatSnackBar) {
-    const details = appDetails.getApplicationDetails().value;
-    details.userGuilds?.forEach(item => {
-      this.servers.push(item.name);
-      this.serverNameToIdMap.set(item.name, item.id);
-    });
   }
 
   ngOnInit() {
     this.pageLoadingService.updateSubject(false);
+    const details = this.appDetails.getApplicationDetails().value;
+    details.userGuilds?.forEach((value, key) => {
+      this.serverNameToIdMap.set(value.name, key);
+    })
   }
 
-  addServer() {
-    let serverForm = this.form.value.serveri.servers;
-    let serverFC = this.serverFormControls;
-
-    this.servers.splice(
-        this.servers.indexOf(
-            serverForm[serverForm.length-1].server), 1);
-
-    if (serverForm.length < 5) {
-      const server = this.fb.group({
-        server: ["", [Validators.required]],
-      });
-      serverFC.push(server);
-    }
-  }
-
-  submit() {
-    const app = this.appDetails.getApplicationDetails().value;
-    const listOfIds: string[] = [];
-    this.serverFormControls.controls.forEach((formGroup: any) => {
-      listOfIds.push(this.serverNameToIdMap.get(formGroup.value.server) ?? "");
-    });
-    if (app.userGuilds) {
-      this.serverMap = new Map([...app.userGuilds]
-        .filter((key) => listOfIds.includes(key[0])));
-    }
-  }
-
-  finishWalkthrough() {
-    console.dir(this.serverMap);
+  finishWalkThrough() {
+    const defaultGuildId = this.serverNameToIdMap.get(this.emittedDefaultServerGroup?.value.defaultServer);
+    const preferredServerIds: string[] = [];
+    Object.values(this.emittedPreferredServers?.controls ?? {})
+        .map(control => control.value)
+        .forEach(names => {
+          preferredServerIds.push(this.serverNameToIdMap.get(names) ?? "");
+        });
     const app = this.appDetails.getApplicationDetails().value;
     const payload: UpdateUserRequest = {
       id: app.clashBotUserDetails?.id ?? "",
-      selectedServers: [...this.serverMap.keys()],
+      selectedServers: [...preferredServerIds],
+      serverId: defaultGuildId
     };
+    console.dir(payload);
+    this.pageLoadingService.updateSubject(true);
     this.userService.updateUser(payload)
       .pipe(take(1))
       .subscribe(() => {
-          this.pageLoadingService.updateSubject(true);
           this.userService.getUser(`${app.userDetails?.id}`)
             .pipe(take(1))
             .subscribe((response) => {
-              this.serverMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
+              const newServerMap = new Map<string, DiscordGuild>();
+              app.userGuilds?.forEach((server, id) => newServerMap
+                  .set(id, server));
+              newServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
               this.appDetails.setApplicationDetails({
                 ...app,
-                selectedGuilds: this.serverMap,
+                selectedGuilds: newServerMap,
                 clashBotUserDetails: response
               });
+              this.router.navigate(["../teams"])
+                  .then(() => {
+                    this.pageLoadingService.updateSubject(false);
+                    this._snackBar.open(
+                        "Welcome to Clash Bot!",
+                        "X",
+                        {duration: 5 * 1000})
+                  })
+                  .catch(() => this._snackBar.open(
+                      "Failed to navigate. Try navigating through the Menu.",
+                      "X",
+                      {duration: 5 * 1000}));
             });
-          this.router.navigateByUrl("/teams")
-            .then(() => {
-              this.pageLoadingService.updateSubject(false);
-              this._snackBar.open(
-                "Welcome to Clash Bot!",
-                "X",
-                {duration: 5 * 1000})
-            })
-            .catch(() => this._snackBar.open(
-              "Failed to navigate. Try navigating through the Menu.",
-              "X",
-              {duration: 5 * 1000}));
         },
         () => {
           this._snackBar.open(
@@ -211,5 +183,10 @@ export class ClashbotWalkthroughComponent implements OnInit {
             "X",
             {duration: 5 * 1000});
         });
+  }
+
+  onFormGroupChange($event: any) {
+    this.emittedPreferredServers = $event.serverFormGroup;
+    this.emittedDefaultServerGroup = $event.defaultServerFormGroup;
   }
 }

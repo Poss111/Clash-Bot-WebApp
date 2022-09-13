@@ -241,3 +241,35 @@ export function mockDiscordGuilds(): DiscordGuild[] {
     "permissions_new": "274877906943"
   }];
 }
+
+export function mockSixDiscordGuilds(): DiscordGuild[] {
+    const guilds = mockDiscordGuilds();
+    guilds.push({
+        "id": "1",
+        "name": "Something Server",
+        "icon": "123123123",
+        "owner": true,
+        "permissions": 2147483647,
+        "features": [],
+        "permissions_new": "274877906943"
+    });
+    guilds.push({
+        "id": "2",
+        "name": "Fancy Fancy",
+        "icon": "123123123",
+        "owner": true,
+        "permissions": 2147483647,
+        "features": [],
+        "permissions_new": "274877906943"
+    });
+    guilds.push({
+        "id": "3",
+        "name": "Gojira",
+        "icon": "123123123",
+        "owner": true,
+        "permissions": 2147483647,
+        "features": [],
+        "permissions_new": "274877906943"
+    });
+    return guilds;
+}
