@@ -3,11 +3,8 @@ import {TeamUiWrapper} from "../../interfaces/team-ui-wrapper";
 import {Tournament} from "clash-bot-service-api/model/tournament";
 import {TentativeRecord} from "../../interfaces/tentative-record";
 import {
-  AbstractControl,
   FormBuilder,
   FormGroup,
-  ValidationErrors,
-  ValidatorFn,
 } from "@angular/forms";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {Router} from "@angular/router";
@@ -15,7 +12,7 @@ import {UserService} from "clash-bot-service-api";
 import {UpdateUserRequest} from "clash-bot-service-api/model/updateUserRequest";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {PageLoadingService} from "../../services/page-loading.service";
-import {take} from "rxjs/operators";
+import {map, mergeMap, take} from "rxjs/operators";
 import {DiscordGuild} from "../../interfaces/discord-guild";
 import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
 import {Observable} from "rxjs";
@@ -146,43 +143,52 @@ export class ClashbotWalkthroughComponent implements OnInit {
       selectedServers: [...preferredServerIds],
       serverId: defaultGuildId
     };
-    console.dir(payload);
     this.pageLoadingService.updateSubject(true);
     this.userService.updateUser(payload)
-      .pipe(take(1))
-      .subscribe(() => {
-          this.userService.getUser(`${app.userDetails?.id}`)
-            .pipe(take(1))
-            .subscribe((response) => {
-              const newServerMap = new Map<string, DiscordGuild>();
-              app.userGuilds?.forEach((server, id) => newServerMap
-                  .set(id, server));
-              newServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
-              this.appDetails.setApplicationDetails({
-                ...app,
-                selectedGuilds: newServerMap,
-                clashBotUserDetails: response
-              });
-              this.router.navigate(["../teams"])
-                  .then(() => {
-                    this.pageLoadingService.updateSubject(false);
-                    this._snackBar.open(
-                        "Welcome to Clash Bot!",
-                        "X",
-                        {duration: 5 * 1000})
+      .pipe(
+          take(1),
+          mergeMap(() => this.userService
+              .getUser(`${app.userDetails?.id}`)
+              .pipe(
+                  take(1),
+                  map(response => {
+                    const newServerMap = new Map<string, DiscordGuild>();
+                    app.userGuilds?.forEach((server, id) => {
+                      if (Array.isArray(response.selectedServers)
+                          && response.selectedServers.includes(id)) {
+                        newServerMap.set(id, server);
+                      }
+                    });
+                    newServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
+                    return {
+                      ...app,
+                      selectedGuilds: newServerMap,
+                      clashBotUserDetails: response
+                    } as ApplicationDetails;
                   })
-                  .catch(() => this._snackBar.open(
-                      "Failed to navigate. Try navigating through the Menu.",
-                      "X",
-                      {duration: 5 * 1000}));
-            });
-        },
-        () => {
+              )))
+      .subscribe((newAppDetails) => {
+          this.appDetails.setApplicationDetails(newAppDetails);
+          this.router.navigate(["../teams"])
+              .then(() => {
+                this.pageLoadingService.updateSubject(false);
+                this._snackBar.open(
+                    "Welcome to Clash Bot!",
+                    "X",
+                    {duration: 5 * 1000})
+              })
+              .catch(() => this._snackBar.open(
+                  "Failed to navigate. Try navigating through the Menu.",
+                  "X",
+                  {duration: 5 * 1000}));
+        },() => {
           this._snackBar.open(
             "Failed to save your preferences. Please try again.",
             "X",
             {duration: 5 * 1000});
-        });
+        }, () => {
+            this.pageLoadingService.updateSubject(false);
+          });
   }
 
   onFormGroupChange($event: any) {
