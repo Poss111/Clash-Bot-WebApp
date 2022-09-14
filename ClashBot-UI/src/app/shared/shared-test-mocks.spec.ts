@@ -30,6 +30,19 @@ export function createMockUserDetails() {
     };
 }
 
+export function createFullMockDiscordUser(): UserDetails {
+    return {
+        id: 299370234228506627,
+        "username": "Roïdräge",
+        "avatar": "4393f322cfd8882c2d74648ad321c1eb",
+        "discriminator": "2657",
+        "public_flags": 0,
+        "flags": 0,
+        "locale": "en-US",
+        "mfa_enabled": false
+    };
+}
+
 export function createMockClashBotUserDetails() {
     return {
         id: "12312321312",
