@@ -120,7 +120,6 @@ export class UserProfileComponent implements OnInit {
                         .appDetails
                         .userGuilds?.get(userProfileDetails.clashBotUserDetails.serverId ?? "-1");
                     this.defaultGuild = foundGuild ?? this.guilds[0];
-                    console.dir(this.defaultGuild);
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));

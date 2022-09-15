@@ -38,11 +38,15 @@ import {SharedModule} from "./shared/shared.module";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
 import * as mocks from "./shared/shared-test-mocks.spec";
 import {cold} from "jest-marbles";
+import {EventType} from "angular-oauth2-oidc/events";
+import {LoginStatus} from "./login-status";
+import Mock = jest.Mock;
 
 jest.mock("./services/application-details.service");
 jest.mock("./google-analytics.service");
 jest.mock("./services/riot-ddragon.service");
-jest.mock("./services/application-details.service")
+jest.mock("./services/application-details.service");
+jest.mock("angular-oauth2-oidc")
 
 @NgModule({
     declarations: [ClashTournamentCalendarHeaderComponent, ReleaseNotificationDialogComponent],
@@ -53,9 +57,10 @@ class WelcomeDashboardTestModule {
 }
 
 describe("AppComponent", () => {
-    let applicationDetailsMock: any;
-    let googleAnalyticsService: any;
-    let riotDdragonServiceMock: any;
+    let applicationDetailsMock: ApplicationDetailsService;
+    let googleAnalyticsService: GoogleAnalyticsService;
+    let riotDdragonServiceMock: RiotDdragonService;
+    let oauthServiceMock: OAuthService;
     let router: Router;
     let location: Location;
     let testScheduler: TestScheduler;
@@ -103,11 +108,12 @@ describe("AppComponent", () => {
         applicationDetailsMock = TestBed.inject(ApplicationDetailsService);
         googleAnalyticsService = TestBed.inject(GoogleAnalyticsService);
         riotDdragonServiceMock = TestBed.inject(RiotDdragonService);
+        oauthServiceMock = TestBed.inject(OAuthService);
         router = TestBed.inject(Router);
         location = TestBed.inject(Location);
         router.initialNavigation();
         window.localStorage.clear();
-        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce({
             asObservable: jest.fn().mockImplementationOnce(() => cold(""))
         })
     });
@@ -118,89 +124,146 @@ describe("AppComponent", () => {
         expect(app).toBeTruthy();
     });
 
-    test("should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        const app = fixture.componentInstance;
-        testScheduler.run(helper => {
-            let {cold, flush} = helper;
+    describe("On Init", () => {
+        test("should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
+            const fixture = TestBed.createComponent(AppComponent);
+            const app = fixture.componentInstance;
+            testScheduler.run(helper => {
+                let {cold, flush} = helper;
 
-            let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-            let mockApplicationDetails: ApplicationDetails = mocks.createMockAppDetails([],
-                mocks.createMockClashBotUserDetails(), mockUserDetails);
-            mockApplicationDetails.loggedIn = false;
+                let mockUserDetails: UserDetails = mocks.createMockUserDetails();
+                let mockApplicationDetails: ApplicationDetails = mocks.createMockAppDetails([],
+                    mocks.createMockClashBotUserDetails(), mockUserDetails);
+                mockApplicationDetails.loggedIn = false;
 
-            let mockLeagueVersion: String[] = [
-                "12.8.2",
-                "12.8.1"
-            ];
+                let mockLeagueVersion: String[] = [
+                    "12.8.2",
+                    "12.8.1"
+                ];
 
-            let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
-            let riotVersionObs = cold("x|", {x: mockLeagueVersion});
+                let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
+                let riotVersionObs = cold("x|", {x: mockLeagueVersion});
+                (oauthServiceMock.events as any) = cold("x|", {x: "token_refreshed" as EventType});
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce({
+                    asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+                });
+                (riotDdragonServiceMock.getVersions as Mock).mockReturnValue(riotVersionObs);
 
-            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(applicationObs);
-            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
-                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
-            });
-            riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
+                expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
+                expect(app.routingArray).toEqual([]);
 
-            expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
-            expect(app.routingArray).toEqual([]);
+                fixture.detectChanges();
 
-            fixture.detectChanges();
+                flush();
 
-            flush();
+                expect(applicationDetailsMock.initUserDetails).not.toHaveBeenCalled();
+                expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
+                expect(app.routingArray).toEqual(app.defaultRoutingArray);
+                expect(app.username).toBeFalsy();
+            })
+        });
 
-            expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
-            expect(app.routingArray).toEqual(app.defaultRoutingArray);
-            expect(app.username).toBeFalsy();
-        })
-    });
+        test("If the user is logged in, it should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
+            const fixture = TestBed.createComponent(AppComponent);
+            const app = fixture.componentInstance;
+            testScheduler.run(helper => {
+                let {cold, flush} = helper;
 
-    test("If the user is logged in, it should check to see if the appropriate user details have been loaded for the User Details, Application Details subjects and should retrieve and set the latest League API Version.", () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        const app = fixture.componentInstance;
-        testScheduler.run(helper => {
-            let {cold, flush} = helper;
+                let mockUserDetails: UserDetails = mocks.createMockUserDetails();
+                let mockApplicationDetails: ApplicationDetails = mocks.createMockAppDetails([],
+                    mocks.createMockClashBotUserDetails(), mockUserDetails);
+                mockApplicationDetails.loggedIn = true;
 
-            let mockUserDetails: UserDetails = mocks.createMockUserDetails();
-            let mockApplicationDetails: ApplicationDetails = mocks.createMockAppDetails([],
-                mocks.createMockClashBotUserDetails(), mockUserDetails);
-            mockApplicationDetails.loggedIn = true;
+                let mockLeagueVersion: String[] = [
+                    "12.8.2",
+                    "12.8.1"
+                ];
 
-            let mockLeagueVersion: String[] = [
-                "12.8.2",
-                "12.8.1"
-            ];
+                let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
+                let riotVersionObs = cold("x|", {x: mockLeagueVersion});
+                (oauthServiceMock.events as any) = cold("x|", {x: "token_refreshed" as EventType});
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce({
+                    asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+                });
+                (riotDdragonServiceMock.getVersions as Mock).mockReturnValue(riotVersionObs);
 
-            let applicationObs = cold("x----z|", {x: mockApplicationDetails, z: mockApplicationDetails});
-            let riotVersionObs = cold("x|", {x: mockLeagueVersion});
+                expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
+                expect(app.routingArray).toEqual([]);
 
-            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(applicationObs);
-            applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
-                asObservable: jest.fn().mockImplementationOnce(() => cold(""))
-            });
-            riotDdragonServiceMock.getVersions.mockReturnValue(riotVersionObs);
+                fixture.detectChanges();
 
-            expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
-            expect(app.routingArray).toEqual([]);
+                flush();
 
-            fixture.detectChanges();
+                expect(applicationDetailsMock.initUserDetails).not.toHaveBeenCalled();
+                expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
+                expect(app.routingArray).toEqual(app.loggedInArray);
+                expect(app.username).toEqual(mockUserDetails.username);
+            })
+        });
 
-            flush();
+        test("NgOnInit - (Load User state) - If the Users details is requested, then a call to init User Details should be made.", () => {
+            const fixture = TestBed.createComponent(AppComponent);
+            const app = fixture.componentInstance;
+            testScheduler.run(helper => {
+                let {cold, flush} = helper;
 
-            expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
-            expect(app.routingArray).toEqual(app.loggedInArray);
-            expect(app.username).toEqual(mockUserDetails.username);
-        })
+                let mockUserDetails: UserDetails = mocks.createMockUserDetails();
+                let mockApplicationDetailsLoadUser: ApplicationDetails = mocks.createMockAppDetails([],
+                    mocks.createMockClashBotUserDetails(), mockUserDetails);
+                mockApplicationDetailsLoadUser.loggedIn = false;
+                mockApplicationDetailsLoadUser.loginStatus = LoginStatus.LOAD_USER_DETAILS;
+                let mockApplicationDetailsLoggedInUser: ApplicationDetails = mocks.createMockAppDetails([],
+                    mocks.createMockClashBotUserDetails(), mockUserDetails);
+                mockApplicationDetailsLoggedInUser.loggedIn = true;
+                mockApplicationDetailsLoggedInUser.loginStatus = LoginStatus.LOGGED_IN;
+
+                let mockLeagueVersion: String[] = [
+                    "12.8.2",
+                    "12.8.1"
+                ];
+
+                let applicationLoadUserObs = cold("x|", {x: mockApplicationDetailsLoadUser});
+                let applicationLoggedInObs = cold("---x|", {x: mockApplicationDetailsLoggedInUser});
+                let riotVersionObs = cold("x|", {x: mockLeagueVersion});
+                (oauthServiceMock.events as any) = cold("y--x|",
+                    {y: "token_received" as EventType, x: "token_refreshed" as EventType});
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationLoadUserObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(applicationLoggedInObs);
+                (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce({
+                    asObservable: jest.fn().mockImplementationOnce(() => cold(""))
+                });
+                (riotDdragonServiceMock.getVersions as Mock).mockReturnValue(riotVersionObs);
+                (oauthServiceMock.hasValidAccessToken as Mock).mockReturnValue(true);
+
+                expect(window.localStorage.getItem("leagueApiVersion")).toBeFalsy();
+                expect(app.routingArray).toEqual([]);
+
+                fixture.detectChanges();
+
+                flush();
+
+                expect(applicationDetailsMock.initUserDetails).toHaveBeenCalledTimes(1);
+                expect(window.localStorage.getItem("leagueApiVersion")).toEqual("12.8.2");
+                expect(app.routingArray).toEqual(app.loggedInArray);
+                expect(app.username).toEqual(mockUserDetails.username);
+            })
+        });
     });
 
     test("When navigate is called, it should invoke the router to navigate to /", fakeAsync(() => {
         const fixture = TestBed.createComponent(AppComponent);
-        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce(of({}));
-        applicationDetailsMock.getApplicationDetails.mockReturnValueOnce({
+        (oauthServiceMock.events as any) = cold("y--x|",
+            {y: "token_received" as EventType, x: "token_refreshed" as EventType});
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(of({}));
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce(of({}));
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValueOnce({
             asObservable: jest.fn().mockImplementationOnce(() => cold(""))
         });
-        riotDdragonServiceMock.getVersions.mockReturnValue(of(["12.8.1"]));
+        (riotDdragonServiceMock.getVersions as Mock).mockReturnValue(of(["12.8.1"]));
         const app = fixture.componentInstance;
         fixture.detectChanges();
         let route = "/teams";
@@ -213,7 +276,7 @@ describe("AppComponent", () => {
 
     test("If the version is set via the environment file, then it should be displayed.", () => {
         const fixture = TestBed.createComponent(AppComponent);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(of({}));
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(of({}));
         const app = fixture.componentInstance;
         expect(app.appVersion).toEqual(environment.version)
     })

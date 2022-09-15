@@ -16,7 +16,7 @@ import {TentativeRecord} from "../../../../interfaces/tentative-record";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {MatDrawer} from "@angular/material/sidenav";
 import {DiscordGuild} from "../../../../interfaces/discord-guild";
-import {animate, group, query, stagger, state, style, transition, trigger} from "@angular/animations";
+import {animate, group, query, stagger, style, transition, trigger} from "@angular/animations";
 
 /** Custom options the configure the tooltip's default show/hide delays. */
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
@@ -67,7 +67,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
                     stagger(250, [
                       animate("0.25s ease-in", style({transform: "translateX(0)", opacity: 1}))
                     ])
-                  ])
+                  ], {optional: true})
               ])
           ]
       )

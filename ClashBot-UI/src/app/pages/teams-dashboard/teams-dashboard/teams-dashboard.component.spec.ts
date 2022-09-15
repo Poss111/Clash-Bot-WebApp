@@ -87,11 +87,13 @@ describe("TeamsDashboardComponent", () => {
         const {cold, flush} = helpers;
         const mockUserDetails: UserDetails = createMockUserDetails();
         let mockGuilds = mockDiscordGuilds();
+        const guildMap = new Map<string, DiscordGuild>();
         let mockClashTournaments =
           createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockMappedTeams = mapClashTeams(mockClashTeams);
         const mappedFilters = mockGuilds.map((record) => {
+          guildMap.set(record.id, record);
           let id = record.name
             .replace(new RegExp(/ /, "g"), "-")
             .toLowerCase();
@@ -112,6 +114,8 @@ describe("TeamsDashboardComponent", () => {
           createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
         mockApplicationsDetails.defaultGuild = mockGuilds[2];
+        mockApplicationsDetails.selectedGuilds = guildMap;
+        mockApplicationsDetails.userGuilds = guildMap;
         let mockClashTentativeDetails: Tentative[] =
           createEmptyMockClashTentativeDetails();
         mockClashTentativeDetails?.[0].tentativePlayers?.push({
@@ -204,8 +208,8 @@ describe("TeamsDashboardComponent", () => {
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         let mockObservableGuilds = mockDiscordGuilds();
         const guildMap = new Map<string, DiscordGuild>();
-        mockObservableGuilds.forEach(guild => guildMap.set(guild.id, guild));
         const mappedFilters = mockObservableGuilds.map((record) => {
+          guildMap.set(record.id, record);
           let id = record.name.replace(new RegExp(/ /, "g"), "-").toLowerCase();
           return {
             value: record,
@@ -223,6 +227,7 @@ describe("TeamsDashboardComponent", () => {
         const mockApplicationsDetails: ApplicationDetails = {
           currentTournaments: [],
           userGuilds: guildMap,
+          selectedGuilds: guildMap,
           loggedIn: true,
           loginStatus: LoginStatus.LOGGED_IN
         };
@@ -403,8 +408,8 @@ describe("TeamsDashboardComponent", () => {
             createMockClashTournaments("awesome_sauce", 2);
         let mockClashTeams = createMockClashTeams(mockClashTournaments, mockUserDetails);
         const guildMap = new Map<string, DiscordGuild>();
-        mockGuilds.forEach(guild => guildMap.set(guild.id, guild));
         const mappedFilters = mockGuilds.map((record) => {
+          guildMap.set(record.id, record);
           let id = record.name
               .replace(new RegExp(/ /, "g"), "-")
               .toLowerCase();
@@ -425,6 +430,7 @@ describe("TeamsDashboardComponent", () => {
             createMockAppDetails(mockGuilds, createMockPlayer(), mockUserDetails);
         mockApplicationsDetails.loggedIn = true;
         mockApplicationsDetails.userGuilds = guildMap;
+        mockApplicationsDetails.selectedGuilds = guildMap;
         mockApplicationsDetails.defaultGuild = mockGuilds[2];
         let mockClashTentativeDetails: Tentative[] =
             createEmptyMockClashTentativeDetails();

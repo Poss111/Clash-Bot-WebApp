@@ -1,13 +1,13 @@
 import {Component, HostBinding, OnDestroy, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
-import {Subscription} from "rxjs";
+import {Subject} from "rxjs";
 import {environment} from "../environments/environment";
 import {GoogleAnalyticsService} from "./google-analytics.service";
 import {ApplicationDetailsService} from "./services/application-details.service";
 import {MatIconRegistry} from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {RiotDdragonService} from "./services/riot-ddragon.service";
-import {filter, take, tap} from "rxjs/operators";
+import {filter, take, takeUntil, tap} from "rxjs/operators";
 import {RoutingDetails} from "./interfaces/routing-details";
 import {PageLoadingService} from "./services/page-loading.service";
 import {AuthConfig, OAuthService} from "angular-oauth2-oidc";
@@ -22,11 +22,11 @@ import {LoginStatus} from "./login-status";
 })
 export class AppComponent implements OnInit, OnDestroy {
     appVersion: string = environment.version;
-    subscriptions: Subscription[] = [];
     darkMode;
     username?: string;
     pageLoadingObs$ = this.pageLoadingService.getSubject();
     $applicationDetailsObs = this.applicationDetailsService.getApplicationDetails().asObservable();
+    $takeUntil = new Subject();
 
     routingArray: RoutingDetails[] = [];
 
@@ -93,7 +93,9 @@ export class AppComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.oauthService.configure(this.authCodeFlowConfig);
         this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-        this.oauthService.events.subscribe((event) => {
+        this.oauthService.events
+            .pipe(takeUntil(this.$takeUntil))
+            .subscribe((event) => {
             if ("token_expires" === event.type) {
                 this.oauthService.refreshToken()
                     .then(() => this._snackBar
@@ -104,37 +106,38 @@ export class AppComponent implements OnInit, OnDestroy {
                             .open("Failed to refresh", "X", {duration: 5 * 1000});
                     });
             }
-            console.dir(event);
         });
         this.applicationDetailsService.getApplicationDetails()
           .pipe(
+            takeUntil(this.$takeUntil),
             filter(details => (details.loginStatus === LoginStatus.LOAD_USER_DETAILS)
                 && this.oauthService.hasValidAccessToken()),
-            tap(() => this._snackBar.open("Logging in....", "X", {duration: 5 * 1000}))
+            tap(() => this._snackBar.open("Logging in....", "X", {duration: 5 * 1000})),
           )
-          .subscribe((details) => {
+          .subscribe(() => {
             this.applicationDetailsService.initUserDetails();
           });
         this.toggleDarkMode(this.darkMode);
-        this.subscriptions.push(
-            this.router.events.subscribe(event => {
-                if (event instanceof NavigationEnd) {
-                    this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
+        this.router.events
+            .pipe(takeUntil(this.$takeUntil))
+            .subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.googleAnalyticsService.sendPageNavigationEvent(event.urlAfterRedirects);
+            }
+        });
+        this.applicationDetailsService.getApplicationDetails()
+            .pipe(
+                takeUntil(this.$takeUntil)
+            )
+            .subscribe((applicationDetails) => {
+                if (applicationDetails.loggedIn) {
+                    this.routingArray = this.loggedInArray;
+                    this.username = applicationDetails.userDetails?.username;
+                } else {
+                    this.routingArray = this.defaultRoutingArray;
+                    delete this.username;
                 }
-            })
-        );
-        this.subscriptions.push(
-            this.applicationDetailsService.getApplicationDetails()
-                .subscribe((applicationDetails) => {
-                    if (applicationDetails.loggedIn) {
-                        this.routingArray = this.loggedInArray;
-                        this.username = applicationDetails.userDetails?.username;
-                    } else {
-                        this.routingArray = this.defaultRoutingArray;
-                        delete this.username;
-                    }
-            })
-        );
+        });
         this.riotDdragonService.getVersions().pipe(take(1)).subscribe((versions) => {
             window.localStorage.setItem("leagueApiVersion", versions[0]);
         });
@@ -159,7 +162,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.$takeUntil.next();
     }
 
     navigate(route: string) {

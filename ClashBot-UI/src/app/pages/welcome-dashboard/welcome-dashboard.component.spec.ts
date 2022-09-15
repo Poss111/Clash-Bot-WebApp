@@ -270,7 +270,7 @@ describe("WelcomeDashboardComponent", () => {
             });
         })
 
-        test("(After Auth Code retrieved) - should invoke Clash Bot Auth and set up Application Details.", () => {
+        test("(After Auth Code retrieved) - should invoke Clash Bot Auth and set up Application Details.", (done) => {
             sessionStorage.setItem("LoginAttempt", "true");
             testScheduler.run(helpers => {
                 const {cold, flush} = helpers;
@@ -293,6 +293,10 @@ describe("WelcomeDashboardComponent", () => {
                 (userServiceMock.updateUser as any).mockReturnValue(cold("x|", {x: mockClashBotUser}));
                 applicationDetailsServiceMock.getApplicationDetails.mockReturnValue(cold("-x", {x: setupLoggedOutMockApplicationDetails()}));
                 setupAfterAuthorizationWindowQueryParams();
+                applicationDetailsServiceMock.loadUserDetails.mockImplementation(() => {
+                    expect(applicationDetailsServiceMock.loadUserDetails).toHaveBeenCalledTimes(1);
+                    done();
+                })
 
                 component.ngOnInit();
 
@@ -317,6 +321,7 @@ describe("WelcomeDashboardComponent", () => {
                     expect(message).toEqual("Failed to get authorization from Discord.");
                     expect(action).toEqual("X");
                     expect(config).toEqual({duration: 5000});
+                    expect(applicationDetailsServiceMock.loadUserDetails).not.toHaveBeenCalled();
                     done();
                 } catch (err) {
                     done(err);

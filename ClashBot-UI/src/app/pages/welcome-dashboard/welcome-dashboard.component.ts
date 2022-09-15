@@ -4,21 +4,17 @@ import {environment} from "../../../environments/environment";
 import {DiscordService} from "../../services/discord.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
-import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {from, Observable, of, throwError, timer} from "rxjs";
+import {map, take} from "rxjs/operators";
+import {Observable} from "rxjs";
 import {ApplicationDetails} from "../../interfaces/application-details";
 import {MatDialog} from "@angular/material/dialog";
 import {
-  ReleaseNotificationDialogComponent
+    ReleaseNotificationDialogComponent
 } from "../../dialogs/release-notification-dialog/release-notification-dialog.component";
-import {UserDetails} from "../../interfaces/user-details";
-import {DiscordGuild} from "../../interfaces/discord-guild";
 import {PageLoadingService} from "../../services/page-loading.service";
 import {TournamentService, UserService} from "clash-bot-service-api";
 import {Tournament} from "clash-bot-service-api/model/tournament";
-import {Player} from "clash-bot-service-api/model/player";
 import {LoginStatus} from "../../login-status";
-import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
 
 @Component({
     selector: "app-welcome-dashboard",
@@ -74,7 +70,7 @@ export class WelcomeDashboardComponent implements OnInit {
         if (parts && parts["code"] && parts["state"]) {
             this.applicationDetailsService.loggingIn();
             this.oauthService.tryLogin()
-                .then(() => this.applicationDetailsService.loadingUserDetails())
+                .then(() => this.applicationDetailsService.loadUserDetails())
                 .catch(() => {
                     this.applicationDetailsService.logOutUser();
                     this._snackBar.open("Failed to get authorization from Discord.",
