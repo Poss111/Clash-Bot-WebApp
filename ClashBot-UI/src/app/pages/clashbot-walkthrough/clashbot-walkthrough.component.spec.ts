@@ -166,13 +166,13 @@ describe("ClashbotWalkthroughComponent", () => {
         const expectedUpdatePayload: UpdateUserRequest = {
           id: user.id ?? "",
           selectedServers: [
+            FREE_AGENT_GUILD.id,
             guilds[0].id,
             guilds[1].id
           ],
           serverId: guilds[0].id
         };
         const expectedServerMap = new Map<string, DiscordGuild>([...mockServerMap]);
-        expectedServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
 
         (mockUserService.updateUser as any)
             .mockReturnValue(cold("x|", {x: playerUpdate}));
@@ -214,10 +214,6 @@ describe("ClashbotWalkthroughComponent", () => {
           id: user.id,
           name: user.name,
           serverId: guilds[0].id,
-          selectedServers: [
-            guilds[0].id,
-            guilds[1].id
-          ]
         };
 
         component.emittedDefaultServerGroup = new FormGroup({
@@ -232,13 +228,12 @@ describe("ClashbotWalkthroughComponent", () => {
         const expectedUpdatePayload: UpdateUserRequest = {
           id: user.id ?? "",
           selectedServers: [
+            FREE_AGENT_GUILD.id,
             guilds[0].id,
             guilds[1].id
           ],
           serverId: guilds[0].id
         };
-        const expectedServerMap = new Map<string, DiscordGuild>([...mockServerMap]);
-        expectedServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
 
         (mockUserService.updateUser as any)
             .mockReturnValue(cold("#|",undefined,  create401HttpError()));

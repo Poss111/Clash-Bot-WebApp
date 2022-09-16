@@ -111,7 +111,14 @@ export class ClashbotWalkthroughComponent implements OnInit {
   emittedPreferredServers?: FormGroup;
   emittedDefaultServerGroup?: FormGroup;
   serverNameToIdMap: Map<string, string> = new Map<string, string>();
-  $appDetailsObs: Observable<ApplicationDetails> = this.appDetails.getApplicationDetails().asObservable();
+  $appDetailsObs: Observable<Map<string, DiscordGuild>> = this.appDetails.getApplicationDetails()
+      .asObservable()
+      .pipe(map(appDetails => {
+        if (appDetails && appDetails.userGuilds) {
+          return appDetails.userGuilds;
+        }
+        return new Map<string, DiscordGuild>();
+      }));
 
   constructor(private fb: FormBuilder,
               private appDetails: ApplicationDetailsService,
@@ -132,6 +139,7 @@ export class ClashbotWalkthroughComponent implements OnInit {
   finishWalkThrough() {
     const defaultGuildId = this.serverNameToIdMap.get(this.emittedDefaultServerGroup?.value.defaultServer);
     const preferredServerIds: string[] = [];
+    preferredServerIds.push(FREE_AGENT_GUILD.id);
     Object.values(this.emittedPreferredServers?.controls ?? {})
         .map(control => control.value)
         .forEach(names => {
@@ -159,7 +167,6 @@ export class ClashbotWalkthroughComponent implements OnInit {
                         newServerMap.set(id, server);
                       }
                     });
-                    newServerMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
                     return {
                       ...app,
                       selectedGuilds: newServerMap,

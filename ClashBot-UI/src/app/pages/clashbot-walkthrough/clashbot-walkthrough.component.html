@@ -19,8 +19,10 @@
         <p>We do not want to overload your screen with all of your awesome Discord Servers :).</p>
         <p>You can provide up to 5 Discord Servers that you want to see other Clash Tournament Teams with.</p>
         <p>When you are finished with this process, you can update this list in your settings.</p>
-        <app-server-form
-                [serverNames]="($appDetailsObs | async)?.userGuilds" (formGroupChange)="onFormGroupChange($event)"></app-server-form>
+        <ng-container *ngIf="($appDetailsObs | async) as userGuilds; else fail">
+            <app-server-form [serverNames]="userGuilds" (formGroupChange)="onFormGroupChange($event)"></app-server-form>
+        </ng-container>
+        <ng-template #fail>No Available Discord Servers</ng-template>
         <div class="stepper-btn-container">
           <button mat-raised-button matStepperPrevious>Back</button>
                   <button mat-raised-button

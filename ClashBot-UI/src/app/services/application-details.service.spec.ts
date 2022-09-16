@@ -300,15 +300,6 @@ describe("ApplicationDetailsService", () => {
         let mockUser = createMockUserDetails();
         let mockClashBotUser = createMockPlayer();
         let mockGuilds = mockSixDiscordGuilds();
-        const freeAgentGuild = {
-          id: "-1",
-          name: "Free Agents",
-          icon: "",
-          owner: false,
-          permissions: 0,
-          features: [],
-          permissions_new: "0"
-        };
         mockClashBotUser.selectedServers = [mockGuilds[0].id, mockGuilds[1].id];
         const guildMap = new Map<string, DiscordGuild>();
 
@@ -326,7 +317,6 @@ describe("ApplicationDetailsService", () => {
             expectedSelectedServers.set(guild.id, guild);
           }
         });
-        expectedSelectedServers.set(freeAgentGuild.id, freeAgentGuild);
 
         service.initUserDetails();
 
@@ -357,15 +347,6 @@ describe("ApplicationDetailsService", () => {
         mockUser.username = "The Boas";
         let mockClashBotUser = createMockPlayer();
         let mockGuilds = mockSixDiscordGuilds();
-        const freeAgentGuild = {
-          id: "-1",
-          name: "Free Agents",
-          icon: "",
-          owner: false,
-          permissions: 0,
-          features: [],
-          permissions_new: "0"
-        };
         const guildMap = new Map<string, DiscordGuild>();
         mockClashBotUser.serverId = mockGuilds[1].id;
         mockClashBotUser.selectedServers = [mockGuilds[0].id, mockGuilds[1].id];
@@ -390,7 +371,6 @@ describe("ApplicationDetailsService", () => {
             expectedSelectedServers.set(guild.id, guild);
           }
         });
-        expectedSelectedServers.set(freeAgentGuild.id, freeAgentGuild);
 
         service.initUserDetails();
         flush();

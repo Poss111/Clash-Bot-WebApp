@@ -11,8 +11,8 @@
                        [formControlName]="item.key"
                        aria-label="string"
                        [matAutocomplete]="auto">
-                <mat-error *ngIf="this.preferredServerForm.get(item.key).hasError('duplicate')">Duplicate Server name</mat-error>
-                <mat-error *ngIf="this.preferredServerForm.get(item.key).hasError('notInList')">Server not found</mat-error>
+                <mat-error *ngIf="this.preferredServerForm.get(item.key)?.hasError('duplicate')">Duplicate Server name</mat-error>
+                <mat-error *ngIf="this.preferredServerForm.get(item.key)?.hasError('notInList')">Server not found</mat-error>
                 <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
                     <mat-option *ngFor="let server of listOfAutoCompleteOptions[itemIndex] | async" [value]="server">
                         {{server}}

@@ -32,6 +32,12 @@ export class ServerFormComponent implements OnInit, OnDestroy {
   @Input()
   serverNames: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
 
+  @Input()
+  selectedServerNames: string[] = []
+
+  @Input()
+  defaultServerName?: string;
+
   @Output()
   formGroupChange: EventEmitter<ServerFormDetails> = new EventEmitter<ServerFormDetails>();
 
@@ -59,6 +65,15 @@ export class ServerFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.listOfServerNames = [...this.serverNames.values()].map(record => record.name);
     const dynamicForm: any = {};
+    if (this.selectedServerNames.length > 0) {
+      this.serverForm = [...this.selectedServerNames.map((server, i) => {
+        return {
+          key: "server" + i,
+          label: "Discord Server",
+          value: server
+        }
+      })];
+    }
     this.serverForm.forEach((detail) => {
       dynamicForm[detail.key] = new FormControl(detail.value,
           [Validators.required,
@@ -73,7 +88,7 @@ export class ServerFormComponent implements OnInit, OnDestroy {
       );
     });
     this.defaultServerForm = new FormGroup({
-      defaultServer: new FormControl("", [
+      defaultServer: new FormControl(this.defaultServerName ?? "", [
       Validators.required,
       inList(this.listOfServerNames)
     ])});

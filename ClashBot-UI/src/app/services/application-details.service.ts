@@ -3,7 +3,6 @@ import {BehaviorSubject, from, of, throwError, timer} from "rxjs";
 import {ApplicationDetails} from "../interfaces/application-details";
 import {LoginStatus} from "../login-status";
 import {catchError, finalize, map, mergeMap, retryWhen, take} from "rxjs/operators";
-import {FREE_AGENT_GUILD} from "../interfaces/clash-bot-constants";
 import {Player} from "clash-bot-service-api/model/player";
 import {UserDetails} from "../interfaces/user-details";
 import {DiscordGuild} from "../interfaces/discord-guild";
@@ -227,8 +226,6 @@ export class ApplicationDetailsService {
             selectedGuildMap.set(serverId, foundGuild);
           }
       });
-      // Adding Free Agent Guild to be used by all Users
-      selectedGuildMap.set(FREE_AGENT_GUILD.id, FREE_AGENT_GUILD);
     }
     appDetails.userDetails = discordUser;
     appDetails.userGuilds = guildMap;

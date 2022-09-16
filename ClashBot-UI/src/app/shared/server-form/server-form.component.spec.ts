@@ -33,7 +33,7 @@ describe("ServerFormComponent", () => {
   });
 
   describe("On Init", () => {
-    test("ngOnInit - (Outer join of selected Server Names) - On init should setup an observable that always does not include the selected Server name.", () => {
+    test("ngOnInit - (No selected servers) - On init should setup an observable that always does not include the selected Server name.", () => {
         const mockGuilds = mockSixDiscordGuilds();
         const guildMap: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
         mockGuilds.forEach(server => guildMap.set(server.id, server));
@@ -46,6 +46,29 @@ describe("ServerFormComponent", () => {
         expect(component.listOfAutoCompleteOptions).toHaveLength(1);
         expect(component.defaultServerForm.value).toEqual({defaultServer:""});
         expect(component.preferredServerForm.value).toEqual({server0:""});
+    });
+
+    test("ngOnInit - (All 5 servers passed) - On init should setup all the form controls for the servers and default server.", () => {
+      const mockGuilds = mockSixDiscordGuilds();
+      const guildMap: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
+      mockGuilds.forEach(server => guildMap.set(server.id, server));
+
+      component.serverNames = guildMap;
+      component.selectedServerNames = mockGuilds.slice(0,5).map((server) => server.name);
+      component.defaultServerName = mockGuilds[0].name;
+      expect(component.listOfAutoCompleteOptions).toHaveLength(0);
+      expect(component.defaultServerForm.value).toEqual({});
+      expect(component.preferredServerForm.value).toEqual({});
+      fixture.detectChanges();
+      expect(component.listOfAutoCompleteOptions).toHaveLength(5);
+      expect(component.defaultServerForm.value).toEqual({defaultServer: mockGuilds[0].name});
+      expect(component.preferredServerForm.value).toEqual({
+          server0: mockGuilds[0].name,
+          server1: mockGuilds[1].name,
+          server2: mockGuilds[2].name,
+          server3: mockGuilds[3].name,
+          server4: mockGuilds[4].name
+      });
     });
   });
 

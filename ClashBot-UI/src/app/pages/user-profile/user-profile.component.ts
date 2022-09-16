@@ -11,6 +11,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {ApplicationDetailsService} from "../../services/application-details.service";
 import {PageLoadingService} from "../../services/page-loading.service";
 import {UserService} from "clash-bot-service-api";
+import {FREE_AGENT_GUILD} from "../../interfaces/clash-bot-constants";
 
 @Component({
     selector: "app-user-profile",
@@ -39,10 +40,45 @@ export class UserProfileComponent implements OnInit {
     };
     userDetails?: UserDetails;
     guilds: DiscordGuild[] = [];
+    $userGuildsObs = this.applicationDetailsService.getApplicationDetails().asObservable()
+        .pipe(map(appDetails => {
+            let mappedDetails = {
+                userGuilds: new Map<string, DiscordGuild>(),
+                selectedGuilds: [""],
+                defaultGuild: ""
+            };
+            if (appDetails.userGuilds) {
+                mappedDetails.userGuilds = appDetails.userGuilds;
+            } if (appDetails.selectedGuilds) {
+                const selectedServerNames: string[] = [];
+                if (appDetails.selectedGuilds) {
+                    for (const discordServer of appDetails.selectedGuilds?.values()) {
+                        if (discordServer.id !== FREE_AGENT_GUILD.id)
+                            selectedServerNames.push(discordServer.name);
+                    }
+                }
+                mappedDetails.selectedGuilds = [...selectedServerNames];
+            } if (appDetails.defaultGuild) {
+                mappedDetails.defaultGuild = appDetails.defaultGuild.name;
+            }
+            return mappedDetails;
+        }));
+    $selectedGuilds: Observable<string[]> = this.applicationDetailsService.getApplicationDetails().asObservable()
+        .pipe(map(appDetails => {
+            const selectedServerNames: string[] = [];
+            if (appDetails.selectedGuilds) {
+                for (const discordServer of appDetails.selectedGuilds?.values()) {
+                    selectedServerNames.push(discordServer.name);
+                }
+            }
+            return selectedServerNames;
+        }));
 
     @ViewChild("championInput") championInput: any = "";
     userDetailsForm?: FormGroup;
     selectedGuild?: string;
+    emittedPreferredServers?: FormGroup;
+    emittedDefaultServerGroup?: FormGroup;
 
     constructor(private riotDdragonService: RiotDdragonService,
                 private applicationDetailsService: ApplicationDetailsService,
@@ -123,7 +159,7 @@ export class UserProfileComponent implements OnInit {
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
                     this.listOfChampions = Object.keys(userProfileDetails.championList.data);
                     this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
-                    this.initialAutoCompleteArray = JSON.parse(JSON.stringify(this.listOfChampions));
+                    this.initialAutoCompleteArray = [...this.listOfChampions];
                     this.userDetailsForm = new FormGroup({
                         preferredChampionsFC: new FormControl([...preferredChampions]),
                         subscribedDiscordDMFC: new FormControl(userProfileDetails.clashBotUserDetails.subscriptions === undefined
@@ -180,7 +216,7 @@ export class UserProfileComponent implements OnInit {
     resetState() {
         this.userDetailsForm?.reset(this.initialFormControlState);
         this.preferredChampions = new Set<string>(this.initialFormControlState.preferredChampionsFC);
-        this.listOfChampions = JSON.parse(JSON.stringify(this.initialAutoCompleteArray));
+        this.listOfChampions = [...this.initialAutoCompleteArray];
     }
 
     onSubmit() {
@@ -254,5 +290,10 @@ export class UserProfileComponent implements OnInit {
             return true;
         }
         return false;
+    }
+
+    serverFormChange($event: any) {
+        this.emittedPreferredServers = $event.serverFormGroup;
+        this.emittedDefaultServerGroup = $event.defaultServerFormGroup;
     }
 }
