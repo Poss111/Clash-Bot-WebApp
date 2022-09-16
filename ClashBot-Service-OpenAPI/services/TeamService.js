@@ -203,12 +203,19 @@ const getTeam = ({
       } else if ((!tournament || !day) && name) {
         reject(Service.rejectResponse('Missing required attribute.', 400));
       } else {
-        const teams = await clashTeamsDbImpl.retrieveTeamsByFilter({
-          teamName: name,
-          serverName: server,
-          tournamentName: tournament,
-          tournamentDay: day,
+        const activeTournaments = await clashTimeDbImpl.findTournament(tournament, day);
+        const teams = [];
+        const promises = [];
+        activeTournaments.forEach((activeTournament) => {
+          promises.push(clashTeamsDbImpl.retrieveTeamsByFilter({
+            teamName: name,
+            serverName: server,
+            tournamentName: activeTournament.tournamentName,
+            tournamentDay: activeTournament.tournamentDay,
+          }));
         });
+        const teamQueryResponses = await Promise.all(promises);
+        teams.push(...teamQueryResponses.flatMap((item) => item));
         const listOfPlayerIds = new Set(teams.map((team) => Object
           .values(team.playersWRoles))
           .flatMap((value) => value));

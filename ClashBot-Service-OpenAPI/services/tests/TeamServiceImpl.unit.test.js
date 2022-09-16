@@ -107,7 +107,7 @@ beforeEach(() => {
 
 describe('Clash Teams Service Impl', () => {
   describe('Team - GET', () => {
-    test('getTeam - Retrieve all teams based on serverName.', () => {
+    test('getTeam - Retrieve all teams based on serverName and should be active Tournaments.', () => {
       const serverName = 'Goon Squad';
       const mockUserDetails = {
         1: createUserDetails({}),
@@ -118,21 +118,51 @@ describe('Clash Teams Service Impl', () => {
           preferredChampions: ['Elise'],
         }),
       };
-      const expectedTeams = [createV3Team(
+      const expectedTournaments = [
         {
-          serverName,
+          tournamentName: 'awesome_sauce',
           tournamentDay: '1',
-          playersWRoles: { Top: '1', Jg: '2' },
-          players: ['1', '2'],
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
         },
-      )];
-      const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
-      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '2',
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
+        },
+      ];
+      const expectedTeams = [
+        createV3Team(
+          {
+            serverName,
+            tournamentDay: '1',
+            playersWRoles: { Top: '1', Jg: '2' },
+            players: ['1', '2'],
+          },
+        ),
+      ];
+      const expectedResponse = buildExpectedTeamResponseWithUserMap(
+        [expectedTeams[0]],
+        mockUserDetails,
+      );
+      clashTimeDbImpl.findTournament.mockResolvedValue(expectedTournaments);
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValueOnce(deepCopy(expectedTeams));
+      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue([]);
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({ server: serverName })
         .then((teams) => {
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({ serverName });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(1, {
+            serverName,
+            tournamentName: expectedTournaments[0].tournamentName,
+            tournamentDay: expectedTournaments[0].tournamentDay,
+          });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenNthCalledWith(2, {
+            serverName,
+            tournamentName: expectedTournaments[1].tournamentName,
+            tournamentDay: expectedTournaments[1].tournamentDay,
+          });
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails).toHaveBeenCalledTimes(1);
           expect(clashSubscriptionDbImpl.retrieveAllUserDetails)
             .toHaveBeenCalledWith(expectedTeams[0].players);
@@ -152,23 +182,64 @@ describe('Clash Teams Service Impl', () => {
           preferredChampions: ['Elise'],
         }),
       };
-      const expectedTeams = [createV3Team(
+      const expectedTournaments = [
         {
-          serverName,
-          tournamentName,
+          tournamentName: 'awesome_sauce',
           tournamentDay: '1',
-          playersWRoles: { Top: '1', Jg: '2' },
-          players: ['1', '2'],
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
         },
-      )];
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '2',
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
+        },
+      ];
+      const expectedTeams = [
+        createV3Team(
+          {
+            serverName,
+            tournamentName,
+            tournamentDay: '1',
+            playersWRoles: { Top: '1', Jg: '2' },
+            players: ['1', '2'],
+          },
+        ),
+        createV3Team(
+          {
+            serverName,
+            tournamentName,
+            tournamentDay: '2',
+            playersWRoles: { Top: '1', Jg: '2' },
+            players: ['1', '2'],
+          },
+        ),
+      ];
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
-      clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
+      clashTimeDbImpl.findTournament.mockResolvedValue(expectedTournaments);
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce(deepCopy([expectedTeams[0]]));
+      clashTeamsDbImpl.retrieveTeamsByFilter
+        .mockResolvedValueOnce(deepCopy([expectedTeams[1]]));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({ server: serverName, tournament: tournamentName })
         .then((teams) => {
-          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledWith(tournamentName, undefined);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(2);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
-            .toHaveBeenCalledWith({ serverName, tournamentName });
+            .toHaveBeenNthCalledWith(1, {
+              serverName,
+              tournamentName,
+              tournamentDay: expectedTournaments[0].tournamentDay,
+            });
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .toHaveBeenNthCalledWith(2, {
+              serverName,
+              tournamentName,
+              tournamentDay: expectedTournaments[1].tournamentDay,
+            });
           expect(teams).toEqual(expectedResponse);
         });
     });
@@ -186,6 +257,14 @@ describe('Clash Teams Service Impl', () => {
           preferredChampions: ['Elise'],
         }),
       };
+      const expectedTournaments = [
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
+        },
+      ];
       const expectedTeams = [createV3Team(
         {
           serverName,
@@ -196,6 +275,7 @@ describe('Clash Teams Service Impl', () => {
         },
       )];
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
+      clashTimeDbImpl.findTournament.mockResolvedValue(expectedTournaments);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
@@ -204,6 +284,9 @@ describe('Clash Teams Service Impl', () => {
         day: tournamentDay,
       })
         .then((teams) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament)
+            .toHaveBeenCalledWith(tournamentName, tournamentDay);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter)
             .toHaveBeenCalledWith({ serverName, tournamentName, tournamentDay });
@@ -225,6 +308,14 @@ describe('Clash Teams Service Impl', () => {
           preferredChampions: ['Elise'],
         }),
       };
+      const expectedTournaments = [
+        {
+          tournamentName: 'awesome_sauce',
+          tournamentDay: '1',
+          startTime: new Date().toISOString(),
+          registrationTime: new Date().toISOString(),
+        },
+      ];
       const expectedTeams = [createV3Team(
         {
           serverName,
@@ -236,6 +327,7 @@ describe('Clash Teams Service Impl', () => {
         },
       )];
       const expectedResponse = buildExpectedTeamResponseWithUserMap(expectedTeams, mockUserDetails);
+      clashTimeDbImpl.findTournament.mockResolvedValue(expectedTournaments);
       clashTeamsDbImpl.retrieveTeamsByFilter.mockResolvedValue(deepCopy(expectedTeams));
       clashSubscriptionDbImpl.retrieveAllUserDetails.mockResolvedValue(mockUserDetails);
       return clashTeamsServiceImpl.getTeam({
@@ -245,11 +337,30 @@ describe('Clash Teams Service Impl', () => {
         day: tournamentDay,
       })
         .then((teams) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament)
+            .toHaveBeenCalledWith(tournamentName, tournamentDay);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledTimes(1);
           expect(clashTeamsDbImpl.retrieveTeamsByFilter).toHaveBeenCalledWith({
             teamName, serverName, tournamentName, tournamentDay,
           });
           expect(teams).toEqual(expectedResponse);
+        });
+    });
+
+    test('getTeam - If active tournaments return empty then it should return an empty list.', () => {
+      const serverName = 'Goon Squad';
+      clashTimeDbImpl.findTournament.mockResolvedValue([]);
+      return clashTeamsServiceImpl.getTeam({
+        server: serverName,
+      })
+        .then((teams) => {
+          expect(clashTimeDbImpl.findTournament).toHaveBeenCalledTimes(1);
+          expect(clashTimeDbImpl.findTournament)
+            .toHaveBeenCalledWith(undefined, undefined);
+          expect(clashTeamsDbImpl.retrieveTeamsByFilter)
+            .not.toHaveBeenCalled();
+          expect(teams).toEqual({ code: 200, payload: [] });
         });
     });
 
