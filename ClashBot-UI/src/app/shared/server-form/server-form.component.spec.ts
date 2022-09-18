@@ -228,4 +228,98 @@ describe("ServerFormComponent", () => {
         expect(filteredList[1]).toEqual("LoL-ClashBotSupport");
       })
   })
+
+  describe("Reset State", function () {
+    test("reset - (When invoked, it should reset the selected options) - if the state was empty, then it should remain empty.", () => {
+        const mockGuilds = mockSixDiscordGuilds();
+        const guildMap: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
+        mockGuilds.forEach(server => guildMap.set(server.id, server));
+
+        component.serverNames = guildMap;
+        expect(component.listOfAutoCompleteOptions).toHaveLength(0);
+        expect(component.defaultServerForm.value).toEqual({});
+        expect(component.preferredServerForm.value).toEqual({});
+        component.ngOnInit();
+        expect(component.listOfAutoCompleteOptions).toHaveLength(1);
+        expect(component.defaultServerForm.value).toEqual({defaultServer:""});
+        expect(component.preferredServerForm.value).toEqual({server0:""});
+
+        component.preferredServerForm.get("server0")?.setValue(mockGuilds[0].name);
+        component.defaultServerForm.get("defaultServer")?.setValue(mockGuilds[0].name);
+        component.addServer();
+
+        component.reset();
+        expect(component.serverForm).toHaveLength(1);
+        expect(component.listOfAutoCompleteOptions).toHaveLength(1);
+        expect(component.defaultServerForm.value).toEqual({defaultServer:""});
+        expect(component.preferredServerForm.value).toEqual({server0:""});
+    });
+
+      test("reset - (When invoked and there are selected options, it should reset the selected options) - if the state was not empty, then it should reset to the selected values.", () => {
+          const mockGuilds = mockSixDiscordGuilds();
+          const guildMap: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
+          mockGuilds.forEach(server => guildMap.set(server.id, server));
+
+          component.serverNames = guildMap;
+          component.selectedServerNames = [
+              mockGuilds[0].name,
+          ];
+          component.defaultServerName = mockGuilds[0].name;
+          expect(component.listOfAutoCompleteOptions).toHaveLength(0);
+          expect(component.defaultServerForm.value).toEqual({});
+          expect(component.preferredServerForm.value).toEqual({});
+          component.ngOnInit();
+          expect(component.listOfAutoCompleteOptions).toHaveLength(1);
+          expect(component.defaultServerForm.value).toEqual({defaultServer: mockGuilds[0].name});
+          expect(component.preferredServerForm.value).toEqual({server0: mockGuilds[0].name});
+
+          component.addServer();
+          component.preferredServerForm.get("server1")?.setValue(mockGuilds[0].name);
+          expect(component.listOfAutoCompleteOptions).toHaveLength(2);
+          expect(component.serverForm).toHaveLength(2);
+
+          component.reset();
+          expect(component.serverForm).toHaveLength(1);
+          expect(component.listOfAutoCompleteOptions).toHaveLength(1);
+          expect(component.defaultServerForm.value).toEqual({defaultServer: mockGuilds[0].name});
+          expect(component.preferredServerForm.value).toEqual({server0: mockGuilds[0].name});
+      });
+
+      test("reset - (When invoked and there was a server option removed, it should reset the selected options) - if the state was not empty, then it should reset to the selected values.", () => {
+          const mockGuilds = mockSixDiscordGuilds();
+          const guildMap: Map<string, DiscordGuild> = new Map<string, DiscordGuild>();
+          mockGuilds.forEach(server => guildMap.set(server.id, server));
+
+          component.serverNames = guildMap;
+          component.selectedServerNames = [
+              mockGuilds[0].name,
+              mockGuilds[1].name,
+          ];
+          component.defaultServerName = mockGuilds[1].name;
+          expect(component.listOfAutoCompleteOptions).toHaveLength(0);
+          expect(component.defaultServerForm.value).toEqual({});
+          expect(component.preferredServerForm.value).toEqual({});
+          component.ngOnInit();
+          expect(component.listOfAutoCompleteOptions).toHaveLength(2);
+          expect(component.defaultServerForm.value).toEqual({defaultServer: mockGuilds[1].name});
+          expect(component.preferredServerForm.value).toEqual({
+              server0: mockGuilds[0].name,
+              server1: mockGuilds[1].name,
+          });
+
+          component.removeServer();
+          component.preferredServerForm.get("server1")?.setValue(mockGuilds[0].name);
+          expect(component.listOfAutoCompleteOptions).toHaveLength(1);
+          expect(component.serverForm).toHaveLength(1);
+
+          component.reset();
+          expect(component.serverForm).toHaveLength(2);
+          expect(component.listOfAutoCompleteOptions).toHaveLength(2);
+          expect(component.defaultServerForm.value).toEqual({defaultServer: mockGuilds[1].name});
+          expect(component.preferredServerForm.value).toEqual({
+              server0: mockGuilds[0].name,
+              server1: mockGuilds[1].name,
+          });
+      });
+  });
 });

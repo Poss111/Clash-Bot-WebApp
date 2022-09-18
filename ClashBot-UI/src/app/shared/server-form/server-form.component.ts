@@ -184,6 +184,7 @@ export class ServerFormComponent implements OnInit, OnDestroy {
     const numberOfForms = Object.keys(this.preferredServerForm.controls).length;
     this.preferredServerForm.removeControl("server" + (numberOfForms - 1));
     this.serverForm.pop();
+    this.listOfAutoCompleteOptions.pop();
     this.defaultServerForm.get("defaultServer")?.setValidators([
       Validators.required,
       inList(Object.values(this.preferredServerForm.controls).map(control => control.value))
@@ -192,4 +193,45 @@ export class ServerFormComponent implements OnInit, OnDestroy {
     this.emitFormGroup();
   }
 
+    reset(): void {
+      this.listOfAutoCompleteOptions = [];
+      this.listOfServerNames = [];
+      this.serverForm = [];
+      this.listOfServerNames = [...this.serverNames.values()].map(record => record.name);
+      const dynamicForm: any = {};
+      if (this.selectedServerNames.length > 0) {
+        this.serverForm.push(...this.selectedServerNames.map((server, i) => {
+          return {
+            key: "server" + i,
+            label: "Discord Server",
+            value: server
+          }
+        }));
+      } else {
+        this.serverForm.push({
+          key: "server0",
+          label: "Discord Server",
+          value: ""
+        });
+      }
+      this.serverForm.forEach((detail) => {
+        dynamicForm[detail.key] = new FormControl(detail.value,
+            [Validators.required,
+              inList(this.listOfServerNames)
+            ]);
+        this.listOfAutoCompleteOptions.push(
+            dynamicForm[detail.key].valueChanges
+                .pipe(
+                    takeUntil(this.$destroyObs),
+                    startWith(""),
+                    map((value: string) => this.filterServerNames(value)))
+        );
+      });
+      this.defaultServerForm = new FormGroup({
+        defaultServer: new FormControl(this.defaultServerName ?? "", [
+          Validators.required,
+          inList(this.listOfServerNames)
+        ])});
+      this.preferredServerForm = new FormGroup(dynamicForm);
+    }
 }
