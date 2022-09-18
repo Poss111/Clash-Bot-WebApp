@@ -49,7 +49,7 @@ describe("UserProfileComponent", () => {
   let testScheduler: TestScheduler;
   let userServiceMock: UserService;
   let riotDDragonServiceMock: RiotDdragonService;
-  let applicationDetailsMock: any;
+  let applicationDetailsMock: ApplicationDetailsService;
   let matSnackBarMock: MatSnackBar;
   let openMatSnackBarMock: any;
 
@@ -86,8 +86,10 @@ describe("UserProfileComponent", () => {
         let mockAppDetails: ApplicationDetails =
             mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
         mockAppDetails.loggedIn = true;
-
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
+        (applicationDetailsMock.getApplicationDetails as Mock)
+            .mockReturnValue(cold("x|", {x: mockAppDetails}));
+        (applicationDetailsMock.getApplicationDetails().asObservable as Mock)
+                .mockReturnValue(cold("x|", {x: mockAppDetails}));
         (userServiceMock.getUser as Mock).mockReturnValue(cold("x|", {x: mockClashBotUserDetails}));
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
@@ -137,7 +139,7 @@ describe("UserProfileComponent", () => {
           mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mocks.createMockUserDetails());
           mockAppDetails.loggedIn = false;
 
-          applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
+          (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(cold("x|", {x: mockAppDetails}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("x|", {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
@@ -166,7 +168,7 @@ describe("UserProfileComponent", () => {
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
           mockAppDetails.loggedIn = true;
 
-          applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
+          (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(cold("x|", {x: mockAppDetails}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("x|", {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
@@ -211,7 +213,7 @@ describe("UserProfileComponent", () => {
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, undefined, mockUserDetails);
           mockAppDetails.loggedIn = true;
 
-          applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
+          (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(cold("x|", {x: mockAppDetails}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("#|", undefined, create401HttpError()));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
@@ -255,7 +257,7 @@ describe("UserProfileComponent", () => {
           let mockDdragonChampionList: ChampionData = mocks.getMockDdragonChampionList();
           let mockAppDetails: ApplicationDetails = mocks.createMockAppDetails(mockGuilds, mockClashBotUserDetails, mockUserDetails);
 
-          applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mockAppDetails}));
+          (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(cold("x|", {x: mockAppDetails}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("7000ms x|", {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("x|", {x: mockDdragonChampionList}));
 
@@ -297,7 +299,7 @@ describe("UserProfileComponent", () => {
           let mockUserDetails: UserDetails = mocks.createMockUserDetails();
           let mockClashBotUserDetails: Player = mocks.createMockPlayer();
 
-          applicationDetailsMock.getApplicationDetails.mockReturnValue(cold("x|", {x: mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails)}));
+          (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(cold("x|", {x: mocks.createMockAppDetails(mocks.createMockGuilds(), mockClashBotUserDetails, mockUserDetails)}));
           (userServiceMock.getUser as Mock).mockReturnValue(cold("x|", {x: mockClashBotUserDetails}));
           (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(cold("#", undefined, create401HttpError()));
 
@@ -343,7 +345,7 @@ describe("UserProfileComponent", () => {
         let clashBotUserDetailsColdObservable = cold("x|", {x: mockClashBotUserDetails});
         let ddragonServiceListOfChampionsColdObservable = cold("7000ms x|", {x: mocks.getMockDdragonChampionList()});
 
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsColdObs);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsColdObs);
         (userServiceMock.getUser as Mock).mockReturnValue(clashBotUserDetailsColdObservable);
         (riotDDragonServiceMock.getListOfChampions as Mock).mockReturnValue(ddragonServiceListOfChampionsColdObservable);
 
@@ -666,7 +668,7 @@ describe("UserProfileComponent", () => {
         (userServiceMock.updateUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
         (userServiceMock.createNewListOfPreferredChampions as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
         (userServiceMock.subscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -731,7 +733,7 @@ describe("UserProfileComponent", () => {
         let clashBotUserDetailsObservableMock = cold("x|", {x: userDetailsResponse});
         let applicationDetailsObsMock = cold("x|", {x: {}});
         (userServiceMock.createNewListOfPreferredChampions as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -790,7 +792,7 @@ describe("UserProfileComponent", () => {
         let clashBotUserDetailsObservableMock = cold("x|", {x: userDetailsResponse});
         let applicationDetailsObsMock = cold("x|", {x: {}});
         (userServiceMock.subscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -845,7 +847,7 @@ describe("UserProfileComponent", () => {
         let clashBotUserDetailsObservableMock = cold("x|", {x: userDetailsResponse});
         let applicationDetailsObsMock = cold("x|", {x: {}});
         (userServiceMock.unsubscribeUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -910,7 +912,7 @@ describe("UserProfileComponent", () => {
         let clashBotUserDetailsObservableMock = cold("x|", {x: userDetailsResponse});
         let applicationDetailsObsMock = cold("x|", {x: {}});
         (userServiceMock.updateUser as Mock).mockReturnValue(clashBotUserDetailsObservableMock);
-        applicationDetailsMock.getApplicationDetails.mockReturnValue(applicationDetailsObsMock);
+        (applicationDetailsMock.getApplicationDetails as Mock).mockReturnValue(applicationDetailsObsMock);
 
         component.onSubmit();
 
@@ -1139,6 +1141,12 @@ describe("UserProfileComponent", () => {
       }
     })
   })
+
+  describe("Check Server Form State", () => {
+    test("checkServerFormState - (Check Server Form) - When formGroup change is emitted, it should check against users current selected servers and default guild.", () => {
+
+    });
+  });
 
   let createComponent = () => {
     fixture = TestBed.createComponent(UserProfileComponent);

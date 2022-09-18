@@ -40,7 +40,9 @@ export class UserProfileComponent implements OnInit {
     };
     userDetails?: UserDetails;
     guilds: DiscordGuild[] = [];
-    $userGuildsObs = this.applicationDetailsService.getApplicationDetails().asObservable()
+    $userGuildsObs = this.applicationDetailsService
+        .getApplicationDetails()
+        .asObservable()
         .pipe(map(appDetails => {
             let mappedDetails = {
                 userGuilds: new Map<string, DiscordGuild>(),
@@ -62,16 +64,6 @@ export class UserProfileComponent implements OnInit {
                 mappedDetails.defaultGuild = appDetails.defaultGuild.name;
             }
             return mappedDetails;
-        }));
-    $selectedGuilds: Observable<string[]> = this.applicationDetailsService.getApplicationDetails().asObservable()
-        .pipe(map(appDetails => {
-            const selectedServerNames: string[] = [];
-            if (appDetails.selectedGuilds) {
-                for (const discordServer of appDetails.selectedGuilds?.values()) {
-                    selectedServerNames.push(discordServer.name);
-                }
-            }
-            return selectedServerNames;
         }));
 
     @ViewChild("championInput") championInput: any = "";
@@ -157,8 +149,8 @@ export class UserProfileComponent implements OnInit {
                         .userGuilds?.get(userProfileDetails.clashBotUserDetails.serverId ?? "-1");
                     this.defaultGuild = foundGuild ?? this.guilds[0];
                     let preferredChampions = Array.isArray(userProfileDetails.clashBotUserDetails.champions) ? userProfileDetails.clashBotUserDetails.champions : [];
-                    this.listOfChampions = Object.keys(userProfileDetails.championList.data);
-                    this.listOfChampions = this.listOfChampions.filter(record => !preferredChampions.includes(record));
+                    this.listOfChampions = Object.keys(userProfileDetails.championList.data)
+                        .filter(record => !preferredChampions.includes(record));
                     this.initialAutoCompleteArray = [...this.listOfChampions];
                     this.userDetailsForm = new FormGroup({
                         preferredChampionsFC: new FormControl([...preferredChampions]),
