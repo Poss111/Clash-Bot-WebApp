@@ -1,0 +1,27 @@
+<mat-form-field id="clash-bot-user-profile-preferred-champions-list" class="example-chip-list" appearance="fill">
+    <mat-label>Current Preferred Champions</mat-label>
+    <mat-chip-list #chipList aria-label="Preferred Champion selection">
+        <mat-chip
+                *ngFor="let champion of selectedChampions"
+                id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}"
+                [selectable]="selectable"
+                [removable]="removable"
+                (removed)="remove(champion)">
+            {{champion}}
+            <mat-icon id="clash-bot-user-profile-preferred-champion-{{ champion }}-remove" matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+                placeholder="Add Champion..."
+                #championInput
+                id="clash-bot-user-profile-preferred-champion-input"
+                [formControl]="championAutoCompleteCtrl"
+                [matAutocomplete]="auto"
+                [matChipInputFor]="chipList"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+    </mat-chip-list>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+        <mat-option *ngFor="let champion of championsAutofillArray | async" id="clash-bot-user-profile-preferred-champion-{{ champion | kebabcase }}-autocomplete" [value]="champion">
+            {{champion}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

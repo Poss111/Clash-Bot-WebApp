@@ -18,9 +18,13 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {SharedModule} from "../../shared/shared.module";
+import { AsyncUserprofilePageComponent } from "./async-userprofile-page/async-userprofile-page.component";
+import { AsyncUserprofilePageTemplateComponent } from './async-userprofile-page-template/async-userprofile-page-template.component';
+import { UserDetailsInputComponent } from './inputs/user-details-input/user-details-input.component';
+import { ChampionListInputComponent } from './inputs/champion-list-input/champion-list-input.component';
 
 @NgModule({
-    declarations: [UserProfileComponent],
+    declarations: [UserProfileComponent, AsyncUserprofilePageComponent, AsyncUserprofilePageTemplateComponent, UserDetailsInputComponent, ChampionListInputComponent],
     imports: [
         CommonModule,
         UserProfileRoutingModule,
